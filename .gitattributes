@@ -1,0 +1,2 @@
+# Ensure workflow files use LF line endings
+.github/workflows/* text eol=lf
