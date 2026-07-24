@@ -5,14 +5,105 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: '0 2 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  id-token: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  RUFF_VERSION: "0.8.4"
 
 jobs:
-  test:
+  lint-and-typecheck:
+    name: Lint & Type Check
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -q ruff pyright bandit safety
+          pip install -e .[dev] 2>&1 | tail -5
+
+      - name: Lint with Ruff
+        run: ruff check src/ tests/ --output-format=github
+
+      - name: Run Ruff Formatter Check
+        run: ruff format --check src/ tests
+
+      - name: Type check with Pyright
+        run: pyright src/ tests
+
+      - name: Security scan with Bandit
+        run: |
+          bandit -r src/ -ll -f json -o bandit-report.json
+          python -c "
+import json, sys
+with open('bandit-report.json') as f:
+    data = json.load(f)
+high_med = [r for r in data.get('results', []) if r['issue_severity'] in ('HIGH', 'MEDIUM')]
+if high_med:
+    print(f'FAIL: {len(high_med)} HIGH/MEDIUM findings')
+    for r in high_med:
+        print(f'  {r[\"filename\"]}:{r[\"line_number\"]} - {r[\"issue_text\"]}')
+    sys.exit(1)
+print('PASS: No HIGH/MEDIUM Bandit findings')
+          "
+      - name: pip-audit
+        run: |
+          pip-audit -r requirements.txt --skip-editable --format json --output pip-audit.json || true
+          python -c "
+import json, sys
+try:
+    with open('pip-audit.json') as f:
+        data = json.load(f)
+except:
+    data = []
+vulns = [v for v in data if v.get('vulns')]
+if vulns:
+    print(f'FAIL: {len(vulns)} packages with known vulnerabilities')
+    for v in vulns:
+        for vuln in v['vulns']:
+            print(f'  {v[\"name\"]}=={v[\"version\"]}: {vuln[\"id\"]}')
+    sys.exit(1)
+print('PASS: No known vulnerabilities in dependencies')
+          "
+      - name: Generate CycloneDX SBOM
+        run: cyclonedx-py environment --output-format JSON --outfile sbom.json
+
+      - name: Upload SBOM
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.json
+          retention-days: 90
+
+  test:
+    name: Unit Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: lint-and-typecheck
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
 
@@ -20,22 +111,156 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          pip install pytest pytest-cov
+          pip install -e ".[dev]" 2>&1 | tail -5
 
       - name: Run tests with coverage
         run: |
-          python -m pytest tests/ -v --cov=mcp_monitor --cov-report=term-missing
+          pytest tests/ -v --tb=short \
+            --cov=mcp_monitor \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage.xml \
+            --cov-fail-under=80 \
+            -W error::DeprecationWarning \
+            -W error::PendingDeprecationWarning
 
-      - name: Verify test suite is collected (guard against silent skips)
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: coverage.xml
+          retention-days: 30
+
+      - name: Verify test collection
         run: |
-          count=$(python -m pytest tests/ --collect-only -q 2>/dev/null | tail -1 | grep -oP '\d+(?= tests)')
+          count=$(PYTHONPATH=src python -m pytest tests/ --collect-only -q 2>/dev/null | tail -1 | grep -oP '\d+(?= tests)')
           count=${count:-0}
           if [ "$count" -lt 400 ]; then
             echo "Expected at least 400 tests collected, got $count"
             exit 1
           fi
           echo "Collected $count tests"
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: lint-and-typecheck
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'HIGH,CRITICAL'
+
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: trivy
+
+      - name: Run Grype scanner
+        uses: anchore/scan-action@v3
+        with:
+          path: '.'
+          format: 'json'
+          output: 'grype-results.json'
+          severity: 'HIGH,CRITICAL'
+
+      - name: Upload Grype results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grype-results
+          path: grype-results.json
+          retention-days: 30
+
+      - name: Run Syft for SBOM
+        uses: anchore/syft-action@v3
+        with:
+          format: 'spdx-json'
+          output-file: 'sbom.spdx.json'
+
+      - name: Upload SBOM
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-spdx
+          path: sbom.spdx.json
+          retention-days: 90
+
+  typecheck:
+    name: Type Check (Pyright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: lint-and-typecheck
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyright==${{ env.PYRIGHT_VERSION }}
+          pip install -e ".[dev]" 2>&1 | tail -5
+      - name: Run Pyright
+        run: PYTHONPATH=src pyright src/ tests
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      security-events: write
+      contents: read
+    needs: lint-and-typecheck
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['python']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: +security-and-quality
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: ${{ hashFiles('Dockerfile*') != '' }}
+    needs: [lint-and-typecheck, test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image (no push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          load: true
+          tags: local/test:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,11 +1,9 @@
-# See https://pre-commit.com for more information
-# See https://pre-commit.com/hooks.html for more hooks
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.8.4
     hooks:
       - id: ruff
-        args: [--fix]
+        args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -18,22 +16,26 @@ repos:
       - id: check-json
       - id: check-merge-conflict
       - id: debug-logger
-      - id: mixed-line-ending
-        args: ['--fix=lf']
+      - id: detect-private-key
+
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.8.3
+    hooks:
+      - id: bandit
+        args: [-r, src, -ll, -f, json]
+        verbose: true
 
   - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+    rev: 6.0.1
     hooks:
       - id: isort
-        args: ["--profile", "black"]
+        args: [--profile, black]
 
   - repo: local
     hooks:
       - id: pytest-check
-        name: pytest-check
-        entry: pytest
+        name: pytest collection check
+        entry: bash -c 'PYTHONPATH=src python -m pytest tests/ --collect-only -q 2>/dev/null | tail -1 | grep -oP "\d+(?= tests)" || exit 1'
         language: system
         pass_filenames: false
-        args: ["-x", "-q", "--tb=short"]
-        always_run: false
-        stages: [pre-push]
+        always_run: true

@@ -1,0 +1,59 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "02:00"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    groups:
+      dev-dependencies:
+        patterns:
+          - "pytest*"
+          - "ruff*"
+          - "mypy*"
+          - "pyright*"
+          - "bandit*"
+          - "pytest-*"
+          - "pytest-asyncio*"
+          - "pytest-mock*"
+        update-types:
+          - "minor"
+          - "patch"
+      security-tools:
+        patterns:
+          - "bandit*"
+          - "safety*"
+          - "pip-audit*"
+          - "cryptography*"
+        update-types:
+          - "minor"
+          - "patch"
+      core-deps:
+        patterns:
+          - "structlog*"
+          - "python-json-logger*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "02:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
