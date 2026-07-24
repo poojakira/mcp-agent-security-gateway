@@ -40,7 +40,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -q ruff pyright bandit safety
+          pip install -q ruff pyright bandit safety cyclonedx-bom
           pip install -e .[dev] 2>&1 | tail -5
 
       - name: Lint with Ruff
@@ -52,41 +52,15 @@ jobs:
       - name: Type check with Pyright
         run: pyright src/ tests
 
-      - name: Security scan with Bandit
+- name: Security scan with Bandit
         run: |
           bandit -r src/ -ll -f json -o bandit-report.json
-          python -c "
-import json, sys
-with open('bandit-report.json') as f:
-    data = json.load(f)
-high_med = [r for r in data.get('results', []) if r['issue_severity'] in ('HIGH', 'MEDIUM')]
-if high_med:
-    print(f'FAIL: {len(high_med)} HIGH/MEDIUM findings')
-    for r in high_med:
-        print(f'  {r[\"filename\"]}:{r[\"line_number\"]} - {r[\"issue_text\"]}')
-    sys.exit(1)
-print('PASS: No HIGH/MEDIUM Bandit findings')
-          "
+          python scripts/check_bandit.py
 
-      - name: pip-audit
+- name: pip-audit
         run: |
           pip-audit -r requirements.txt --skip-editable --format json --output pip-audit.json || true
-          python -c "
-import json, sys
-try:
-    with open('pip-audit.json') as f:
-        data = json.load(f)
-except:
-    data = []
-vulns = [v for v in data if v.get('vulns')]
-if vulns:
-    print(f'FAIL: {len(vulns)} packages with known vulnerabilities')
-    for v in vulns:
-        for vuln in v['vulns']:
-            print(f'  {v[\"name\"]}=={v[\"version\"]}: {vuln[\"id\"]}')
-    sys.exit(1)
-print('PASS: No known vulnerabilities in dependencies')
-          "
+          python scripts/check_pip_audit.py
 
       - name: Generate CycloneDX SBOM
         run: cyclonedx-py environment --output-format JSON --outfile sbom.json
