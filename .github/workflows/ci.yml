@@ -55,12 +55,12 @@ jobs:
 - name: Security scan with Bandit
         run: |
           bandit -r src/ -ll -f json -o bandit-report.json
-          python scripts/check_bandit.py
+          python .github/scripts/check_bandit.py
 
 - name: pip-audit
         run: |
           pip-audit -r requirements.txt --skip-editable --format json --output pip-audit.json || true
-          python scripts/check_pip_audit.py
+          python .github/scripts/check_pip_audit.py
 
       - name: Generate CycloneDX SBOM
         run: cyclonedx-py environment --output-format JSON --outfile sbom.json
