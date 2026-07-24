@@ -15,6 +15,7 @@ import time
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from mcp_monitor.production.alerting import AlertingHook
 from mcp_monitor.production.circuit_breaker import (
     CircuitBreaker,
@@ -192,6 +193,7 @@ class TestJSONLogging:
             raise ValueError("test error")
         except ValueError:
             import sys
+
             exc_info = sys.exc_info()
 
         record = logging.LogRecord(
@@ -582,9 +584,7 @@ class TestTracing:
 
     def test_traceparent_parsing(self):
         """W3C traceparent header is correctly parsed."""
-        result = Tracer.parse_traceparent(
-            "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
-        )
+        result = Tracer.parse_traceparent("00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01")
         assert result is not None
         assert result["trace_id"] == "4bf92f3577b34da6a3ce929d0e0e4736"
         assert result["parent_span_id"] == "00f067aa0ba902b7"
@@ -746,9 +746,7 @@ class TestProductionServer:
     def test_inspect_call_invalid_json(self):
         """POST /v1/inspect_call rejects invalid JSON."""
         server = self._make_server()
-        status, result = server._handle_inspect_call(
-            b"not json", "t1", "s1"
-        )
+        status, result = server._handle_inspect_call(b"not json", "t1", "s1")
         assert status == 400
         assert "error" in result
 

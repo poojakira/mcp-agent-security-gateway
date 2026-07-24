@@ -37,9 +37,7 @@ class ExfiltrationDetector:
     # Public API
     # ------------------------------------------------------------------
 
-    def detect(
-        self, tool_name: str, output: dict[str, Any]
-    ) -> tuple[bool, list[str]]:
+    def detect(self, tool_name: str, output: dict[str, Any]) -> tuple[bool, list[str]]:
         """Inspect a tool output for exfiltration indicators.
 
         Parameters
@@ -75,9 +73,7 @@ class ExfiltrationDetector:
             try:
                 decoded = base64.b64decode(match)
                 if len(decoded) > 1024:  # >1KB decoded = suspicious
-                    findings.append(
-                        f"large base64 blob detected ({len(decoded)} bytes decoded)"
-                    )
+                    findings.append(f"large base64 blob detected ({len(decoded)} bytes decoded)")
                     break
             except Exception:
                 pass

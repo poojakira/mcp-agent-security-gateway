@@ -18,6 +18,7 @@ from mcp_monitor.redteam.payloads import ATTACK_CATALOG
 @dataclass
 class AttackResult:
     """Result of a single attack simulation."""
+
     attack_name: str
     category: str
     severity: str
@@ -33,6 +34,7 @@ class AttackResult:
 @dataclass
 class SimulationReport:
     """Full report from a simulation run."""
+
     total_attacks: int = 0
     blocked: int = 0
     missed: int = 0
@@ -124,7 +126,9 @@ class AttackSimulator:
         for ke in kernel_events:
             syscall_type = SyscallType(ke["syscall_type"])
             event = SyscallEvent(
-                server_id=attack.get("tool_call", {}).get("server_id", "unknown") if tool_call else "unknown",
+                server_id=attack.get("tool_call", {}).get("server_id", "unknown")
+                if tool_call
+                else "unknown",
                 syscall_type=syscall_type,
                 details=ke["details"],
             )
@@ -152,9 +156,7 @@ class AttackSimulator:
             actually_caught=blocked,
         )
 
-    def _build_report(
-        self, results: list[AttackResult], elapsed: float
-    ) -> SimulationReport:
+    def _build_report(self, results: list[AttackResult], elapsed: float) -> SimulationReport:
         """Build a summary report from results."""
         total = len(results)
         blocked_count = sum(1 for r in results if r.blocked)

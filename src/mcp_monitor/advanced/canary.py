@@ -22,16 +22,18 @@ from __future__ import annotations
 import hashlib
 import json
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 
 
 class CanaryStatus(Enum):
     """Status of a canary probe result."""
+
     PASS = "pass"
     FAIL = "fail"
-    DRIFT = "drift"      # Output changed but not critically
+    DRIFT = "drift"  # Output changed but not critically
     TIMEOUT = "timeout"
     ERROR = "error"
 
@@ -86,12 +88,8 @@ class ToolCanary:
         self._probes.setdefault(probe.tool_name, []).append(probe)
         # If expected_output is set, compute baseline hash
         if probe.expected_output is not None:
-            canonical = json.dumps(
-                probe.expected_output, sort_keys=True, separators=(",", ":")
-            )
-            self._baselines[probe.probe_id] = hashlib.sha256(
-                canonical.encode()
-            ).hexdigest()
+            canonical = json.dumps(probe.expected_output, sort_keys=True, separators=(",", ":"))
+            self._baselines[probe.probe_id] = hashlib.sha256(canonical.encode()).hexdigest()
 
     def evaluate_response(
         self, probe_id: str, actual_output: dict[str, Any], execution_time_ms: float = 0.0
@@ -121,9 +119,7 @@ class ToolCanary:
             )
 
         violations: list[str] = []
-        output_canonical = json.dumps(
-            actual_output, sort_keys=True, separators=(",", ":")
-        )
+        output_canonical = json.dumps(actual_output, sort_keys=True, separators=(",", ":"))
         output_hash = hashlib.sha256(output_canonical.encode()).hexdigest()
 
         # 1. Check expected output (exact match)

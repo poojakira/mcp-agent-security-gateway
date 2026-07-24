@@ -45,7 +45,7 @@ exclude = ["tests*"]
 
 [tool.setuptools_scm]
 version_scheme = "release-branch-semver"
-tag_regex = "^v?(\d+\.\d+\.\d+)$"
+tag_regex = "^v?(\\d+\\.\\d+\\.\\d+)$"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

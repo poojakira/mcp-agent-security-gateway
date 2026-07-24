@@ -62,11 +62,16 @@ class RateLimiter:
             return RateLimitDecision(
                 allowed=False,
                 reason=f"rate_limit_exceeded: {count} > {max_count} per {window}s",
-                current_count=count, limit=max_count, window_seconds=window,
+                current_count=count,
+                limit=max_count,
+                window_seconds=window,
             )
         return RateLimitDecision(
-            allowed=True, reason="within_limit",
-            current_count=count, limit=max_count, window_seconds=window,
+            allowed=True,
+            reason="within_limit",
+            current_count=count,
+            limit=max_count,
+            window_seconds=window,
         )
 
 

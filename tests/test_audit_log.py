@@ -4,6 +4,7 @@ import json
 import os
 
 import pytest
+
 from mcp_monitor.audit.log import AuditLog
 from mcp_monitor.audit.wal import WriteAheadLog
 

@@ -1,4 +1,5 @@
 """HTML Security Report Generator — deep-level dashboard."""
+
 from __future__ import annotations
 
 import time
@@ -19,7 +20,12 @@ class HTMLReportGenerator:
             rows += f"<tr style='color:{color}'><td>{r.attack_name}</td><td>{r.category}</td><td>{r.severity}</td><td><b>{status}</b></td><td>Layer {layer}</td><td>{r.risk_score}</td></tr>\n"
 
         by_layer_html = ""
-        layer_names = {2: "Inline Proxy", 3: "Kernel Monitor", 4: "Semantic Analyzer", 5: "Egress Policy"}
+        layer_names = {
+            2: "Inline Proxy",
+            3: "Kernel Monitor",
+            4: "Semantic Analyzer",
+            5: "Egress Policy",
+        }
         for ln in [2, 3, 4, 5]:
             count = report.by_layer.get(ln, 0)
             pct = count / max(report.total_attacks, 1) * 100
@@ -27,10 +33,16 @@ class HTMLReportGenerator:
 
         by_cat_html = ""
         for cat, stats in report.by_category.items():
-            rate = stats['blocked'] / max(stats['total'], 1) * 100
+            rate = stats["blocked"] / max(stats["total"], 1) * 100
             by_cat_html += f"<tr><td>{cat}</td><td>{stats['total']}</td><td>{stats['blocked']}</td><td>{stats['missed']}</td><td>{rate:.0f}%</td></tr>\n"
 
-        verdict_color = "#28a745" if report.detection_rate >= 90 else "#ffc107" if report.detection_rate >= 70 else "#dc3545"
+        verdict_color = (
+            "#28a745"
+            if report.detection_rate >= 90
+            else "#ffc107"
+            if report.detection_rate >= 70
+            else "#dc3545"
+        )
 
         return f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>MCP Security Dashboard</title>

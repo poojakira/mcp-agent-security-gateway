@@ -11,7 +11,7 @@ import collections
 import json
 import os
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 def _generate_trace_id() -> str:
@@ -41,15 +41,15 @@ class Span:
         self,
         name: str,
         trace_id: str,
-        parent_span_id: Optional[str] = None,
+        parent_span_id: str | None = None,
     ) -> None:
         self.name = name
         self.trace_id = trace_id
         self.span_id = _generate_span_id()
         self.parent_span_id = parent_span_id
         self.start_time: float = time.time()
-        self.end_time: Optional[float] = None
-        self.attributes: Dict[str, Any] = {}
+        self.end_time: float | None = None
+        self.attributes: dict[str, Any] = {}
         self.status: str = "OK"
 
     def set_attribute(self, key: str, value: Any) -> None:
@@ -70,9 +70,9 @@ class Span:
         end = self.end_time or time.time()
         return (end - self.start_time) * 1000
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert span to a dict for JSON serialization."""
-        result: Dict[str, Any] = {
+        result: dict[str, Any] = {
             "trace_id": self.trace_id,
             "span_id": self.span_id,
             "name": self.name,
@@ -131,7 +131,7 @@ class Tracer:
         self,
         name: str,
         trace_id: str,
-        parent_span_id: Optional[str] = None,
+        parent_span_id: str | None = None,
     ) -> Span:
         """Create and start a new span.
 
@@ -158,7 +158,7 @@ class Tracer:
         span.end()
 
     @staticmethod
-    def parse_traceparent(header: str) -> Optional[Dict[str, str]]:
+    def parse_traceparent(header: str) -> dict[str, str] | None:
         """Parse a W3C traceparent header.
 
         Format: {version}-{trace_id}-{parent_span_id}-{flags}
@@ -184,9 +184,7 @@ class Tracer:
         }
 
     @staticmethod
-    def create_traceparent(
-        trace_id: str, span_id: str, sampled: bool = True
-    ) -> str:
+    def create_traceparent(trace_id: str, span_id: str, sampled: bool = True) -> str:
         """Create a W3C traceparent header value.
 
         Parameters
@@ -205,7 +203,7 @@ class Tracer:
         flags = "01" if sampled else "00"
         return f"00-{trace_id}-{span_id}-{flags}"
 
-    def get_completed_spans(self) -> List[Span]:
+    def get_completed_spans(self) -> list[Span]:
         """Return all completed spans."""
         return [s for s in self._spans if s.end_time is not None]
 

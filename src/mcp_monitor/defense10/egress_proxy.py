@@ -74,7 +74,7 @@ class IntentRegistry:
         if len(self._intents) > self._max_entries:
             # Remove oldest entries
             sorted_keys = sorted(self._intents.keys(), key=lambda k: self._intents[k]["ts"])
-            for k in sorted_keys[:len(sorted_keys) // 2]:
+            for k in sorted_keys[: len(sorted_keys) // 2]:
                 del self._intents[k]
         # Remove expired
         expired = [k for k, v in self._intents.items() if now - v["ts"] > self._max_age]
@@ -144,7 +144,7 @@ class EgressInspector:
         return {m.lower() for m in _EMAIL_RE.findall(text)}
 
 
-def get_mitmproxy_addon(inspector: "EgressInspector"):
+def get_mitmproxy_addon(inspector: EgressInspector):
     """Return a mitmproxy addon class for LIVE TLS-terminated inspection.
 
     Deploy: mitmdump -s this_addon.py  with the sandboxed MCP server's
@@ -167,6 +167,7 @@ def get_mitmproxy_addon(inspector: "EgressInspector"):
 
     def _make_blocked_response(verdict):  # pragma: no cover
         from mitmproxy import http
+
         return http.Response.make(
             403,
             json.dumps({"blocked": True, "reason": verdict.reason}).encode(),

@@ -3,6 +3,7 @@
 import base64
 
 import pytest
+
 from mcp_monitor.detectors.exfiltration import ExfiltrationDetector
 
 

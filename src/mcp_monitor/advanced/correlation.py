@@ -21,8 +21,9 @@ from __future__ import annotations
 import re
 import time
 from collections import deque
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
 
 @dataclass
@@ -61,7 +62,6 @@ class CorrelationAlert:
     data_flow: str = ""  # Description of detected data flow
 
 
-
 # Built-in correlation rules for known attack patterns
 def _data_read_then_exfil(events: list[ToolCallEvent]) -> bool:
     """Detect: secret/sensitive data read followed by outbound send."""
@@ -77,7 +77,10 @@ def _data_read_then_exfil(events: list[ToolCallEvent]) -> bool:
                 # Check for substring matches (data flowing from read to send)
                 if len(earlier_output) > 20:
                     # Check if significant chunks of read data appear in send
-                    chunks = [earlier_output[j:j+20] for j in range(0, min(len(earlier_output), 200), 20)]
+                    chunks = [
+                        earlier_output[j : j + 20]
+                        for j in range(0, min(len(earlier_output), 200), 20)
+                    ]
                     for chunk in chunks:
                         if chunk in args_str and chunk.strip():
                             return True
@@ -88,7 +91,10 @@ DEFAULT_RULES: list[CorrelationRule] = [
     CorrelationRule(
         name="read_then_exfil",
         description="Sensitive data read followed by outbound transmission",
-        tool_sequence=[r"(read|get|fetch|query|secret|key|token)", r"(send|email|post|upload|webhook)"],
+        tool_sequence=[
+            r"(read|get|fetch|query|secret|key|token)",
+            r"(send|email|post|upload|webhook)",
+        ],
         condition=_data_read_then_exfil,
         severity=90,
         window_seconds=120.0,
@@ -96,7 +102,10 @@ DEFAULT_RULES: list[CorrelationRule] = [
     CorrelationRule(
         name="credential_harvest",
         description="Multiple credential/secret reads in rapid succession",
-        tool_sequence=[r"(secret|credential|key|token|password)", r"(secret|credential|key|token|password)"],
+        tool_sequence=[
+            r"(secret|credential|key|token|password)",
+            r"(secret|credential|key|token|password)",
+        ],
         severity=70,
         window_seconds=60.0,
     ),
@@ -112,15 +121,14 @@ DEFAULT_RULES: list[CorrelationRule] = [
         description="Call to registered server followed by unregistered server",
         tool_sequence=[r".*", r".*"],  # Any tools, condition checks server_id
         condition=lambda events: (
-            len(events) >= 2 and
-            events[0].server_id != events[-1].server_id and
-            events[-1].server_id not in {"", events[0].server_id}
+            len(events) >= 2
+            and events[0].server_id != events[-1].server_id
+            and events[-1].server_id not in {"", events[0].server_id}
         ),
         severity=75,
         window_seconds=60.0,
     ),
 ]
-
 
 
 class CrossToolCorrelationEngine:
@@ -184,9 +192,7 @@ class CrossToolCorrelationEngine:
         """Clear the correlation window (e.g., on session reset)."""
         self._window.clear()
 
-    def detect_data_flow(
-        self, source_output: dict, target_arguments: dict
-    ) -> list[str]:
+    def detect_data_flow(self, source_output: dict, target_arguments: dict) -> list[str]:
         """Detect if data from one tool's output flows into another's input.
 
         Returns list of field paths where data flow was detected.
@@ -211,10 +217,7 @@ class CrossToolCorrelationEngine:
 
         for rule in self._rules:
             # Get events within the rule's time window
-            window_events = [
-                e for e in self._window
-                if now - e.timestamp <= rule.window_seconds
-            ]
+            window_events = [e for e in self._window if now - e.timestamp <= rule.window_seconds]
             if len(window_events) < len(rule.tool_sequence):
                 continue
 
@@ -239,9 +242,7 @@ class CrossToolCorrelationEngine:
             if len(matched) >= 2:
                 for i in range(len(matched) - 1):
                     if matched[i].output:
-                        flows = self.detect_data_flow(
-                            matched[i].output, matched[i + 1].arguments
-                        )
+                        flows = self.detect_data_flow(matched[i].output, matched[i + 1].arguments)
                         if flows:
                             alert.data_flow = "; ".join(flows)
 
@@ -268,9 +269,7 @@ class CrossToolCorrelationEngine:
             return matched
         return None
 
-    def _extract_values(
-        self, obj: Any, prefix: str = ""
-    ) -> list[tuple[str, Any]]:
+    def _extract_values(self, obj: Any, prefix: str = "") -> list[tuple[str, Any]]:
         """Extract all leaf values with their paths."""
         values: list[tuple[str, Any]] = []
         if isinstance(obj, dict):

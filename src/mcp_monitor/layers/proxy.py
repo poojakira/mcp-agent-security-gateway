@@ -1,12 +1,14 @@
 """Layer 2: Inline Proxy Gateway for MCP tool calls."""
+
 from __future__ import annotations
 
 import re
 import time
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 
 
 class ProxyAction(Enum):
@@ -14,6 +16,7 @@ class ProxyAction(Enum):
     BLOCK = "block"
     QUARANTINE = "quarantine"
     REDACT = "redact"
+
 
 @dataclass
 class ProxyDecision:
@@ -27,6 +30,7 @@ class ProxyDecision:
     original_payload: dict[str, Any] | None = None
     modified_payload: dict[str, Any] | None = None
 
+
 @dataclass
 class ProxyRule:
     name: str
@@ -37,8 +41,16 @@ class ProxyRule:
     priority: int = 50
     fields_to_redact: list[str] = field(default_factory=list)
 
+
 class InlineProxyGateway:
-    def __init__(self, *, inspector: Any = None, block_threshold: int = 50, quarantine_threshold: int = 30, default_action: ProxyAction = ProxyAction.BLOCK) -> None:
+    def __init__(
+        self,
+        *,
+        inspector: Any = None,
+        block_threshold: int = 50,
+        quarantine_threshold: int = 30,
+        default_action: ProxyAction = ProxyAction.BLOCK,
+    ) -> None:
         self._inspector = inspector
         self._block_threshold = block_threshold
         self._quarantine_threshold = quarantine_threshold
@@ -69,14 +81,27 @@ class InlineProxyGateway:
             reasons.append(f"risk_score {risk_score} >= block_threshold {self._block_threshold}")
         elif risk_score >= self._quarantine_threshold:
             action = ProxyAction.QUARANTINE
-            reasons.append(f"risk_score {risk_score} >= quarantine_threshold {self._quarantine_threshold}")
+            reasons.append(
+                f"risk_score {risk_score} >= quarantine_threshold {self._quarantine_threshold}"
+            )
         else:
             action = ProxyAction.ALLOW
-        decision = ProxyDecision(call_id=call_id, action=action, tool_name=tool_name, server_id=server_id, risk_score=risk_score, reasons=reasons, original_payload=tool_call, modified_payload=tool_call if action == ProxyAction.ALLOW else None)
+        decision = ProxyDecision(
+            call_id=call_id,
+            action=action,
+            tool_name=tool_name,
+            server_id=server_id,
+            risk_score=risk_score,
+            reasons=reasons,
+            original_payload=tool_call,
+            modified_payload=tool_call if action == ProxyAction.ALLOW else None,
+        )
         self._record(decision)
         return decision
 
-    def intercept_output(self, tool_name: str, server_id: str, output: dict[str, Any]) -> ProxyDecision:
+    def intercept_output(
+        self, tool_name: str, server_id: str, output: dict[str, Any]
+    ) -> ProxyDecision:
         call_id = str(uuid.uuid4())
         reasons: list[str] = []
         risk_score = 0
@@ -90,7 +115,16 @@ class InlineProxyGateway:
             action = ProxyAction.QUARANTINE
         else:
             action = ProxyAction.ALLOW
-        decision = ProxyDecision(call_id=call_id, action=action, tool_name=tool_name, server_id=server_id, risk_score=risk_score, reasons=reasons, original_payload=output, modified_payload=output if action == ProxyAction.ALLOW else None)
+        decision = ProxyDecision(
+            call_id=call_id,
+            action=action,
+            tool_name=tool_name,
+            server_id=server_id,
+            risk_score=risk_score,
+            reasons=reasons,
+            original_payload=output,
+            modified_payload=output if action == ProxyAction.ALLOW else None,
+        )
         self._record(decision)
         return decision
 
@@ -99,7 +133,15 @@ class InlineProxyGateway:
         self._rules.sort(key=lambda r: r.priority, reverse=True)
 
     def get_stats(self) -> dict[str, Any]:
-        return {"total_intercepted": self._blocked_count + self._allowed_count, "blocked": self._blocked_count, "allowed": self._allowed_count, "quarantined": len(self._quarantined), "block_rate": self._blocked_count / max(self._blocked_count + self._allowed_count, 1) * 100}
+        return {
+            "total_intercepted": self._blocked_count + self._allowed_count,
+            "blocked": self._blocked_count,
+            "allowed": self._allowed_count,
+            "quarantined": len(self._quarantined),
+            "block_rate": self._blocked_count
+            / max(self._blocked_count + self._allowed_count, 1)
+            * 100,
+        }
 
     def get_quarantined(self) -> list[dict[str, Any]]:
         return list(self._quarantined)
@@ -122,7 +164,15 @@ class InlineProxyGateway:
             modified = tool_call
             if rule.action == ProxyAction.REDACT:
                 modified = self._redact_fields(tool_call, rule.fields_to_redact)
-            return ProxyDecision(call_id="", action=rule.action, tool_name=tool_name, server_id=tool_call.get("server_id", ""), reasons=[f"rule:{rule.name}:{rule.description}"], original_payload=tool_call, modified_payload=modified if rule.action != ProxyAction.BLOCK else None)
+            return ProxyDecision(
+                call_id="",
+                action=rule.action,
+                tool_name=tool_name,
+                server_id=tool_call.get("server_id", ""),
+                reasons=[f"rule:{rule.name}:{rule.description}"],
+                original_payload=tool_call,
+                modified_payload=modified if rule.action != ProxyAction.BLOCK else None,
+            )
         return None
 
     def _redact_fields(self, payload: dict[str, Any], fields: list[str]) -> dict[str, Any]:

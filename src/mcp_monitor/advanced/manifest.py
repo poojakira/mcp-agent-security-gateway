@@ -115,9 +115,7 @@ class ManifestVerifier:
         baseline = self._baselines[key]
 
         # 1. Verify baseline signature integrity
-        expected_sig = hmac.new(
-            self._key, baseline.canonical_bytes(), hashlib.sha256
-        ).hexdigest()
+        expected_sig = hmac.new(self._key, baseline.canonical_bytes(), hashlib.sha256).hexdigest()
         if baseline.signature != expected_sig:
             violations.append("baseline_tampered: stored baseline signature is invalid")
 
@@ -149,17 +147,13 @@ class ManifestVerifier:
                 )
             lost_caps = set(baseline.capabilities) - set(live_manifest.capabilities)
             if lost_caps:
-                violations.append(
-                    f"capability_reduction:lost:{','.join(sorted(lost_caps))}"
-                )
+                violations.append(f"capability_reduction:lost:{','.join(sorted(lost_caps))}")
 
         return (len(violations) == 0, violations)
 
     def verify_signature(self, manifest: ToolManifest) -> bool:
         """Verify the cryptographic signature of a manifest."""
-        expected = hmac.new(
-            self._key, manifest.canonical_bytes(), hashlib.sha256
-        ).hexdigest()
+        expected = hmac.new(self._key, manifest.canonical_bytes(), hashlib.sha256).hexdigest()
         return hmac.compare_digest(manifest.signature, expected)
 
     @property

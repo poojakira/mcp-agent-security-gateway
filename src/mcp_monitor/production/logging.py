@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import logging
 import time
-from typing import Any, Optional
+from typing import Any
 
 
 class JSONFormatter(logging.Formatter):
@@ -95,16 +95,14 @@ class TraceLogAdapter(logging.LoggerAdapter):
     def __init__(
         self,
         logger: logging.Logger,
-        trace_id: Optional[str] = None,
-        span_id: Optional[str] = None,
+        trace_id: str | None = None,
+        span_id: str | None = None,
     ) -> None:
         super().__init__(logger, {})
         self._trace_id = trace_id
         self._span_id = span_id
 
-    def process(
-        self, msg: str, kwargs: Any
-    ) -> tuple[str, Any]:
+    def process(self, msg: str, kwargs: Any) -> tuple[str, Any]:
         """Inject trace context into the log record."""
         extra = kwargs.get("extra", {})
         if self._trace_id:

@@ -9,7 +9,8 @@ from __future__ import annotations
 import enum
 import threading
 import time
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 
 class CircuitState(enum.Enum):
@@ -62,7 +63,7 @@ class CircuitBreaker:
         self,
         func: Callable[..., Any],
         *args: Any,
-        fallback: Optional[Callable[..., Any]] = None,
+        fallback: Callable[..., Any] | None = None,
         **kwargs: Any,
     ) -> Any:
         """Execute func through the circuit breaker.
@@ -90,9 +91,7 @@ class CircuitBreaker:
         if current_state == CircuitState.OPEN:
             if fallback is not None:
                 return fallback(*args, **kwargs)
-            raise CircuitOpenError(
-                f"Circuit '{self.name}' is open"
-            )
+            raise CircuitOpenError(f"Circuit '{self.name}' is open")
 
         try:
             result = func(*args, **kwargs)

@@ -260,9 +260,7 @@ class TestKubernetesDeployment:
             data = yaml.safe_load(f)
         container = data["spec"]["template"]["spec"]["containers"][0]
         env_from = container["envFrom"]
-        config_ref_names = [
-            e["configMapRef"]["name"] for e in env_from if "configMapRef" in e
-        ]
+        config_ref_names = [e["configMapRef"]["name"] for e in env_from if "configMapRef" in e]
         assert "mcp-monitor-config" in config_ref_names
 
 
@@ -343,8 +341,7 @@ class TestKubernetesHPA:
             data = yaml.safe_load(f)
         metrics = data["spec"]["metrics"]
         cpu_metric = next(
-            m for m in metrics
-            if m["type"] == "Resource" and m["resource"]["name"] == "cpu"
+            m for m in metrics if m["type"] == "Resource" and m["resource"]["name"] == "cpu"
         )
         assert cpu_metric["resource"]["target"]["averageUtilization"] == 70
 

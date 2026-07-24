@@ -1,6 +1,7 @@
 """Tests for ShadowServerDetector — 20 tests."""
 
 import pytest
+
 from mcp_monitor.detectors.shadow_server import ShadowServerDetector
 
 

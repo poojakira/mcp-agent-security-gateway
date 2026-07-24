@@ -1,5 +1,6 @@
 import pytest
 from attack_core import ATTACKIndex, ATTACKLoader
+
 from attack_mapping.enricher import ATTACKEnricher
 
 

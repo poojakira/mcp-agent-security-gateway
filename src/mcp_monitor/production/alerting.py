@@ -11,7 +11,7 @@ import threading
 import time
 import urllib.error
 import urllib.request
-from typing import Any, Optional
+from typing import Any
 
 from mcp_monitor.production.logging import get_logger
 
@@ -33,7 +33,7 @@ class AlertingHook:
 
     def __init__(
         self,
-        webhook_url: Optional[str] = None,
+        webhook_url: str | None = None,
         risk_threshold: int = 80,
         cooldown_seconds: float = 60.0,
     ) -> None:
@@ -88,9 +88,7 @@ class AlertingHook:
         call_id = result.get("call_id", "unknown")
 
         return {
-            "text": (
-                f"[CRITICAL] MCP Security Alert - Risk Score: {risk_score}"
-            ),
+            "text": (f"[CRITICAL] MCP Security Alert - Risk Score: {risk_score}"),
             "blocks": [
                 {
                     "type": "section",

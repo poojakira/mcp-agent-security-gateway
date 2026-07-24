@@ -91,7 +91,7 @@ class BehavioralDriftDetector:
         self._baselines[tool_name].append(sample)
         # Maintain window size
         if len(self._baselines[tool_name]) > self._baseline_window:
-            self._baselines[tool_name] = self._baselines[tool_name][-self._baseline_window:]
+            self._baselines[tool_name] = self._baselines[tool_name][-self._baseline_window :]
 
         # Update known fields
         output_fields = self._extract_field_paths(output_data)
@@ -100,7 +100,7 @@ class BehavioralDriftDetector:
         # Update size history
         self._size_history[tool_name].append(sample.payload_size)
         if len(self._size_history[tool_name]) > self._baseline_window:
-            self._size_history[tool_name] = self._size_history[tool_name][-self._baseline_window:]
+            self._size_history[tool_name] = self._size_history[tool_name][-self._baseline_window :]
 
         return sample
 
@@ -160,8 +160,7 @@ class BehavioralDriftDetector:
         # 4. OUTPUT DETERMINISM CHECK
         # For same input, did the output structure fundamentally change?
         matching_inputs = [
-            s for s in self._baselines[tool_name]
-            if s.input_hash == current.input_hash
+            s for s in self._baselines[tool_name] if s.input_hash == current.input_hash
         ]
         if matching_inputs:
             baseline_fields = matching_inputs[-1].output_fields
@@ -213,9 +212,7 @@ class BehavioralDriftDetector:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _create_sample(
-        self, tool_name: str, input_data: dict, output_data: dict
-    ) -> BehaviorSample:
+    def _create_sample(self, tool_name: str, input_data: dict, output_data: dict) -> BehaviorSample:
         input_canonical = json.dumps(input_data, sort_keys=True, separators=(",", ":"))
         output_canonical = json.dumps(output_data, sort_keys=True, separators=(",", ":"))
         return BehaviorSample(

@@ -12,7 +12,7 @@ import json
 import os
 import tempfile
 import time
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 from mcp_monitor.audit.log import AuditLog
 from mcp_monitor.audit.wal import WriteAheadLog
@@ -34,7 +34,7 @@ class ProductionServer:
     alerting, metrics, tracing, shadow mode, and graceful shutdown.
     """
 
-    def __init__(self, config: Optional[Config] = None) -> None:
+    def __init__(self, config: Config | None = None) -> None:
         self.config = config or Config()
         self._logger = get_logger(
             "mcp_monitor.production.server",
@@ -57,9 +57,7 @@ class ProductionServer:
         )
 
         # Production components
-        self._rate_limiter = RateLimiter(
-            tokens_per_minute=self.config.rate_limit_rpm
-        )
+        self._rate_limiter = RateLimiter(tokens_per_minute=self.config.rate_limit_rpm)
         self._metrics = MetricsCollector()
         self._tracer = Tracer()
         self._alerting = AlertingHook(
@@ -81,7 +79,7 @@ class ProductionServer:
             on_shutdown=self._flush_wal,
         )
 
-        self._server: Optional[asyncio.Server] = None
+        self._server: asyncio.Server | None = None
 
     def _flush_wal(self) -> None:
         """Flush the WAL during shutdown."""
@@ -136,9 +134,7 @@ class ProductionServer:
     ) -> None:
         """Handle a single HTTP connection."""
         try:
-            request_line = await asyncio.wait_for(
-                reader.readline(), timeout=30.0
-            )
+            request_line = await asyncio.wait_for(reader.readline(), timeout=30.0)
             if not request_line:
                 writer.close()
                 return
@@ -154,11 +150,9 @@ class ProductionServer:
             path = parts[1]
 
             # Read headers
-            headers: Dict[str, str] = {}
+            headers: dict[str, str] = {}
             while True:
-                header_line = await asyncio.wait_for(
-                    reader.readline(), timeout=10.0
-                )
+                header_line = await asyncio.wait_for(reader.readline(), timeout=10.0)
                 header_str = header_line.decode("utf-8", errors="replace").strip()
                 if not header_str:
                     break
@@ -173,19 +167,13 @@ class ProductionServer:
                 # Check payload size
                 max_bytes = int(self.config.max_payload_kb * 1024)
                 if content_length > max_bytes:
-                    await self._send_response(
-                        writer, 413, {"error": "Payload too large"}
-                    )
+                    await self._send_response(writer, 413, {"error": "Payload too large"})
                     return
-                body = await asyncio.wait_for(
-                    reader.readexactly(content_length), timeout=30.0
-                )
+                body = await asyncio.wait_for(reader.readexactly(content_length), timeout=30.0)
 
             # Check shutdown
             if self._shutdown.is_shutting_down:
-                await self._send_response(
-                    writer, 503, {"error": "Server shutting down"}
-                )
+                await self._send_response(writer, 503, {"error": "Server shutting down"})
                 return
 
             # Determine if this is an operational endpoint that should
@@ -197,9 +185,7 @@ class ProductionServer:
                 # Rate limiting (only for non-operational endpoints)
                 if not self._rate_limiter.allow():
                     self._metrics.inc_error()
-                    await self._send_response(
-                        writer, 429, {"error": "Rate limit exceeded"}
-                    )
+                    await self._send_response(writer, 429, {"error": "Rate limit exceeded"})
                     return
 
             # Route request
@@ -249,14 +235,10 @@ class ProductionServer:
             response_headers = {
                 "X-Trace-Id": trace_id,
                 "X-Span-Id": span.span_id,
-                "traceparent": self._tracer.create_traceparent(
-                    trace_id, span.span_id
-                ),
+                "traceparent": self._tracer.create_traceparent(trace_id, span.span_id),
             }
 
-            await self._send_response(
-                writer, status, response_body, extra_headers=response_headers
-            )
+            await self._send_response(writer, status, response_body, extra_headers=response_headers)
 
         except (asyncio.TimeoutError, ConnectionResetError, BrokenPipeError):
             pass
@@ -274,10 +256,10 @@ class ProductionServer:
         method: str,
         path: str,
         body: bytes,
-        headers: Dict[str, str],
+        headers: dict[str, str],
         trace_id: str,
         span_id: str,
-    ) -> Tuple[int, Any]:
+    ) -> tuple[int, Any]:
         """Route a request to the appropriate handler."""
         # Health check
         if method == "GET" and path == "/v1/health":
@@ -301,14 +283,14 @@ class ProductionServer:
 
         return 404, {"error": "Not found"}
 
-    def _handle_health(self) -> Tuple[int, Dict[str, Any]]:
+    def _handle_health(self) -> tuple[int, dict[str, Any]]:
         """GET /v1/health - Health check endpoint."""
         return 200, {
             "status": "healthy",
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         }
 
-    def _handle_ready(self) -> Tuple[int, Dict[str, Any]]:
+    def _handle_ready(self) -> tuple[int, dict[str, Any]]:
         """GET /v1/ready - Readiness probe (checks WAL writability)."""
         try:
             # Test WAL writability by checking parent dir is writable
@@ -323,20 +305,16 @@ class ProductionServer:
         except Exception as exc:
             return 503, {"status": "not_ready", "reason": str(exc)}
 
-    def _handle_metrics(self) -> Tuple[int, str]:
+    def _handle_metrics(self) -> tuple[int, str]:
         """GET /v1/metrics - Prometheus text exposition format."""
         # Update circuit breaker states
-        self._metrics.set_circuit_state(
-            "inspect_call", self._circuit_breaker.state.value
-        )
-        self._metrics.set_circuit_state(
-            "inspect_output", self._output_circuit_breaker.state.value
-        )
+        self._metrics.set_circuit_state("inspect_call", self._circuit_breaker.state.value)
+        self._metrics.set_circuit_state("inspect_output", self._output_circuit_breaker.state.value)
         return 200, self._metrics.expose()
 
     def _handle_inspect_call(
         self, body: bytes, trace_id: str, span_id: str
-    ) -> Tuple[int, Dict[str, Any]]:
+    ) -> tuple[int, dict[str, Any]]:
         """POST /v1/inspect_call - Forward to MCPSecurityMonitor."""
         try:
             tool_call = json.loads(body.decode("utf-8"))
@@ -386,7 +364,7 @@ class ProductionServer:
 
     def _handle_inspect_output(
         self, body: bytes, trace_id: str, span_id: str
-    ) -> Tuple[int, Dict[str, Any]]:
+    ) -> tuple[int, dict[str, Any]]:
         """POST /v1/inspect_output - Forward to MCPSecurityMonitor."""
         try:
             payload = json.loads(body.decode("utf-8"))
@@ -443,7 +421,7 @@ class ProductionServer:
         writer: asyncio.StreamWriter,
         status: int,
         body: Any,
-        extra_headers: Optional[Dict[str, str]] = None,
+        extra_headers: dict[str, str] | None = None,
     ) -> None:
         """Send an HTTP response."""
         status_messages = {
@@ -479,7 +457,7 @@ class ProductionServer:
         await writer.drain()
 
 
-def run_server(config: Optional[Config] = None) -> None:
+def run_server(config: Config | None = None) -> None:
     """Entry point to run the production server."""
     server = ProductionServer(config=config)
     asyncio.run(server.start())

