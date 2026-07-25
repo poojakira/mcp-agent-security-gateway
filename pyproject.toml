@@ -9,11 +9,6 @@ description = "Security monitor for MCP tool calls with detector orchestration a
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "cryptography>=42.0.0,<43",
-    "structlog>=24.1.0,<25",
-    "python-json-logger>=2.0.0,<3",
-]
-dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
