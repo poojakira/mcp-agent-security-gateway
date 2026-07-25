@@ -88,6 +88,13 @@ ignore = [
     "T201", # print in test code
     "ARG001", # unused argument in test fixtures
     "ARG002", # unused argument in test fixtures
+    "PLR2004", # magic value in comparison
+    "N803", # argument name should be lowercase
+    "N806", # variable in function should be lowercase
+    "PTH113", # os.path.isfile -> Path.is_file
+    "PTH118", # os.path.join -> Path / operator
+    "PTH123", # open -> Path.open
+    "SIM115", # context manager for open
 ]
 exclude = [
     ".git",
