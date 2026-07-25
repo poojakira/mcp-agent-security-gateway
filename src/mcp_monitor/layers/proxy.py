@@ -189,6 +189,5 @@ class InlineProxyGateway:
             self._blocked_count += 1
         elif decision.action == ProxyAction.ALLOW:
             self._allowed_count += 1
-        elif decision.action == ProxyAction.QUARANTINE:
-            if decision.original_payload:
-                self._quarantined.append(decision.original_payload)
+        elif decision.action == ProxyAction.QUARANTINE and decision.original_payload:
+            self._quarantined.append(decision.original_payload)

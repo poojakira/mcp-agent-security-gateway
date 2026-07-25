@@ -279,17 +279,16 @@ class InvariantEnforcer:
                 )
 
         elif inv.invariant_type == InvariantType.MAX_LENGTH:
-            if field_exists and isinstance(value, str):
-                if len(value) > int(inv.value):
-                    return InvariantViolation(
-                        invariant_name=inv.name,
-                        description=inv.description,
-                        severity=inv.severity,
-                        tool_name=tool_name,
-                        field_path=inv.field_path,
-                        actual_value=f"length={len(value)}",
-                        expected=f"max length: {inv.value}",
-                    )
+            if field_exists and isinstance(value, str) and len(value) > int(inv.value):
+                return InvariantViolation(
+                    invariant_name=inv.name,
+                    description=inv.description,
+                    severity=inv.severity,
+                    tool_name=tool_name,
+                    field_path=inv.field_path,
+                    actual_value=f"length={len(value)}",
+                    expected=f"max length: {inv.value}",
+                )
 
         return None
 

@@ -54,9 +54,8 @@ class ExfiltrationDetector:
         findings: list[str] = []
 
         # 1. Email BCC injection
-        if self._is_email_tool(tool_name):
-            if self.detect_bcc_injection(output):
-                findings.append("hidden BCC recipient detected")
+        if self._is_email_tool(tool_name) and self.detect_bcc_injection(output):
+            findings.append("hidden BCC recipient detected")
 
         # 2. Payload size check
         payload_str = str(output)
@@ -108,9 +107,8 @@ class ExfiltrationDetector:
         headers = email_payload.get("headers", {})
         if isinstance(headers, dict):
             for key, value in headers.items():
-                if key.lower() in ("bcc", "x-bcc", "blind-copy"):
-                    if value:
-                        return True
+                if key.lower() in ("bcc", "x-bcc", "blind-copy") and value:
+                    return True
 
         # Check for BCC in a nested 'message' or 'email' sub-dict
         for key in ("message", "email", "mail"):
@@ -140,7 +138,7 @@ class ExfiltrationDetector:
         elif isinstance(obj, dict):
             for value in obj.values():
                 strings.extend(self._extract_strings(value))
-        elif isinstance(obj, (list, tuple)):
+        elif isinstance(obj, list | tuple):
             for item in obj:
                 strings.extend(self._extract_strings(item))
         return strings

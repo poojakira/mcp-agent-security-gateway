@@ -113,6 +113,6 @@ class HoneypotVault:
             return obj
         if isinstance(obj, dict):
             return " ".join(self._flatten(v) for v in obj.values())
-        if isinstance(obj, (list, tuple)):
+        if isinstance(obj, list | tuple):
             return " ".join(self._flatten(i) for i in obj)
         return str(obj)

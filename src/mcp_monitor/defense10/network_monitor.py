@@ -181,9 +181,7 @@ class NetworkMonitor:
                         return True
                 except ValueError:
                     pass
-        if addr in ("0.0.0.0", "::") or addr.startswith("ipv6:"):
-            return True
-        return False
+        return bool(addr in ("0.0.0.0", "::") or addr.startswith("ipv6:"))
 
 
 # ---------------------------------------------------------------------------

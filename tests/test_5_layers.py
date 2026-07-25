@@ -262,7 +262,7 @@ class TestKernel:
 
     def test_rate_limit(self, km):
         alerts_all = []
-        for i in range(15):
+        for _i in range(15):
             e = SyscallEvent(
                 server_id="postmark",
                 syscall_type=SyscallType.NETWORK_CONNECT,

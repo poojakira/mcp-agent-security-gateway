@@ -122,6 +122,6 @@ class GracefulShutdown:
                 self.on_shutdown()
                 _logger.info("Shutdown callback completed successfully")
             except Exception as exc:
-                _logger.error(f"Shutdown callback failed: {exc}")
+                _logger.exception(f"Shutdown callback failed: {exc}")
 
         _logger.info("Shutdown complete")

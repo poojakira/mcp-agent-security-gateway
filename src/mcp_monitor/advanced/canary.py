@@ -145,12 +145,11 @@ class ToolCanary:
                 )
 
         # 4. Check response size
-        if probe.max_response_size > 0:
-            if len(output_canonical) > probe.max_response_size:
-                violations.append(
-                    f"size_exceeded: response {len(output_canonical)} bytes > "
-                    f"max {probe.max_response_size}"
-                )
+        if probe.max_response_size > 0 and len(output_canonical) > probe.max_response_size:
+            violations.append(
+                f"size_exceeded: response {len(output_canonical)} bytes > "
+                f"max {probe.max_response_size}"
+            )
 
         # 5. Custom validator
         if probe.output_validator:

@@ -113,9 +113,7 @@ class NetworkEgressPolicy:
         for tld in suspicious_tlds:
             if destination.endswith(tld):
                 return True
-        if re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", destination):
-            return True
-        return False
+        return bool(re.match("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$", destination))
 
     def get_decisions(self, last_n: int = 100) -> list[EgressDecision]:
         return self._decisions[-last_n:]

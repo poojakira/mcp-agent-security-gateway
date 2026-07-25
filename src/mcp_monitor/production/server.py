@@ -87,7 +87,7 @@ class ProductionServer:
             self._wal.checkpoint()
             self._logger.info("WAL flushed successfully")
         except Exception as exc:
-            self._logger.error(f"WAL flush failed: {exc}")
+            self._logger.exception(f"WAL flush failed: {exc}")
 
     async def start(self) -> None:
         """Start the HTTP server."""
@@ -219,7 +219,7 @@ class ProductionServer:
                     span.set_status("ERROR")
                     self._metrics.inc_error()
             except Exception as exc:
-                self._logger.error(f"Request handling error: {exc}")
+                self._logger.exception(f"Request handling error: {exc}")
                 status = 500
                 response_body = {"error": "Internal server error"}
                 span.set_status("ERROR")
@@ -243,7 +243,7 @@ class ProductionServer:
         except (asyncio.TimeoutError, ConnectionResetError, BrokenPipeError):
             pass
         except Exception as exc:
-            self._logger.error(f"Connection error: {exc}")
+            self._logger.exception(f"Connection error: {exc}")
         finally:
             try:
                 writer.close()
@@ -334,7 +334,7 @@ class ProductionServer:
                 },
             )
         except Exception as exc:
-            self._logger.error(f"inspect_call failed: {exc}")
+            self._logger.exception(f"inspect_call failed: {exc}")
             return 500, {"error": "Internal processing error"}
 
         # Shadow mode: log but always allow
@@ -388,7 +388,7 @@ class ProductionServer:
                 },
             )
         except Exception as exc:
-            self._logger.error(f"inspect_output failed: {exc}")
+            self._logger.exception(f"inspect_output failed: {exc}")
             return 500, {"error": "Internal processing error"}
 
         # Shadow mode

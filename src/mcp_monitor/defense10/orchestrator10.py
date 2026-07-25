@@ -188,7 +188,7 @@ class Defense10:
             elif isinstance(obj, dict):
                 for v in obj.values():
                     found += walk(v)
-            elif isinstance(obj, (list, tuple)):
+            elif isinstance(obj, list | tuple):
                 for i in obj:
                     found += walk(i)
             return found

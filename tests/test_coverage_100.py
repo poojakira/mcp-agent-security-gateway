@@ -669,7 +669,7 @@ class TestFinalCoverageGaps:
         )
         # The read_then_exfil rule should match the sequence but condition
         # should return False because output data doesn't appear in send args
-        exfil_alerts = [a for a in alerts if a.rule_name == "read_then_exfil"]
+        [a for a in alerts if a.rule_name == "read_then_exfil"]
         # condition evaluates, either True or False depends on logic
         # This exercises the condition path either way
         assert isinstance(alerts, list)

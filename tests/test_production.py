@@ -613,7 +613,7 @@ class TestTracing:
         tracer = Tracer()
         trace_id = tracer.start_trace()
         s1 = tracer.start_span("s1", trace_id)
-        s2 = tracer.start_span("s2", trace_id)
+        tracer.start_span("s2", trace_id)
         tracer.end_span(s1)
         completed = tracer.get_completed_spans()
         assert len(completed) == 1

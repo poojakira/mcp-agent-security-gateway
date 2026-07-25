@@ -202,9 +202,8 @@ class CrossToolCorrelationEngine:
         target_str = str(target_arguments)
 
         for path, value in source_values:
-            if isinstance(value, str) and len(value) > 8:
-                if value in target_str:
-                    flows.append(f"{path} -> target_arguments")
+            if isinstance(value, str) and len(value) > 8 and value in target_str:
+                flows.append(f"{path} -> target_arguments")
         return flows
 
     # ------------------------------------------------------------------
@@ -275,7 +274,7 @@ class CrossToolCorrelationEngine:
         if isinstance(obj, dict):
             for key, val in obj.items():
                 path = f"{prefix}.{key}" if prefix else key
-                if isinstance(val, (dict, list)):
+                if isinstance(val, dict | list):
                     values.extend(self._extract_values(val, path))
                 else:
                     values.append((path, val))

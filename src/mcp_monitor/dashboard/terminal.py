@@ -103,7 +103,6 @@ class TerminalDashboard:
 
     def render_live_event(self, result: AttackResult) -> str:
         """Render a single live event as it happens."""
-        status = "BLOCKED" if result.blocked else "MISSED!"
         icon = "[BLOCK]" if result.blocked else "[MISS!]"
         return (
             f"  {icon} {result.attack_name} | "
