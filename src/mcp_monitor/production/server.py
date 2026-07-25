@@ -327,8 +327,8 @@ class ProductionServer:
                 self._monitor.inspect_call,
                 tool_call,
                 fallback=lambda tc: {
-                    "allowed": True,
-                    "risk_score": 0,
+                    "allowed": False,
+                    "risk_score": 100,
                     "findings": ["circuit_breaker_open"],
                     "call_id": "circuit-open",
                 },
@@ -381,8 +381,8 @@ class ProductionServer:
                 tool_name,
                 output,
                 fallback=lambda tn, out: {
-                    "allowed": True,
-                    "risk_score": 0,
+                    "allowed": False,
+                    "risk_score": 100,
                     "findings": ["circuit_breaker_open"],
                     "tool_name": tn,
                 },
