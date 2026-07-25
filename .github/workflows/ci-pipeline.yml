@@ -224,7 +224,7 @@ jobs:
     name: Docker Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: ${{ hashFiles('Dockerfile*') != '' }}
+    if: ${{ github.repository_owner == 'poojakira' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     needs: [lint-and-typecheck, test]
     steps:
       - uses: actions/checkout@v4
