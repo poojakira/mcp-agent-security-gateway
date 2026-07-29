@@ -6,3 +6,10 @@ __pycache__/
 *.pkl
 
 .venv/
+venv/
+.pytest_cache/
+__pycache__/
+*.pyc
+.coverage
+test_env/
+*.egg-info
