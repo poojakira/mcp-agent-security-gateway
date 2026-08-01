@@ -1,4 +1,4 @@
-# MCP Security Gateway Monitor - Production Dockerfile
+# MCP Security Gateway Monitor - Container Build
 FROM python:3.11-slim as builder
 
 WORKDIR /app
