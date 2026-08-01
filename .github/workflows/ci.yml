@@ -166,7 +166,7 @@ jobs:
           category: trivy
 
       - name: Run Grype scanner
-        uses: anchore/scan-action@v3
+        uses: anchore/scan-action@v7.4.0
         with:
           path: '.'
           format: 'json'
