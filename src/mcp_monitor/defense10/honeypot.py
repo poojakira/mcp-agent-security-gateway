@@ -4,7 +4,7 @@ WHY THIS CATCHES ATTACKS EVERY OTHER LAYER MISSES:
 Plant fake secrets ("canary tokens") in the environment — a fake API key,
 a fake password, a fake customer record. No legitimate workflow ever uses
 them. If one of these EVER appears in an outbound tool call, you have
-100% certainty of compromise, with zero false positives.
+a high-confidence compromise signal when canary values are planted only in non-legitimate paths.
 
 This is how you catch the "unknown unknowns" — the novel attack no
 signature or model has seen. The attacker doesn't know which secrets are
@@ -27,7 +27,7 @@ class CanaryTrip:
     token_id: str
     token_value: str
     context: str
-    severity: int = 100  # Canary trips are ALWAYS critical — zero false positives
+    severity: int = 100  # Canary trips are critical when planting scope is controlled.
     timestamp: float = field(default_factory=time.time)
 
 
