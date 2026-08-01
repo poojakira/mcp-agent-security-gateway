@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
 COPY tests ./tests
+COPY Dockerfile docker-compose.yml locustfile.py ./
+COPY deploy ./deploy
 
 # Validate the package in the build stage; this is a build gate, not a deployment proof.
 RUN pip install --no-cache-dir -e ".[dev]"

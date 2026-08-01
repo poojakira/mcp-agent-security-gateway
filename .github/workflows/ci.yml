@@ -182,7 +182,7 @@ jobs:
           retention-days: 30
 
       - name: Run Syft for SBOM
-        uses: anchore/syft-action@v3
+        uses: anchore/sbom-action@v0.24.0
         with:
           format: 'spdx-json'
           output-file: 'sbom.spdx.json'
