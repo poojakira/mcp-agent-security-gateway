@@ -512,4 +512,3 @@ def run_server(config: Optional[Config] = None) -> None:
     """Entry point to run the production server."""
     server = ProductionServer(config=config)
     asyncio.run(server.start())
-

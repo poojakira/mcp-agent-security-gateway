@@ -224,4 +224,3 @@ int trace_connect(struct pt_regs *ctx, struct sock *sk) {
     return 0;
 }
 """
-
