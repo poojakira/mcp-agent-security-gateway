@@ -42,7 +42,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -q ruff==${{ env.RUFF_VERSION }} pyright==${{ env.PYRIGHT_VERSION }} bandit==${{ env.BANDIT_VERSION }} pip-audit==${{ env.PIP_AUDIT_VERSION }} cyclonedx-bom==${{ env.CYCLONEDX_VERSION }}
+          pip install -q ruff==${{ env.RUFF_VERSION }} pyright==${{ env.PYRIGHT_VERSION }} bandit==${{ env.BANDIT_VERSION }} pip-audit==${{ env.PIP_AUDIT_VERSION }}
           pip install -e ".[dev]" 2>&1 | tail -5
 
       - name: Lint with Ruff
@@ -65,7 +65,9 @@ jobs:
           python .github/scripts/check_pip_audit.py
 
       - name: Generate CycloneDX SBOM
-        run: cyclonedx-py environment --output-format JSON --outfile sbom.json
+        run: |
+          pip install cyclonedx-bom==${{ env.CYCLONEDX_VERSION }}
+          cyclonedx-py environment --output-format JSON --outfile sbom.json
 
       - name: Upload SBOM
         if: always()
