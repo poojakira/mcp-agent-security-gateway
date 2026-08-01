@@ -54,4 +54,3 @@ class Config:
             f"rate_limit_rpm={self.rate_limit_rpm}, "
             f"log_level={self.log_level})"
         )
-
