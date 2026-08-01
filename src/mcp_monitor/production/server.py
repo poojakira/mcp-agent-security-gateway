@@ -103,13 +103,14 @@ class ProductionServer:
 
         self._server = await asyncio.start_server(
             self._handle_connection,
-            "0.0.0.0",
+            self.config.listen_host,
             self.config.listen_port,
         )
         self._logger.info(
             f"Server started on port {self.config.listen_port}",
             extra={
                 "extra_fields": {
+                    "host": self.config.listen_host,
                     "port": self.config.listen_port,
                     "shadow_mode": self.config.shadow_mode,
                 }
@@ -511,3 +512,4 @@ def run_server(config: Optional[Config] = None) -> None:
     """Entry point to run the production server."""
     server = ProductionServer(config=config)
     asyncio.run(server.start())
+

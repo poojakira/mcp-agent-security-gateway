@@ -13,6 +13,7 @@ class Config:
     """Production configuration read from environment variables."""
 
     def __init__(self) -> None:
+        self.listen_host: str = os.environ.get("MCP_LISTEN_HOST", "127.0.0.1")
         self.listen_port: int = int(os.environ.get("MCP_LISTEN_PORT", "8080"))
         self.shadow_mode: bool = os.environ.get("MCP_SHADOW_MODE", "false").lower() in (
             "true",
@@ -48,8 +49,9 @@ class Config:
 
     def __repr__(self) -> str:
         return (
-            f"Config(listen_port={self.listen_port}, "
+            f"Config(listen_host={self.listen_host}, listen_port={self.listen_port}, "
             f"shadow_mode={self.shadow_mode}, "
             f"rate_limit_rpm={self.rate_limit_rpm}, "
             f"log_level={self.log_level})"
         )
+

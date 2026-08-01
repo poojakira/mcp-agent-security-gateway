@@ -115,7 +115,7 @@ class NetworkMonitor:
         """Scan current connections against policy. Returns new alerts."""
         alerts: list[NetworkAlert] = []
         for c in self.read_connections():
-            if c.remote_port == 0 or c.remote_addr in ("0.0.0.0", "::"):
+            if c.remote_port == 0 or c.remote_addr in ("0.0.0.0", "::"):  # nosec B104
                 continue  # listening / not a real outbound
             # Blocked destination
             if c.remote_addr in self._blocked_remotes:
@@ -190,7 +190,7 @@ class NetworkMonitor:
                         return True
                 except ValueError:
                     pass
-        if addr in ("0.0.0.0", "::") or addr.startswith("ipv6:"):
+        if addr in ("0.0.0.0", "::") or addr.startswith("ipv6:"):  # nosec B104
             return True
         return False
 
@@ -224,3 +224,4 @@ int trace_connect(struct pt_regs *ctx, struct sock *sk) {
     return 0;
 }
 """
+
