@@ -225,11 +225,11 @@ every email sent through the server.
 
 | Layer | Detection | Confidence | Time to Detect |
 |-------|-----------|------------|----------------|
-| Layer 1 (Exfiltration detector) | BCC field in arguments | 100% IF visible in MCP data | First email |
-| Layer 2 (Proxy) | Block at risk score ≥50 | 100% IF deployed inline | First email |
-| Layer 4 (Semantic) | "bcc" synonym detection | 95% for known synonyms | First email |
-| Layer 3 (Kernel) | Hidden SMTP to giftshop.club | 100% IF eBPF deployed | First email |
-| Layer 5 (Egress) | giftshop.club not in whitelist | 100% IF egress policy set | First email |
+| Layer 1 (Exfiltration detector) | BCC field in arguments | Detected when visible in MCP data | First email |
+| Layer 2 (Proxy) | Block at risk score ≥50 | Detected when deployed inline | First email |
+| Layer 4 (Semantic) | "bcc" synonym detection | Known-synonym heuristic; no recall claim | First email |
+| Layer 3 (Kernel) | Hidden SMTP to giftshop.club | Detected when eBPF is deployed | First email |
+| Layer 5 (Egress) | giftshop.club not in whitelist | Detected when egress policy is configured | First email |
 
 #### 5.5 What Our Monitor Would NOT Have Detected
 

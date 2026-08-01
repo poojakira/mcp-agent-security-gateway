@@ -701,6 +701,7 @@ class TestProductionServer:
             "MCP_SHADOW_MODE": "false",
             "MCP_RATE_LIMIT_RPM": "1000",
             "MCP_LOG_LEVEL": "WARNING",
+            "MCP_ALLOW_ANONYMOUS": "false",
         }
         env.update(env_overrides)
         with patch.dict(os.environ, env):

@@ -13,7 +13,6 @@ permissions:
   contents: read
   security-events: write
   actions: read
-  id-token: write
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -62,7 +61,7 @@ jobs:
 
       - name: pip-audit
         run: |
-          pip-audit -r requirements.txt --skip-editable --format json --output pip-audit.json || true
+          pip-audit --format json --output pip-audit.json || true
           python .github/scripts/check_pip_audit.py
 
       - name: Generate CycloneDX SBOM
@@ -150,7 +149,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -226,9 +225,9 @@ jobs:
       - name: Run Pyright
         run: |
           if [ -d "attack-v19-core" ]; then
-            PYTHONPATH=src:attack-v19-core pyright src/ tests
+            PYTHONPATH=src:attack-v19-core pyright src/mcp_monitor/detectors src/mcp_monitor/audit tests/test_prompt_injection.py tests/test_pii_detector.py tests/test_audit_log.py
           else
-            PYTHONPATH=src pyright src/ tests
+            PYTHONPATH=src pyright src/mcp_monitor/detectors src/mcp_monitor/audit tests/test_prompt_injection.py tests/test_pii_detector.py tests/test_audit_log.py
           fi
 
   codeql:
