@@ -21,6 +21,7 @@ dev = [
 ]
 ml = ["scikit-learn>=1.4"]
 dpi = ["mitmproxy>=10"]
+attack = ["attack-v19-core>=19.1,<20"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
