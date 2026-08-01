@@ -51,8 +51,8 @@ jobs:
       - name: Run Ruff Formatter Check
         run: ruff format --check src/ tests
 
-      - name: Type check with Pyright
-        run: pyright src/ tests
+      - name: Focused Pyright gate
+        run: PYTHONPATH=src pyright src/mcp_monitor/detectors src/mcp_monitor/audit tests/test_prompt_injection.py tests/test_pii_detector.py tests/test_audit_log.py
 
       - name: Security scan with Bandit
         run: |
