@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import threading
 import time
+import urllib.parse
 import urllib.request
 import urllib.error
 from typing import Any, Optional
@@ -115,6 +116,10 @@ class AlertingHook:
         """Send webhook POST (fire-and-forget)."""
         if not self.webhook_url:
             return
+        parsed_url = urllib.parse.urlparse(self.webhook_url)
+        if parsed_url.scheme not in {"http", "https"}:
+            _logger.warning("Webhook alert skipped: unsupported URL scheme")
+            return
         try:
             data = json.dumps(payload).encode("utf-8")
             req = urllib.request.Request(
@@ -123,10 +128,12 @@ class AlertingHook:
                 headers={"Content-Type": "application/json"},
                 method="POST",
             )
-            urllib.request.urlopen(req, timeout=10)
+            urllib.request.urlopen(req, timeout=10)  # nosec B310
         except Exception as exc:
             # Fire-and-forget: log error but don't raise
             _logger.warning(
                 f"Webhook alert failed: {exc}",
                 extra={"extra_fields": {"webhook_url": self.webhook_url}},
             )
+
+
