@@ -135,5 +135,3 @@ class AlertingHook:
                 f"Webhook alert failed: {exc}",
                 extra={"extra_fields": {"webhook_url": self.webhook_url}},
             )
-
-

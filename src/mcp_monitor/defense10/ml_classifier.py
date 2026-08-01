@@ -367,5 +367,3 @@ _BENIGN_SAMPLES_EXT = [
     '{"title": "Feature request: dark mode", "priority": "low"}',
     '{"comment": "LGTM, approving this change"}',
 ]
-
-
