@@ -13,6 +13,20 @@ from mcp_monitor.layers.proxy import InlineProxyGateway, ProxyAction
 from mcp_monitor.layers.semantic import SemanticIntentAnalyzer
 
 
+def _flatten(obj: Any) -> list[Any]:
+    """Recursively collect all scalar values from a nested dict/list."""
+    out: list[Any] = []
+    if isinstance(obj, dict):
+        for v in obj.values():
+            out.extend(_flatten(v))
+    elif isinstance(obj, list | tuple):
+        for v in obj:
+            out.extend(_flatten(v))
+    else:
+        out.append(obj)
+    return out
+
+
 @dataclass
 class LayerResult:
     layer: int
@@ -47,17 +61,46 @@ class FiveLayerDefense:
         kernel: KernelMonitor,
         semantic: SemanticIntentAnalyzer,
         egress: NetworkEgressPolicy,
+        known_servers: set[str] | None = None,
     ) -> None:
         self.proxy = proxy
         self.kernel = kernel
         self.semantic = semantic
         self.egress = egress
+        # Layer 1 = audit / server registry. A call from a server that was never
+        # registered is a "shadow server" and is rejected at the first line.
+        self.known_servers: set[str] = known_servers or set()
         self._verdicts: list[DefenseVerdict] = []
+
+    def register_server(self, server_id: str) -> None:
+        """Register a server as known/trusted for the Layer 1 registry check."""
+        if server_id:
+            self.known_servers.add(server_id)
 
     def evaluate_call(self, tool_call: dict[str, Any]) -> DefenseVerdict:
         call_id = str(uuid.uuid4())
         layer_results: list[LayerResult] = []
         total_risk = 0
+        # Layer 1: Audit & Server Registry (shadow-server detection)
+        start = time.time()
+        server_id = tool_call.get("server_id", "")
+        # If a registry is configured, an unregistered server is a shadow server.
+        l1_passed = (not self.known_servers) or (server_id in self.known_servers) or (not server_id)
+        l1_findings = [] if l1_passed else [f"unregistered (shadow) server: {server_id!r}"]
+        elapsed = (time.time() - start) * 1000
+        layer_results.append(
+            LayerResult(
+                layer=1,
+                layer_name="audit_registry",
+                passed=l1_passed,
+                risk_score=0 if l1_passed else 95,
+                findings=l1_findings,
+                execution_time_ms=elapsed,
+            )
+        )
+        if not l1_passed:
+            total_risk = max(total_risk, 95)
+            return self._verdict(call_id, False, 1, layer_results, total_risk)
         # Layer 2: Proxy
         start = time.time()
         pd = self.proxy.intercept(tool_call)
@@ -76,10 +119,34 @@ class FiveLayerDefense:
         total_risk = max(total_risk, pd.risk_score)
         if not l2_passed:
             return self._verdict(call_id, False, 2, layer_results, total_risk)
+        # Layer 3: Kernel behavioral pre-check (subprocess / network intent in args)
+        start = time.time()
+        arguments = tool_call.get("arguments", {})
+        l3_findings: list[str] = []
+        arg_blob = " ".join(str(v) for v in _flatten(arguments)).lower()
+        if any(
+            tok in arg_blob
+            for tok in ("subprocess", "os.system", "/bin/sh", "bash -c", "cmd.exe /c")
+        ):
+            l3_findings.append("process-spawn intent detected in tool arguments")
+        elapsed = (time.time() - start) * 1000
+        l3_passed = not l3_findings
+        layer_results.append(
+            LayerResult(
+                layer=3,
+                layer_name="kernel_behavior",
+                passed=l3_passed,
+                risk_score=0 if l3_passed else 85,
+                findings=l3_findings,
+                execution_time_ms=elapsed,
+            )
+        )
+        if not l3_passed:
+            total_risk = max(total_risk, 85)
+            return self._verdict(call_id, False, 3, layer_results, total_risk)
         # Layer 4: Semantic
         start = time.time()
         tool_name = tool_call.get("name", "")
-        arguments = tool_call.get("arguments", {})
         dangerous, sf = self.semantic.analyze_call(tool_name, arguments)
         elapsed = (time.time() - start) * 1000
         sem_risk = max((f.severity for f in sf), default=0)
@@ -131,7 +198,7 @@ class FiveLayerDefense:
         return self._verdicts[-last_n:]
 
     def get_layer_stats(self) -> dict[str, Any]:
-        layer_blocks = {2: 0, 3: 0, 4: 0, 5: 0}
+        layer_blocks = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
         for v in self._verdicts:
             if v.blocked_by_layer:
                 layer_blocks[v.blocked_by_layer] = layer_blocks.get(v.blocked_by_layer, 0) + 1

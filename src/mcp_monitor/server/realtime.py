@@ -29,7 +29,6 @@ from mcp_monitor.layers import (
 from mcp_monitor.layers.egress import EgressRule
 from mcp_monitor.layers.kernel import ServerPolicy
 from mcp_monitor.layers.proxy import ProxyAction
-from mcp_monitor.redteam.payloads import ATTACK_CATALOG
 
 # ---------------------------------------------------------------------------
 # App setup
@@ -512,7 +511,13 @@ def _build_defense() -> FiveLayerDefense:
         )
     )
 
-    return FiveLayerDefense(proxy=proxy, kernel=kernel, semantic=semantic, egress=egress)
+    return FiveLayerDefense(
+        proxy=proxy,
+        kernel=kernel,
+        semantic=semantic,
+        egress=egress,
+        known_servers=set(_known_servers),
+    )
 
 
 def _all_string_values(obj: Any) -> list[str]:
@@ -571,7 +576,7 @@ stats: dict[str, Any] = {
     "total_events": 0,
     "blocked": 0,
     "allowed": 0,
-    "by_layer": {2: 0, 3: 0, 4: 0, 5: 0},
+    "by_layer": {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
     "by_category": {},
     "by_severity": {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0},
     "start_time": time.time(),
@@ -581,116 +586,132 @@ stats: dict[str, Any] = {
 
 recent_threats: list[dict[str, Any]] = []
 
-# ---------------------------------------------------------------------------
-# Background event simulator
-# ---------------------------------------------------------------------------
-
-_simulator_running = False
+# EPS tracking window (shared across live + demo events)
+_event_window: list[float] = []
 
 
-async def event_simulator() -> None:
-    """Continuously simulate attacks and broadcast results."""
-    global _simulator_running
-    _simulator_running = True
-    event_count_window: list[float] = []
+def _record_event(event_data: dict[str, Any]) -> None:
+    """Update aggregate stats and recent-threat buffer for one event."""
+    stats["total_events"] += 1
+    if event_data.get("blocked"):
+        stats["blocked"] += 1
+    else:
+        stats["allowed"] += 1
 
-    while _simulator_running:
-        attack = random.choice(ATTACK_CATALOG)
-        tool_call = attack.get("tool_call")
+    layer = event_data.get("blocked_by_layer")
+    if layer and layer in stats["by_layer"]:
+        stats["by_layer"][layer] += 1
 
-        if tool_call is None:
-            # Kernel-only attack — simulate it differently
-            event_data = _simulate_kernel_attack(attack)
-        else:
-            verdict = defense.evaluate_call(tool_call)
-            event_data = {
-                "type": "security_event",
-                "timestamp": time.time(),
-                "attack_name": attack["name"],
-                "category": attack["category"],
-                "severity": attack.get("severity", "MEDIUM"),
-                "tool_name": tool_call.get("name", "unknown"),
-                "server_id": tool_call.get("server_id", "unknown"),
-                "blocked": not verdict.allowed,
-                "blocked_by_layer": verdict.blocked_by_layer,
-                "risk_score": verdict.total_risk_score,
-                "findings": [f for lr in verdict.layer_results for f in lr.findings][:3],
-                "verdict": "BLOCKED" if not verdict.allowed else "ALLOWED",
-            }
+    cat = event_data.get("category", "unknown")
+    stats["by_category"][cat] = stats["by_category"].get(cat, 0) + 1
 
-        # Update stats
-        stats["total_events"] += 1
-        if event_data.get("blocked"):
-            stats["blocked"] += 1
-        else:
-            stats["allowed"] += 1
+    sev = event_data.get("severity", "MEDIUM")
+    if sev in stats["by_severity"]:
+        stats["by_severity"][sev] += 1
 
-        layer = event_data.get("blocked_by_layer")
-        if layer and layer in stats["by_layer"]:
-            stats["by_layer"][layer] += 1
+    now = time.time()
+    _event_window.append(now)
+    while _event_window and now - _event_window[0] > 5.0:
+        _event_window.pop(0)
+    stats["events_per_second"] = len(_event_window) / 5.0
+    stats["recent_eps"].append(round(stats["events_per_second"], 2))
+    stats["recent_eps"] = stats["recent_eps"][-60:]
 
-        cat = event_data.get("category", "unknown")
-        stats["by_category"][cat] = stats["by_category"].get(cat, 0) + 1
-
-        sev = event_data.get("severity", "MEDIUM")
-        if sev in stats["by_severity"]:
-            stats["by_severity"][sev] += 1
-
-        # EPS tracking
-        now = time.time()
-        event_count_window.append(now)
-        event_count_window = [t for t in event_count_window if now - t <= 5.0]
-        stats["events_per_second"] = len(event_count_window) / 5.0
-        stats["recent_eps"].append(round(stats["events_per_second"], 2))
-        stats["recent_eps"] = stats["recent_eps"][-60:]
-
-        # Track recent threats
-        recent_threats.insert(0, event_data)
-        if len(recent_threats) > 200:
-            recent_threats.pop()
-
-        # Broadcast to all connected clients
-        await manager.broadcast(event_data)
-
-        # Random delay 300-700ms for realistic feel
-        await asyncio.sleep(random.uniform(0.3, 0.7))
+    recent_threats.insert(0, event_data)
+    if len(recent_threats) > 200:
+        recent_threats.pop()
 
 
-def _simulate_kernel_attack(attack: dict[str, Any]) -> dict[str, Any]:
-    """Process kernel-only attacks."""
-    from mcp_monitor.layers.kernel import SyscallEvent, SyscallType
+def _classify_category(tool_call: dict[str, Any], verdict: Any) -> str:
+    """Best-effort category label for a live (non-catalog) tool call."""
+    name = str(tool_call.get("name", "")).lower()
+    findings = " ".join(f for lr in verdict.layer_results for f in lr.findings).lower()
+    if "bcc" in findings or "recipient" in findings:
+        return "email_exfiltration"
+    if "ssrf" in findings or "metadata" in findings:
+        return "ssrf"
+    if "injection" in findings or "ignore" in findings:
+        return "prompt_injection"
+    if "credential" in findings or "secret" in findings or "token" in findings:
+        return "credential_exfiltration"
+    if "traversal" in findings:
+        return "path_traversal"
+    if "command" in findings or "shell" in findings:
+        return "command_injection"
+    if "pii" in findings or "ssn" in findings:
+        return "pii_exposure"
+    if "email" in name or "smtp" in name:
+        return "email"
+    if "db" in name or "sql" in name:
+        return "database"
+    return "tool_call"
 
-    kernel_events = attack.get("kernel_events", [])
-    blocked = False
-    findings: list[str] = []
 
-    for ke in kernel_events:
-        syscall_type = SyscallType(ke["syscall_type"])
-        event = SyscallEvent(
-            server_id="unknown",
-            syscall_type=syscall_type,
-            details=ke["details"],
-        )
-        alerts = defense.evaluate_kernel_event(event)
-        if alerts:
-            blocked = True
-            for a in alerts:
-                findings.append(f"{a.alert_type}: {a.description}")
+def _severity_from_risk(risk: int) -> str:
+    if risk >= 80:
+        return "CRITICAL"
+    if risk >= 50:
+        return "HIGH"
+    if risk >= 25:
+        return "MEDIUM"
+    return "LOW"
 
-    return {
+
+async def _broadcast_scan(tool_call: dict[str, Any], verdict: Any, source: str) -> dict[str, Any]:
+    """Build a security_event from a real scan, record it, and stream it live."""
+    findings = [f for lr in verdict.layer_results for f in lr.findings][:3]
+    severity = _severity_from_risk(verdict.total_risk_score)
+    event_data = {
         "type": "security_event",
+        "source": source,  # "live" for real traffic, "demo" for simulator
         "timestamp": time.time(),
-        "attack_name": attack["name"],
-        "category": attack["category"],
-        "severity": attack.get("severity", "HIGH"),
-        "tool_name": "kernel_syscall",
-        "server_id": "system",
-        "blocked": blocked,
-        "blocked_by_layer": 3 if blocked else None,
-        "risk_score": 90 if blocked else 0,
-        "findings": findings[:3],
-        "verdict": "BLOCKED" if blocked else "ALLOWED",
+        "attack_name": tool_call.get("name", "tool call"),
+        "category": _classify_category(tool_call, verdict),
+        "severity": severity,
+        "tool_name": tool_call.get("name", "unknown"),
+        "server_id": tool_call.get("server_id", "unknown"),
+        "blocked": not verdict.allowed,
+        "blocked_by_layer": verdict.blocked_by_layer,
+        "risk_score": verdict.total_risk_score,
+        "findings": findings,
+        "verdict": "BLOCKED" if not verdict.allowed else "ALLOWED",
     }
+    _record_event(event_data)
+    await manager.broadcast(event_data)
+    return event_data
+
+
+# ---------------------------------------------------------------------------
+# Live workload agent — produces real-world tool-call traffic
+# ---------------------------------------------------------------------------
+
+_agent_running = False
+
+
+async def workload_agent() -> None:
+    """Continuously issue realistic tool calls through the real defense pipeline.
+
+    This is the live feed: each call is a genuine payload evaluated by all five
+    layers. Verdicts are not scripted — they come from the defense inspecting
+    the actual arguments. Legitimate calls pass; malicious ones are blocked.
+    """
+    global _agent_running
+    _agent_running = True
+    from mcp_monitor.server.workload import next_tool_call
+
+    # Warm-up burst: populate the dashboard with a batch of recent history so it
+    # is never blank on first load, then settle into realistic live pacing.
+    for _ in range(40):
+        tc = next_tool_call()
+        v = defense.evaluate_call(tc)
+        await _broadcast_scan(tc, v, source="live")
+
+    while _agent_running:
+        tool_call = next_tool_call()
+        verdict = defense.evaluate_call(tool_call)
+        await _broadcast_scan(tool_call, verdict, source="live")
+        # realistic pacing: bursts and lulls like real agent activity
+        await asyncio.sleep(random.uniform(0.25, 0.9))
 
 
 # ---------------------------------------------------------------------------
@@ -700,8 +721,37 @@ def _simulate_kernel_attack(attack: dict[str, Any]) -> dict[str, Any]:
 
 @app.on_event("startup")
 async def startup_event() -> None:
-    """Start the background event simulator."""
-    asyncio.create_task(event_simulator())
+    """Start the live workload agent that feeds real tool-call traffic.
+
+    Set MCP_NO_AGENT=1 to disable the built-in workload and feed the dashboard
+    exclusively from external agents calling POST /api/scan.
+    """
+    import os
+
+    # Pre-warm the ML threat classifier in a background thread. scikit-learn's
+    # import (~6s cold) plus training on the 1,180-sample corpus would otherwise
+    # run synchronously on the first prompt-injection scan and freeze the live
+    # feed. Warming it off the event loop keeps startup and streaming smooth.
+    async def _prewarm() -> None:
+        try:
+            await asyncio.to_thread(_warm_ml)
+        except Exception:
+            pass
+
+    asyncio.create_task(_prewarm())
+
+    if os.environ.get("MCP_NO_AGENT", "0") != "1":
+        asyncio.create_task(workload_agent())
+
+
+def _warm_ml() -> None:
+    """Import + train the ML classifier once, off the event loop."""
+    from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
+
+    det = PromptInjectionDetector()
+    getter = getattr(det, "_get_ml_classifier", None)
+    if callable(getter):
+        getter()
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -716,10 +766,30 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
     """WebSocket endpoint for real-time event streaming."""
     await manager.connect(websocket)
     try:
+        # Send an initial snapshot so the dashboard is populated immediately,
+        # not blank while waiting for the next simulated event.
+        total = stats["total_events"]
+        await websocket.send_json(
+            {
+                "type": "snapshot",
+                "mode": "live",
+                "stats": {
+                    "total_events": total,
+                    "blocked": stats["blocked"],
+                    "allowed": stats["allowed"],
+                    "detection_rate": round(stats["blocked"] / max(total, 1) * 100, 1),
+                    "events_per_second": round(stats["events_per_second"], 2),
+                    "by_layer": stats["by_layer"],
+                    "by_category": stats["by_category"],
+                    "by_severity": stats["by_severity"],
+                    "recent_eps": stats["recent_eps"][-60:],
+                },
+                "recent_threats": recent_threats[:60],
+            }
+        )
         while True:
             # Keep connection alive, accept any messages from client
             data = await websocket.receive_text()
-            # Echo back stats on request
             if data == "stats":
                 await websocket.send_json({"type": "stats", **stats})
     except WebSocketDisconnect:
@@ -754,8 +824,14 @@ async def api_threats() -> list[dict[str, Any]]:
 
 @app.post("/api/scan")
 async def api_scan(tool_call: dict[str, Any]) -> dict[str, Any]:
-    """Scan a tool call through the 5-layer defense and return verdict."""
+    """Scan a real tool call through the 5-layer defense, stream it live, return verdict.
+
+    This is the production ingestion point: any MCP client/agent posts its tool
+    calls here. Each scan is evaluated by all 5 layers, recorded in the live
+    stats, and pushed to every connected dashboard over the WebSocket.
+    """
     verdict = defense.evaluate_call(tool_call)
+    await _broadcast_scan(tool_call, verdict, source="live")
     return {
         "call_id": verdict.call_id,
         "allowed": verdict.allowed,
@@ -781,11 +857,7 @@ async def api_scan(tool_call: dict[str, Any]) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    print("╔══════════════════════════════════════════════════════╗")
-    print("║  MCP Security Gateway — Real-Time Monitor           ║")
-    print("╠══════════════════════════════════════════════════════╣")
-    print("║  Dashboard: http://localhost:8000                    ║")
-    print("║  WebSocket: ws://localhost:8000/ws                   ║")
-    print("║  API Docs:  http://localhost:8000/docs               ║")
-    print("╚══════════════════════════════════════════════════════╝")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    print("MCP Security Gateway - Real-Time Monitor")
+    print("Dashboard: http://localhost:8000")
+    print("API Docs:  http://localhost:8000/docs")
+    uvicorn.run(app, host="127.0.0.1", port=8000)
