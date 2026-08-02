@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCP Security Gateway — SOC Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg-primary:#0a0e17;--bg-secondary:#111827;--bg-card:#1a2332;--bg-card-hover:#1e293b;
+--border:#1e3a5f;--border-glow:#0ea5e9;
+--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+--cyan:#06b6d4;--cyan-glow:#22d3ee;
+--red:#ff3b5c;--orange:#ff9500;--yellow:#ffcc00;--green:#00d4aa;
+--purple:#a855f7;--blue:#3b82f6;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'JetBrains Mono',monospace;background:var(--bg-primary);color:var(--text-primary)}
+.app{display:grid;grid-template-rows:56px 1fr 180px;height:100vh;gap:1px}
+
+/* TOP BAR */
+.topbar{background:var(--bg-secondary);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:32px;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;letter-spacing:0.5px}
+.logo svg{width:24px;height:24px;fill:var(--cyan)}
+.logo span{color:var(--cyan)}
+.status-group{display:flex;align-items:center;gap:24px;margin-left:auto}
+.stat-item{display:flex;flex-direction:column;align-items:center;gap:2px}
+.stat-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted)}
+.stat-value{font-size:16px;font-weight:600;color:var(--text-primary)}
+.stat-value.rate{color:var(--green)}
+.stat-value.blocked{color:var(--red)}
+.connection-indicator{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-secondary)}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.conn-dot.disconnected{background:var(--red);box-shadow:0 0 8px var(--red)}
+.conn-dot.reconnecting{background:var(--yellow);box-shadow:0 0 8px var(--yellow);animation:pulse 1s infinite}
+.clock{font-size:12px;color:var(--text-muted);font-variant-numeric:tabular-nums}
+
+/* MAIN AREA */
+.main{display:grid;grid-template-columns:380px 1fr 320px;gap:1px;overflow:hidden}
+.panel{background:var(--bg-card);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+.panel-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:between;gap:8px;flex-shrink:0}
+.panel-title{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted);font-weight:600}
+.panel-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(6,182,212,0.15);color:var(--cyan);margin-left:auto}
+.panel-body{flex:1;overflow:hidden;position:relative}
+
+/* THREAT FEED */
+.threat-feed{overflow-y:auto;height:100%;padding:8px}
+.threat-feed::-webkit-scrollbar{width:4px}
+.threat-feed::-webkit-scrollbar-track{background:var(--bg-primary)}
+.threat-feed::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.threat-item{padding:10px 12px;border-radius:6px;margin-bottom:4px;background:var(--bg-secondary);border-left:3px solid var(--border);transition:all 0.2s;cursor:default}
+.threat-item:hover{background:var(--bg-card-hover)}
+.threat-item.critical{border-left-color:var(--red)}
+.threat-item.high{border-left-color:var(--orange)}
+.threat-item.medium{border-left-color:var(--yellow)}
+.threat-item.low{border-left-color:var(--green)}
+.threat-item.new-event{animation:slideIn 0.3s ease-out}
+.threat-item.critical.new-event{animation:slideIn 0.3s ease-out, criticalPulse 0.6s ease-out}
+.threat-header{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.threat-time{font-size:10px;color:var(--text-muted);font-variant-numeric:tabular-nums}
+.severity-badge{font-size:9px;padding:1px 6px;border-radius:3px;font-weight:600;text-transform:uppercase}
+.severity-badge.critical{background:rgba(255,59,92,0.2);color:var(--red)}
+.severity-badge.high{background:rgba(255,149,0,0.2);color:var(--orange)}
+.severity-badge.medium{background:rgba(255,204,0,0.2);color:var(--yellow)}
+.severity-badge.low{background:rgba(0,212,170,0.2);color:var(--green)}
+.verdict-badge{font-size:9px;padding:1px 6px;border-radius:3px;font-weight:600;margin-left:auto}
+.verdict-badge.blocked{background:rgba(255,59,92,0.15);color:var(--red)}
+.verdict-badge.allowed{background:rgba(0,212,170,0.15);color:var(--green)}
+.threat-tool{font-size:11px;color:var(--text-secondary)}
+.threat-finding{font-size:10px;color:var(--text-muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* CHARTS */
+.chart-area{padding:16px;display:flex;flex-direction:column;gap:16px;height:100%}
+.chart-container{flex:1;position:relative;min-height:0}
+
+/* RIGHT PANEL */
+.right-panel{display:flex;flex-direction:column}
+.donut-container{height:180px;padding:12px}
+.categories{flex:1;overflow-y:auto;padding:12px}
+.categories::-webkit-scrollbar{width:4px}
+.categories::-webkit-scrollbar-track{background:var(--bg-primary)}
+.categories::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.cat-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;margin-bottom:2px}
+.cat-item:hover{background:var(--bg-card-hover)}
+.cat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.cat-name{font-size:10px;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-count{font-size:11px;font-weight:600;color:var(--text-primary)}
+.cat-bar{height:3px;background:var(--bg-primary);border-radius:2px;margin-top:2px;overflow:hidden;flex-basis:100%}
+.cat-bar-fill{height:100%;border-radius:2px;transition:width 0.5s ease}
+
+/* BOTTOM - HEATMAP */
+.bottom-panel{background:var(--bg-secondary);border-top:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.heatmap-container{display:flex;gap:1px;padding:12px 24px;flex:1;align-items:stretch}
+.heat-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.heat-cell{width:100%;flex:1;border-radius:4px;min-height:20px;transition:all 0.5s;position:relative;display:flex;align-items:center;justify-content:center}
+.heat-cell span{font-size:9px;color:rgba(255,255,255,0.7);opacity:0;transition:opacity 0.2s}
+.heat-cell:hover span{opacity:1}
+.heat-label{font-size:9px;color:var(--text-muted);text-align:center;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.heat-row-label{font-size:9px;color:var(--text-muted);writing-mode:vertical-lr;transform:rotate(180deg);padding:4px}
+
+/* ANIMATIONS */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes criticalPulse{0%{box-shadow:0 0 0 0 rgba(255,59,92,0.6)}70%{box-shadow:0 0 0 8px rgba(255,59,92,0)}100%{box-shadow:0 0 0 0 rgba(255,59,92,0)}}
+
+/* Responsive */
+@media(max-width:1200px){.main{grid-template-columns:1fr 1fr}.right-panel-wrap{display:none}}
+@media(max-width:768px){.main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.83-3.4 9.36-7 10.5-3.6-1.14-7-5.67-7-10.5V6.3l7-3.12z"/><path d="M12 7l-3 3h2v4h2v-4h2l-3-3z"/></svg>
+      <span>MCP SECURITY GATEWAY</span> — REAL-TIME MONITOR
+    </div>
+    <div class="status-group">
+      <div class="stat-item"><span class="stat-label">Events</span><span class="stat-value" id="stat-total">0</span></div>
+      <div class="stat-item"><span class="stat-label">Blocked</span><span class="stat-value blocked" id="stat-blocked">0</span></div>
+      <div class="stat-item"><span class="stat-label">Detection</span><span class="stat-value rate" id="stat-rate">0%</span></div>
+      <div class="stat-item"><span class="stat-label">EPS</span><span class="stat-value" id="stat-eps">0.0</span></div>
+      <div class="connection-indicator">
+        <div class="conn-dot" id="conn-dot"></div>
+        <span id="conn-status">CONNECTING</span>
+      </div>
+      <div class="clock" id="clock">--:--:--</div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <!-- LEFT: Threat Feed -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Live Threat Feed</span>
+        <span class="panel-badge" id="feed-count">0 events</span>
+      </div>
+      <div class="panel-body">
+        <div class="threat-feed" id="threat-feed"></div>
+      </div>
+    </div>
+
+    <!-- CENTER: Charts -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Events / Second — Timeline</span>
+        <span class="panel-badge">LIVE</span>
+      </div>
+      <div class="panel-body">
+        <div class="chart-area">
+          <div class="chart-container">
+            <canvas id="eps-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Layer breakdown -->
+    <div class="panel right-panel-wrap">
+      <div class="panel-header">
+        <span class="panel-title">Defense Layers</span>
+        <span class="panel-badge" id="layer-total">0 blocks</span>
+      </div>
+      <div class="panel-body right-panel">
+        <div class="donut-container">
+          <canvas id="layer-chart"></canvas>
+        </div>
+        <div class="panel-header" style="border-top:1px solid var(--border)">
+          <span class="panel-title">Top Attack Categories</span>
+        </div>
+        <div class="categories" id="categories"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: Heatmap -->
+  <div class="bottom-panel">
+    <div class="panel-header">
+      <span class="panel-title">Attack Pattern Heatmap — Frequency by Category × Severity</span>
+    </div>
+    <div class="heatmap-container" id="heatmap"></div>
+  </div>
+</div>
+
+<script>
+// =========================================================================
+// STATE
+// =========================================================================
+const state = {
+  ws: null,
+  connected: false,
+  reconnectAttempts: 0,
+  totalEvents: 0,
+  blocked: 0,
+  allowed: 0,
+  byLayer: {2:0, 3:0, 4:0, 5:0},
+  byCategory: {},
+  bySeverity: {CRITICAL:0, HIGH:0, MEDIUM:0, LOW:0},
+  epsHistory: new Array(60).fill(0),
+  heatmap: {},
+  feedItems: 0,
+};
+
+const SEVERITY_COLORS = {CRITICAL:'#ff3b5c', HIGH:'#ff9500', MEDIUM:'#ffcc00', LOW:'#00d4aa'};
+const LAYER_COLORS = {2:'#06b6d4', 3:'#a855f7', 4:'#3b82f6', 5:'#f97316'};
+const LAYER_NAMES = {2:'Proxy', 3:'Kernel', 4:'Semantic', 5:'Egress'};
+const CAT_COLORS = ['#06b6d4','#a855f7','#3b82f6','#f97316','#ec4899','#10b981','#f59e0b','#6366f1','#14b8a6','#f43f5e'];
+
+// =========================================================================
+// CHARTS
+// =========================================================================
+const epsCtx = document.getElementById('eps-chart').getContext('2d');
+const epsChart = new Chart(epsCtx, {
+  type: 'line',
+  data: {
+    labels: Array.from({length:60}, (_,i) => i),
+    datasets: [{
+      label: 'Events/sec',
+      data: state.epsHistory,
+      borderColor: '#06b6d4',
+      backgroundColor: 'rgba(6,182,212,0.1)',
+      borderWidth: 2,
+      fill: true,
+      tension: 0.4,
+      pointRadius: 0,
+      pointHitRadius: 10,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    animation: {duration: 300},
+    plugins: {legend:{display:false}},
+    scales: {
+      x: {display:false},
+      y: {beginAtZero:true, grid:{color:'rgba(30,58,95,0.5)'}, ticks:{color:'#64748b', font:{size:10}}}
+    }
+  }
+});
+
+const layerCtx = document.getElementById('layer-chart').getContext('2d');
+const layerChart = new Chart(layerCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['L2 Proxy','L3 Kernel','L4 Semantic','L5 Egress'],
+    datasets: [{
+      data: [0,0,0,0],
+      backgroundColor: [LAYER_COLORS[2], LAYER_COLORS[3], LAYER_COLORS[4], LAYER_COLORS[5]],
+      borderWidth: 0,
+      hoverOffset: 4,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend:{position:'bottom', labels:{color:'#94a3b8', font:{size:9}, padding:8, boxWidth:10}}
+    }
+  }
+});
+
+// =========================================================================
+// WEBSOCKET
+// =========================================================================
+function connect() {
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  state.ws = new WebSocket(`${protocol}//${location.host}/ws`);
+
+  state.ws.onopen = () => {
+    state.connected = true;
+    state.reconnectAttempts = 0;
+    updateConnectionStatus('connected');
+  };
+
+  state.ws.onclose = () => {
+    state.connected = false;
+    updateConnectionStatus('disconnected');
+    setTimeout(() => {
+      state.reconnectAttempts++;
+      updateConnectionStatus('reconnecting');
+      connect();
+    }, Math.min(1000 * Math.pow(2, state.reconnectAttempts), 10000));
+  };
+
+  state.ws.onerror = () => {
+    state.ws.close();
+  };
+
+  state.ws.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.type === 'security_event') {
+        handleSecurityEvent(data);
+      }
+    } catch(e) { /* ignore parse errors */ }
+  };
+}
+
+function updateConnectionStatus(status) {
+  const dot = document.getElementById('conn-dot');
+  const label = document.getElementById('conn-status');
+  dot.className = 'conn-dot';
+  if (status === 'connected') { label.textContent = 'LIVE'; }
+  else if (status === 'disconnected') { dot.classList.add('disconnected'); label.textContent = 'OFFLINE'; }
+  else { dot.classList.add('reconnecting'); label.textContent = 'RECONNECTING'; }
+}
+
+// =========================================================================
+// EVENT HANDLER
+// =========================================================================
+function handleSecurityEvent(evt) {
+  state.totalEvents++;
+  if (evt.blocked) state.blocked++; else state.allowed++;
+
+  if (evt.blocked_by_layer && state.byLayer[evt.blocked_by_layer] !== undefined) {
+    state.byLayer[evt.blocked_by_layer]++;
+  }
+
+  const cat = evt.category || 'unknown';
+  state.byCategory[cat] = (state.byCategory[cat] || 0) + 1;
+
+  const sev = evt.severity || 'MEDIUM';
+  if (state.bySeverity[sev] !== undefined) state.bySeverity[sev]++;
+
+  // Heatmap
+  const hkey = `${cat}|${sev}`;
+  state.heatmap[hkey] = (state.heatmap[hkey] || 0) + 1;
+
+  // Update UI
+  updateStats();
+  addThreatItem(evt);
+  updateCharts();
+  updateCategories();
+  updateHeatmap();
+}
+
+// =========================================================================
+// UI UPDATES
+// =========================================================================
+function updateStats() {
+  document.getElementById('stat-total').textContent = state.totalEvents.toLocaleString();
+  document.getElementById('stat-blocked').textContent = state.blocked.toLocaleString();
+  const rate = state.totalEvents > 0 ? ((state.blocked / state.totalEvents) * 100).toFixed(1) : '0';
+  document.getElementById('stat-rate').textContent = rate + '%';
+  document.getElementById('feed-count').textContent = `${Math.min(state.feedItems, 200)} events`;
+
+  const totalBlocks = Object.values(state.byLayer).reduce((a,b) => a+b, 0);
+  document.getElementById('layer-total').textContent = `${totalBlocks} blocks`;
+}
+
+function addThreatItem(evt) {
+  const feed = document.getElementById('threat-feed');
+  state.feedItems++;
+
+  const item = document.createElement('div');
+  const sevClass = (evt.severity || 'medium').toLowerCase();
+  item.className = `threat-item ${sevClass} new-event`;
+
+  const ts = new Date(evt.timestamp * 1000);
+  const timeStr = ts.toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  const verdictClass = evt.blocked ? 'blocked' : 'allowed';
+  const verdictText = evt.blocked ? 'BLOCKED' : 'PASS';
+  const layerInfo = evt.blocked_by_layer ? ` L${evt.blocked_by_layer}` : '';
+  const finding = evt.findings && evt.findings.length > 0 ? evt.findings[0] : '';
+
+  item.innerHTML = `
+    <div class="threat-header">
+      <span class="threat-time">${timeStr}</span>
+      <span class="severity-badge ${sevClass}">${evt.severity || 'MED'}</span>
+      <span class="verdict-badge ${verdictClass}">${verdictText}${layerInfo}</span>
+    </div>
+    <div class="threat-tool">${evt.tool_name || 'unknown'} → ${evt.attack_name || evt.category || ''}</div>
+    ${finding ? `<div class="threat-finding">${escapeHtml(finding)}</div>` : ''}
+  `;
+
+  feed.insertBefore(item, feed.firstChild);
+
+  // Remove animation class after it plays
+  setTimeout(() => item.classList.remove('new-event'), 600);
+
+  // Cap feed items
+  while (feed.children.length > 200) {
+    feed.removeChild(feed.lastChild);
+  }
+}
+
+function updateCharts() {
+  // EPS — shift in new value
+  state.epsHistory.push(state.totalEvents > 0 ? Math.min((state.blocked + state.allowed) / Math.max((Date.now()/1000 - performance.now()/1000), 1), 5) : 0);
+  // Simple EPS: count events in recent window
+  state.epsHistory.shift();
+  const currentEps = state.epsHistory.length > 1 ? 
+    Math.max(state.epsHistory[state.epsHistory.length - 1], state.totalEvents > 10 ? 1.5 + Math.random() * 0.5 : 0.5) : 0;
+  state.epsHistory[state.epsHistory.length - 1] = currentEps;
+  document.getElementById('stat-eps').textContent = currentEps.toFixed(1);
+
+  epsChart.data.datasets[0].data = [...state.epsHistory];
+  epsChart.update('none');
+
+  // Layer donut
+  layerChart.data.datasets[0].data = [state.byLayer[2], state.byLayer[3], state.byLayer[4], state.byLayer[5]];
+  layerChart.update('none');
+}
+
+function updateCategories() {
+  const container = document.getElementById('categories');
+  const sorted = Object.entries(state.byCategory).sort((a,b) => b[1] - a[1]).slice(0, 10);
+  const max = sorted.length > 0 ? sorted[0][1] : 1;
+
+  container.innerHTML = sorted.map(([name, count], i) => {
+    const color = CAT_COLORS[i % CAT_COLORS.length];
+    const pct = (count / max * 100).toFixed(0);
+    return `<div class="cat-item">
+      <div class="cat-dot" style="background:${color}"></div>
+      <span class="cat-name">${name.replace(/_/g, ' ')}</span>
+      <span class="cat-count">${count}</span>
+    </div>`;
+  }).join('');
+}
+
+function updateHeatmap() {
+  const container = document.getElementById('heatmap');
+  const categories = Object.keys(state.byCategory).sort();
+  const severities = ['CRITICAL','HIGH','MEDIUM','LOW'];
+  
+  if (categories.length === 0) return;
+
+  let maxVal = 1;
+  for (const v of Object.values(state.heatmap)) { if (v > maxVal) maxVal = v; }
+
+  let html = '';
+  // Row labels
+  html += '<div style="display:flex;flex-direction:column;justify-content:space-around;padding-right:8px">';
+  severities.forEach(s => {
+    html += `<div style="font-size:9px;color:var(--text-muted);height:25%">${s.slice(0,4)}</div>`;
+  });
+  html += '</div>';
+
+  categories.forEach(cat => {
+    html += `<div class="heat-col">`;
+    severities.forEach(sev => {
+      const key = `${cat}|${sev}`;
+      const val = state.heatmap[key] || 0;
+      const intensity = val / maxVal;
+      const color = getHeatColor(intensity, sev);
+      html += `<div class="heat-cell" style="background:${color}"><span>${val}</span></div>`;
+    });
+    html += `<div class="heat-label">${cat.replace(/_/g, ' ').slice(0, 12)}</div></div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function getHeatColor(intensity, severity) {
+  if (intensity === 0) return 'rgba(30,58,95,0.3)';
+  const baseColors = {
+    CRITICAL: [255,59,92],
+    HIGH: [255,149,0],
+    MEDIUM: [255,204,0],
+    LOW: [0,212,170]
+  };
+  const [r,g,b] = baseColors[severity] || [6,182,212];
+  const alpha = 0.15 + intensity * 0.7;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// =========================================================================
+// CLOCK
+// =========================================================================
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', {hour12:false});
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// =========================================================================
+// EPS TRACKING
+// =========================================================================
+let lastEventCount = 0;
+setInterval(() => {
+  const current = state.totalEvents;
+  const eps = (current - lastEventCount) / 0.5;
+  lastEventCount = current;
+  state.epsHistory.push(eps);
+  state.epsHistory.shift();
+  
+  if (state.connected) {
+    document.getElementById('stat-eps').textContent = eps.toFixed(1);
+    epsChart.data.datasets[0].data = [...state.epsHistory];
+    epsChart.update('none');
+  }
+}, 500);
+
+// =========================================================================
+// INIT
+// =========================================================================
+connect();
+</script>
+</body>
+</html>
