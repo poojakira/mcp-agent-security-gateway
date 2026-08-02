@@ -5,6 +5,7 @@ Open:  http://localhost:8000
 """
 
 import uvicorn
+
 from mcp_monitor.server.realtime import app
 
 if __name__ == "__main__":

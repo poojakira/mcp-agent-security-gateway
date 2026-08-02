@@ -12,4 +12,5 @@ __pycache__/
 *.pyc
 .coverage
 test_env/
-*.egg-info
+*.egg-info/
+.env
