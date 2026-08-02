@@ -1,7 +1,11 @@
 """Prompt injection detection for MCP tool call arguments.
 
-Scans all string values in tool-call argument trees for known injection
-patterns that attempt to override system instructions or jailbreak the model.
+Hybrid detector using:
+  1. FAST regex first-pass (< 1ms) — 12 patterns for known injection families
+  2. ML second-pass — TF-IDF classifier from defense10 for ambiguous cases
+
+If regex matches with high confidence, the ML pass is skipped.
+If regex doesn't match, the ML classifier provides a secondary risk signal.
 """
 
 from __future__ import annotations
@@ -44,7 +48,7 @@ INJECTION_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     (
         "disregard_guidelines",
         re.compile(
-            r"disregard.{0,20}(guidelines|rules|policies|restrictions)",
+            r"disregard.{0,20}(guidelines|rules|policies|restrictions|directives)",
             re.IGNORECASE,
         ),
     ),
@@ -65,7 +69,7 @@ INJECTION_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     (
         "new_instructions",
         re.compile(
-            r"(new|updated|real)\s+instructions?\s*(:|are)",
+            r"(new|updated|real)\s+instructions?\s*(:|are|supersede)",
             re.IGNORECASE,
         ),
     ),
@@ -87,10 +91,30 @@ INJECTION_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
 
 
 class PromptInjectionDetector:
-    """Detects prompt injection attempts in MCP tool call arguments."""
+    """Detects prompt injection attempts in MCP tool call arguments.
 
-    def __init__(self) -> None:
+    Uses a two-pass approach:
+      1. Regex patterns for fast, deterministic detection of known attacks
+      2. ML classifier (TF-IDF + structural features) for ambiguous cases
+    """
+
+    def __init__(self, *, enable_ml: bool = True) -> None:
         self.patterns = INJECTION_PATTERNS
+        self._enable_ml = enable_ml
+        self._ml_classifier = None
+
+    def _get_ml_classifier(self):
+        """Lazy-load the ML classifier on first use."""
+        if self._ml_classifier is None and self._enable_ml:
+            try:
+                from mcp_monitor.defense10.ml_classifier import MLThreatClassifier
+
+                self._ml_classifier = MLThreatClassifier(threshold=0.7)
+                self._ml_classifier.train()
+            except Exception:
+                # If ML deps unavailable, degrade gracefully to regex-only
+                self._enable_ml = False
+        return self._ml_classifier
 
     # ------------------------------------------------------------------
     # Public API
@@ -111,22 +135,61 @@ class PromptInjectionDetector:
         arguments = tool_call.get("arguments", {})
         texts = self._extract_strings(arguments)
         matched: list[str] = []
+
+        # Pass 1: Fast regex scan (< 1ms)
         for text in texts:
             for name, pattern in self.patterns:
                 if pattern.search(text) and name not in matched:
                     matched.append(name)
+
+        # If regex matched, high confidence — skip ML
+        if matched:
+            return (True, matched)
+
+        # Pass 2: ML classifier for ambiguous cases
+        if self._enable_ml and texts:
+            clf = self._get_ml_classifier()
+            if clf is not None:
+                prediction = clf.classify(tool_call)
+                if prediction.is_threat and prediction.confidence >= 0.7:
+                    family = prediction.threat_family or "ml_detected"
+                    matched.append(f"ml_{family}")
+
         return (bool(matched), matched)
 
     def risk_score(self, tool_call: dict[str, Any]) -> int:
-        """Return a risk score 0-100 based on matched pattern count and severity."""
-        detected, matched = self.detect(tool_call)
-        if not detected:
-            return 0
-        # Each matched pattern adds weight; cap at 100.
-        base = 30
-        per_pattern = 15
-        score = base + per_pattern * len(matched)
-        return min(score, 100)
+        """Return a risk score 0-100 based on matched pattern count and severity.
+
+        Combines regex confidence with ML confidence for a unified score.
+        """
+        arguments = tool_call.get("arguments", {})
+        texts = self._extract_strings(arguments)
+        regex_matched: list[str] = []
+
+        # Regex pass
+        for text in texts:
+            for name, pattern in self.patterns:
+                if pattern.search(text) and name not in regex_matched:
+                    regex_matched.append(name)
+
+        if regex_matched:
+            # High confidence from regex
+            base = 30
+            per_pattern = 15
+            score = base + per_pattern * len(regex_matched)
+            return min(score, 100)
+
+        # ML pass for ambiguous cases
+        if self._enable_ml and texts:
+            clf = self._get_ml_classifier()
+            if clf is not None:
+                prediction = clf.classify(tool_call)
+                if prediction.is_threat:
+                    # Scale ML confidence to 0-100 risk score
+                    # ML alone caps at 80 (regex gets full 100)
+                    return min(int(prediction.confidence * 80), 80)
+
+        return 0
 
     # ------------------------------------------------------------------
     # Internal helpers

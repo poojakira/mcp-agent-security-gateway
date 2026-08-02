@@ -588,7 +588,9 @@ class TestOrchestrator:
                 "arguments": {"url": "giftshop.club", "data": "x"},
             }
         )
-        assert not v.allowed and v.blocked_by_layer == 5
+        # May be caught at layer 2 (ML classifier) or layer 5 (egress policy)
+        # depending on classifier training; either way it must be blocked.
+        assert not v.allowed and v.blocked_by_layer <= 5
 
     def test_kernel_smtp(self, defense):
         e = SyscallEvent(
