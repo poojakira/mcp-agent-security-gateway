@@ -274,13 +274,12 @@ print(f"Blocked: {report.blocked}/{report.total_attacks}")
 
 ## Test Results
 
-```
-Current local validation snapshot (Windows, Python 3.12.9, 2026-07-14):
-472 tests passed | 0 pytest warnings | 23.66s runtime with `-W error`
-472 tests passed | 82% total coverage | 43.64s runtime with coverage
-
-Docker image build validated locally with `docker build -t mcp-monitor:ci .`.
-```
+The complete suite and coverage report are generated in CI. The repository has a
+full-package pytest coverage gate of **77%**. That is line coverage of
+`mcp_monitor`, including optional dashboard, production-service, and advanced
+modules; it is not a detection-rate claim. Review the uploaded coverage artifact
+for the exact Python-version result rather than treating a historical local
+snapshot as a current guarantee.
 
 ---
 
