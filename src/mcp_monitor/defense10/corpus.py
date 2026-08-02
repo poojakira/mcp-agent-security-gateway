@@ -263,7 +263,7 @@ _BENIGN_PATHS = [
     "/app/data/report.pdf",
     "/home/user/documents/notes.md",
     "/var/log/app.log",
-    "/tmp/export.csv",
+    "/tmp/export.csv"  # nosec B108,
     "config.yaml",
     "src/main.py",
     "README.md",
