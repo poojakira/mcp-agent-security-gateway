@@ -47,7 +47,7 @@ class WriteAheadLog:
             os.close(fd)
 
         # Append temp content to WAL
-        with open(tmp_path, "r", encoding="utf-8") as tmp_f:
+        with open(tmp_path, encoding="utf-8") as tmp_f:
             content = tmp_f.read()
         with self._wal_path.open("a", encoding="utf-8") as wal_f:
             wal_f.write(content)

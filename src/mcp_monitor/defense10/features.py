@@ -17,8 +17,8 @@ from __future__ import annotations
 
 import re
 
-from sklearn.base import BaseEstimator, TransformerMixin
 import numpy as np
+from sklearn.base import BaseEstimator, TransformerMixin
 
 _EMAIL = re.compile(r"[a-zA-Z0-9._%+\-]+@([a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})")
 _IP_URL = re.compile(r"https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
@@ -36,9 +36,7 @@ _EXFIL_VERBS = re.compile(
 _INJECT_WORDS = re.compile(
     r"\b(ignore|disregard|override|bypass|forget|overlook|supersede)\b", re.I
 )
-_SQL_DANGER = re.compile(
-    r"\b(drop\s+table|delete\s+from|union\s+select|or\s+1=1|;--)\b", re.I
-)
+_SQL_DANGER = re.compile(r"\b(drop\s+table|delete\s+from|union\s+select|or\s+1=1|;--)\b", re.I)
 _CORP_HINT = re.compile(
     r"\b(meeting|invoice|report|standup|lunch|calendar|review|thanks|rsvp|agenda)\b",
     re.I,

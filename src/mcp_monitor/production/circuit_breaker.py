@@ -7,9 +7,10 @@ then probing with half-open state after a timeout.
 from __future__ import annotations
 
 import enum
-import time
 import threading
-from typing import Any, Callable, Optional
+import time
+from collections.abc import Callable
+from typing import Any
 
 
 class CircuitState(enum.Enum):
@@ -62,7 +63,7 @@ class CircuitBreaker:
         self,
         func: Callable[..., Any],
         *args: Any,
-        fallback: Optional[Callable[..., Any]] = None,
+        fallback: Callable[..., Any] | None = None,
         **kwargs: Any,
     ) -> Any:
         """Execute func through the circuit breaker.

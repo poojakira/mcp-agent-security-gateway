@@ -1,12 +1,14 @@
 """Layer 2: Inline Proxy Gateway for MCP tool calls."""
 
 from __future__ import annotations
+
+import re
 import time
 import uuid
-import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 
 
 class ProxyAction(Enum):
@@ -76,9 +78,7 @@ class InlineProxyGateway:
             reasons = result.get("findings", [])
         if risk_score >= self._block_threshold:
             action = ProxyAction.BLOCK
-            reasons.append(
-                f"risk_score {risk_score} >= block_threshold {self._block_threshold}"
-            )
+            reasons.append(f"risk_score {risk_score} >= block_threshold {self._block_threshold}")
         elif risk_score >= self._quarantine_threshold:
             action = ProxyAction.QUARANTINE
             reasons.append(
@@ -175,9 +175,7 @@ class InlineProxyGateway:
             )
         return None
 
-    def _redact_fields(
-        self, payload: dict[str, Any], fields: list[str]
-    ) -> dict[str, Any]:
+    def _redact_fields(self, payload: dict[str, Any], fields: list[str]) -> dict[str, Any]:
         result = dict(payload)
         args = dict(result.get("arguments", {}))
         for f in fields:

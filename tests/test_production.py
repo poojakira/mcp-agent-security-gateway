@@ -16,20 +16,19 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mcp_monitor.production.config import Config
-from mcp_monitor.production.logging import JSONFormatter, get_logger
+from mcp_monitor.production.alerting import AlertingHook
 from mcp_monitor.production.circuit_breaker import (
     CircuitBreaker,
     CircuitOpenError,
     CircuitState,
 )
-from mcp_monitor.production.rate_limiter import RateLimiter
-from mcp_monitor.production.alerting import AlertingHook
+from mcp_monitor.production.config import Config
+from mcp_monitor.production.logging import JSONFormatter, get_logger
 from mcp_monitor.production.metrics import MetricsCollector
-from mcp_monitor.production.tracing import Tracer
-from mcp_monitor.production.shutdown import GracefulShutdown
+from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.production.server import ProductionServer
-
+from mcp_monitor.production.shutdown import GracefulShutdown
+from mcp_monitor.production.tracing import Tracer
 
 # ============================================================
 # Config Tests
@@ -585,9 +584,7 @@ class TestTracing:
 
     def test_traceparent_parsing(self):
         """W3C traceparent header is correctly parsed."""
-        result = Tracer.parse_traceparent(
-            "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
-        )
+        result = Tracer.parse_traceparent("00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01")
         assert result is not None
         assert result["trace_id"] == "4bf92f3577b34da6a3ce929d0e0e4736"
         assert result["parent_span_id"] == "00f067aa0ba902b7"
@@ -784,9 +781,9 @@ class TestProductionServer:
     def test_inspect_route_requires_api_key(self):
         """Protected inspect routes fail closed when MCP_API_KEY is absent."""
         server = self._make_server()
-        body = json.dumps(
-            {"name": "read_file", "server_id": "trusted", "arguments": {}}
-        ).encode("utf-8")
+        body = json.dumps({"name": "read_file", "server_id": "trusted", "arguments": {}}).encode(
+            "utf-8"
+        )
         loop = asyncio.new_event_loop()
         try:
             status, result = loop.run_until_complete(
@@ -800,9 +797,9 @@ class TestProductionServer:
     def test_inspect_route_rejects_bad_api_key(self):
         """Protected inspect routes reject missing or wrong API keys."""
         server = self._make_server(MCP_API_KEY="secret")
-        body = json.dumps(
-            {"name": "read_file", "server_id": "trusted", "arguments": {}}
-        ).encode("utf-8")
+        body = json.dumps({"name": "read_file", "server_id": "trusted", "arguments": {}}).encode(
+            "utf-8"
+        )
         loop = asyncio.new_event_loop()
         try:
             status, result = loop.run_until_complete(
@@ -824,9 +821,9 @@ class TestProductionServer:
         """Protected inspect routes write request metadata to WAL before monitor processing."""
         wal_path = tmp_path / "server.wal"
         server = self._make_server(MCP_API_KEY="secret", MCP_WAL_PATH=str(wal_path))
-        body = json.dumps(
-            {"name": "read_file", "server_id": "trusted", "arguments": {}}
-        ).encode("utf-8")
+        body = json.dumps({"name": "read_file", "server_id": "trusted", "arguments": {}}).encode(
+            "utf-8"
+        )
         loop = asyncio.new_event_loop()
         try:
             status, result = loop.run_until_complete(
@@ -851,12 +848,10 @@ class TestProductionServer:
     def test_inspect_call_circuit_breaker_fails_closed(self):
         """Circuit breaker fallback blocks instead of allowing risky traffic."""
         server = self._make_server(MCP_CIRCUIT_BREAKER_THRESHOLD="1")
-        server._monitor.inspect_call = lambda tc: (_ for _ in ()).throw(
-            RuntimeError("boom")
+        server._monitor.inspect_call = lambda tc: (_ for _ in ()).throw(RuntimeError("boom"))
+        body = json.dumps({"name": "send_email", "server_id": "trusted", "arguments": {}}).encode(
+            "utf-8"
         )
-        body = json.dumps(
-            {"name": "send_email", "server_id": "trusted", "arguments": {}}
-        ).encode("utf-8")
         status, result = server._handle_inspect_call(body, "trace", "span")
         assert status == 200
         assert result["allowed"] is False

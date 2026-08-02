@@ -156,9 +156,7 @@ class AttackSimulator:
             actually_caught=blocked,
         )
 
-    def _build_report(
-        self, results: list[AttackResult], elapsed: float
-    ) -> SimulationReport:
+    def _build_report(self, results: list[AttackResult], elapsed: float) -> SimulationReport:
         """Build a summary report from results."""
         total = len(results)
         blocked_count = sum(1 for r in results if r.blocked)

@@ -1,14 +1,16 @@
 """Unified 5-Layer Defense Orchestrator."""
 
 from __future__ import annotations
+
 import time
 import uuid
 from dataclasses import dataclass, field
 from typing import Any
-from mcp_monitor.layers.proxy import InlineProxyGateway, ProxyAction
-from mcp_monitor.layers.kernel import KernelMonitor, SyscallEvent
-from mcp_monitor.layers.semantic import SemanticIntentAnalyzer
+
 from mcp_monitor.layers.egress import NetworkEgressPolicy
+from mcp_monitor.layers.kernel import KernelMonitor, SyscallEvent
+from mcp_monitor.layers.proxy import InlineProxyGateway, ProxyAction
+from mcp_monitor.layers.semantic import SemanticIntentAnalyzer
 
 
 @dataclass
@@ -35,9 +37,7 @@ class DefenseVerdict:
     def summary(self) -> str:
         if self.allowed:
             return f"ALLOWED (risk={self.total_risk_score})"
-        return (
-            f"BLOCKED by Layer {self.blocked_by_layer} (risk={self.total_risk_score})"
-        )
+        return f"BLOCKED by Layer {self.blocked_by_layer} (risk={self.total_risk_score})"
 
 
 class FiveLayerDefense:
@@ -134,9 +134,7 @@ class FiveLayerDefense:
         layer_blocks = {2: 0, 3: 0, 4: 0, 5: 0}
         for v in self._verdicts:
             if v.blocked_by_layer:
-                layer_blocks[v.blocked_by_layer] = (
-                    layer_blocks.get(v.blocked_by_layer, 0) + 1
-                )
+                layer_blocks[v.blocked_by_layer] = layer_blocks.get(v.blocked_by_layer, 0) + 1
         total = len(self._verdicts)
         allowed = sum(1 for v in self._verdicts if v.allowed)
         return {

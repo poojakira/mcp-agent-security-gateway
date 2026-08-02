@@ -1,7 +1,9 @@
 """HTML Security Report Generator — deep-level dashboard."""
 
 from __future__ import annotations
+
 import time
+
 from mcp_monitor.redteam.simulator import SimulationReport
 
 
@@ -27,15 +29,15 @@ class HTMLReportGenerator:
                     4: "Semantic Analyzer",
                     5: "Egress Policy",
                 }
-                layer_str = f"Layer {r.blocked_by_layer}: {layer_names.get(r.blocked_by_layer, 'Unknown')}"
+                layer_str = (
+                    f"Layer {r.blocked_by_layer}: {layer_names.get(r.blocked_by_layer, 'Unknown')}"
+                )
                 outcome = "BLOCKED"
                 outcome_color = "#dc3545"
-                arrow_color = "#dc3545"
             else:
                 layer_str = "All Layers"
                 outcome = "ALLOWED"
                 outcome_color = "#28a745"
-                arrow_color = "#28a745"
 
             # Render one graph row as an HTML "edge" visualization
             rows += f"""

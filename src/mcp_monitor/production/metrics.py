@@ -7,8 +7,6 @@ and circuit breaker states. Exposes metrics in Prometheus text exposition format
 from __future__ import annotations
 
 import threading
-from typing import Dict, List
-
 
 # Default histogram buckets (seconds) targeting p50/p95/p99
 DEFAULT_BUCKETS = (
@@ -43,7 +41,7 @@ class MetricsCollector:
         # Counters
         self._request_total: int = 0
         self._error_total: int = 0
-        self._request_total_by_endpoint: Dict[str, int] = {}
+        self._request_total_by_endpoint: dict[str, int] = {}
 
         # Gauge
         self._active_requests: int = 0
@@ -51,10 +49,10 @@ class MetricsCollector:
         # Histogram data
         self._duration_sum: float = 0.0
         self._duration_count: int = 0
-        self._duration_buckets: List[int] = [0] * len(self._buckets)
+        self._duration_buckets: list[int] = [0] * len(self._buckets)
 
         # Circuit breaker states
-        self._circuit_states: Dict[str, str] = {}
+        self._circuit_states: dict[str, str] = {}
 
     def inc_request(self, endpoint: str = "") -> None:
         """Increment total request counter."""
@@ -108,7 +106,7 @@ class MetricsCollector:
     def expose(self) -> str:
         """Return metrics in Prometheus text exposition format."""
         with self._lock:
-            lines: List[str] = []
+            lines: list[str] = []
 
             # request_total counter
             lines.append("# HELP mcp_request_total Total number of requests.")
@@ -130,22 +128,18 @@ class MetricsCollector:
             lines.append(f"mcp_active_requests {self._active_requests}")
 
             # request_duration_seconds histogram
-            lines.append(
-                "# HELP mcp_request_duration_seconds " "Request duration histogram."
-            )
+            lines.append("# HELP mcp_request_duration_seconds " "Request duration histogram.")
             lines.append("# TYPE mcp_request_duration_seconds histogram")
             cumulative = 0
             for i, bound in enumerate(self._buckets):
                 cumulative += self._duration_buckets[i]
                 if bound == float("inf"):
                     lines.append(
-                        f'mcp_request_duration_seconds_bucket{{le="+Inf"}} '
-                        f"{cumulative}"
+                        f'mcp_request_duration_seconds_bucket{{le="+Inf"}} ' f"{cumulative}"
                     )
                 else:
                     lines.append(
-                        f'mcp_request_duration_seconds_bucket{{le="{bound}"}} '
-                        f"{cumulative}"
+                        f'mcp_request_duration_seconds_bucket{{le="{bound}"}} ' f"{cumulative}"
                     )
             lines.append(f"mcp_request_duration_seconds_sum {self._duration_sum}")
             lines.append(f"mcp_request_duration_seconds_count {self._duration_count}")

@@ -150,9 +150,7 @@ class MLThreatClassifier:
     the deterministic rule-based layers, not as a standalone defense.
     """
 
-    def __init__(
-        self, *, model_path: str | None = None, threshold: float = 0.6
-    ) -> None:
+    def __init__(self, *, model_path: str | None = None, threshold: float = 0.6) -> None:
         self._model_path = model_path
         self._threshold = threshold
         self._pipeline = None
@@ -164,11 +162,12 @@ class MLThreatClassifier:
         benign: list[str] | None = None,
     ) -> dict[str, Any]:
         """Train the classifier. Returns training metrics."""
-        from sklearn.pipeline import Pipeline, FeatureUnion
+        import numpy as np
         from sklearn.feature_extraction.text import TfidfVectorizer
         from sklearn.linear_model import LogisticRegression
         from sklearn.model_selection import cross_val_score
-        import numpy as np
+        from sklearn.pipeline import FeatureUnion, Pipeline
+
         from mcp_monitor.defense10.features import StructuralFeatures
 
         if malicious is not None:
@@ -227,9 +226,7 @@ class MLThreatClassifier:
         ## Cross-validation score on the synthetic TRAINING corpus only.
         ## This is a sanity/fixture figure, not production accuracy.
         try:
-            scores = cross_val_score(
-                self._pipeline, X, y, cv=min(5, len(mal), len(ben))
-            )
+            scores = cross_val_score(self._pipeline, X, y, cv=min(5, len(mal), len(ben)))
             cv_mean = float(np.mean(scores))
         except Exception:
             cv_mean = float("nan")
@@ -243,9 +240,7 @@ class MLThreatClassifier:
             "n_benign": len(ben),
             "cv_accuracy": round(cv_mean, 4),
             "n_features": len(
-                self._pipeline.named_steps["features"]
-                .transformer_list[0][1]
-                .vocabulary_
+                self._pipeline.named_steps["features"].transformer_list[0][1].vocabulary_
             )
             + len(StructuralFeatures.FEATURE_NAMES),
         }
@@ -279,8 +274,8 @@ class MLThreatClassifier:
 
     def save(self, path: str) -> None:
         """Persist the trained model to disk with integrity verification."""
-        import pickle
         import hashlib as _hl
+        import pickle
 
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
         data = pickle.dumps(self._pipeline)
@@ -296,15 +291,15 @@ class MLThreatClassifier:
         Refuses to load if the SHA-256 checksum doesn't match, preventing
         arbitrary code execution via tampered pickle files.
         """
-        import pickle
         import hashlib as _hl
+        import pickle
 
         if not os.path.exists(path):
             return False
         checksum_path = path + ".sha256"
         if not os.path.exists(checksum_path):
             return False  # Refuse to load without integrity file
-        with open(checksum_path, "r") as f:
+        with open(checksum_path) as f:
             expected_hash = f.read().strip()
         with open(path, "rb") as f:
             data = f.read()

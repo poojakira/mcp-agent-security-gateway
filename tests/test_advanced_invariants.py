@@ -36,9 +36,7 @@ class TestBuiltinInvariants:
         assert passed
 
     def test_sql_drop_blocked(self, enforcer):
-        passed, violations = enforcer.check_call(
-            "db.query", {"query": "DROP TABLE users;"}
-        )
+        passed, violations = enforcer.check_call("db.query", {"query": "DROP TABLE users;"})
         assert not passed
         assert any(v.invariant_name == "no_sql_drop" for v in violations)
 
@@ -49,9 +47,7 @@ class TestBuiltinInvariants:
         assert passed
 
     def test_raw_ip_url_blocked(self, enforcer):
-        passed, violations = enforcer.check_call(
-            "web.fetch", {"url": "http://123.45.67.89/steal"}
-        )
+        passed, violations = enforcer.check_call("web.fetch", {"url": "http://123.45.67.89/steal"})
         assert not passed
         assert any(v.invariant_name == "no_raw_ip_urls" for v in violations)
 
@@ -62,9 +58,7 @@ class TestBuiltinInvariants:
         assert passed
 
     def test_shell_injection_blocked(self, enforcer):
-        passed, violations = enforcer.check_call(
-            "system.exec", {"command": "; rm -rf /"}
-        )
+        passed, violations = enforcer.check_call("system.exec", {"command": "; rm -rf /"})
         assert not passed
 
     def test_builtin_count(self, enforcer):
@@ -132,9 +126,7 @@ class TestCustomInvariants:
                 severity=60,
             )
         )
-        passed, _ = bare_enforcer.check_call(
-            "email.send", {"to": "me@x.com", "from": "me@x.com"}
-        )
+        passed, _ = bare_enforcer.check_call("email.send", {"to": "me@x.com", "from": "me@x.com"})
         assert not passed
 
 
