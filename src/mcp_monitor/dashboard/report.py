@@ -8,6 +8,66 @@ from mcp_monitor.redteam.simulator import SimulationReport
 class HTMLReportGenerator:
     """Generates an HTML security dashboard from simulation results."""
 
+    def _build_invocation_graph(self, report: SimulationReport) -> str:
+        """Build an invocation graph section showing agent->tool->layer edges."""
+        if not report.results:
+            return "<p style='color:#aaa'>No invocation data available.</p>"
+
+        rows = ""
+        for r in report.results:
+            # Derive agent label from category (e.g. "PROMPT_INJECTION" -> "Agent[PI]")
+            agent_label = f"Agent[{r.category[:4].upper()}]"
+            tool_label = r.attack_name
+
+            if r.blocked and r.blocked_by_layer is not None:
+                layer_names = {
+                    1: "Audit Log",
+                    2: "Inline Proxy",
+                    3: "Kernel Monitor",
+                    4: "Semantic Analyzer",
+                    5: "Egress Policy",
+                }
+                layer_str = f"Layer {r.blocked_by_layer}: {layer_names.get(r.blocked_by_layer, 'Unknown')}"
+                outcome = "BLOCKED"
+                outcome_color = "#dc3545"
+                arrow_color = "#dc3545"
+            else:
+                layer_str = "All Layers"
+                outcome = "ALLOWED"
+                outcome_color = "#28a745"
+                arrow_color = "#28a745"
+
+            # Render one graph row as an HTML "edge" visualization
+            rows += f"""
+<tr>
+  <td style="padding:8px 12px;color:#8b5cf6;font-family:monospace;white-space:nowrap">{agent_label}</td>
+  <td style="padding:8px 4px;color:#aaa;text-align:center">&#x27A1;</td>
+  <td style="padding:8px 12px;color:#00d4ff;font-family:monospace;white-space:nowrap">[{tool_label}]</td>
+  <td style="padding:8px 4px;color:#aaa;text-align:center">&#x27A1;</td>
+  <td style="padding:8px 12px;color:#aaa;font-family:monospace;white-space:nowrap">{layer_str}</td>
+  <td style="padding:8px 4px;color:#aaa;text-align:center">&#x27A1;</td>
+  <td style="padding:8px 12px;color:{outcome_color};font-weight:bold;font-family:monospace">{outcome}</td>
+  <td style="padding:8px 12px;color:#777;font-size:0.85em">{r.severity} | risk={r.risk_score}</td>
+</tr>"""
+
+        return f"""
+<table style="width:100%;border-collapse:collapse;margin:15px 0;font-size:0.9em">
+  <thead>
+    <tr style="background:#16213e">
+      <th style="padding:10px 12px;text-align:left;color:#8b5cf6">Agent</th>
+      <th style="padding:10px 4px"></th>
+      <th style="padding:10px 12px;text-align:left;color:#00d4ff">Tool Call</th>
+      <th style="padding:10px 4px"></th>
+      <th style="padding:10px 12px;text-align:left;color:#00d4ff">Layer</th>
+      <th style="padding:10px 4px"></th>
+      <th style="padding:10px 12px;text-align:left;color:#00d4ff">Decision</th>
+      <th style="padding:10px 12px;text-align:left;color:#aaa">Meta</th>
+    </tr>
+  </thead>
+  <tbody>{rows}
+  </tbody>
+</table>"""
+
     def generate(self, report: SimulationReport) -> str:
         """Generate a complete HTML dashboard."""
         rows = ""
@@ -42,6 +102,8 @@ class HTMLReportGenerator:
             else "#dc3545"
         )
 
+        invocation_graph_html = self._build_invocation_graph(report)
+
         return f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>MCP Security Dashboard</title>
 <style>
@@ -62,6 +124,7 @@ tr:hover{{background:#16213e}}
 .layer-bar span{{display:inline-block;width:200px;color:#aaa}}
 .layer-bar .bar{{display:inline-block;background:#8b5cf6;color:#fff;padding:4px 10px;border-radius:4px;min-width:30px;text-align:center}}
 .verdict{{text-align:center;padding:20px;margin:20px 0;border-radius:8px;background:#16213e;border:2px solid {verdict_color}}}
+.graph-section{{background:#0d1b2a;border-radius:8px;padding:15px;margin:15px 0;border:1px solid #1e3a5f;overflow-x:auto}}
 </style></head><body>
 <div class="container">
 <h1>MCP Security Gateway Monitor — Real-Time Dashboard</h1>
@@ -78,6 +141,12 @@ tr:hover{{background:#16213e}}
 
 <h2>Layer Performance</h2>
 {by_layer_html}
+
+<h2>Invocation Graph</h2>
+<p style="color:#aaa;font-size:0.9em">Each row shows one tool invocation edge: which agent triggered it, which tool was called, which layer evaluated it, and whether it was blocked or allowed.</p>
+<div class="graph-section">
+{invocation_graph_html}
+</div>
 
 <h2>Category Breakdown</h2>
 <table><tr><th>Category</th><th>Total</th><th>Blocked</th><th>Missed</th><th>Rate</th></tr>{by_cat_html}</table>
