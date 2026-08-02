@@ -34,6 +34,7 @@ import json
 import urllib.request
 from collections.abc import Callable
 from typing import Any
+from urllib.parse import urlparse
 
 
 class ToolBlocked(Exception):
@@ -50,7 +51,11 @@ class GatewayClient:
     """Thin HTTP client for the MCP security gateway's /api/scan endpoint."""
 
     def __init__(self, base_url: str = "http://localhost:8000", timeout: float = 5.0) -> None:
-        self.base_url = base_url.rstrip("/")
+        normalized_url = base_url.rstrip("/")
+        parsed = urlparse(normalized_url)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise ValueError("GatewayClient base_url must be an absolute HTTP or HTTPS endpoint")
+        self.base_url = normalized_url
         self.timeout = timeout
 
     def scan(self, tool_call: dict[str, Any]) -> dict[str, Any]:
@@ -68,7 +73,8 @@ class GatewayClient:
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        with urllib.request.urlopen(req, timeout=self.timeout) as resp:  # noqa: S310
+        # base_url is validated in __init__ to be an absolute HTTP(S) URL.
+        with urllib.request.urlopen(req, timeout=self.timeout) as resp:  # nosec B310
             return json.loads(resp.read().decode("utf-8"))
 
     def guard(self, fn: Callable[..., Any]) -> Callable[..., Any]:
