@@ -22,9 +22,7 @@ class TestBaselineRecording:
 
     def test_baseline_stats_after_recording(self, detector):
         for i in range(5):
-            detector.record_baseline(
-                "email.send", {"i": i}, {"status": "ok", "id": str(i)}
-            )
+            detector.record_baseline("email.send", {"i": i}, {"status": "ok", "id": str(i)})
         stats = detector.get_baseline_stats("email.send")
         assert stats["sample_count"] == 5
         assert "status" in stats["known_fields"]
@@ -107,18 +105,14 @@ class TestSizeAnomaly:
         for i in range(10):
             detector.record_baseline("api.get", {"id": i}, {"data": "small"})
 
-        drifted, alerts = detector.check_drift(
-            "api.get", {"id": 11}, {"data": "x" * 100000}
-        )
+        drifted, alerts = detector.check_drift("api.get", {"id": 11}, {"data": "x" * 100000})
         assert drifted
         assert any(a.drift_type == "size_anomaly" for a in alerts)
 
     def test_normal_size_not_flagged(self, detector):
         for i in range(10):
             detector.record_baseline("api.get", {"id": i}, {"data": "normal"})
-        drifted, alerts = detector.check_drift(
-            "api.get", {"id": 11}, {"data": "also normal"}
-        )
+        drifted, alerts = detector.check_drift("api.get", {"id": 11}, {"data": "also normal"})
         size_alerts = [a for a in alerts if a.drift_type == "size_anomaly"]
         assert len(size_alerts) == 0
 

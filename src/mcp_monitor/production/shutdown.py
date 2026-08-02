@@ -10,7 +10,8 @@ import asyncio
 import signal
 import threading
 import time
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 from mcp_monitor.production.logging import get_logger
 
@@ -31,7 +32,7 @@ class GracefulShutdown:
     def __init__(
         self,
         drain_timeout: float = 30.0,
-        on_shutdown: Optional[Callable[[], None]] = None,
+        on_shutdown: Callable[[], None] | None = None,
     ) -> None:
         self.drain_timeout = drain_timeout
         self.on_shutdown = on_shutdown
@@ -113,8 +114,7 @@ class GracefulShutdown:
         drained = self.wait_for_drain()
         if not drained:
             _logger.warning(
-                f"Drain timeout exceeded, "
-                f"{self.active_requests} requests still in flight"
+                f"Drain timeout exceeded, " f"{self.active_requests} requests still in flight"
             )
 
         if self.on_shutdown:

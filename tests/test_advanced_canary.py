@@ -128,17 +128,13 @@ class TestSizeAndValidator:
 class TestHealthAndHistory:
     def test_get_history(self, canary, email_probe):
         canary.register_probe(email_probe)
-        canary.evaluate_response(
-            "canary-email-001", {"status": "sent", "message_id": "test-123"}
-        )
+        canary.evaluate_response("canary-email-001", {"status": "sent", "message_id": "test-123"})
         history = canary.get_history("canary-email-001")
         assert len(history) == 1
 
     def test_tool_health_healthy(self, canary, email_probe):
         canary.register_probe(email_probe)
-        canary.evaluate_response(
-            "canary-email-001", {"status": "sent", "message_id": "test-123"}
-        )
+        canary.evaluate_response("canary-email-001", {"status": "sent", "message_id": "test-123"})
         health = canary.get_tool_health("postmark.send_email")
         assert health["status"] == "healthy"
         assert health["health_score"] == 100.0

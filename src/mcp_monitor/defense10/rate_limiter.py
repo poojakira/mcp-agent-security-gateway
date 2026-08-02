@@ -38,9 +38,7 @@ class RateLimiter:
         # (server_id, action) -> (max_count, window_seconds)
         self._limits: dict[tuple[str, str], tuple[int, float]] = {}
 
-    def set_limit(
-        self, server_id: str, action: str, max_count: int, window_seconds: float
-    ) -> None:
+    def set_limit(self, server_id: str, action: str, max_count: int, window_seconds: float) -> None:
         """Configure a rate limit, e.g. set_limit('postmark','send',10,3600)."""
         self._limits[(server_id, action)] = (max_count, window_seconds)
 
@@ -108,9 +106,7 @@ class RecipientWhitelist:
             unknown.append(r)
 
         if unknown:
-            self._pending.append(
-                {"server_id": server_id, "recipients": unknown, "ts": time.time()}
-            )
+            self._pending.append({"server_id": server_id, "recipients": unknown, "ts": time.time()})
             if self._auto_learn:
                 for r in unknown:
                     approved.add(r.lower())

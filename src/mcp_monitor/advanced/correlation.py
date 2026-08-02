@@ -21,8 +21,9 @@ from __future__ import annotations
 import re
 import time
 from collections import deque
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
 
 @dataclass
@@ -70,9 +71,7 @@ def _data_read_then_exfil(events: list[ToolCallEvent]) -> bool:
             read_outputs.append(str(evt.output))
     # Check if any read output content appears in later send arguments
     for i, evt in enumerate(events):
-        if any(
-            kw in evt.tool_name.lower() for kw in ("send", "email", "post", "upload")
-        ):
+        if any(kw in evt.tool_name.lower() for kw in ("send", "email", "post", "upload")):
             args_str = str(evt.arguments)
             for earlier_output in read_outputs[:i]:
                 # Check for substring matches (data flowing from read to send)
@@ -196,9 +195,7 @@ class CrossToolCorrelationEngine:
         """Clear the correlation window (e.g., on session reset)."""
         self._window.clear()
 
-    def detect_data_flow(
-        self, source_output: dict, target_arguments: dict
-    ) -> list[str]:
+    def detect_data_flow(self, source_output: dict, target_arguments: dict) -> list[str]:
         """Detect if data from one tool's output flows into another's input.
 
         Returns list of field paths where data flow was detected.
@@ -223,9 +220,7 @@ class CrossToolCorrelationEngine:
 
         for rule in self._rules:
             # Get events within the rule's time window
-            window_events = [
-                e for e in self._window if now - e.timestamp <= rule.window_seconds
-            ]
+            window_events = [e for e in self._window if now - e.timestamp <= rule.window_seconds]
             if len(window_events) < len(rule.tool_sequence):
                 continue
 
@@ -250,9 +245,7 @@ class CrossToolCorrelationEngine:
             if len(matched) >= 2:
                 for i in range(len(matched) - 1):
                     if matched[i].output:
-                        flows = self.detect_data_flow(
-                            matched[i].output, matched[i + 1].arguments
-                        )
+                        flows = self.detect_data_flow(matched[i].output, matched[i + 1].arguments)
                         if flows:
                             alert.data_flow = "; ".join(flows)
 
@@ -285,7 +278,7 @@ class CrossToolCorrelationEngine:
         if isinstance(obj, dict):
             for key, val in obj.items():
                 path = f"{prefix}.{key}" if prefix else key
-                if isinstance(val, (dict, list)):
+                if isinstance(val, dict | list):
                     values.extend(self._extract_values(val, path))
                 else:
                     values.append((path, val))

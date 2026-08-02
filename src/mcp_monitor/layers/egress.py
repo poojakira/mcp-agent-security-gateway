@@ -1,6 +1,7 @@
 """Layer 5: Network Egress Policy Engine."""
 
 from __future__ import annotations
+
 import re
 import time
 from dataclasses import dataclass, field
@@ -44,9 +45,7 @@ class NetworkEgressPolicy:
         self, server_id: str, destination: str, port: int, payload_bytes: int = 0
     ) -> EgressDecision:
         matching_rules = [
-            r
-            for r in self._rules
-            if re.search(r.server_pattern, server_id, re.IGNORECASE)
+            r for r in self._rules if re.search(r.server_pattern, server_id, re.IGNORECASE)
         ]
         if not matching_rules:
             decision = EgressDecision(
@@ -104,8 +103,7 @@ class NetworkEgressPolicy:
             server_id=server_id,
             destination=destination,
             port=port,
-            reason="no_allow_rule_matched"
-            + (": default_deny" if self._default_deny else ""),
+            reason="no_allow_rule_matched" + (": default_deny" if self._default_deny else ""),
         )
         self._decisions.append(decision)
         return decision

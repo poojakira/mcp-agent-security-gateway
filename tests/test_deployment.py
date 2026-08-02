@@ -4,10 +4,11 @@ Validates Dockerfile, docker-compose.yml, Kubernetes manifests,
 and locustfile.py for correctness and required content.
 """
 
-import os
 import ast
-import yaml
+import os
 from pathlib import Path
+
+import yaml
 
 # All paths relative to project root
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -268,9 +269,7 @@ class TestKubernetesDeployment:
             data = yaml.safe_load(f)
         container = data["spec"]["template"]["spec"]["containers"][0]
         env_from = container["envFrom"]
-        config_ref_names = [
-            e["configMapRef"]["name"] for e in env_from if "configMapRef" in e
-        ]
+        config_ref_names = [e["configMapRef"]["name"] for e in env_from if "configMapRef" in e]
         assert "mcp-monitor-config" in config_ref_names
 
     def test_api_key_from_secret(self):
@@ -288,10 +287,7 @@ class TestKubernetesDeployment:
         with open(os.path.join(K8S_DIR, "deployment.yaml")) as f:
             data = yaml.safe_load(f)
         volumes = {v["name"]: v for v in data["spec"]["template"]["spec"]["volumes"]}
-        assert (
-            volumes["wal-data"]["persistentVolumeClaim"]["claimName"]
-            == "mcp-monitor-data"
-        )
+        assert volumes["wal-data"]["persistentVolumeClaim"]["claimName"] == "mcp-monitor-data"
         mounts = data["spec"]["template"]["spec"]["containers"][0]["volumeMounts"]
         data_mount = next(m for m in mounts if m["name"] == "wal-data")
         assert data_mount["mountPath"] == "/data"
@@ -407,9 +403,7 @@ class TestKubernetesHPA:
             data = yaml.safe_load(f)
         metrics = data["spec"]["metrics"]
         cpu_metric = next(
-            m
-            for m in metrics
-            if m["type"] == "Resource" and m["resource"]["name"] == "cpu"
+            m for m in metrics if m["type"] == "Resource" and m["resource"]["name"] == "cpu"
         )
         assert cpu_metric["resource"]["target"]["averageUtilization"] == 70
 

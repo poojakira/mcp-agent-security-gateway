@@ -17,7 +17,6 @@ from __future__ import annotations
 import json
 import random
 
-
 # --- vocabularies used to add natural variation ---
 _ATTACKER_DOMAINS = [
     "giftshop.club",
@@ -215,23 +214,17 @@ def generate(n_per_family: int = 40, seed: int = 42) -> tuple[list[str], list[st
             )
         )
         # prompt injection
-        phrase = rng.choice(_INJECTION_PHRASES).format(
-            evil=rng.choice(_INJECTION_GOALS)
-        )
-        mal.append(
-            json.dumps(
-                {rng.choice(["text", "msg", "prompt", "input", "query"]): phrase}
-            )
-        )
+        phrase = rng.choice(_INJECTION_PHRASES).format(evil=rng.choice(_INJECTION_GOALS))
+        mal.append(json.dumps({rng.choice(["text", "msg", "prompt", "input", "query"]): phrase}))
         # sql injection
         mal.append(json.dumps({rng.choice(["query", "sql"]): rng.choice(_SQL_ATTACKS)}))
         # command injection
         mal.append(
             json.dumps(
                 {
-                    rng.choice(["command", "cmd", "shell"]): rng.choice(
-                        _CMD_ATTACKS
-                    ).format(dom=_dom())
+                    rng.choice(["command", "cmd", "shell"]): rng.choice(_CMD_ATTACKS).format(
+                        dom=_dom()
+                    )
                 }
             )
         )
@@ -283,12 +276,8 @@ def generate(n_per_family: int = 40, seed: int = 42) -> tuple[list[str], list[st
             )
         )
         ben.append(json.dumps({rng.choice(["query", "sql"]): rng.choice(_SQL_BENIGN)}))
-        ben.append(
-            json.dumps({rng.choice(["command", "cmd"]): rng.choice(_CMD_BENIGN)})
-        )
-        ben.append(
-            json.dumps({rng.choice(["url", "endpoint"]): rng.choice(_BENIGN_URLS)})
-        )
+        ben.append(json.dumps({rng.choice(["command", "cmd"]): rng.choice(_CMD_BENIGN)}))
+        ben.append(json.dumps({rng.choice(["url", "endpoint"]): rng.choice(_BENIGN_URLS)}))
         ben.append(
             json.dumps(
                 {

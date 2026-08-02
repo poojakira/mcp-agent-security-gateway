@@ -7,7 +7,6 @@ from mcp_monitor.audit.log import AuditLog
 from mcp_monitor.audit.wal import WriteAheadLog
 from mcp_monitor.monitor import MCPSecurityMonitor
 
-
 # =====================================================================
 # monitor.py — inspect_output + inspect_call edge cases (lines 61-76, 128-164)
 # =====================================================================
@@ -205,9 +204,7 @@ class TestManifestEdgeCases:
         )
         signed = signer.sign(manifest)
         # Tamper with the stored baseline's signature
-        signed.signature = (
-            "0000000000000000000000000000000000000000000000000000000000000000"
-        )
+        signed.signature = "0000000000000000000000000000000000000000000000000000000000000000"
         verifier.register_baseline(signed)
         valid, violations = verifier.verify(signed)
         assert not valid

@@ -109,9 +109,7 @@ class TestWindowManagement:
             {"key": "x"},
             output={"value": "SUPERSECRETVALUE1234567890"},
         )
-        engine.record_call(
-            "email.send", "mail", {"body": "Leaked: SUPERSECRETVALUE1234567890"}
-        )
+        engine.record_call("email.send", "mail", {"body": "Leaked: SUPERSECRETVALUE1234567890"})
         all_alerts = engine.get_alerts()
         assert len(all_alerts) >= 1
 

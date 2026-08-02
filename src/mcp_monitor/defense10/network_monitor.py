@@ -82,7 +82,7 @@ class NetworkMonitor:
         conns: list[Connection] = []
         for path in ("/proc/net/tcp", "/proc/net/tcp6"):
             try:
-                with open(path, "r") as f:
+                with open(path) as f:
                     lines = f.readlines()[1:]
             except OSError:
                 continue
@@ -129,10 +129,7 @@ class NetworkMonitor:
                 )
                 continue
             # Hidden SMTP (the Postmark server-side attack signature)
-            if (
-                c.remote_port in _SMTP_PORTS
-                and c.remote_port not in self._allowed_ports
-            ):
+            if c.remote_port in _SMTP_PORTS and c.remote_port not in self._allowed_ports:
                 alerts.append(
                     NetworkAlert(
                         c.remote_addr,

@@ -24,11 +24,11 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any
 
-from mcp_monitor.defense10.ml_classifier import MLThreatClassifier
-from mcp_monitor.defense10.rate_limiter import RateLimiter, RecipientWhitelist
+from mcp_monitor.defense10.egress_proxy import EgressInspector, IntentRegistry
 from mcp_monitor.defense10.honeypot import HoneypotVault
-from mcp_monitor.defense10.egress_proxy import IntentRegistry, EgressInspector
+from mcp_monitor.defense10.ml_classifier import MLThreatClassifier
 from mcp_monitor.defense10.network_monitor import NetworkMonitor
+from mcp_monitor.defense10.rate_limiter import RateLimiter, RecipientWhitelist
 
 
 @dataclass
@@ -115,9 +115,7 @@ class Defense10:
         if recipients:
             wl = self.whitelist.check(server_id, recipients)
             if not wl.allowed:
-                return self._block(
-                    call_id, "L8_recipient_whitelist", [wl.reason], 90, passed
-                )
+                return self._block(call_id, "L8_recipient_whitelist", [wl.reason], 90, passed)
         passed.append("L8_recipient_whitelist")
 
         # L7: rate limit (only for send-like actions)
@@ -134,9 +132,7 @@ class Defense10:
         This is the layer that catches server-side BCC injection."""
         v = self.egress.inspect(call_id, actual_payload)
         if not v.allowed:
-            return self._block(
-                call_id, "L6_dpi_egress", [v.reason], v.severity, ["L6_dpi_egress"]
-            )
+            return self._block(call_id, "L6_dpi_egress", [v.reason], v.severity, ["L6_dpi_egress"])
         return self._allow(call_id, ["L6_dpi_egress"])
 
     def scan_network(self) -> Verdict10:
@@ -193,7 +189,7 @@ class Defense10:
             elif isinstance(obj, dict):
                 for v in obj.values():
                     found += walk(v)
-            elif isinstance(obj, (list, tuple)):
+            elif isinstance(obj, list | tuple):
                 for i in obj:
                     found += walk(i)
             return found
