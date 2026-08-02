@@ -579,6 +579,10 @@ stats: dict[str, Any] = {
     "by_layer": {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
     "by_category": {},
     "by_severity": {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0},
+    "source_counts": {"external": 0, "demo": 0},
+    "by_server": {},
+    "by_tool": {},
+    "decision_latency_ms": [],
     "start_time": time.time(),
     "events_per_second": 0.0,
     "recent_eps": [],
@@ -586,12 +590,61 @@ stats: dict[str, Any] = {
 
 recent_threats: list[dict[str, Any]] = []
 
-# EPS tracking window (shared across live + demo events)
+# EPS tracking window (shared across external and optional demo events)
 _event_window: list[float] = []
+_demo_workload_enabled = False
+
+
+def _percentile(samples: list[float], percentile: float) -> float:
+    """Return a nearest-rank percentile for a bounded latency sample."""
+    if not samples:
+        return 0.0
+    ordered = sorted(samples)
+    index = min(len(ordered) - 1, max(0, int((len(ordered) - 1) * percentile)))
+    return round(ordered[index], 3)
+
+
+def _latency_summary() -> dict[str, float | int]:
+    """Summarize the most recent decision latencies without retaining unbounded data."""
+    samples = stats["decision_latency_ms"]
+    return {
+        "samples": len(samples),
+        "p50_ms": _percentile(samples, 0.50),
+        "p95_ms": _percentile(samples, 0.95),
+        "p99_ms": _percentile(samples, 0.99),
+    }
+
+
+def _traffic_mode() -> str:
+    """Describe whether the dashboard is receiving external-only or demo traffic."""
+    return "demo" if _demo_workload_enabled else "external"
+
+
+def _stats_snapshot() -> dict[str, Any]:
+    """Build a JSON-safe operational snapshot for API and WebSocket consumers."""
+    total = stats["total_events"]
+    blocked = stats["blocked"]
+    return {
+        "total_events": total,
+        "blocked": blocked,
+        "allowed": stats["allowed"],
+        "detection_rate": round(blocked / max(total, 1) * 100, 1),
+        "events_per_second": round(stats["events_per_second"], 2),
+        "by_layer": dict(stats["by_layer"]),
+        "by_category": dict(stats["by_category"]),
+        "by_severity": dict(stats["by_severity"]),
+        "source_counts": dict(stats["source_counts"]),
+        "by_server": dict(stats["by_server"]),
+        "by_tool": dict(stats["by_tool"]),
+        "latency_ms": _latency_summary(),
+        "recent_eps": stats["recent_eps"][-60:],
+        "traffic_mode": _traffic_mode(),
+        "uptime_seconds": round(time.time() - stats["start_time"], 1),
+    }
 
 
 def _record_event(event_data: dict[str, Any]) -> None:
-    """Update aggregate stats and recent-threat buffer for one event."""
+    """Update aggregate stats and the bounded recent-event buffer for one scan."""
     stats["total_events"] += 1
     if event_data.get("blocked"):
         stats["blocked"] += 1
@@ -602,12 +655,26 @@ def _record_event(event_data: dict[str, Any]) -> None:
     if layer and layer in stats["by_layer"]:
         stats["by_layer"][layer] += 1
 
-    cat = event_data.get("category", "unknown")
-    stats["by_category"][cat] = stats["by_category"].get(cat, 0) + 1
+    for key, bucket, fallback in (
+        ("category", "by_category", "unknown"),
+        ("server_id", "by_server", "unknown"),
+        ("tool_name", "by_tool", "unknown"),
+    ):
+        value = str(event_data.get(key, fallback))
+        stats[bucket][value] = stats[bucket].get(value, 0) + 1
 
-    sev = event_data.get("severity", "MEDIUM")
-    if sev in stats["by_severity"]:
-        stats["by_severity"][sev] += 1
+    severity = event_data.get("severity", "MEDIUM")
+    if severity in stats["by_severity"]:
+        stats["by_severity"][severity] += 1
+
+    source = event_data.get("source", "external")
+    if source not in stats["source_counts"]:
+        source = "external"
+    stats["source_counts"][source] += 1
+
+    latency_ms = float(event_data.get("decision_latency_ms", 0.0))
+    stats["decision_latency_ms"].append(round(latency_ms, 3))
+    stats["decision_latency_ms"] = stats["decision_latency_ms"][-500:]
 
     now = time.time()
     _event_window.append(now)
@@ -660,10 +727,14 @@ def _severity_from_risk(risk: int) -> str:
 async def _broadcast_scan(tool_call: dict[str, Any], verdict: Any, source: str) -> dict[str, Any]:
     """Build a security_event from a real scan, record it, and stream it live."""
     findings = [f for lr in verdict.layer_results for f in lr.findings][:3]
+    layer_latency_ms = {
+        str(result.layer): round(result.execution_time_ms, 3) for result in verdict.layer_results
+    }
+    decision_latency_ms = round(sum(layer_latency_ms.values()), 3)
     severity = _severity_from_risk(verdict.total_risk_score)
     event_data = {
         "type": "security_event",
-        "source": source,  # "live" for real traffic, "demo" for simulator
+        "source": source,  # "external" for submitted calls, "demo" for the opt-in workload
         "timestamp": time.time(),
         "attack_name": tool_call.get("name", "tool call"),
         "category": _classify_category(tool_call, verdict),
@@ -673,6 +744,8 @@ async def _broadcast_scan(tool_call: dict[str, Any], verdict: Any, source: str) 
         "blocked": not verdict.allowed,
         "blocked_by_layer": verdict.blocked_by_layer,
         "risk_score": verdict.total_risk_score,
+        "decision_latency_ms": decision_latency_ms,
+        "layer_latency_ms": layer_latency_ms,
         "findings": findings,
         "verdict": "BLOCKED" if not verdict.allowed else "ALLOWED",
     }
@@ -689,11 +762,10 @@ _agent_running = False
 
 
 async def workload_agent() -> None:
-    """Continuously issue realistic tool calls through the real defense pipeline.
+    """Continuously issue opt-in demo traffic through the real defense pipeline.
 
-    This is the live feed: each call is a genuine payload evaluated by all five
-    layers. Verdicts are not scripted — they come from the defense inspecting
-    the actual arguments. Legitimate calls pass; malicious ones are blocked.
+    Each payload is genuinely evaluated by all five layers, but this is synthetic
+    demonstration traffic, not a representation of customer or production load.
     """
     global _agent_running
     _agent_running = True
@@ -704,12 +776,12 @@ async def workload_agent() -> None:
     for _ in range(40):
         tc = next_tool_call()
         v = defense.evaluate_call(tc)
-        await _broadcast_scan(tc, v, source="live")
+        await _broadcast_scan(tc, v, source="demo")
 
     while _agent_running:
         tool_call = next_tool_call()
         verdict = defense.evaluate_call(tool_call)
-        await _broadcast_scan(tool_call, verdict, source="live")
+        await _broadcast_scan(tool_call, verdict, source="demo")
         # realistic pacing: bursts and lulls like real agent activity
         await asyncio.sleep(random.uniform(0.25, 0.9))
 
@@ -719,14 +791,16 @@ async def workload_agent() -> None:
 # ---------------------------------------------------------------------------
 
 
-@app.on_event("startup")
 async def startup_event() -> None:
-    """Start the live workload agent that feeds real tool-call traffic.
+    """Start background warm-up and optional, explicitly labelled demo traffic.
 
-    Set MCP_NO_AGENT=1 to disable the built-in workload and feed the dashboard
-    exclusively from external agents calling POST /api/scan.
+    The dashboard is external-traffic-only by default. Set MCP_DEMO_MODE=1 to
+    enable the built-in synthetic workload for a local demonstration.
     """
     import os
+
+    global _demo_workload_enabled
+    _demo_workload_enabled = os.environ.get("MCP_DEMO_MODE", "0") == "1"
 
     # Pre-warm the ML threat classifier in a background thread. scikit-learn's
     # import (~6s cold) plus training on the 1,180-sample corpus would otherwise
@@ -740,8 +814,11 @@ async def startup_event() -> None:
 
     asyncio.create_task(_prewarm())
 
-    if os.environ.get("MCP_NO_AGENT", "0") != "1":
+    if _demo_workload_enabled:
         asyncio.create_task(workload_agent())
+
+
+app.router.on_startup.append(startup_event)
 
 
 def _warm_ml() -> None:
@@ -766,24 +843,13 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
     """WebSocket endpoint for real-time event streaming."""
     await manager.connect(websocket)
     try:
-        # Send an initial snapshot so the dashboard is populated immediately,
-        # not blank while waiting for the next simulated event.
-        total = stats["total_events"]
+        # Send the current operational state immediately. The UI can then show
+        # whether it awaits external traffic or is intentionally in demo mode.
         await websocket.send_json(
             {
                 "type": "snapshot",
-                "mode": "live",
-                "stats": {
-                    "total_events": total,
-                    "blocked": stats["blocked"],
-                    "allowed": stats["allowed"],
-                    "detection_rate": round(stats["blocked"] / max(total, 1) * 100, 1),
-                    "events_per_second": round(stats["events_per_second"], 2),
-                    "by_layer": stats["by_layer"],
-                    "by_category": stats["by_category"],
-                    "by_severity": stats["by_severity"],
-                    "recent_eps": stats["recent_eps"][-60:],
-                },
+                "mode": _traffic_mode(),
+                "stats": _stats_snapshot(),
                 "recent_threats": recent_threats[:60],
             }
         )
@@ -791,7 +857,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
             # Keep connection alive, accept any messages from client
             data = await websocket.receive_text()
             if data == "stats":
-                await websocket.send_json({"type": "stats", **stats})
+                await websocket.send_json({"type": "stats", **_stats_snapshot()})
     except WebSocketDisconnect:
         manager.disconnect(websocket)
     except Exception:
@@ -800,20 +866,8 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
 
 @app.get("/api/stats")
 async def api_stats() -> dict[str, Any]:
-    """Return current statistics."""
-    total = stats["total_events"]
-    blocked = stats["blocked"]
-    return {
-        "total_events": total,
-        "blocked": blocked,
-        "allowed": stats["allowed"],
-        "detection_rate": round(blocked / max(total, 1) * 100, 1),
-        "events_per_second": round(stats["events_per_second"], 2),
-        "by_layer": stats["by_layer"],
-        "by_category": stats["by_category"],
-        "by_severity": stats["by_severity"],
-        "uptime_seconds": round(time.time() - stats["start_time"], 1),
-    }
+    """Return source-aware operational statistics for the dashboard and agents."""
+    return _stats_snapshot()
 
 
 @app.get("/api/threats")
@@ -831,7 +885,7 @@ async def api_scan(tool_call: dict[str, Any]) -> dict[str, Any]:
     stats, and pushed to every connected dashboard over the WebSocket.
     """
     verdict = defense.evaluate_call(tool_call)
-    await _broadcast_scan(tool_call, verdict, source="live")
+    await _broadcast_scan(tool_call, verdict, source="external")
     return {
         "call_id": verdict.call_id,
         "allowed": verdict.allowed,
