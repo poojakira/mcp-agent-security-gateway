@@ -142,6 +142,31 @@ jobs:
           fi
           echo "Collected $count tests"
 
+  windows-control-plane:
+    name: Windows Control Plane
+    runs-on: windows-latest
+    timeout-minutes: 20
+    needs: lint-and-typecheck
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - name: Install control-plane dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ruff==${{ env.RUFF_VERSION }}
+          python -m pip install -e ".[dev,server]"
+      - name: Validate Windows control-plane behavior
+        shell: pwsh
+        run: |
+          python -m ruff check src tests run_realtime.py
+          python -m ruff format --check src tests run_realtime.py
+          python -m pytest tests/test_5_layers.py tests/test_cross_platform.py tests/test_realtime.py -q --tb=short
+
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest

@@ -197,18 +197,36 @@ mcp-security-gateway-monitor/
 
 ---
 
-## Running the Dashboard
+## Running the Dashboards
+
+### Offline red-team report
 
 ```bash
 python run_dashboard.py
 ```
 
-This script:
-1. Sets up a 5-layer defense with InlineProxyGateway, KernelMonitor, SemanticIntentAnalyzer, and NetworkEgressPolicy
-2. Runs the bundled red-team attack catalog
-3. Prints a color-coded terminal report showing each attack and whether it was blocked
-4. Saves an interactive HTML dashboard to `security_dashboard.html`
-5. Opens the dashboard in your default browser
+This one-shot report builds a five-layer defense, runs the bundled red-team catalog, prints a terminal summary, and writes `security_dashboard.html`. It is not a live service.
+
+### Real-time gateway control plane
+
+Install the optional server dependencies, then start the FastAPI control plane:
+
+```bash
+python -m pip install -e ".[dev,server]"
+python run_realtime.py
+```
+
+Open <http://localhost:8000>. The process binds to `127.0.0.1` only. The dashboard visualizes external MCP calls submitted to `POST /api/scan`; it identifies their source, decision latency, server/tool attribution, and the five-layer enforcement point.
+
+The default is intentionally empty until an agent sends traffic. To run the synthetic local demonstration workload, set `MCP_DEMO_MODE=1` before launch. Demo events are explicitly marked `demo` and must not be interpreted as production telemetry.
+
+```bash
+# PowerShell
+$env:MCP_DEMO_MODE = "1"
+python -X utf8 run_realtime.py
+```
+
+The Docker Compose deployment is a separate stdlib production service on port 8080 with `/v1/*` endpoints. It is not the same detector pipeline as the port-8000 control plane. See [RUNBOOK.md](RUNBOOK.md) for Windows setup, client integration, production API operation, load testing, and the validation sequence.
 
 ---
 
@@ -276,7 +294,8 @@ dependencies = []  # Zero runtime deps
 ```
 
 Optional extras for advanced features:
-- `pip install -e ".[dev]"` -- pytest, coverage, PyYAML, and scikit-learn for local validation
+- `pip install -e ".[dev]"` -- pytest, coverage, PyYAML, scikit-learn, FastAPI, and Uvicorn for local validation and control-plane tests
+- `pip install -e ".[server]"` -- FastAPI and Uvicorn for the real-time control plane only
 - `pip install -e ".[ml]"` -- scikit-learn for the ML classifier (Layer 6)
 - `pip install -e ".[dpi]"` -- mitmproxy for deep packet inspection (Layer 10)
 

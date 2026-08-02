@@ -494,3 +494,15 @@ def run_server(config: Config | None = None) -> None:
     """Entry point to run the production server."""
     server = ProductionServer(config=config)
     asyncio.run(server.start())
+
+
+def main() -> None:
+    """Run the production API with environment-based configuration."""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Run the MCP Security Gateway production API on port 8080 by default."
+    )
+    parser.add_argument("--version", action="version", version="mcp-security-gateway-monitor 0.1.0")
+    parser.parse_args()
+    run_server()
