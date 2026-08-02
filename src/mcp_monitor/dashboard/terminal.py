@@ -42,14 +42,10 @@ class TerminalDashboard:
             status = "BLOCKED" if result.blocked else "MISSED"
             icon = "[X]" if result.blocked else "[ ]"
             severity_tag = f"[{result.severity}]"
-            layer_info = (
-                f"Layer {result.blocked_by_layer}" if result.blocked_by_layer else "---"
-            )
+            layer_info = f"Layer {result.blocked_by_layer}" if result.blocked_by_layer else "---"
 
             lines.append(f"  {icon} Attack #{i:02d}: {result.attack_name}")
-            lines.append(
-                f"       Category: {result.category} | Severity: {severity_tag}"
-            )
+            lines.append(f"       Category: {result.category} | Severity: {severity_tag}")
             lines.append(
                 f"       Status: {status} | Caught by: {layer_info} | Risk: {result.risk_score}"
             )
@@ -85,30 +81,20 @@ class TerminalDashboard:
 
         for cat, stats in report.by_category.items():
             rate = stats["blocked"] / max(stats["total"], 1) * 100
-            lines.append(
-                f"  {cat:25s}: {stats['blocked']}/{stats['total']} blocked ({rate:.0f}%)"
-            )
+            lines.append(f"  {cat:25s}: {stats['blocked']}/{stats['total']} blocked ({rate:.0f}%)")
         lines.append("")
 
         # Final verdict
         lines.append("=" * 80)
         if report.detection_rate >= 90:
-            lines.append(
-                "  VERDICT: STRONG DEFENSE — {:.1f}% detection rate".format(
-                    report.detection_rate
-                )
-            )
+            lines.append(f"  VERDICT: STRONG DEFENSE — {report.detection_rate:.1f}% detection rate")
         elif report.detection_rate >= 70:
             lines.append(
-                "  VERDICT: GOOD DEFENSE — {:.1f}% detection rate (gaps exist)".format(
-                    report.detection_rate
-                )
+                f"  VERDICT: GOOD DEFENSE — {report.detection_rate:.1f}% detection rate (gaps exist)"
             )
         else:
             lines.append(
-                "  VERDICT: WEAK DEFENSE — {:.1f}% detection rate (critical gaps!)".format(
-                    report.detection_rate
-                )
+                f"  VERDICT: WEAK DEFENSE — {report.detection_rate:.1f}% detection rate (critical gaps!)"
             )
         lines.append("=" * 80)
         lines.append("")

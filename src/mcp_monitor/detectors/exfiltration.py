@@ -13,7 +13,6 @@ import base64
 import re
 from typing import Any
 
-
 # Suspicious URL patterns (attacker infrastructure indicators)
 _SUSPICIOUS_URL_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"),  # raw IP
@@ -74,9 +73,7 @@ class ExfiltrationDetector:
             try:
                 decoded = base64.b64decode(match)
                 if len(decoded) > 1024:  # >1KB decoded = suspicious
-                    findings.append(
-                        f"large base64 blob detected ({len(decoded)} bytes decoded)"
-                    )
+                    findings.append(f"large base64 blob detected ({len(decoded)} bytes decoded)")
                     break
             except Exception:
                 pass
@@ -150,7 +147,7 @@ class ExfiltrationDetector:
         elif isinstance(obj, dict):
             for value in obj.values():
                 strings.extend(self._extract_strings(value))
-        elif isinstance(obj, (list, tuple)):
+        elif isinstance(obj, list | tuple):
             for item in obj:
                 strings.extend(self._extract_strings(item))
         return strings

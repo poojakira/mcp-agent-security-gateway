@@ -9,10 +9,10 @@ from __future__ import annotations
 import json
 import threading
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
-import urllib.error
-from typing import Any, Optional
+from typing import Any
 
 from mcp_monitor.production.logging import get_logger
 
@@ -34,7 +34,7 @@ class AlertingHook:
 
     def __init__(
         self,
-        webhook_url: Optional[str] = None,
+        webhook_url: str | None = None,
         risk_threshold: int = 80,
         cooldown_seconds: float = 60.0,
     ) -> None:

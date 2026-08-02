@@ -46,9 +46,7 @@ class IntentRegistry:
     TTL: Intent records expire after max_age_seconds to prevent unbounded memory.
     """
 
-    def __init__(
-        self, *, max_age_seconds: float = 300.0, max_entries: int = 10000
-    ) -> None:
+    def __init__(self, *, max_age_seconds: float = 300.0, max_entries: int = 10000) -> None:
         self._intents: dict[str, dict[str, Any]] = {}
         self._max_age = max_age_seconds
         self._max_entries = max_entries
@@ -75,9 +73,7 @@ class IntentRegistry:
         now = time.time()
         if len(self._intents) > self._max_entries:
             # Remove oldest entries
-            sorted_keys = sorted(
-                self._intents.keys(), key=lambda k: self._intents[k]["ts"]
-            )
+            sorted_keys = sorted(self._intents.keys(), key=lambda k: self._intents[k]["ts"])
             for k in sorted_keys[: len(sorted_keys) // 2]:
                 del self._intents[k]
         # Remove expired
@@ -148,7 +144,7 @@ class EgressInspector:
         return {m.lower() for m in _EMAIL_RE.findall(text)}
 
 
-def get_mitmproxy_addon(inspector: "EgressInspector"):
+def get_mitmproxy_addon(inspector: EgressInspector):
     """Return a mitmproxy addon class for LIVE TLS-terminated inspection.
 
     Deploy: mitmdump -s this_addon.py  with the sandboxed MCP server's

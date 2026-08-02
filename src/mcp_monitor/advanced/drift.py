@@ -91,9 +91,7 @@ class BehavioralDriftDetector:
         self._baselines[tool_name].append(sample)
         # Maintain window size
         if len(self._baselines[tool_name]) > self._baseline_window:
-            self._baselines[tool_name] = self._baselines[tool_name][
-                -self._baseline_window :
-            ]
+            self._baselines[tool_name] = self._baselines[tool_name][-self._baseline_window :]
 
         # Update known fields
         output_fields = self._extract_field_paths(output_data)
@@ -102,9 +100,7 @@ class BehavioralDriftDetector:
         # Update size history
         self._size_history[tool_name].append(sample.payload_size)
         if len(self._size_history[tool_name]) > self._baseline_window:
-            self._size_history[tool_name] = self._size_history[tool_name][
-                -self._baseline_window :
-            ]
+            self._size_history[tool_name] = self._size_history[tool_name][-self._baseline_window :]
 
         return sample
 
@@ -216,13 +212,9 @@ class BehavioralDriftDetector:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _create_sample(
-        self, tool_name: str, input_data: dict, output_data: dict
-    ) -> BehaviorSample:
+    def _create_sample(self, tool_name: str, input_data: dict, output_data: dict) -> BehaviorSample:
         input_canonical = json.dumps(input_data, sort_keys=True, separators=(",", ":"))
-        output_canonical = json.dumps(
-            output_data, sort_keys=True, separators=(",", ":")
-        )
+        output_canonical = json.dumps(output_data, sort_keys=True, separators=(",", ":"))
         return BehaviorSample(
             tool_name=tool_name,
             input_hash=hashlib.sha256(input_canonical.encode()).hexdigest(),
@@ -256,9 +248,7 @@ class BehavioralDriftDetector:
             always &= sample.output_fields
         return always
 
-    def _check_size_anomaly(
-        self, tool_name: str, current_size: int
-    ) -> DriftAlert | None:
+    def _check_size_anomaly(self, tool_name: str, current_size: int) -> DriftAlert | None:
         """Detect if payload size is anomalous relative to history."""
         sizes = self._size_history[tool_name]
         if len(sizes) < 5:

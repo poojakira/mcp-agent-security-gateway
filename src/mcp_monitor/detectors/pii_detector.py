@@ -10,7 +10,6 @@ from __future__ import annotations
 import re
 from typing import Any
 
-
 # Minimum 8 PII types.
 PII_PATTERNS: dict[str, re.Pattern[str]] = {
     "email": re.compile(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"),
@@ -18,9 +17,7 @@ PII_PATTERNS: dict[str, re.Pattern[str]] = {
     "credit_card": re.compile(r"\b\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b"),
     "phone_us": re.compile(r"\b\d{3}[-.]?\d{3}[-.]?\d{4}\b"),
     "ip_address": re.compile(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b"),
-    "date_of_birth": re.compile(
-        r"\b(0[1-9]|1[0-2])/(0[1-9]|[12]\d|3[01])/(19|20)\d{2}\b"
-    ),
+    "date_of_birth": re.compile(r"\b(0[1-9]|1[0-2])/(0[1-9]|[12]\d|3[01])/(19|20)\d{2}\b"),
     "passport": re.compile(r"\b[A-Z]{1,2}\d{6,9}\b"),
     "aws_key": re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
     "api_key": re.compile(r"\b(sk|pk)[-_](?:live|test)[-_][a-zA-Z0-9]{24,}\b"),
@@ -53,9 +50,7 @@ class PIIDetector:
             result = pattern.sub(replacement, result)
         return result
 
-    def scan_tool_call(
-        self, tool_call: dict[str, Any]
-    ) -> tuple[bool, dict[str, list[str]]]:
+    def scan_tool_call(self, tool_call: dict[str, Any]) -> tuple[bool, dict[str, list[str]]]:
         """Scan all string values in a tool call for PII.
 
         Returns
@@ -81,7 +76,7 @@ class PIIDetector:
         elif isinstance(obj, dict):
             for value in obj.values():
                 strings.extend(self._extract_strings(value))
-        elif isinstance(obj, (list, tuple)):
+        elif isinstance(obj, list | tuple):
             for item in obj:
                 strings.extend(self._extract_strings(item))
         return strings

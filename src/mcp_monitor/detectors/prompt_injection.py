@@ -9,7 +9,6 @@ from __future__ import annotations
 import re
 from typing import Any
 
-
 # At least 10 patterns covering the major injection families.
 INJECTION_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     (
@@ -141,7 +140,7 @@ class PromptInjectionDetector:
         elif isinstance(obj, dict):
             for value in obj.values():
                 strings.extend(self._extract_strings(value))
-        elif isinstance(obj, (list, tuple)):
+        elif isinstance(obj, list | tuple):
             for item in obj:
                 strings.extend(self._extract_strings(item))
         return strings

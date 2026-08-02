@@ -1,8 +1,9 @@
 """Layer 4: LLM Semantic Intent Analyzer."""
 
 from __future__ import annotations
-import re
+
 import base64
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -86,10 +87,7 @@ class SemanticIntentAnalyzer:
     def _check_synonyms(self, data: dict[str, Any]) -> list[SemanticFinding]:
         findings = []
         for key in self._all_keys(data):
-            if (
-                key.lower().replace("-", "_").replace(" ", "_")
-                in EMAIL_RECIPIENT_SYNONYMS
-            ):
+            if key.lower().replace("-", "_").replace(" ", "_") in EMAIL_RECIPIENT_SYNONYMS:
                 findings.append(
                     SemanticFinding(
                         intent="hidden_recipient",
@@ -158,9 +156,7 @@ class SemanticIntentAnalyzer:
                     pass
         return findings
 
-    def _check_multi_field(
-        self, tool_name: str, data: dict[str, Any]
-    ) -> list[SemanticFinding]:
+    def _check_multi_field(self, tool_name: str, data: dict[str, Any]) -> list[SemanticFinding]:
         findings = []
         all_keys = set(self._all_keys(data))
         email_indicators = {"to", "subject", "body", "from", "message"}
@@ -168,8 +164,7 @@ class SemanticIntentAnalyzer:
             extra = all_keys - email_indicators - {"name", "server_id", "arguments"}
             for ef in extra:
                 if any(
-                    w in ef.lower()
-                    for w in ["copy", "recipient", "forward", "redirect", "mirror"]
+                    w in ef.lower() for w in ["copy", "recipient", "forward", "redirect", "mirror"]
                 ):
                     findings.append(
                         SemanticFinding(

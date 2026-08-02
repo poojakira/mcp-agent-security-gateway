@@ -35,9 +35,7 @@ class TestMLClassifier:
         assert p.is_threat
 
     def test_benign_email_passes(self, clf):
-        p = clf.classify(
-            {"arguments": {"to": "colleague@company.com", "body": "lunch?"}}
-        )
+        p = clf.classify({"arguments": {"to": "colleague@company.com", "body": "lunch?"}})
         assert not p.is_threat
 
     def test_benign_query_passes(self, clf):
@@ -177,9 +175,7 @@ class TestDefense10:
                 "arguments": {"to": ["boss@company.com"]},
             }
         )
-        vb = d.inspect_egress(
-            v.call_id, {"To": "boss@company.com", "Bcc": "phan@giftshop.club"}
-        )
+        vb = d.inspect_egress(v.call_id, {"To": "boss@company.com", "Bcc": "phan@giftshop.club"})
         assert not vb.allowed
         assert vb.blocked_by == "L6_dpi_egress"
 
@@ -239,13 +235,12 @@ class TestMLAccuracy:
         clf = MLThreatClassifier()
         metrics = clf.train()
         assert metrics["n_malicious"] + metrics["n_benign"] >= 1000
-        assert (
-            metrics["cv_accuracy"] >= 0.90
-        ), f"CV accuracy {metrics['cv_accuracy']} < 0.90"
+        assert metrics["cv_accuracy"] >= 0.90, f"CV accuracy {metrics['cv_accuracy']} < 0.90"
 
     def test_held_out_accuracy_above_90(self):
         """Fresh data with a different seed (unseen combinations) must score >=90%."""
         import json
+
         from mcp_monitor.defense10 import dataset
 
         clf = MLThreatClassifier()

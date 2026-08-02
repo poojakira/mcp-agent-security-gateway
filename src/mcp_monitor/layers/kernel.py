@@ -1,6 +1,7 @@
 """Layer 3: Kernel-level monitoring for MCP server behavior."""
 
 from __future__ import annotations
+
 import time
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -100,9 +101,7 @@ class KernelMonitor:
                 )
         elif event.syscall_type == SyscallType.FILE_OPEN:
             path = event.details.get("path", "")
-            if policy.allowed_paths and not any(
-                path.startswith(p) for p in policy.allowed_paths
-            ):
+            if policy.allowed_paths and not any(path.startswith(p) for p in policy.allowed_paths):
                 alerts.append(
                     KernelAlert(
                         server_id=event.server_id,
@@ -143,10 +142,7 @@ class KernelMonitor:
             self._connection_counts[event.server_id] = [
                 t for t in self._connection_counts[event.server_id] if now - t <= 60
             ]
-            if (
-                len(self._connection_counts[event.server_id])
-                > policy.max_connections_per_minute
-            ):
+            if len(self._connection_counts[event.server_id]) > policy.max_connections_per_minute:
                 alerts.append(
                     KernelAlert(
                         server_id=event.server_id,
@@ -159,9 +155,7 @@ class KernelMonitor:
         self._alerts.extend(alerts)
         return alerts
 
-    def _check_network(
-        self, event: SyscallEvent, policy: ServerPolicy
-    ) -> list[KernelAlert]:
+    def _check_network(self, event: SyscallEvent, policy: ServerPolicy) -> list[KernelAlert]:
         alerts = []
         dest = event.details.get("destination", "")
         port = event.details.get("port", 0)
