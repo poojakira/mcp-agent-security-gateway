@@ -1,6 +1,6 @@
 # MCP Security Gateway Monitor
 
-[![Live Dashboard](https://img.shields.io/badge/Live_Dashboard-View-blue)](https://poojakira.github.io/mlsec-dashboards/mcp-security-gateway-monitor/)
+[![Live Dashboard](https://img.shields.io/badge/Live_Dashboard-View-blue)](https://poojakira.github.io/mcp-security-gateway-monitor/)
 
 A tool-call firewall for MCP (Model Context Protocol) agents. It sits between an AI assistant and the tools it calls (email, file access, APIs), inspecting each call for signs of prompt injection, data exfiltration, or unauthorized behavior.
 
