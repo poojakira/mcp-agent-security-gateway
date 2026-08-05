@@ -2,7 +2,7 @@
 
 [![Live Dashboard](https://img.shields.io/badge/Live_Dashboard-View-blue)](https://poojakira.github.io/mcp-security-gateway-monitor/)
 
-A tool-call firewall for MCP (Model Context Protocol) agents. It sits between an AI assistant and the tools it calls (email, file access, APIs), inspecting each call for signs of prompt injection, data exfiltration, or unauthorized behavior.
+A tool-call security monitor for MCP (Model Context Protocol) agents. It sits between an AI assistant and the tools it calls (email, file access, APIs), inspecting each call for signs of prompt injection, data exfiltration, or unauthorized behavior.
 
 It has 5 core defense layers that run on every tool call with zero external dependencies, plus 5 optional layers that add ML classification, sandboxing, and deep packet inspection.
 
@@ -12,9 +12,9 @@ When AI assistants use external tools, those tool calls can be hijacked. A real-
 
 ## Honest status
 
-- **Detection rate on the full built-in attack catalog: ~51%.** The 5-layer defense catches about half of the red-team payloads in the bundled simulator. This is not a mature product — it's a working prototype with real detection logic.
+- **Detection rate on the full built-in attack catalog: ~51%.** The 5-layer defense catches about half of the red-team payloads in the bundled simulator. This is not a mature product - it's a working prototype with real detection logic.
 - **Line coverage: 77%** (pytest, enforced in CI).
-- **ML classifier (Layer 6) is experimental.** Its reported 98% accuracy is measured on its own synthetic training data. That number means nothing for real-world attacks. Use it as a supplementary signal behind layers 1–5.
+- **ML classifier (Layer 6) is experimental.** Its reported 98% accuracy is measured on its own synthetic training data. That number means nothing for real-world attacks. Use it as a supplementary signal behind layers 1-5.
 - **Zero runtime dependencies** for the core 5 layers (stdlib only).
 
 ---
@@ -38,13 +38,13 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
-On Windows cmd.exe, don't quote `.[dev]` — use `pip install -e .[dev]`.
+On Windows cmd.exe, don't quote `.[dev]` - use `pip install -e .[dev]`.
 
 ### Optional extras
 
-- `pip install -e ".[server]"` — FastAPI control plane (real-time dashboard)
-- `pip install -e ".[ml]"` — scikit-learn for the ML classifier (Layer 6)
-- `pip install -e ".[dpi]"` — mitmproxy for deep packet inspection (Layer 10)
+- `pip install -e ".[server]"` - FastAPI control plane (real-time dashboard)
+- `pip install -e ".[ml]"` - scikit-learn for the ML classifier (Layer 6)
+- `pip install -e ".[dpi]"` - mitmproxy for deep packet inspection (Layer 10)
 
 ---
 
@@ -63,7 +63,7 @@ python -m pytest tests/ --cov=mcp_monitor --cov-report=term-missing
 python run_dashboard.py
 ```
 
-This builds the 5-layer defense, throws the bundled attack catalog at it, prints results to terminal, and writes `security_dashboard.html`. Not a live service — just a one-shot report.
+This builds the 5-layer defense, throws the bundled attack catalog at it, prints results to terminal, and writes `security_dashboard.html`. Not a live service - just a one-shot report.
 
 ### Run the real-time control plane (port 8000)
 
@@ -84,9 +84,9 @@ Opens at http://localhost:8000 (loopback only). The dashboard is empty until you
 |-------|------|--------------|
 | 1 | Audit Log | Records every tool call in a SHA-256 hash-chained log. Tamper-evident. |
 | 2 | Inline Proxy | Intercepts tool calls. Applies rules, scores risk, blocks or quarantines suspicious calls. |
-| 3 | Process Monitor | Watches syscall-level events: network connections, DNS lookups, file access, process spawning. |
+| 3 | Process Event Monitor | Evaluates syscall-event objects (network connections, DNS lookups, file access, process spawning) passed to it by the caller. Does not independently hook OS-level syscalls — it processes structured event data, not raw kernel events. |
 | 4 | Semantic Analyzer | Understands what a tool call is trying to do. Catches hidden BCC fields, encoded emails, exfiltration patterns. |
-| 5 | Egress Policy | Controls which destinations each server can reach. Default-deny with explicit allow rules. |
+| 5 | Egress Policy | Returns an allow-or-deny decision for each destination. Default-deny with explicit allow rules. This is a policy decision engine — it does not itself intercept or block network packets. |
 
 ### The 5 optional layers (require extra dependencies)
 
@@ -110,11 +110,11 @@ from mcp_monitor.layers import (
 from mcp_monitor.redteam import AttackSimulator
 
 proxy = InlineProxyGateway()
-kernel = ProcessBehaviorMonitor()
+process_monitor = ProcessBehaviorMonitor()  # evaluates SyscallEvent objects; does not hook OS syscalls
 semantic = SemanticIntentAnalyzer()
-egress = NetworkEgressPolicy(default_deny=True)
+egress = NetworkEgressPolicy(default_deny=True)  # policy engine, not a network firewall
 
-defense = FiveLayerDefense(proxy=proxy, kernel=kernel, semantic=semantic, egress=egress)
+defense = FiveLayerDefense(proxy=proxy, kernel=process_monitor, semantic=semantic, egress=egress)
 simulator = AttackSimulator(defense)
 report = simulator.run_full_catalog()
 
@@ -128,27 +128,15 @@ print(f"Blocked: {report.blocked}/{report.total_attacks}")
 
 ```
 src/mcp_monitor/
-├── monitor.py              # Main orchestrator
-├── detectors/              # Prompt injection, PII, exfiltration, shadow server detection
-├── audit/                  # Hash-chained log + write-ahead log
-├── layers/                 # The 5 core defense layers + orchestrator
-├── advanced/               # Manifest signing, drift detection, correlation, canary probes
-├── dashboard/              # Terminal dashboard + HTML report generator
-├── redteam/                # Attack simulator + payload catalog
-└── defense10/              # Layers 6–10 (ML, rate limit, honeypot, sandbox, DPI)
+  layers/         - The 10 defense layers
+  redteam/        - Attack simulator and bundled attack catalog
+  models/         - Shared data models (SyscallEvent, ToolCall, Finding, etc.)
+  api/            - FastAPI control plane (optional)
+tests/
+  unit/           - Per-layer unit tests
+  integration/    - End-to-end red-team report tests
+benchmark/        - Tool-call latency benchmark
 ```
-
----
-
-## Troubleshooting
-
-| Problem | Fix |
-|---------|-----|
-| `ModuleNotFoundError: No module named 'mcp_monitor'` | Run `pip install -e ".[dev]"` from project root |
-| `ERROR: .[dev] is not a valid requirement` | You're in cmd.exe — drop the quotes: `pip install -e .[dev]` |
-| `python3: command not found` (Windows) | Use `python` instead of `python3` |
-| `ImportError: cannot import name 'MLThreatClassifier'` | Install ML extra: `pip install -e ".[ml]"` |
-| `SyntaxError` on Python 3.9 | Upgrade to Python 3.10+ |
 
 ---
 
