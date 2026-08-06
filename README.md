@@ -2,6 +2,8 @@
 
 [![Live Dashboard](https://img.shields.io/badge/Live_Dashboard-View-blue)](https://poojakira.github.io/mcp-security-gateway-monitor/)
 
+> **NOTE: Dashboard metrics are simulated/generated data for demonstration. Not live security telemetry.**
+
 A tool-call security monitor for MCP (Model Context Protocol) agents. It sits between an AI assistant and the tools it calls (email, file access, APIs), inspecting each call for signs of prompt injection, data exfiltration, or unauthorized behavior.
 
 It has 5 core defense layers that run on every tool call with zero external dependencies, plus 5 optional layers that add ML classification, sandboxing, and deep packet inspection.
