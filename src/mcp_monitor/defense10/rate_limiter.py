@@ -19,6 +19,36 @@ from collections import defaultdict, deque
 from dataclasses import dataclass
 from typing import Any
 
+try:
+    from fastapi import HTTPException as _HTTPException
+
+    class RateLimitExceeded(_HTTPException):
+        """Raised by check_rate_limit() when a key has exceeded its configured limit.
+
+        Subclasses HTTPException with status_code=429 so that FastAPI routes and
+        any caller that handles HTTPException will surface a proper 429 response.
+        """
+
+        def __init__(self, decision: "RateLimitDecision") -> None:
+            super().__init__(
+                status_code=429,
+                detail=decision.reason,
+            )
+            self.decision = decision
+
+except ImportError:  # pragma: no cover — FastAPI is an optional dependency
+
+    class RateLimitExceeded(Exception):  # type: ignore[no-redef]
+        """Raised by check_rate_limit() when a key has exceeded its configured limit.
+
+        Falls back to a plain Exception when FastAPI is not installed.
+        """
+
+        def __init__(self, decision: "RateLimitDecision") -> None:
+            super().__init__(decision.reason)
+            self.decision = decision
+            self.status_code = 429
+
 
 @dataclass
 class RateLimitDecision:
@@ -73,6 +103,34 @@ class RateLimiter:
             limit=max_count,
             window_seconds=window,
         )
+
+    def check_rate_limit(self, key: str) -> None:
+        """Enforce the rate limit for *key*, raising RateLimitExceeded (HTTP 429)
+        if the limit has been exceeded.
+
+        Unlike :meth:`check`, this method **does not return** — it either succeeds
+        silently or raises so that callers cannot accidentally ignore the decision.
+
+        Parameters
+        ----------
+        key:
+            A composite key string of the form ``"<server_id>:<action>"``.
+            The string is split on the first colon; if no colon is present the
+            whole string is treated as the server_id with an empty action.
+
+        Raises
+        ------
+        RateLimitExceeded
+            When the rate limit for the key is exceeded.  The exception carries
+            ``status_code=429`` and a ``decision`` attribute with full details.
+        """
+        if ":" in key:
+            server_id, action = key.split(":", 1)
+        else:
+            server_id, action = key, ""
+        decision = self.check(server_id, action)
+        if not decision.allowed:
+            raise RateLimitExceeded(decision)
 
 
 class RecipientWhitelist:
