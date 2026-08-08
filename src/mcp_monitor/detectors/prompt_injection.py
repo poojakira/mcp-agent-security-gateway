@@ -210,7 +210,6 @@ def normalize_input(text: str) -> list[str]:
     return variants
 
 
-
 # ---------------------------------------------------------------------------
 # Detection patterns — 50+ rules covering major injection families
 # ---------------------------------------------------------------------------
@@ -368,227 +367,228 @@ INJECTION_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
 
 
 # Extend with encoding, multi-language, indirect, and unicode patterns
-INJECTION_PATTERNS.extend([
-    # --- Encoding tricks ---
-    (
-        "base64_instruction",
-        re.compile(
-            r"(decode|base64|b64|eval)\s*[\(:]?\s*[A-Za-z0-9+/]{16,}={0,2}",
-            re.IGNORECASE,
+INJECTION_PATTERNS.extend(
+    [
+        # --- Encoding tricks ---
+        (
+            "base64_instruction",
+            re.compile(
+                r"(decode|base64|b64|eval)\s*[\(:]?\s*[A-Za-z0-9+/]{16,}={0,2}",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "hex_encoded_payload",
-        re.compile(
-            r"(\\x[0-9a-f]{2}){4,}",
-            re.IGNORECASE,
+        (
+            "hex_encoded_payload",
+            re.compile(
+                r"(\\x[0-9a-f]{2}){4,}",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "unicode_escape_payload",
-        re.compile(
-            r"(\\u[0-9a-f]{4}){3,}",
-            re.IGNORECASE,
+        (
+            "unicode_escape_payload",
+            re.compile(
+                r"(\\u[0-9a-f]{4}){3,}",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "rot13_instruction",
-        re.compile(
-            r"(rot13|rot-13|caesar)\s*(decode|cipher|transform|apply)",
-            re.IGNORECASE,
+        (
+            "rot13_instruction",
+            re.compile(
+                r"(rot13|rot-13|caesar)\s*(decode|cipher|transform|apply)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "encoded_ignore_instruction",
-        re.compile(
-            r"(aWdub3Jl|Zm9yZ2V0|c3lzdGVt|b3ZlcnJpZGU)",  # base64 fragments of common attacks
-            re.IGNORECASE,
+        (
+            "encoded_ignore_instruction",
+            re.compile(
+                r"(aWdub3Jl|Zm9yZ2V0|c3lzdGVt|b3ZlcnJpZGU)",  # base64 fragments of common attacks
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    # --- Multi-language injection ---
-    (
-        "injection_spanish",
-        re.compile(
-            r"(ignora|olvida|desactiva).{0,20}(instrucciones|reglas|anteriores|sistema)",
-            re.IGNORECASE,
+        # --- Multi-language injection ---
+        (
+            "injection_spanish",
+            re.compile(
+                r"(ignora|olvida|desactiva).{0,20}(instrucciones|reglas|anteriores|sistema)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "injection_french",
-        re.compile(
-            r"(ignore[rz]?|oublie[rz]?).{0,20}(instructions|r[eè]gles|pr[eé]c[eé]dentes|syst[eè]me)",
-            re.IGNORECASE,
+        (
+            "injection_french",
+            re.compile(
+                r"(ignore[rz]?|oublie[rz]?).{0,20}(instructions|r[eè]gles|pr[eé]c[eé]dentes|syst[eè]me)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "injection_german",
-        re.compile(
-            r"(ignorier|vergiss).{0,20}(anweisungen|regeln|vorherige|system)",
-            re.IGNORECASE,
+        (
+            "injection_german",
+            re.compile(
+                r"(ignorier|vergiss).{0,20}(anweisungen|regeln|vorherige|system)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "injection_chinese",
-        re.compile(
-            r"(忽略|无视|跳过).{0,10}(指令|规则|之前|系统|提示)",
+        (
+            "injection_chinese",
+            re.compile(
+                r"(忽略|无视|跳过).{0,10}(指令|规则|之前|系统|提示)",
+            ),
         ),
-    ),
-    (
-        "injection_japanese",
-        re.compile(
-            r"(無視|忘れ|システム).{0,10}(指示|ルール|プロンプト|命令)",
+        (
+            "injection_japanese",
+            re.compile(
+                r"(無視|忘れ|システム).{0,10}(指示|ルール|プロンプト|命令)",
+            ),
         ),
-    ),
-    (
-        "injection_russian",
-        re.compile(
-            r"(игнорируй|забудь|отмени).{0,20}(инструкции|правила|систем)",
-            re.IGNORECASE,
+        (
+            "injection_russian",
+            re.compile(
+                r"(игнорируй|забудь|отмени).{0,20}(инструкции|правила|систем)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "injection_arabic",
-        re.compile(
-            r"(تجاهل|انسى|تخطى).{0,20}(التعليمات|القواعد|النظام)",
+        (
+            "injection_arabic",
+            re.compile(
+                r"(تجاهل|انسى|تخطى).{0,20}(التعليمات|القواعد|النظام)",
+            ),
         ),
-    ),
-    (
-        "injection_portuguese",
-        re.compile(
-            r"(ignor[ea]|esque[cç]a).{0,20}(instru[cç][oõ]es|regras|anteriores|sistema)",
-            re.IGNORECASE,
+        (
+            "injection_portuguese",
+            re.compile(
+                r"(ignor[ea]|esque[cç]a).{0,20}(instru[cç][oõ]es|regras|anteriores|sistema)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "injection_korean",
-        re.compile(
-            r"(무시|잊어|시스템).{0,10}(지시|규칙|프롬프트|명령)",
+        (
+            "injection_korean",
+            re.compile(
+                r"(무시|잊어|시스템).{0,10}(지시|규칙|프롬프트|명령)",
+            ),
         ),
-    ),
-    # --- Indirect injection (hidden in documents/emails) ---
-    (
-        "indirect_hidden_instruction",
-        re.compile(
-            r"(IMPORTANT|URGENT|NOTE\s+TO\s+AI|ATTENTION\s+AI|INSTRUCTION\s+FOR\s+(THE\s+)?AI)",
-            re.IGNORECASE,
+        # --- Indirect injection (hidden in documents/emails) ---
+        (
+            "indirect_hidden_instruction",
+            re.compile(
+                r"(IMPORTANT|URGENT|NOTE\s+TO\s+AI|ATTENTION\s+AI|INSTRUCTION\s+FOR\s+(THE\s+)?AI)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "indirect_assistant_note",
-        re.compile(
-            r"(dear|hey|hi|hello)\s+(assistant|ai|chatbot|model|gpt|claude|llm)",
-            re.IGNORECASE,
+        (
+            "indirect_assistant_note",
+            re.compile(
+                r"(dear|hey|hi|hello)\s+(assistant|ai|chatbot|model|gpt|claude|llm)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "indirect_hidden_text",
-        re.compile(
-            r"(hidden|invisible|secret)\s+(instruction|command|message|text)\s*(:|for)",
-            re.IGNORECASE,
+        (
+            "indirect_hidden_text",
+            re.compile(
+                r"(hidden|invisible|secret)\s+(instruction|command|message|text)\s*(:|for)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "indirect_email_injection",
-        re.compile(
-            r"(when\s+you\s+read|upon\s+reading|if\s+you.{0,10}(see|process)\s+this).{0,30}"
-            r"(ignore|override|forget|execute|follow\s+these)",
-            re.IGNORECASE,
+        (
+            "indirect_email_injection",
+            re.compile(
+                r"(when\s+you\s+read|upon\s+reading|if\s+you.{0,10}(see|process)\s+this).{0,30}"
+                r"(ignore|override|forget|execute|follow\s+these)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "indirect_document_payload",
-        re.compile(
-            r"(begin|start)\s+(secret|hidden|special)\s+(section|instructions|protocol)",
-            re.IGNORECASE,
+        (
+            "indirect_document_payload",
+            re.compile(
+                r"(begin|start)\s+(secret|hidden|special)\s+(section|instructions|protocol)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    # --- Unicode-based attacks ---
-    (
-        "unicode_bidi_override",
-        re.compile(r"[\u202a-\u202e\u2066-\u2069]"),
-    ),
-    (
-        "unicode_tag_chars",
-        re.compile(r"[\U000e0001-\U000e007f]"),  # Unicode tag characters
-    ),
-    (
-        "unicode_confusables",
-        re.compile(
-            r"[\u0430\u0435\u043e\u0440\u0441\u0443\u0445]"  # Cyrillic confusables in Latin context
-            r".{0,5}(ignore|system|override|bypass|forget)",
-            re.IGNORECASE,
+        # --- Unicode-based attacks ---
+        (
+            "unicode_bidi_override",
+            re.compile(r"[\u202a-\u202e\u2066-\u2069]"),
         ),
-    ),
-    # --- Advanced evasion ---
-    (
-        "char_splitting",
-        re.compile(
-            r"(i|I)\s*g\s*n\s*o\s*r\s*e.{0,5}(i|p)\s*n\s*s\s*t\s*r\s*u\s*c",
-            re.IGNORECASE,
+        (
+            "unicode_tag_chars",
+            re.compile(r"[\U000e0001-\U000e007f]"),  # Unicode tag characters
         ),
-    ),
-    (
-        "payload_concatenation",
-        re.compile(
-            r"(combine|concatenate|join|merge).{0,30}(instruction|command|payload|string)",
-            re.IGNORECASE,
+        (
+            "unicode_confusables",
+            re.compile(
+                r"[\u0430\u0435\u043e\u0440\u0441\u0443\u0445]"  # Cyrillic confusables in Latin context
+                r".{0,5}(ignore|system|override|bypass|forget)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "token_smuggling",
-        re.compile(
-            r"(split|chunk|fragment|piece).{0,20}(token|word|instruction|command)",
-            re.IGNORECASE,
+        # --- Advanced evasion ---
+        (
+            "char_splitting",
+            re.compile(
+                r"(i|I)\s*g\s*n\s*o\s*r\s*e.{0,5}(i|p)\s*n\s*s\s*t\s*r\s*u\s*c",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "context_switch",
-        re.compile(
-            r"(end\s+of|exit|leave|stop).{0,15}(context|conversation|chat|session|mode).{0,15}"
-            r"(new|begin|start|enter)",
-            re.IGNORECASE,
+        (
+            "payload_concatenation",
+            re.compile(
+                r"(combine|concatenate|join|merge).{0,30}(instruction|command|payload|string)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "developer_mode",
-        re.compile(
-            r"(developer|debug|maintenance|god|sudo)\s*(mode|access|privileges?)",
-            re.IGNORECASE,
+        (
+            "token_smuggling",
+            re.compile(
+                r"(split|chunk|fragment|piece).{0,20}(token|word|instruction|command)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "hypothetical_frame",
-        re.compile(
-            r"(hypothetically|theoretically|in\s+a\s+fictional|for\s+a\s+story).{0,30}"
-            r"(how\s+(would|to|can)|ignore|bypass|override)",
-            re.IGNORECASE,
+        (
+            "context_switch",
+            re.compile(
+                r"(end\s+of|exit|leave|stop).{0,15}(context|conversation|chat|session|mode).{0,15}"
+                r"(new|begin|start|enter)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "completion_manipulation",
-        re.compile(
-            r"(continue|complete|finish)\s+(the\s+)?(following|this|sentence|pattern)\s*:"
-            r".{0,30}(ignore|system|override)",
-            re.IGNORECASE,
+        (
+            "developer_mode",
+            re.compile(
+                r"(developer|debug|maintenance|god|sudo)\s*(mode|access|privileges?)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "few_shot_injection",
-        re.compile(
-            r"(example|sample)\s*\d*\s*:?\s*(user|human|input)\s*:.{0,50}"
-            r"(assistant|ai|output|response)\s*:",
-            re.IGNORECASE,
+        (
+            "hypothetical_frame",
+            re.compile(
+                r"(hypothetically|theoretically|in\s+a\s+fictional|for\s+a\s+story).{0,30}"
+                r"(how\s+(would|to|can)|ignore|bypass|override)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-    (
-        "instruction_boundary",
-        re.compile(
-            r"(###|===|\*\*\*|---)\s*(end|begin|start).{0,10}(instruction|system|prompt)",
-            re.IGNORECASE,
+        (
+            "completion_manipulation",
+            re.compile(
+                r"(continue|complete|finish)\s+(the\s+)?(following|this|sentence|pattern)\s*:"
+                r".{0,30}(ignore|system|override)",
+                re.IGNORECASE,
+            ),
         ),
-    ),
-])
-
+        (
+            "few_shot_injection",
+            re.compile(
+                r"(example|sample)\s*\d*\s*:?\s*(user|human|input)\s*:.{0,50}"
+                r"(assistant|ai|output|response)\s*:",
+                re.IGNORECASE,
+            ),
+        ),
+        (
+            "instruction_boundary",
+            re.compile(
+                r"(###|===|\*\*\*|---)\s*(end|begin|start).{0,10}(instruction|system|prompt)",
+                re.IGNORECASE,
+            ),
+        ),
+    ]
+)
 
 
 # ---------------------------------------------------------------------------

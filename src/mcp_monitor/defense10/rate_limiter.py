@@ -29,7 +29,7 @@ try:
         any caller that handles HTTPException will surface a proper 429 response.
         """
 
-        def __init__(self, decision: "RateLimitDecision") -> None:
+        def __init__(self, decision: RateLimitDecision) -> None:
             super().__init__(
                 status_code=429,
                 detail=decision.reason,
@@ -44,7 +44,7 @@ except ImportError:  # pragma: no cover — FastAPI is an optional dependency
         Falls back to a plain Exception when FastAPI is not installed.
         """
 
-        def __init__(self, decision: "RateLimitDecision") -> None:
+        def __init__(self, decision: RateLimitDecision) -> None:
             super().__init__(decision.reason)
             self.decision = decision
             self.status_code = 429
