@@ -738,7 +738,7 @@ class PromptInjectionDetector:
         elif isinstance(obj, dict):
             for value in obj.values():
                 strings.extend(self._extract_strings(value))
-        elif isinstance(obj, (list, tuple)):
+        elif isinstance(obj, list | tuple):
             for item in obj:
                 strings.extend(self._extract_strings(item))
         return strings
