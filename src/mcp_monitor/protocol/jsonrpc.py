@@ -126,7 +126,7 @@ class MCPJSONRPCAdapter:
             If the message is not valid JSON-RPC 2.0.
         """
         # Parse JSON if needed
-        if isinstance(raw, (str, bytes)):
+        if isinstance(raw, str | bytes):
             try:
                 data = json.loads(raw)
             except (json.JSONDecodeError, ValueError) as e:
