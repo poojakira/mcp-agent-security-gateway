@@ -8,14 +8,14 @@ Running MCP without this is running code from the internet without a firewall.
 
 ## What It Does
 
-- **JSON-RPC 2.0 proxy** — Intercepts real MCP wire-protocol messages, not generic dicts. Parses `tools/call`, validates structure per the [MCP spec](https://spec.modelcontextprotocol.io/).
-- **55 detection patterns** — Covers prompt injection, command injection, data exfiltration, hidden recipients, encoded payloads, and tool-poisoning attacks.
-- **Unicode normalization** — Strips zero-width characters, resolves Cyrillic/Greek homoglyphs, decodes base64 and ROT13 before pattern matching. Attackers can't hide behind `\u200b` or `а` (Cyrillic).
-- **Exfiltration detection** — Catches hidden BCC fields, DNS tunneling patterns, encoded PII in tool arguments.
-- **Default-deny egress policy** — Every outbound destination must be explicitly allowed.
-- **Hash-chained audit log** — SHA-256 chained entries. Tamper-evident. Non-repudiable.
-- **Circuit breakers + rate limiting** — Fail closed under load. Never silently pass malicious calls.
-- **Shadow mode** — Deploy in monitoring-only mode first. Log everything, block nothing. Flip to enforcement when ready.
+- **JSON-RPC 2.0 proxy** - Intercepts real MCP wire-protocol messages, not generic dicts. Parses `tools/call`, validates structure per the [MCP spec](https://spec.modelcontextprotocol.io/).
+- **55 detection patterns** - Covers prompt injection, command injection, data exfiltration, hidden recipients, encoded payloads, and tool-poisoning attacks.
+- **Unicode normalization** - Strips zero-width characters, resolves Cyrillic/Greek homoglyphs, decodes base64 and ROT13 before pattern matching. Attackers can't hide behind `\u200b` or `а` (Cyrillic).
+- **Exfiltration detection** - Catches hidden BCC fields, DNS tunneling patterns, encoded PII in tool arguments.
+- **Default-deny egress policy** - Every outbound destination must be explicitly allowed.
+- **Hash-chained audit log** - SHA-256 chained entries. Tamper-evident. Non-repudiable.
+- **Circuit breakers + rate limiting** - Fail closed under load. Never silently pass malicious calls.
+- **Shadow mode** - Deploy in monitoring-only mode first. Log everything, block nothing. Flip to enforcement when ready.
 
 ## Why This Exists
 
@@ -26,7 +26,7 @@ Running MCP without this is running code from the internet without a firewall.
 | Unauthenticated command execution via MCP | Hacker News, July 2026 | Exploited in the wild |
 | "Shattered the AI Agent Security Narrative" | DEF CON 34, Aug 2026 | Demonstrated |
 
-No other open-source tool inspects MCP tool-call arguments at the wire-protocol level. Prompt guardrails protect the LLM input — they don't see what the agent sends to tools after deciding to act.
+No other open-source tool inspects MCP tool-call arguments at the wire-protocol level. Prompt guardrails protect the LLM input. They don't see what the agent sends to tools after deciding to act.
 
 ## Install + Start (20 seconds)
 
@@ -135,7 +135,7 @@ docker build -t mcp-security-gateway .
 docker run -p 8000:8000 -e MCP_API_KEY=your-secret mcp-security-gateway
 ```
 
-Kubernetes manifests are in `deploy/k8s/` — includes Deployment, Service, HPA, ConfigMap, and PVC for audit logs.
+Kubernetes manifests are in `deploy/k8s/`, including Deployment, Service, HPA, ConfigMap, and PVC for audit logs.
 
 ## Architecture
 
