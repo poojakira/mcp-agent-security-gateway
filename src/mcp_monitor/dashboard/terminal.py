@@ -1,7 +1,7 @@
-"""Terminal-based real-time security dashboard.
+"""Terminal-based report renderer for MCP security simulations.
 
-Displays live attack detection results with color-coded severity,
-layer-by-layer breakdown, and overall defense statistics.
+Displays catalog replay results with color-coded severity, layer-by-layer
+breakdown, and scoped defense statistics for the supplied simulation report.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from mcp_monitor.redteam.simulator import AttackResult, SimulationReport
 
 
 class TerminalDashboard:
-    """Real-time terminal dashboard for MCP security monitoring."""
+    """Terminal renderer for MCP security simulation reports."""
 
     def __init__(self) -> None:
         self._events: list[dict[str, Any]] = []
@@ -23,14 +23,14 @@ class TerminalDashboard:
         lines: list[str] = []
         lines.append("")
         lines.append("=" * 80)
-        lines.append("  MCP SECURITY GATEWAY MONITOR — REAL-TIME ATTACK SIMULATION")
+        lines.append("  MCP SECURITY GATEWAY MONITOR — CATALOG ATTACK SIMULATION")
         lines.append("=" * 80)
         lines.append("")
         lines.append(f"  Timestamp:       {time.strftime('%Y-%m-%d %H:%M:%S')}")
         lines.append(f"  Total Attacks:   {report.total_attacks}")
         lines.append(f"  Blocked:         {report.blocked}")
         lines.append(f"  Missed:          {report.missed}")
-        lines.append(f"  Detection Rate:  {report.detection_rate:.1f}%")
+        lines.append(f"  Catalog Hit Rate: {report.detection_rate:.1f}%")
         lines.append(f"  Execution Time:  {report.execution_time_ms:.1f}ms")
         lines.append("")
         lines.append("-" * 80)
