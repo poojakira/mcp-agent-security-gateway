@@ -1,4 +1,4 @@
-"""Focused tests for the real-time control-plane telemetry contract."""
+"""Focused tests for the control-plane telemetry contract."""
 
 from __future__ import annotations
 

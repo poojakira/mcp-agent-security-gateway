@@ -4,7 +4,7 @@ MCP servers are executing unauthenticated commands on your infrastructure. **40+
 
 This gateway sits between your MCP client and server, parses every JSON-RPC 2.0 tool call on the wire, and blocks injection and exfiltration before it reaches the tool.
 
-Running MCP without this is running code from the internet without a firewall.
+Running MCP without this is running tool calls without an explicit monitoring and policy boundary.
 
 ## What It Does
 

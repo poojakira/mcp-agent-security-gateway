@@ -1,7 +1,7 @@
-"""Red Team Attack Simulator — replays real attack patterns in real-time.
+"""Red team simulator for replaying a local defensive payload catalog.
 
-Feeds documented attack payloads through all 5 defense layers and reports
-which layers caught each attack, which missed, and overall detection rate.
+Feeds catalog payloads through configured defense layers and reports which
+layers flagged each payload, which missed, and the catalog hit rate.
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ class SimulationReport:
 
 
 class AttackSimulator:
-    """Replays real-world attack patterns against the 5-layer defense.
+    """Replays catalog attack patterns against the configured defense.
 
     Usage:
         simulator = AttackSimulator(defense_system)

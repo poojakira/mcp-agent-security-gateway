@@ -1,7 +1,7 @@
 """Cross-tool correlation engine for multi-step attack detection.
 
 WHY THIS EXISTS:
-MCP treats every tool call as independent. But real attacks are SEQUENCES:
+MCP treats every tool call as independent, but attacks can be SEQUENCES:
   1. read_secret() -> gets API key
   2. email.send(bcc=attacker) -> exfiltrates it
 

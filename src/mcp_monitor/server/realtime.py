@@ -840,7 +840,7 @@ async def dashboard() -> HTMLResponse:
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket) -> None:
-    """WebSocket endpoint for real-time event streaming."""
+    """WebSocket endpoint for event streaming."""
     await manager.connect(websocket)
     try:
         # Send the current operational state immediately. The UI can then show
