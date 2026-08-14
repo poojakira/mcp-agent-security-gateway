@@ -1,22 +1,37 @@
 # MCP Agent Security Gateway
 
-**Runtime security controls for MCP tool calls, agent-to-tool interactions, and AI agent execution boundaries.**
+**Security controls for MCP tool calls, agent-to-tool interactions, and AI agent execution boundaries.**
 
-I built this project to explore a security problem I think becomes increasingly important as AI systems move from generating text to taking actions:
+I built this project around a simple security question:
 
-> **How do I control what happens after an AI agent decides to use a tool?**
+> **What happens after an AI agent decides to act?**
 
-When an agent invokes an MCP tool, it crosses a trust boundary. It may interact with files, APIs, databases, cloud infrastructure, email systems, internal services, or other sensitive resources.
+Once an AI agent can call tools, access files, invoke APIs, interact with cloud services, send messages, or query internal systems, prompt filtering is no longer the entire security boundary.
 
-I built **MCP Agent Security Gateway** to place an explicit security and policy layer between an AI agent and those capabilities.
+I built **MCP Agent Security Gateway** to explore security controls at the point where an agent's intent becomes a real tool invocation.
 
-My goal is not only to inspect prompts. I want to inspect and govern the actions that agents attempt to perform.
+My work in this repository focuses on:
+
+- MCP `tools/call` inspection
+- JSON-RPC 2.0 parsing
+- prompt-injection detection
+- tool-call allow/block decisions
+- MCP server trust and capability checks
+- sensitive-data and exfiltration signals
+- tool-output inspection
+- auditability
+- runtime observability
+- rate limiting and circuit breakers
+- network-egress policy experiments
+- agent-security evaluation
+
+> **Scope:** This repository contains a real inline MCP stdio proxy, a separate HTTP security inspection service, and additional experimental security components. Not every control is currently wired into the same runtime path.
 
 ---
 
 ## Why I Built This
 
-Most LLM security discussions focus heavily on what enters the model:
+Traditional LLM security often focuses on:
 
 ```text
 User
@@ -26,7 +41,7 @@ Prompt
 LLM
 ```
 
-But once an AI system becomes agentic, the security boundary becomes larger:
+Agentic systems introduce another boundary:
 
 ```text
 User
@@ -37,42 +52,38 @@ Decision to Act
   ↓
 Tool Invocation
   ↓
-API / File / Database / Cloud / Service
+Files · APIs · Databases · Cloud · Internal Services
 ```
 
 That is the boundary I am interested in securing.
 
 I want to answer questions such as:
 
-* Which tool is the agent attempting to invoke?
-* Which MCP server is receiving the request?
-* What arguments is the agent sending?
-* Does the request contain prompt-injection indicators?
-* Is sensitive information leaving the system?
-* Is the agent communicating with an unexpected server?
-* Does the requested destination violate policy?
-* What information is the tool returning?
-* Can I reconstruct the agent's actions afterward?
-* Should this agent actually have permission to perform this action?
-
-This repository is my engineering work around those questions.
+- Which tool is the agent trying to invoke?
+- Which MCP server is receiving the request?
+- What arguments is the agent sending?
+- Does the request contain injection indicators?
+- Is sensitive information leaving the system?
+- Is the requested server expected?
+- Is the requested capability appropriate for that server?
+- What information is the tool returning to the agent?
+- Can I reconstruct the security decision afterward?
+- Should this action be allowed at all?
 
 ---
 
-# What I Implemented
+## What I Implemented
 
-I currently maintain three related security surfaces in this repository.
+The repository currently has three main security surfaces.
 
-### 1. Inline MCP stdio proxy
+### 1. Inline MCP stdio Proxy
 
-I implemented a real stdio MCP proxy that can sit between an MCP client and a downstream MCP server.
-
-It parses JSON-RPC traffic, identifies `tools/call` requests, inspects tool arguments, and can prevent selected suspicious calls from reaching the downstream server.
+I implemented a real stdio proxy that can sit between an MCP client and a downstream MCP server.
 
 ```text
 MCP Client
     │
-    │ JSON-RPC
+    │ JSON-RPC over stdio
     ▼
 ┌───────────────────────────────┐
 │ MCP Agent Security Gateway    │
@@ -80,81 +91,487 @@ MCP Client
 │ • Parse JSON-RPC              │
 │ • Identify tools/call         │
 │ • Normalize input             │
-│ • Inspect arguments           │
+│ • Inspect tool arguments      │
 │ • Allow / Block               │
 └───────────────┬───────────────┘
                 │
                 ▼
          MCP Server
-                │
-                ▼
-             Tools
 ```
 
-### 2. HTTP security inspection service
+For `tools/call` requests, I inspect the request before forwarding it.
 
-I also implemented an HTTP decision service for integrating security inspection into an agent runtime, orchestrator, gateway, or tool-execution system.
+If the request is blocked, it is not sent to the downstream MCP server. The proxy returns a JSON-RPC security error instead.
 
-This path includes:
+Non-tool MCP methods such as initialization and `tools/list` pass through to the downstream server.
 
-* tool-call inspection;
-* tool-output inspection;
-* API-key authentication;
-* rate limiting;
-* circuit breakers;
-* shadow mode;
-* tracing;
-* metrics;
-* alert hooks;
-* write-ahead logging;
-* tamper-evident audit logging.
+#### Important runtime boundary
 
-### 3. Security research and defense components
+The current inline stdio proxy primarily uses the prompt-injection inspection path.
 
-I use the repository to experiment with additional agent-security controls including:
-
-* tool and server trust;
-* egress policy;
-* semantic intent analysis;
-* cross-tool attack correlation;
-* manifest integrity;
-* behavioral drift;
-* canary validation;
-* security invariants;
-* honeypot-style signals;
-* sandboxing experiments;
-* adversarial security evaluation.
-
-Not every experimental component is currently wired into the same runtime path. I document those boundaries explicitly rather than presenting everything as one production system.
+The broader PII, exfiltration, server-trust, output-inspection, rate-limit, audit, tracing, and circuit-breaker functionality exists elsewhere in the repository and is **not yet fully unified with the stdio proxy**.
 
 ---
 
-# Inline MCP Proxy
+### 2. HTTP Security Inspection Service
 
-I implemented the stdio proxy as the real inline enforcement path.
+I also implemented a separate HTTP decision service.
 
-For MCP `tools/call` requests, I parse the JSON-RPC message and inspect the tool arguments before forwarding the request.
+This allows an agent runtime, orchestrator, application, or tool-execution layer to explicitly ask:
 
-If I classify the call as blocked, I do **not** forward it to the downstream MCP server.
+> **Should this action be allowed?**
 
-Instead, the proxy returns a JSON-RPC security error.
+The service exposes:
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/v1/inspect_call` | Inspect a proposed tool call |
+| `POST` | `/v1/inspect_output` | Inspect tool output |
+| `GET` | `/v1/health` | Health check |
+| `GET` | `/v1/ready` | Readiness check |
+| `GET` | `/v1/metrics` | Prometheus-style metrics |
+
+The inspection endpoints support:
+
+- API-key authentication
+- rate limiting
+- circuit breakers
+- shadow mode
+- tracing
+- metrics
+- alert hooks
+- write-ahead logging
+- tamper-evident audit logging
+
+The service returns a structured decision containing fields such as:
 
 ```text
--32001
+allowed
+risk_score
+findings
+call_id
+trace_id
+span_id
 ```
 
-For normal MCP traffic such as:
+The HTTP service is a **decision API**.
 
-```text
-initialize
-tools/list
-```
-
-the proxy passes the message through.
+It does not automatically execute or forward the tool call. The integrating system must enforce the returned decision.
 
 ---
 
-## Install
+### 3. Experimental Agent-Security Components
+
+I also use this repository to develop and test additional controls around agent behavior.
+
+These include:
+
+- server registration and capability checks
+- egress policy
+- semantic intent analysis
+- cross-tool attack correlation
+- tool-manifest integrity
+- behavioral drift
+- canary validation
+- security invariants
+- honeypot-style signals
+- sandbox experiments
+- adversarial payload replay
+
+I keep these components separate from my runtime claims because implementation and runtime integration are not the same thing.
+
+---
+
+## Prompt-Injection Inspection
+
+I implemented prompt-injection detection for content inside MCP tool-call arguments.
+
+The detector includes **50+ rule patterns** covering categories such as:
+
+- instruction override
+- system-prompt extraction
+- role manipulation
+- jailbreak patterns
+- delimiter injection
+- HTML and Markdown injection
+- encoded instructions
+- command-oriented payloads
+- indirect-injection indicators
+- obfuscation techniques
+
+Before pattern matching, I normalize input using techniques including:
+
+- zero-width character removal
+- bidirectional-control handling
+- Unicode normalization
+- Cyrillic and Greek homoglyph normalization
+- Base64 decoding attempts
+- ROT13 decoding heuristics
+
+The repository also contains an optional ML-assisted detection path.
+
+I treat these mechanisms as **security signals**, not as universal prompt-injection prevention.
+
+---
+
+## MCP Server Trust
+
+I implemented a server allowlist and registration model for reasoning about which MCP servers an agent is expected to use.
+
+A call can be flagged when:
+
+- `server_id` is missing
+- the server is not approved
+- a registered server attempts a capability outside its declared capability set
+
+Conceptually:
+
+```text
+Agent
+  │
+  ▼
+Requested MCP Server
+  │
+  ▼
+Is the server approved?
+  │
+  ├── No  → Flag / Deny
+  │
+  └── Yes
+       │
+       ▼
+Is the capability expected?
+       │
+       ├── No  → Flag / Deny
+       └── Yes → Continue
+```
+
+This is one area where I am moving beyond prompt inspection toward **agent identity, authorization, and governance controls**.
+
+---
+
+## Sensitive-Data Inspection
+
+The broader inspection service also checks selected sensitive-data patterns in tool calls and outputs.
+
+These include patterns for:
+
+- email addresses
+- SSNs
+- credit-card-like values
+- phone numbers
+- IP addresses
+- dates of birth
+- passport-like identifiers
+- AWS access-key patterns
+- API-key-like values
+
+I treat this as heuristic inspection rather than a replacement for enterprise DLP.
+
+---
+
+## Exfiltration Signals
+
+I implemented rule-based checks for selected exfiltration indicators.
+
+Examples include:
+
+- hidden or BCC recipients
+- suspicious email headers
+- oversized payloads
+- large Base64 blobs
+- suspicious outbound URLs
+- raw-IP destinations
+- selected tunneling or webhook-style patterns
+
+These findings indicate suspicious behavior; they do not prove malicious intent by themselves.
+
+---
+
+## Tool-Output Inspection
+
+I want the security boundary to cover both directions.
+
+```text
+Agent
+  │
+  │ Tool Call
+  ▼
+Security Inspection
+  │
+  ▼
+Tool
+  │
+  │ Tool Output
+  ▼
+Security Inspection
+  │
+  ▼
+Agent
+```
+
+Through `/v1/inspect_output`, I inspect selected tool outputs for:
+
+- sensitive-data patterns
+- exfiltration indicators
+- associated risk signals
+
+My goal is to treat the agent/tool boundary as both an **action boundary** and a **data boundary**.
+
+---
+
+## Auditability
+
+I implemented a SHA-256 hash-chained audit log for security decisions.
+
+Each entry includes the previous entry's hash:
+
+```text
+Entry 1
+   │
+   │ hash
+   ▼
+Entry 2
+   │
+   │ hash
+   ▼
+Entry 3
+```
+
+If a historical entry is changed without rebuilding the subsequent chain, verification can detect the inconsistency.
+
+I describe this as:
+
+**tamper-evident audit logging**
+
+I do not describe it as cryptographic non-repudiation.
+
+---
+
+## Write-Ahead Logging
+
+For protected HTTP inspection requests, I record request metadata to a write-ahead log before processing.
+
+The recorded metadata can include:
+
+- request path
+- request-body SHA-256
+- body size
+- trace ID
+- span ID
+
+I use this to improve traceability around security-sensitive requests.
+
+---
+
+## Runtime Controls
+
+### Authentication
+
+Protected HTTP inspection endpoints require API-key authentication unless anonymous mode is explicitly enabled.
+
+Clients send:
+
+```text
+X-API-Key
+```
+
+### Rate Limiting
+
+I implemented rate limiting around inspection requests.
+
+Health, readiness, and metrics endpoints are treated separately so infrastructure probes can remain available.
+
+### Circuit Breakers
+
+The HTTP inspection paths use circuit breakers.
+
+When the inspection circuit is open, the configured fallback produces a deny decision rather than silently treating the request as safe.
+
+This supports fail-closed behavior for that specific failure path.
+
+### Shadow Mode
+
+I implemented shadow mode so I can evaluate security findings before enabling enforcement.
+
+```bash
+export MCP_SHADOW_MODE=true
+```
+
+In shadow mode, findings are recorded while the returned decision is changed to allow.
+
+I use this to separate **policy observation** from **policy enforcement**.
+
+---
+
+## Observability
+
+The HTTP inspection service includes:
+
+- trace IDs
+- span IDs
+- `traceparent` support
+- structured logging
+- request counters
+- error counters
+- latency measurements
+- circuit-breaker state
+- alert hooks
+- health checks
+- readiness checks
+- Prometheus-style metrics
+
+I consider observability part of security engineering because a control should be explainable and operationally inspectable.
+
+---
+
+## Network Egress Policy
+
+I implemented a separate egress-policy engine supporting:
+
+- default-deny behavior
+- allowed domains
+- allowed IPs
+- allowed ports
+- blocked domains
+- blocked IPs
+- payload-size limits
+
+Conceptually:
+
+```text
+Tool Call
+   │
+   ▼
+Requested Destination
+   │
+   ▼
+Egress Policy
+   │
+   ├── Destination allowed?
+   ├── Port allowed?
+   ├── Payload within limit?
+   │
+   ▼
+Allow / Deny
+```
+
+### Important limitation
+
+This policy engine is implemented and tested, but I do **not** claim that it currently intercepts every network connection generated by an arbitrary downstream MCP process.
+
+Actual network-level enforcement requires deeper runtime integration.
+
+---
+
+## Multi-Layer Security Architecture
+
+I also built a composable five-layer evaluation path:
+
+```text
+Tool Call
+   │
+   ▼
+Server Registry
+   │
+   ▼
+Inline Proxy Policy
+   │
+   ▼
+Process / Behavior Heuristics
+   │
+   ▼
+Semantic Intent Analysis
+   │
+   ▼
+Network Egress Policy
+   │
+   ▼
+Allow / Block
+```
+
+I use this architecture to experiment with how multiple controls can contribute to one agent-action decision.
+
+This architecture is implemented and tested as a separate composition.
+
+I do **not** claim that every one of these layers is automatically active in the default stdio proxy.
+
+---
+
+## Cross-Tool Attack Research
+
+One area I am exploring is attacks that only become visible when multiple agent actions are correlated.
+
+For example:
+
+```text
+read_secret()
+      ↓
+Agent receives credential
+      ↓
+email.send()
+      ↓
+Credential leaves environment
+```
+
+The individual calls may look different in isolation.
+
+The sequence can reveal the security problem.
+
+I maintain correlation experiments for this reason.
+
+---
+
+## Tool Manifest Integrity
+
+I also experiment with detecting changes in tool definitions and declared capabilities.
+
+Examples include changes to:
+
+- tool descriptions
+- parameters
+- schemas
+- declared capabilities
+
+My goal is to detect situations where the tool available to an agent has changed relative to an expected baseline.
+
+---
+
+## Behavioral Drift
+
+I maintain experiments around unexpected changes in:
+
+- fields
+- payload structures
+- output structures
+- payload sizes
+- expected tool behavior
+
+These are research components rather than claims of production anomaly detection.
+
+---
+
+## Security Invariants
+
+I use explicit invariants for actions that should violate policy.
+
+Examples include:
+
+```text
+Email tools should not silently add hidden recipients.
+
+Selected database tools should not receive destructive operations.
+
+Selected URL actions should not target unapproved destinations.
+
+High-risk execution should require stronger policy.
+```
+
+I am interested in using invariants as a complement to probabilistic or heuristic detection.
+
+---
+
+## Installation
 
 ```bash
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
@@ -165,40 +582,24 @@ python -m pip install -e ".[dev]"
 
 ---
 
-## Run the Inline Proxy
-
-I can place an MCP server behind the proxy using:
+## Run the Inline MCP Proxy
 
 ```bash
 python -m mcp_monitor.proxy.stdio_proxy -- <mcp-server-command> [args...]
 ```
 
-For example:
+Example:
 
 ```bash
 python -m mcp_monitor.proxy.stdio_proxy -- \
   npx -y @modelcontextprotocol/server-filesystem /path/to/allowed/directory
 ```
 
-The resulting execution path is:
-
-```text
-AI Agent / MCP Client
-        │
-        ▼
-MCP Agent Security Gateway
-        │
-        ▼
-Downstream MCP Server
-```
-
 ---
 
-# Claude Desktop Integration
+## Claude Desktop Integration
 
-I can configure Claude Desktop so that the security gateway launches and mediates the downstream MCP server.
-
-Example:
+I can wrap a downstream MCP server with the stdio proxy:
 
 ```json
 {
@@ -219,60 +620,21 @@ Example:
 }
 ```
 
-In this configuration, Claude does not communicate directly with the downstream server.
-
-The execution path becomes:
+The resulting path is:
 
 ```text
 Claude Desktop
       │
       ▼
-My MCP Security Gateway
+MCP Agent Security Gateway
       │
       ▼
-MCP Server
-      │
-      ▼
-Tool
+Downstream MCP Server
 ```
 
 ---
 
-# HTTP Security Inspection Service
-
-I also implemented a separate HTTP inspection service.
-
-I use this path when I want another application or agent runtime to explicitly ask:
-
-> **Should I allow this tool call?**
-
-Start it with:
-
-```bash
-mcp-gateway
-```
-
-By default, it listens on:
-
-```text
-127.0.0.1:8080
-```
-
----
-
-## API
-
-| Method | Endpoint             | What I use it for               |
-| ------ | -------------------- | ------------------------------- |
-| `POST` | `/v1/inspect_call`   | Inspecting a proposed tool call |
-| `POST` | `/v1/inspect_output` | Inspecting tool output          |
-| `GET`  | `/v1/health`         | Health checks                   |
-| `GET`  | `/v1/ready`          | Readiness checks                |
-| `GET`  | `/v1/metrics`        | Prometheus-style metrics        |
-
-Inspection endpoints require API-key authentication by default.
-
-Example:
+## Run the HTTP Inspection Service
 
 ```bash
 export MCP_API_KEY="replace-with-a-secret"
@@ -281,7 +643,13 @@ export MCP_ALLOWED_SERVERS="mail-server,filesystem-server"
 mcp-gateway
 ```
 
-Then:
+Default listener:
+
+```text
+127.0.0.1:8080
+```
+
+Example request:
 
 ```bash
 curl -X POST http://127.0.0.1:8080/v1/inspect_call \
@@ -298,478 +666,34 @@ curl -X POST http://127.0.0.1:8080/v1/inspect_call \
   }'
 ```
 
-The service returns a structured security decision containing fields such as:
-
-```json
-{
-  "allowed": false,
-  "risk_score": 100,
-  "findings": [],
-  "call_id": "...",
-  "trace_id": "...",
-  "span_id": "..."
-}
-```
-
-I treat this interface as a **decision API**.
-
-It does not automatically execute the tool.
-
-The integrating application is responsible for enforcing the decision:
-
-```python
-if result["allowed"]:
-    execute_tool()
-else:
-    deny_tool()
-```
+I intentionally do not hard-code a claimed response in this README. The exact findings and risk score should be reproduced against the current commit.
 
 ---
 
-# Prompt-Injection Inspection
+## Configuration
 
-I implemented a prompt-injection detector designed specifically to inspect content inside tool-call arguments.
-
-The detector contains **50+ rule patterns** covering categories such as:
-
-* instruction overrides;
-* system-prompt extraction;
-* jailbreak patterns;
-* role manipulation;
-* delimiter injection;
-* HTML/Markdown payloads;
-* encoded instructions;
-* indirect injection indicators;
-* command-oriented payloads;
-* obfuscation attempts.
-
-Before matching, I normalize the input.
-
-My normalization pipeline includes:
-
-* zero-width character removal;
-* bidirectional-control handling;
-* Unicode normalization;
-* Cyrillic and Greek homoglyph normalization;
-* Base64 decoding attempts;
-* ROT13 decoding heuristics.
-
-I also maintain an optional ML-assisted path for ambiguous cases.
-
-I do **not** treat this detector as a universal prompt-injection solution. It is a security signal used within a larger policy boundary.
+| Variable | Default | Purpose |
+|---|---:|---|
+| `MCP_LISTEN_HOST` | `127.0.0.1` | HTTP bind address |
+| `MCP_LISTEN_PORT` | `8080` | HTTP service port |
+| `MCP_API_KEY` | unset | Inspection API authentication |
+| `MCP_ALLOW_ANONYMOUS` | `false` | Explicit anonymous mode |
+| `MCP_SHADOW_MODE` | `false` | Observation without returned blocking |
+| `MCP_RATE_LIMIT_RPM` | `1000` | Request-rate configuration |
+| `MCP_MAX_PAYLOAD_KB` | `100` | Maximum HTTP payload |
+| `MCP_ALLOWED_SERVERS` | empty | Trusted MCP server IDs |
+| `MCP_WEBHOOK_URL` | unset | Optional alert destination |
+| `MCP_CIRCUIT_BREAKER_THRESHOLD` | `5` | Circuit-breaker threshold |
+| `MCP_CIRCUIT_BREAKER_TIMEOUT` | `30` | Circuit recovery period |
+| `MCP_LOG_LEVEL` | `INFO` | Runtime log level |
+| `MCP_WAL_PATH` | temporary path | WAL location |
+| `MCP_AUDIT_PATH` | temporary path | Audit-log location |
 
 ---
 
-# Sensitive-Data Inspection
+## Testing
 
-I also inspect tool calls and outputs for selected sensitive-data patterns.
-
-These currently include patterns for:
-
-* email addresses;
-* SSNs;
-* credit-card-like values;
-* telephone numbers;
-* IP addresses;
-* dates of birth;
-* passport-like identifiers;
-* AWS access-key patterns;
-* API-key-like values.
-
-I consider these detectors heuristic security controls rather than a replacement for a full enterprise DLP system.
-
----
-
-# MCP Server Trust
-
-I implemented a server registry and allowlist model to reason about which MCP servers an agent should be able to use.
-
-I can flag a request when:
-
-* `server_id` is missing;
-* the server is not approved;
-* or the server attempts a capability outside its registered capabilities.
-
-Conceptually:
-
-```text
-Agent
-  │
-  ▼
-Requested MCP Server
-  │
-  ▼
-Is this server trusted?
-  │
-  ├── NO  → Block / Flag
-  │
-  └── YES
-       │
-       ▼
-Is this capability expected?
-       │
-       ├── NO  → Block / Flag
-       └── YES → Continue
-```
-
-This is one of the areas where I am moving the project from simple detection toward **agent authorization and governance**.
-
----
-
-# Exfiltration Detection
-
-I implemented rule-based checks for selected exfiltration indicators.
-
-Examples include:
-
-* hidden/BCC recipients;
-* suspicious email headers;
-* oversized payloads;
-* large Base64 blobs;
-* suspicious outbound URLs;
-* raw-IP destinations;
-* tunneling or webhook-style patterns.
-
-I treat these as indicators rather than proof of malicious behavior.
-
----
-
-# Tool Output Inspection
-
-I do not want my security boundary to stop at what the agent sends.
-
-A malicious or compromised tool may also return sensitive, manipulated, or dangerous information.
-
-For that reason, I support output inspection:
-
-```text
-Agent
-  │
-  │ Tool Call
-  ▼
-Security Inspection
-  │
-  ▼
-Tool
-  │
-  │ Tool Output
-  ▼
-Security Inspection
-  │
-  ▼
-Agent
-```
-
-Through `/v1/inspect_output`, I evaluate selected:
-
-* sensitive-data patterns;
-* exfiltration signals;
-* output-risk indicators.
-
-My longer-term goal is to make agent security bidirectional:
-
-> **Inspect both what an agent is allowed to do and what information tools are allowed to return.**
-
----
-
-# Auditability
-
-I implemented a SHA-256 hash-chained audit log for security decisions.
-
-Each new entry includes the previous entry's hash.
-
-```text
-Entry 1
-   │
-   │ hash
-   ▼
-Entry 2
-   │
-   │ hash
-   ▼
-Entry 3
-```
-
-If an older record is changed, chain verification can identify that the history has been modified.
-
-I describe this as **tamper-evident logging**.
-
-I intentionally do not describe it as cryptographic non-repudiation because the current design does not establish that property.
-
----
-
-# Write-Ahead Logging
-
-For protected HTTP inspection requests, I record request metadata to a write-ahead log before processing.
-
-The WAL can capture metadata including:
-
-* endpoint path;
-* request-body SHA-256;
-* request size;
-* trace ID;
-* span ID.
-
-I use this to improve traceability and recovery around security-sensitive requests.
-
----
-
-# Runtime Security Controls
-
-## Authentication
-
-By default, I require API-key authentication on protected inspection endpoints.
-
-Clients provide:
-
-```text
-X-API-Key
-```
-
-Anonymous access must be enabled explicitly.
-
----
-
-## Rate Limiting
-
-I implemented rate limiting around inspection traffic so the security boundary itself cannot be consumed without restriction.
-
-Operational endpoints such as health and readiness remain separate from normal inspection traffic.
-
----
-
-## Circuit Breakers
-
-I use circuit breakers around security inspection paths.
-
-When the inspection circuit cannot safely process calls, the configured fallback produces a deny decision.
-
-```json
-{
-  "allowed": false,
-  "risk_score": 100,
-  "findings": [
-    "circuit_breaker_open_fail_closed"
-  ]
-}
-```
-
-For this path, I prefer explicit failure over silently allowing security-sensitive actions.
-
----
-
-## Shadow Mode
-
-I also implemented shadow mode so I can observe policy behavior before enabling blocking.
-
-```bash
-export MCP_SHADOW_MODE=true
-```
-
-In shadow mode, I retain the security findings but allow the operation from the decision-service perspective.
-
-I use this model because deploying enforcement immediately can create unnecessary operational risk when policy has not yet been calibrated.
-
----
-
-# Observability
-
-I implemented several operational controls around the HTTP service.
-
-These include:
-
-* trace IDs;
-* span IDs;
-* `traceparent` propagation;
-* structured logging;
-* request metrics;
-* latency metrics;
-* circuit-breaker state;
-* alert hooks;
-* health endpoints;
-* readiness endpoints.
-
-I want agent security infrastructure to be observable because a security control that cannot explain its decisions is difficult to operate.
-
----
-
-# Network Egress Policy
-
-I implemented a separate network-egress policy engine.
-
-It supports:
-
-* default-deny behavior;
-* allowed domains;
-* allowed IPs;
-* allowed ports;
-* explicit domain/IP blocking;
-* payload-size restrictions.
-
-Conceptually:
-
-```text
-Agent Tool Call
-      │
-      ▼
-Destination Requested
-      │
-      ▼
-Egress Policy
-      │
-      ├── Approved destination?
-      ├── Approved port?
-      ├── Payload within limit?
-      │
-      ▼
-Allow / Deny
-```
-
-This is an important area of my agent-security work because controlling **where an agent can send data** is as important as controlling which tool it can invoke.
-
----
-
-# Multi-Layer Agent Security Research
-
-I also implemented a composable multi-layer defense architecture.
-
-```text
-Tool Call
-   │
-   ▼
-Layer 1
-Server Registry
-   │
-   ▼
-Layer 2
-Inline Proxy Policy
-   │
-   ▼
-Layer 3
-Behavior / Process Signals
-   │
-   ▼
-Layer 4
-Semantic Intent Analysis
-   │
-   ▼
-Layer 5
-Network Egress Policy
-   │
-   ▼
-Allow / Block
-```
-
-I use this architecture to experiment with how multiple security boundaries can contribute to an overall agent-action decision.
-
-Not every layer is automatically active in the current stdio proxy.
-
-I keep the implementation distinction visible because I would rather document architectural limitations than imply integration that does not exist yet.
-
----
-
-# Additional Agent Security Research
-
-I am also experimenting with:
-
-### Cross-tool attack correlation
-
-I want to detect attacks that may not look dangerous when individual tool calls are examined independently.
-
-For example:
-
-```text
-read_secret()
-      ↓
-agent receives credential
-      ↓
-email.send()
-      ↓
-credential leaves environment
-```
-
-Each action may look different in isolation.
-
-The sequence matters.
-
----
-
-### Tool manifest integrity
-
-I experiment with identifying changes in tool descriptions, parameters, capabilities, and schemas.
-
-My goal is to detect situations where the tool an agent thinks it is using has changed underneath it.
-
----
-
-### Behavioral drift
-
-I maintain experiments around changes in:
-
-* fields;
-* output structures;
-* payload size;
-* expected behavior;
-* tool responses.
-
----
-
-### Security invariants
-
-I use explicit invariants for properties that I do not want agents or tools to violate.
-
-Examples include:
-
-```text
-Email tools should not silently add BCC recipients.
-
-Selected SQL tools should not receive destructive commands.
-
-Selected URL actions should not target raw IP addresses.
-
-High-risk shell execution should require stricter policy.
-```
-
----
-
-### Canary validation
-
-I experiment with known-input / expected-output probes to detect changes in tool behavior.
-
----
-
-### Sandboxing
-
-I maintain sandbox-related experiments for restricting high-risk execution.
-
-These remain experimental and are not currently equivalent to a complete production isolation boundary.
-
----
-
-# Configuration
-
-| Variable                        |     Default | What I use it for             |
-| ------------------------------- | ----------: | ----------------------------- |
-| `MCP_LISTEN_HOST`               | `127.0.0.1` | HTTP bind address             |
-| `MCP_LISTEN_PORT`               |      `8080` | HTTP service port             |
-| `MCP_API_KEY`                   |       unset | Inspection API authentication |
-| `MCP_ALLOW_ANONYMOUS`           |     `false` | Explicit anonymous mode       |
-| `MCP_SHADOW_MODE`               |     `false` | Observation without blocking  |
-| `MCP_RATE_LIMIT_RPM`            |      `1000` | Request-rate control          |
-| `MCP_MAX_PAYLOAD_KB`            |       `100` | Maximum HTTP payload          |
-| `MCP_ALLOWED_SERVERS`           |       empty | Trusted MCP server IDs        |
-| `MCP_WEBHOOK_URL`               |       unset | Optional alert destination    |
-| `MCP_CIRCUIT_BREAKER_THRESHOLD` |         `5` | Circuit-breaker threshold     |
-| `MCP_CIRCUIT_BREAKER_TIMEOUT`   |        `30` | Circuit recovery period       |
-| `MCP_LOG_LEVEL`                 |      `INFO` | Runtime logging               |
-| `MCP_WAL_PATH`                  |   temp path | WAL location                  |
-| `MCP_AUDIT_PATH`                |   temp path | Audit-log location            |
-
----
-
-# Testing
-
-I run the project with:
+I run the test suite with:
 
 ```bash
 python -m pip install -e ".[dev]"
@@ -784,7 +708,7 @@ pytest tests/ \
   --cov-report=term-missing
 ```
 
-## Latest Verified CI Snapshot
+### Verified CI Snapshot
 
 For commit:
 
@@ -794,31 +718,29 @@ For commit:
 
 my GitHub Actions pipeline reported:
 
-* **529 tests passed**
-* **77.38% total coverage** on Python 3.12
-* Python 3.10 tests passed
-* Python 3.11 tests passed
-* Python 3.12 tests passed
-* Ruff passed
-* Pyright passed
-* CodeQL passed
-* Bandit/dependency-security checks passed
-* Docker build passed
-* Trivy/Grype/Syft pipeline passed
+- **529 tests passed**
+- **77.38% total coverage on Python 3.12**
+- Python 3.10 test job passed
+- Python 3.11 test job passed
+- Python 3.12 test job passed
+- Ruff passed
+- Pyright passed
+- CodeQL passed
+- Bandit / dependency-security checks passed
+- Docker build passed
+- Trivy / Grype / Syft security pipeline passed
 
-I intentionally scope these numbers to this CI snapshot rather than presenting them as permanent project statistics.
+I scope these numbers to this specific CI snapshot rather than treating them as permanent project statistics.
 
 ---
 
-# Docker
-
-I can build the HTTP security service with:
+## Docker
 
 ```bash
 docker build -t mcp-agent-security-gateway .
 ```
 
-Then run it with:
+Run:
 
 ```bash
 docker run \
@@ -830,7 +752,7 @@ docker run \
 
 ---
 
-# Kubernetes
+## Kubernetes
 
 I maintain Kubernetes deployment templates under:
 
@@ -838,110 +760,77 @@ I maintain Kubernetes deployment templates under:
 deploy/k8s/
 ```
 
-They include:
+The repository includes templates for:
 
-* Namespace
-* Deployment
-* Service
-* ConfigMap
-* HorizontalPodAutoscaler
-* PersistentVolumeClaim
-* secret example
-* health/readiness configuration
+- Namespace
+- Deployment
+- Service
+- ConfigMap
+- HorizontalPodAutoscaler
+- PersistentVolumeClaim
+- secret configuration
+- health and readiness probes
 
-I treat these as deployment templates rather than claiming that the repository represents a fully managed production service.
-
----
-
-# Current Engineering Boundaries
-
-I document these limitations deliberately.
-
-## The stdio proxy and HTTP service are separate paths
-
-My stdio proxy is an actual inline MCP forwarding path.
-
-My HTTP service is an inspection/decision API.
-
-They are related, but they are not yet a single unified enforcement runtime.
+I treat these as deployment templates, not as proof that this repository is a fully operated production service.
 
 ---
 
-## The stdio path currently has narrower enforcement
+## Current Engineering Boundaries
 
-The current stdio proxy primarily performs JSON-RPC parsing and prompt-injection-oriented inspection.
+I document these limitations explicitly.
 
-The broader:
+### 1. The stdio proxy and HTTP inspection service are separate execution paths
 
-* PII detection;
-* exfiltration detection;
-* server trust;
-* output inspection;
-* rate limiting;
-* audit;
-* tracing;
-* circuit breaking;
+The stdio proxy is an inline MCP forwarding path.
 
-exist elsewhere in the repository and are not all wired into the same stdio execution path.
+The HTTP service is a security decision API.
 
-One of my main next steps is to unify these controls.
+They are not yet one unified enforcement runtime.
 
----
+### 2. The stdio proxy currently has narrower inspection
 
-## Invalid JSON currently passes through in the stdio proxy
+The current inline proxy primarily performs JSON-RPC parsing and prompt-injection-oriented inspection.
 
-The stdio proxy currently forwards traffic it cannot parse.
+The broader PII, exfiltration, server-trust, output-inspection, tracing, audit, rate-limit, and circuit-breaker functionality exists in other components.
 
-For higher-assurance environments, I want to redesign this behavior around an explicit fail-closed policy.
+### 3. Invalid JSON currently passes through the stdio proxy
 
----
+The current proxy forwards messages it cannot parse.
 
-## Egress policy is not equivalent to network interception
+For higher-assurance environments, I want to replace this with an explicit configurable fail-closed policy.
 
-I implemented and tested an egress-policy engine.
+### 4. Egress policy is not network interception
 
-However, I do not claim that it currently intercepts every network connection made by an arbitrary downstream MCP server.
+I implemented an egress-policy engine.
 
-That requires stronger integration with the actual runtime/network boundary.
+I do not claim that it currently intercepts every network connection created by arbitrary downstream MCP processes.
 
----
+### 5. Detection is heuristic
 
-## My detectors are heuristic
+The current security detectors can produce:
 
-I expect:
-
-* false positives;
-* false negatives;
-* previously unseen attacks;
-* context-dependent failures.
+- false positives
+- false negatives
+- missed novel attacks
+- context-dependent findings
 
 I do not claim universal prompt-injection prevention.
 
+### 6. Simulation is not production telemetry
+
+Some repository components use committed adversarial payload catalogs and simulation/replay workflows.
+
+I treat those results as regression and evaluation evidence, not measurements from production MCP traffic.
+
+### 7. Experimental components have different integration levels
+
+Correlation, drift, manifest integrity, sandboxing, canaries, and other advanced components are real repository implementations, but they are not all active in the main runtime path.
+
 ---
 
-## Simulation is not production telemetry
+## Where I Am Taking This Project
 
-Some of my evaluation and dashboard surfaces replay committed attack catalogs.
-
-I treat those results as local regression/evaluation evidence, not production traffic measurements.
-
----
-
-# Where I Am Taking This Project
-
-My longer-term goal is to move from:
-
-```text
-Prompt Injection Detector
-```
-
-toward:
-
-```text
-AI Agent Security Control Plane
-```
-
-The architecture I am working toward looks like:
+My longer-term direction is to move from a collection of MCP security controls toward a more integrated **AI Agent Security Gateway**.
 
 ```text
 AI Agent
@@ -959,7 +848,7 @@ Authorization / Capability Policy
 MCP Tool Security Gateway
    │
    ├── Tool authorization
-   ├── Prompt-injection inspection
+   ├── Injection inspection
    ├── Sensitive-data inspection
    ├── Egress policy
    ├── Runtime restrictions
@@ -976,27 +865,27 @@ Output Inspection
 Audit · Detection · Tracing · Evaluation
 ```
 
-The question I ultimately want the security layer to answer is:
+The security question I ultimately want this architecture to answer is:
 
 > **Should this specific agent, operating under this identity and context, be allowed to perform this specific action through this specific tool against this specific resource?**
 
-That is the direction of my work in **AI Agent Security, Agent Runtime Security, MCP Security, Tool Security, Agent Identity, authorization, governance, and secure agent infrastructure.**
+That is the direction of my work in **AI Agent Security, MCP Security, Agent Runtime Security, Tool Security, Agent Identity, Authorization, Governance, and Secure Agent Infrastructure**.
 
 ---
 
-# Repository Structure
+## Repository Structure
 
 ```text
 src/mcp_monitor/
-├── proxy/          # My inline stdio MCP proxy
+├── proxy/          # Inline stdio MCP proxy
 ├── protocol/       # JSON-RPC / MCP parsing
-├── detectors/      # Injection, PII, shadow-server, exfiltration
-├── production/     # HTTP inspection runtime
+├── detectors/      # Injection, PII, server trust, exfiltration
+├── production/     # HTTP inspection service
 ├── audit/          # Audit log and WAL
-├── layers/         # Multi-layer security controls
+├── layers/         # Composable defense controls
 ├── advanced/       # Correlation, drift, manifests, canaries
 ├── defense10/      # Additional security experiments
-├── server/         # Event/dashboard surfaces
+├── server/         # Event/dashboard components
 └── redteam/        # Local adversarial evaluation
 
 tests/
@@ -1007,24 +896,24 @@ evidence/
 
 ---
 
-# Roadmap
+## Roadmap
 
 The areas I want to strengthen next are:
 
-* unify my complete detector stack with the real stdio proxy;
-* implement explicit per-tool authorization;
-* add agent and workload identity;
-* introduce short-lived capability credentials;
-* enforce egress controls against actual runtime network activity;
-* add human approval boundaries for high-risk actions;
-* make malformed protocol handling explicitly fail closed;
-* support additional MCP transports;
-* improve workload isolation and sandboxing;
-* evaluate against external adversarial datasets;
-* measure false-positive and false-negative behavior;
-* add agent-trajectory security evaluation;
-* improve cross-tool attack correlation;
-* connect authorization decisions with audit and observability.
+- unify the full detector stack with the inline stdio proxy
+- add explicit per-tool authorization
+- add agent and workload identity
+- add short-lived capability credentials
+- connect egress policy to real runtime network enforcement
+- add human approval boundaries for high-risk actions
+- make malformed protocol handling explicitly configurable and fail closed
+- support additional MCP transports
+- strengthen workload isolation and sandboxing
+- evaluate against external adversarial datasets
+- measure false-positive and false-negative behavior
+- add agent-trajectory security evaluation
+- strengthen cross-tool attack correlation
+- connect authorization decisions with audit and observability
 
 ---
 
@@ -1032,10 +921,10 @@ The areas I want to strengthen next are:
 
 I maintain additional engineering documentation in:
 
-* [`SECURITY.md`](SECURITY.md)
-* [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md)
-* [`RUNBOOK.md`](RUNBOOK.md)
-* [`RESEARCH_REPORT.md`](RESEARCH_REPORT.md)
+- [`SECURITY.md`](SECURITY.md)
+- [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md)
+- [`RUNBOOK.md`](RUNBOOK.md)
+- [`RESEARCH_REPORT.md`](RESEARCH_REPORT.md)
 
 ---
 
@@ -1046,4 +935,3 @@ MIT — see [LICENSE](LICENSE).
 ---
 
 > **I do not think agent security ends at the prompt. I think the critical security boundary begins when an AI system is given permission to act.**
-
