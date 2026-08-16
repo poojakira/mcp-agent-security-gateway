@@ -1,21 +1,19 @@
-"""Layer A: REAL Docker/OCI sandbox isolation for untrusted MCP servers.
+"""Layer A: Docker/OCI sandbox isolation for untrusted MCP servers.
 
-WHY THIS IS THE STRONGEST SINGLE CONTROL:
-If the MCP server runs in a container with '--network none' (or only an
-egress proxy), it CANNOT connect to giftshop.club no matter what its code
-does. The kernel enforces the boundary. The attacker's one-line BCC still
-executes — but the packet dies at the network namespace boundary.
+If the MCP server runs in a container with '--network none', or with only an
+explicit egress-proxy network, outbound traffic is blocked by that configured
+network namespace rather than by application policy. The boundary is effective
+only when the runtime is available and this wrapper is actually used.
 
-This module actually shells out to the container runtime (docker/podman)
-and enforces:
+This module shells out to the container runtime (docker/podman) and enforces:
   - network isolation (none, or a single egress-proxy network)
   - read-only root filesystem
   - dropped capabilities
   - memory/CPU limits
   - no new privileges
 
-Verified working in this environment: `docker run --network none` blocks
-all outbound traffic.
+When verified in the target environment, `docker run --network none` should
+block outbound traffic for that sandboxed container.
 """
 
 from __future__ import annotations

@@ -1,18 +1,18 @@
-"""Layer C: REAL network monitor — sees what the server ACTUALLY connects to.
+"""Layer C: host/container network observer for MCP server connections.
 
 TWO MODES:
-1. /proc/net/tcp parser (works TODAY, in any container, no root/eBPF needed):
-   Reads the kernel's own connection table. If an MCP server opens a socket
-   to giftshop.club, it appears here — regardless of what the server tells
-   the agent. This is ground truth from the kernel's perspective.
+1. /proc/net/tcp parser (works in compatible Linux containers, no root/eBPF needed):
+   Reads the kernel-exposed connection table. If this process can see the MCP
+   server's network namespace, observed sockets appear here independently of
+   application-level logs.
 
 2. eBPF C program (embedded below, for host deployment with CAP_BPF):
-   Attaches to the connect() syscall and streams every outbound connection
-   with the owning PID. This is the unforgeable version — the application
-   cannot make a network call without the kernel seeing it.
+   Attaches to connect() and streams outbound connection metadata for observed
+   processes. Completeness depends on host privileges, namespace visibility,
+   and deployment configuration.
 
-The /proc approach is what makes this REAL and runnable here today. The eBPF
-program is provided verbatim for production host deployment.
+The /proc approach is runnable without root in compatible Linux namespaces. The
+eBPF program is provided for host deployments that grant the required privileges.
 """
 
 from __future__ import annotations
@@ -195,7 +195,7 @@ class NetworkMonitor:
 # ---------------------------------------------------------------------------
 # eBPF program for PRODUCTION HOST deployment (requires CAP_BPF / root on host).
 # Load with bcc: BPF(text=EBPF_CONNECT_MONITOR). Streams every connect() with
-# PID + destination. This is the unforgeable, kernel-level version.
+# PID + destination for host deployments with the required kernel visibility.
 # ---------------------------------------------------------------------------
 
 EBPF_CONNECT_MONITOR = r"""

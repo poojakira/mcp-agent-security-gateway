@@ -11,7 +11,7 @@ Chains the original 5 layers with the defense10 components:
   L7  Rate limiting                (blast radius)
   L8  Recipient whitelist          (giftshop.club never approved)
   L9  Honeypot canaries            (zero-false-positive compromise proof)
-  L10 Sandbox isolation            (kernel-enforced, no bypass)
+  L10 Sandbox isolation            (container-network boundary when enabled)
 
 Configured layers contribute pass/block signals. A single high-severity trip can block
 and record a verdict, but coverage depends on deployment and enabled integrations.
