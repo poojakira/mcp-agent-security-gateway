@@ -1174,7 +1174,7 @@ This number is the local stdio inspection cost only: JSON parsing, MCP tool-call
 Reproduce the measurement with:
 
 ```bash
-PYTHONPATH=src python3 benchmark/stdio_inspection_overhead.py --iterations 50000
+PYTHONPATH=src python3 benchmark/ benchmark/stdio_inspection_overhead.py --iterations 50000
 ```
 
 # Current Scope
