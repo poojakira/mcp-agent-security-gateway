@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "project": "mcp-security-gateway-monitor",
+  "project": "mcp-agent-security-gateway",
   "audit_date": "2026-08-05",
   "branch": "agent/security-hardening-v1",
   "auditor": "agent/mcp_monitor (automated Strictness-10)",

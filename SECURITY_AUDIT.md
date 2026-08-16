@@ -1,4 +1,4 @@
-# Security Audit — mcp-security-gateway-monitor
+# Security Audit — mcp-agent-security-gateway
 
 **Audit date:** 2026-08-05  
 **Auditor:** agent/mcp_monitor (automated Strictness-10 review)  

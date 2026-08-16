@@ -1,6 +1,6 @@
-# Contributing to mcp-security-gateway-monitor
+# Contributing to mcp-agent-security-gateway
 
-We welcome contributions to the `mcp-security-gateway-monitor` project! By participating, you agree to abide by our Code of Conduct.
+We welcome contributions to the `mcp-agent-security-gateway` project! By participating, you agree to abide by our Code of Conduct.
 
 ## How to Contribute
 
@@ -9,8 +9,8 @@ We welcome contributions to the `mcp-security-gateway-monitor` project! By parti
 First, fork the repository to your GitHub account and then clone it locally:
 
 ```bash
-git clone https://github.com/your-username/mcp-security-gateway-monitor.git
-cd mcp-security-gateway-monitor
+git clone https://github.com/your-username/mcp-agent-security-gateway.git
+cd mcp-agent-security-gateway
 ```
 
 ### 2. Create a New Branch

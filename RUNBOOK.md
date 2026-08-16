@@ -76,8 +76,8 @@ docker --version
 
 **Windows (PowerShell):**
 ```powershell
-git clone https://github.com/poojakira/mcp-security-gateway-monitor.git
-cd mcp-security-gateway-monitor
+git clone https://github.com/poojakira/mcp-agent-security-gateway.git
+cd mcp-agent-security-gateway
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 py -m pip install --upgrade pip
@@ -92,8 +92,8 @@ py -c "import mcp_monitor; print('OK')"
 
 **Linux / macOS (bash):**
 ```bash
-git clone https://github.com/poojakira/mcp-security-gateway-monitor.git
-cd mcp-security-gateway-monitor
+git clone https://github.com/poojakira/mcp-agent-security-gateway.git
+cd mcp-agent-security-gateway
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
@@ -110,8 +110,8 @@ python3 -c "import mcp_monitor; print('OK')"
 
 **Windows (PowerShell):**
 ```powershell
-git clone https://github.com/poojakira/mcp-security-gateway-monitor.git
-cd mcp-security-gateway-monitor
+git clone https://github.com/poojakira/mcp-agent-security-gateway.git
+cd mcp-agent-security-gateway
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 py -m pip install -e .
@@ -119,8 +119,8 @@ py -m pip install -e .
 
 **Linux / macOS (bash):**
 ```bash
-git clone https://github.com/poojakira/mcp-security-gateway-monitor.git
-cd mcp-security-gateway-monitor
+git clone https://github.com/poojakira/mcp-agent-security-gateway.git
+cd mcp-agent-security-gateway
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .
@@ -650,7 +650,7 @@ pytest tests/ -q --tb=short
 ### Updating
 
 ```bash
-cd mcp-security-gateway-monitor
+cd mcp-agent-security-gateway
 git pull origin main
 pip install -e ".[dev,server]"
 pytest tests/ -q --tb=short

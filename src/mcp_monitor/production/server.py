@@ -503,6 +503,6 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run the MCP Security Gateway production API on port 8080 by default."
     )
-    parser.add_argument("--version", action="version", version="mcp-security-gateway-monitor 0.1.0")
+    parser.add_argument("--version", action="version", version="mcp-agent-security-gateway 0.1.0")
     parser.parse_args()
     run_server()
