@@ -10,7 +10,7 @@ For headless mode targeting 5000 req/s:
         --users 1000 --spawn-rate 100 --headless --run-time 60s
 """
 
-from locust import HttpUser, task, between
+from locust import HttpUser, between, task
 
 
 class MCPLoadUser(HttpUser):

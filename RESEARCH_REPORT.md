@@ -3,7 +3,7 @@
 **Author:** Repository research assessment
 **Date:** July 10, 2026  
 **Classification:** Honest, Skeptical Technical Assessment  
-**Repository:** github.com/poojakira/mcp-security-gateway-monitor
+**Repository:** github.com/poojakira/mcp-agent-security-gateway
 
 ---
 

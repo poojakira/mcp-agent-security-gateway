@@ -6,20 +6,20 @@ prints a terminal report, generates an HTML dashboard, and opens it in
 the default browser.
 """
 
-import webbrowser
 import os
+import webbrowser
 
+from mcp_monitor.dashboard import HTMLReportGenerator, TerminalDashboard
 from mcp_monitor.layers import (
+    FiveLayerDefense,
     InlineProxyGateway,
     KernelMonitor,
-    SemanticIntentAnalyzer,
     NetworkEgressPolicy,
-    FiveLayerDefense,
+    SemanticIntentAnalyzer,
 )
 from mcp_monitor.layers.egress import EgressRule
 from mcp_monitor.layers.kernel import ServerPolicy
 from mcp_monitor.redteam import AttackSimulator
-from mcp_monitor.dashboard import TerminalDashboard, HTMLReportGenerator
 
 
 def main() -> None:
