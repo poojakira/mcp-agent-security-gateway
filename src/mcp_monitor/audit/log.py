@@ -30,7 +30,12 @@ class AuditEntry:
 
     def compute_hash(self) -> str:
         """Compute SHA-256 hash from prev_hash + timestamp + event_type + data."""
-        content = self.prev_hash + str(self.timestamp) + self.event_type + str(self.data)
+        content = (
+            self.prev_hash
+            + str(self.timestamp)
+            + self.event_type
+            + json.dumps(self.data, sort_keys=True, separators=(",", ":"))
+        )
         return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
 
