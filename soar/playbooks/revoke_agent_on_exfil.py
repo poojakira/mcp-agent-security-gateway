@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class GatewayEvent:
     """Parsed event from MCP Gateway webhook."""
+
     request_id: str
     agent_id: str
     tool_name: str
@@ -43,6 +44,7 @@ class GatewayEvent:
 @dataclass
 class PlaybookResult:
     """Result of playbook execution."""
+
     success: bool
     actions_taken: list
     errors: list = field(default_factory=list)
@@ -51,17 +53,15 @@ class PlaybookResult:
 
 DENY_ALL_POLICY = {
     "Version": "2012-10-17",
-    "Statement": [{
-        "Sid": "EmergencyDenyAll",
-        "Effect": "Deny",
-        "Action": "*",
-        "Resource": "*",
-        "Condition": {
-            "StringEquals": {
-                "aws:RequestedRegion": ["*"]
-            }
+    "Statement": [
+        {
+            "Sid": "EmergencyDenyAll",
+            "Effect": "Deny",
+            "Action": "*",
+            "Resource": "*",
+            "Condition": {"StringEquals": {"aws:RequestedRegion": ["*"]}},
         }
-    }]
+    ],
 }
 
 
@@ -106,9 +106,11 @@ class AgentRevocationPlaybook:
             self.iam_client.update_role(
                 RoleName=role_name,
                 MaxSessionDuration=3600,  # force minimum duration
-                Description=f"REVOKED: exfil detected at {event.timestamp}, request_id={event.request_id}"
+                Description=f"REVOKED: exfil detected at {event.timestamp}, request_id={event.request_id}",
             )
-            actions_taken.append(f"Updated role description with revocation marker at {revocation_time}")
+            actions_taken.append(
+                f"Updated role description with revocation marker at {revocation_time}"
+            )
         except Exception as e:
             errors.append(f"Failed to update role: {e}")
 

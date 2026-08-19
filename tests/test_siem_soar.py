@@ -76,7 +76,7 @@ class TestHashChainVerification:
             event = {"request_id": f"req-{i}", "decision": "ALLOW", "layer": 1}
             if i > 0:
                 prev_hash = hashlib.sha256(
-                    json.dumps(events[i-1], sort_keys=True, separators=(",", ":")).encode()
+                    json.dumps(events[i - 1], sort_keys=True, separators=(",", ":")).encode()
                 ).hexdigest()
                 event["hash_chain"] = {"previous": prev_hash}
             else:

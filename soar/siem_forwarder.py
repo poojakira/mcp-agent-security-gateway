@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SIEMConfig:
     """Configuration for SIEM forwarding."""
+
     transport: Literal["syslog_udp", "syslog_tcp", "splunk_hec", "sentinel_api"]
     host: str
     port: int = 514
@@ -45,10 +46,10 @@ class SyslogForwarder:
     """
 
     SEVERITY_MAP = {
-        "BLOCK": 3,      # Error
+        "BLOCK": 3,  # Error
         "QUARANTINE": 4,  # Warning
-        "REDACT": 5,     # Notice
-        "ALLOW": 6,      # Informational
+        "REDACT": 5,  # Notice
+        "ALLOW": 6,  # Informational
     }
     FACILITY = 10  # security/auth (facility code 10)
 
@@ -95,7 +96,9 @@ class SyslogForwarder:
         # The MSG portion is the full JSON for SIEM parsing
         msg = json.dumps(event, separators=(",", ":"))
 
-        return f"<{priority}>1 {timestamp} {hostname} {app_name} {proc_id} {msg_id} {sd_gateway} {msg}"
+        return (
+            f"<{priority}>1 {timestamp} {hostname} {app_name} {proc_id} {msg_id} {sd_gateway} {msg}"
+        )
 
     def _send(self, message: str):
         """Send via UDP or TCP syslog."""
@@ -175,6 +178,7 @@ def create_forwarder(config: SIEMConfig):
 
 # --- Hash chain integrity verification (SIEM-side) ---
 
+
 def verify_hash_chain(events: list) -> dict:
     """
     Verify hash-chain integrity on a sequence of audit events.
@@ -200,13 +204,15 @@ def verify_hash_chain(events: list) -> dict:
         if expected_previous_hash == actual_previous_hash:
             verified += 1
         else:
-            gaps.append({
-                "position": i,
-                "expected_previous": expected_previous_hash,
-                "actual_previous": actual_previous_hash,
-                "event_request_id": curr_event.get("request_id"),
-                "timestamp": curr_event.get("timestamp"),
-            })
+            gaps.append(
+                {
+                    "position": i,
+                    "expected_previous": expected_previous_hash,
+                    "actual_previous": actual_previous_hash,
+                    "event_request_id": curr_event.get("request_id"),
+                    "timestamp": curr_event.get("timestamp"),
+                }
+            )
 
     return {
         "total_events": len(events),

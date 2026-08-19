@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SupplyChainAlert:
     """Alert from hf-model-provenance-scanner."""
+
     model_repo: str
     finding_type: str  # pickle_gadget_chain, importlib_bypass, rug_pull, typosquat
     severity: str
@@ -74,17 +75,24 @@ class ModelQuarantinePlaybook:
                 # Move to quarantine instead of delete (preserve evidence)
                 quarantine_dir = self.model_cache / ".quarantine"
                 quarantine_dir.mkdir(parents=True, exist_ok=True)
-                target = quarantine_dir / f"{alert.model_repo.replace('/', '--')}_{int(datetime.datetime.utcnow().timestamp())}"
+                target = (
+                    quarantine_dir
+                    / f"{alert.model_repo.replace('/', '--')}_{int(datetime.datetime.utcnow().timestamp())}"
+                )
                 model_cache_path.rename(target)
                 actions_taken.append(f"Moved {alert.model_repo} to quarantine at {target}")
             except Exception as e:
                 errors.append(f"Cache quarantine failed: {e}")
         else:
-            actions_taken.append(f"Model {alert.model_repo} not in local cache (may not have been downloaded)")
+            actions_taken.append(
+                f"Model {alert.model_repo} not in local cache (may not have been downloaded)"
+            )
 
         # Step 2: Add to scanner blocklist
         try:
-            blocklist = self._load_json(self.blocklist_path, {"blocked_models": [], "block_reasons": {}})
+            blocklist = self._load_json(
+                self.blocklist_path, {"blocked_models": [], "block_reasons": {}}
+            )
             if alert.model_repo not in blocklist["blocked_models"]:
                 blocklist["blocked_models"].append(alert.model_repo)
                 blocklist["block_reasons"][alert.model_repo] = {
@@ -106,11 +114,15 @@ class ModelQuarantinePlaybook:
                 if alert.model_repo in service_info.get("loaded_models", []):
                     affected_services.append(service_id)
             if affected_services:
-                actions_taken.append(f"Identified {len(affected_services)} services using {alert.model_repo}: {affected_services}")
+                actions_taken.append(
+                    f"Identified {len(affected_services)} services using {alert.model_repo}: {affected_services}"
+                )
                 # In production: send halt signal to each service
                 # For now: log the notification
                 for svc in affected_services:
-                    logger.warning(f"HALT INFERENCE: {svc} is using quarantined model {alert.model_repo}")
+                    logger.warning(
+                        f"HALT INFERENCE: {svc} is using quarantined model {alert.model_repo}"
+                    )
             else:
                 actions_taken.append(f"No active services currently loading {alert.model_repo}")
         except Exception as e:

@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PoisoningEvent:
     """A single tool-poisoning detection event."""
+
     request_id: str
     agent_id: str
     server_id: str
@@ -62,7 +63,8 @@ class ToolServerIsolationPlaybook:
         window_start = now - datetime.timedelta(seconds=self.THRESHOLD_WINDOW_SECONDS)
 
         recent_events = [
-            e for e in events
+            e
+            for e in events
             if e.server_id == server_id
             and datetime.datetime.fromisoformat(e.timestamp) >= window_start
         ]
@@ -83,7 +85,9 @@ class ToolServerIsolationPlaybook:
                     "reason": "repeated_tool_poisoning",
                     "event_count": len([e for e in events if e.server_id == server_id]),
                     "blocked_at": datetime.datetime.utcnow().isoformat(),
-                    "triggering_rules": list(set(e.rule_id for e in events if e.server_id == server_id)),
+                    "triggering_rules": list(
+                        set(e.rule_id for e in events if e.server_id == server_id)
+                    ),
                 }
                 self._save_blocklist(blocklist)
                 actions_taken.append(f"Added {server_id} to runtime blocklist")
@@ -93,10 +97,10 @@ class ToolServerIsolationPlaybook:
             errors.append(f"Blocklist update failed: {e}")
 
         # Step 2: Identify affected agents
-        affected_agents = list(set(
-            e.agent_id for e in events if e.server_id == server_id
-        ))
-        actions_taken.append(f"Identified {len(affected_agents)} affected agents: {affected_agents}")
+        affected_agents = list(set(e.agent_id for e in events if e.server_id == server_id))
+        actions_taken.append(
+            f"Identified {len(affected_agents)} affected agents: {affected_agents}"
+        )
 
         # Step 3: Build timeline
         server_events = sorted(
@@ -178,7 +182,9 @@ if __name__ == "__main__":
             "server_id": "malicious-tool-server-42",
             "tool_name": "data_lookup",
             "rule_id": "TP-001",
-            "timestamp": (datetime.datetime.utcnow() - datetime.timedelta(minutes=4-i)).isoformat(),
+            "timestamp": (
+                datetime.datetime.utcnow() - datetime.timedelta(minutes=4 - i)
+            ).isoformat(),
         }
         for i in range(1, 4)
     ]
@@ -186,7 +192,9 @@ if __name__ == "__main__":
     print("Simulating 3 tool-poisoning events from server 'malicious-tool-server-42':")
     buffer = []
     for i, evt in enumerate(test_events, 1):
-        print(f"  Event {i}: agent={evt['agent_id']}, tool={evt['tool_name']}, rule={evt['rule_id']}")
+        print(
+            f"  Event {i}: agent={evt['agent_id']}, tool={evt['tool_name']}, rule={evt['rule_id']}"
+        )
         result = handle_webhook(evt, buffer)
         if result:
             print("\n  THRESHOLD MET  -  Isolation triggered!")
