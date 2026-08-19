@@ -19,7 +19,10 @@ import json
 import logging
 from dataclasses import dataclass, field
 
-import boto3
+try:
+    import boto3
+except ImportError:
+    boto3 = None  # type: ignore[assignment]
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +79,8 @@ class AgentRevocationPlaybook:
     """
 
     def __init__(self, aws_region: str = "us-west-2"):
+        if boto3 is None:
+            raise RuntimeError("boto3 required for revocation playbook: pip install boto3")
         self.iam_client = boto3.client("iam", region_name=aws_region)
         self.sts_client = boto3.client("sts", region_name=aws_region)
 

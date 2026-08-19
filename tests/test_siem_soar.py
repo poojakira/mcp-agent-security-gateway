@@ -11,6 +11,7 @@ from soar.playbooks.quarantine_model import (
     handle_scanner_webhook,
 )
 from soar.playbooks.revoke_agent_on_exfil import (
+    AgentRevocationPlaybook,
     GatewayEvent,
     handle_webhook,
 )
@@ -130,6 +131,19 @@ class TestRevocationPlaybook:
         result = handle_webhook(payload, role_mapping={})
         assert result.success is False
         assert "No IAM role mapping" in result.errors[0]
+
+    def test_missing_boto3_raises(self):
+        import soar.playbooks.revoke_agent_on_exfil as mod
+
+        original_boto3 = mod.boto3
+        mod.boto3 = None
+        try:
+            import pytest
+
+            with pytest.raises(RuntimeError, match="boto3 required"):
+                AgentRevocationPlaybook()
+        finally:
+            mod.boto3 = original_boto3
 
 
 class TestToolServerIsolation:
