@@ -208,6 +208,6 @@ class TestModelQuarantine:
             "attack_technique": "T1059.006",
         }
         result = handle_scanner_webhook(payload)
-        # Won't find files on disk in test, but should not crash
+        # Playbook runs and produces actions (blocklist write may fail in test env)
         assert result is not None
-        assert "Added evil-user/bert-base-uncasd to scanner blocklist" in result.actions_taken or len(result.errors) > 0
+        assert any("evil-user/bert-base-uncasd" in a for a in result.actions_taken)
