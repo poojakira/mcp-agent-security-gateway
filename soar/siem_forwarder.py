@@ -1,18 +1,18 @@
 """
-SIEM Log Forwarder — ships MCP Gateway audit events to Splunk/Sentinel via syslog.
+SIEM Log Forwarder  -  ships MCP Gateway audit events to Splunk/Sentinel via syslog.
 
 Implements RFC 5424 structured syslog and HTTP Event Collector (HEC) for Splunk.
 Each event includes the hash-chain reference for integrity verification on the SIEM side.
 """
 
-import json
-import socket
-import logging
 import datetime
+import json
+import logging
+import socket
 from dataclasses import dataclass
-from typing import Optional, Literal
-from urllib.request import Request, urlopen
+from typing import Literal
 from urllib.error import URLError
+from urllib.request import Request, urlopen
 
 logger = logging.getLogger(__name__)
 
@@ -24,13 +24,13 @@ class SIEMConfig:
     host: str
     port: int = 514
     # Splunk HEC
-    hec_token: Optional[str] = None
-    hec_index: Optional[str] = "mcp_gateway"
-    hec_sourcetype: Optional[str] = "mcp:gateway:audit"
+    hec_token: str | None = None
+    hec_index: str | None = "mcp_gateway"
+    hec_sourcetype: str | None = "mcp:gateway:audit"
     # Sentinel
-    workspace_id: Optional[str] = None
-    shared_key: Optional[str] = None
-    log_type: Optional[str] = "MCPGatewayAudit"
+    workspace_id: str | None = None
+    shared_key: str | None = None
+    log_type: str | None = "MCPGatewayAudit"
 
 
 class SyslogForwarder:
@@ -156,7 +156,7 @@ class SplunkHECForwarder:
             logger.error(f"Splunk HEC forward failed: {e}")
             return False
 
-    def _epoch_time(self, iso_timestamp: Optional[str]) -> float:
+    def _epoch_time(self, iso_timestamp: str | None) -> float:
         if iso_timestamp:
             dt = datetime.datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00"))
             return dt.timestamp()

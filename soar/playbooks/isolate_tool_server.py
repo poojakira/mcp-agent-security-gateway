@@ -11,12 +11,10 @@ Actions:
   4. Create incident with timeline and affected agents
 """
 
-import json
-import time
 import datetime
+import json
 import logging
 from dataclasses import dataclass, field
-from typing import List, Optional
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -31,7 +29,7 @@ class PoisoningEvent:
     tool_name: str
     rule_id: str
     timestamp: str
-    argument_excerpt: Optional[str] = None
+    argument_excerpt: str | None = None
 
 
 @dataclass
@@ -47,7 +45,7 @@ class ToolServerIsolationPlaybook:
     """
     Isolates a tool server after repeated poisoning detections.
 
-    The threshold (3 events in 5 minutes) is deliberately conservative —
+    The threshold (3 events in 5 minutes) is deliberately conservative  -
     a single poisoning event could be a false positive from an unusual
     tool description. Three events from the same server is a pattern.
     """
@@ -58,7 +56,7 @@ class ToolServerIsolationPlaybook:
     def __init__(self, gateway_config_path: str = "/app/config/runtime_blocklist.json"):
         self.blocklist_path = Path(gateway_config_path)
 
-    def should_trigger(self, events: List[PoisoningEvent], server_id: str) -> bool:
+    def should_trigger(self, events: list[PoisoningEvent], server_id: str) -> bool:
         """Check if the threshold is met for a given server."""
         now = datetime.datetime.utcnow()
         window_start = now - datetime.timedelta(seconds=self.THRESHOLD_WINDOW_SECONDS)
@@ -70,7 +68,7 @@ class ToolServerIsolationPlaybook:
         ]
         return len(recent_events) >= self.THRESHOLD_COUNT
 
-    def execute(self, events: List[PoisoningEvent], server_id: str) -> IsolationResult:
+    def execute(self, events: list[PoisoningEvent], server_id: str) -> IsolationResult:
         """Execute server isolation."""
         actions_taken = []
         errors = []
@@ -147,7 +145,7 @@ class ToolServerIsolationPlaybook:
         self.blocklist_path.write_text(json.dumps(blocklist, indent=2))
 
 
-def handle_webhook(payload: dict, event_buffer: List[PoisoningEvent]) -> Optional[IsolationResult]:
+def handle_webhook(payload: dict, event_buffer: list[PoisoningEvent]) -> IsolationResult | None:
     """
     Entry point for webhook-triggered execution.
     Maintains a rolling buffer of poisoning events and triggers isolation
@@ -191,6 +189,6 @@ if __name__ == "__main__":
         print(f"  Event {i}: agent={evt['agent_id']}, tool={evt['tool_name']}, rule={evt['rule_id']}")
         result = handle_webhook(evt, buffer)
         if result:
-            print(f"\n  THRESHOLD MET — Isolation triggered!")
+            print("\n  THRESHOLD MET  -  Isolation triggered!")
             print(f"  Actions: {result.actions_taken}")
             print(f"  Affected agents: {result.affected_agents}")

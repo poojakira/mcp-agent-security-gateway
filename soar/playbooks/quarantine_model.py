@@ -11,11 +11,10 @@ Actions:
   4. Create incident with full finding context and ATT&CK mapping
 """
 
-import json
 import datetime
+import json
 import logging
 from dataclasses import dataclass, field
-from typing import List, Optional
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -27,10 +26,10 @@ class SupplyChainAlert:
     model_repo: str
     finding_type: str  # pickle_gadget_chain, importlib_bypass, rug_pull, typosquat
     severity: str
-    cve: Optional[str] = None
-    file_path: Optional[str] = None
-    attack_technique: Optional[str] = None
-    decoded_payload: Optional[str] = None
+    cve: str | None = None
+    file_path: str | None = None
+    attack_technique: str | None = None
+    decoded_payload: str | None = None
     timestamp: str = field(default_factory=lambda: datetime.datetime.utcnow().isoformat())
 
 
@@ -182,6 +181,6 @@ if __name__ == "__main__":
     print()
     print("Playbook would:")
     print(f"  1. Quarantine cached model files for {test_alert['model_repo']}")
-    print(f"  2. Add to scanner blocklist (prevents re-download)")
-    print(f"  3. Halt inference on all services loading this model")
-    print(f"  4. Log incident with full finding context")
+    print("  2. Add to scanner blocklist (prevents re-download)")
+    print("  3. Halt inference on all services loading this model")
+    print("  4. Log incident with full finding context")

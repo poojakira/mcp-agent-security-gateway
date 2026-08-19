@@ -1,27 +1,23 @@
 """Tests for SIEM/SOAR integration components."""
 
-import json
 import datetime
-from unittest.mock import patch, MagicMock
+import json
 
-from soar.siem_forwarder import (
-    SyslogForwarder,
-    SIEMConfig,
-    verify_hash_chain,
-)
-from soar.playbooks.revoke_agent_on_exfil import (
-    GatewayEvent,
-    AgentRevocationPlaybook,
-    handle_webhook,
-)
 from soar.playbooks.isolate_tool_server import (
     PoisoningEvent,
     ToolServerIsolationPlaybook,
 )
 from soar.playbooks.quarantine_model import (
-    SupplyChainAlert,
-    ModelQuarantinePlaybook,
     handle_scanner_webhook,
+)
+from soar.playbooks.revoke_agent_on_exfil import (
+    GatewayEvent,
+    handle_webhook,
+)
+from soar.siem_forwarder import (
+    SIEMConfig,
+    SyslogForwarder,
+    verify_hash_chain,
 )
 
 

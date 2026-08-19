@@ -14,11 +14,10 @@ Actions:
 Compatible with: Splunk SOAR (Phantom), Cortex XSOAR, or standalone via webhook
 """
 
+import datetime
 import json
 import logging
-import datetime
 from dataclasses import dataclass, field
-from typing import Optional
 
 import boto3
 
@@ -35,9 +34,9 @@ class GatewayEvent:
     layer: int
     category: str
     rule_id: str
-    target_domain: Optional[str] = None
-    argument_excerpt: Optional[str] = None
-    hash_chain_current: Optional[str] = None
+    target_domain: str | None = None
+    argument_excerpt: str | None = None
+    hash_chain_current: str | None = None
     timestamp: str = field(default_factory=lambda: datetime.datetime.utcnow().isoformat())
 
 
