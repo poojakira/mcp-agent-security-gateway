@@ -4,7 +4,7 @@ Inline stdio proxy that intercepts MCP `tools/call` JSON-RPC messages, runs them
 
 [![Python 3.10 | 3.11 | 3.12](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Tests: 529 passed](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
+[![Tests: 540 passed](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
 [![Coverage: 77%](https://img.shields.io/badge/coverage-77%25-yellow)](https://github.com/poojakira/mcp-agent-security-gateway/actions)
 [![CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
 
@@ -17,7 +17,7 @@ Inline stdio proxy that intercepts MCP `tools/call` JSON-RPC messages, runs them
 | Average latency (50k iterations) | 0.015 ms |
 | Prompt-injection rules | 50+ |
 | Attack categories | 9 |
-| Automated tests | 529 |
+| Automated tests | 540 |
 | Code coverage | 77% |
 | Python versions tested | 3.10, 3.11, 3.12 |
 
@@ -121,7 +121,7 @@ git clone https://github.com/poojakira/mcp-agent-security-gateway.git
 cd mcp-agent-security-gateway
 pip install -e ".[dev]"
 
-# Run the test suite (539 tests, confirms all layers work)
+# Run the test suite (540 tests, confirms all layers work)
 py -m pytest tests/ -q
 
 # Run the red-team simulator against the gateway
@@ -296,7 +296,7 @@ The gateway runs as a sidecar or standalone deployment. It intercepts stdio betw
 
 ## Contributing
 
-Open an issue first. PRs without a linked issue will be closed. Run `make lint test` before submitting  -  CI enforces Ruff, mypy strict mode, and the full 529-test suite.
+Open an issue first. PRs without a linked issue will be closed. Run `make lint test` before submitting  -  CI enforces Ruff, mypy strict mode, and the full 540-test suite.
 
 ## License
 
