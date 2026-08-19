@@ -73,7 +73,7 @@ class SyslogForwarder:
         severity = self.SEVERITY_MAP.get(decision, 6)
         priority = self.FACILITY * 8 + severity
 
-        timestamp = event.get("timestamp", datetime.datetime.utcnow().isoformat())
+        timestamp = event.get("timestamp", datetime.datetime.now(datetime.UTC).isoformat())
         hostname = "mcp-gateway"
         app_name = "mcp-security-gateway"
         proc_id = event.get("request_id", "-")[:8]
@@ -163,7 +163,7 @@ class SplunkHECForwarder:
         if iso_timestamp:
             dt = datetime.datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00"))
             return dt.timestamp()
-        return datetime.datetime.utcnow().timestamp()
+        return datetime.datetime.now(datetime.UTC).timestamp()
 
 
 def create_forwarder(config: SIEMConfig):

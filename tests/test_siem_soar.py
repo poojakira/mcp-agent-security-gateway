@@ -158,7 +158,7 @@ class TestToolServerIsolation:
                 server_id="server-A",
                 tool_name="test",
                 rule_id="TP-001",
-                timestamp=datetime.datetime.utcnow().isoformat(),
+                timestamp=datetime.datetime.now(datetime.UTC).isoformat(),
             ),
             PoisoningEvent(
                 request_id="req-2",
@@ -166,7 +166,7 @@ class TestToolServerIsolation:
                 server_id="server-A",
                 tool_name="test",
                 rule_id="TP-001",
-                timestamp=datetime.datetime.utcnow().isoformat(),
+                timestamp=datetime.datetime.now(datetime.UTC).isoformat(),
             ),
         ]
         # Only 2 events — threshold is 3
@@ -174,7 +174,7 @@ class TestToolServerIsolation:
 
     def test_threshold_met(self):
         playbook = ToolServerIsolationPlaybook()
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
         events = [
             PoisoningEvent(
                 request_id=f"req-{i}",
@@ -191,7 +191,7 @@ class TestToolServerIsolation:
 
     def test_threshold_not_met_different_servers(self):
         playbook = ToolServerIsolationPlaybook()
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
         events = [
             PoisoningEvent(
                 request_id=f"req-{i}",

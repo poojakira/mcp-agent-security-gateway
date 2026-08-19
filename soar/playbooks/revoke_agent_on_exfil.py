@@ -41,7 +41,7 @@ class GatewayEvent:
     target_domain: str | None = None
     argument_excerpt: str | None = None
     hash_chain_current: str | None = None
-    timestamp: str = field(default_factory=lambda: datetime.datetime.utcnow().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.datetime.now(datetime.UTC).isoformat())
 
 
 @dataclass
@@ -86,7 +86,7 @@ class AgentRevocationPlaybook:
 
     def execute(self, event: GatewayEvent, agent_role_arn: str) -> PlaybookResult:
         """Execute the full revocation playbook."""
-        start = datetime.datetime.utcnow()
+        start = datetime.datetime.now(datetime.UTC)
         actions_taken = []
         errors = []
 
@@ -107,7 +107,7 @@ class AgentRevocationPlaybook:
         # Step 2: Invalidate existing sessions by updating AssumeRolePolicyDocument
         # with a date condition that excludes all sessions issued before now
         try:
-            revocation_time = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+            revocation_time = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
             self.iam_client.update_role(
                 RoleName=role_name,
                 MaxSessionDuration=3600,  # force minimum duration
@@ -135,12 +135,12 @@ class AgentRevocationPlaybook:
             },
             "response_actions": actions_taken,
             "role_arn": agent_role_arn,
-            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "timestamp": datetime.datetime.now(datetime.UTC).isoformat(),
         }
         actions_taken.append("Incident context logged")
         logger.info(f"Incident logged: {json.dumps(incident)}")
 
-        elapsed = (datetime.datetime.utcnow() - start).total_seconds() * 1000
+        elapsed = (datetime.datetime.now(datetime.UTC) - start).total_seconds() * 1000
 
         return PlaybookResult(
             success=len(errors) == 0,
@@ -172,7 +172,7 @@ def handle_webhook(payload: dict, role_mapping: dict) -> PlaybookResult:
         target_domain=payload.get("target_domain"),
         argument_excerpt=payload.get("argument_excerpt"),
         hash_chain_current=payload.get("hash_chain", {}).get("current"),
-        timestamp=payload.get("timestamp", datetime.datetime.utcnow().isoformat()),
+        timestamp=payload.get("timestamp", datetime.datetime.now(datetime.UTC).isoformat()),
     )
 
     if event.agent_id not in role_mapping:
