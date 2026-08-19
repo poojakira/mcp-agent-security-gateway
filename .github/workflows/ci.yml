@@ -194,9 +194,9 @@ jobs:
         uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
         with:
           path: '.'
-          format: 'json'
-          output: 'grype-results.json'
-          severity: 'HIGH,CRITICAL'
+          output-format: 'json'
+          output-file: 'grype-results.json'
+          severity-cutoff: 'high'
 
       - name: Upload Grype results
         if: always()
