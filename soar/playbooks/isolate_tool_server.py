@@ -59,7 +59,7 @@ class ToolServerIsolationPlaybook:
 
     def should_trigger(self, events: list[PoisoningEvent], server_id: str) -> bool:
         """Check if the threshold is met for a given server."""
-        now = datetime.datetime.now(datetime.UTC)
+        now = datetime.datetime.now(datetime.timezone.utc)
         window_start = now - datetime.timedelta(seconds=self.THRESHOLD_WINDOW_SECONDS)
 
         recent_events = [
@@ -80,11 +80,11 @@ class ToolServerIsolationPlaybook:
             blocklist = self._load_blocklist()
             if server_id not in blocklist["blocked_servers"]:
                 blocklist["blocked_servers"].append(server_id)
-                blocklist["last_updated"] = datetime.datetime.now(datetime.UTC).isoformat()
+                blocklist["last_updated"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
                 blocklist["block_reasons"][server_id] = {
                     "reason": "repeated_tool_poisoning",
                     "event_count": len([e for e in events if e.server_id == server_id]),
-                    "blocked_at": datetime.datetime.now(datetime.UTC).isoformat(),
+                    "blocked_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                     "triggering_rules": list(
                         set(e.rule_id for e in events if e.server_id == server_id)
                     ),
@@ -127,7 +127,7 @@ class ToolServerIsolationPlaybook:
             "affected_agents": affected_agents,
             "timeline": timeline,
             "actions": actions_taken,
-            "timestamp": datetime.datetime.now(datetime.UTC).isoformat(),
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         }
         logger.info(f"Server isolation incident: {json.dumps(incident)}")
 
@@ -161,7 +161,7 @@ def handle_webhook(payload: dict, event_buffer: list[PoisoningEvent]) -> Isolati
         server_id=payload["server_id"],
         tool_name=payload["tool_name"],
         rule_id=payload["rule_id"],
-        timestamp=payload.get("timestamp", datetime.datetime.now(datetime.UTC).isoformat()),
+        timestamp=payload.get("timestamp", datetime.datetime.now(datetime.timezone.utc).isoformat()),
         argument_excerpt=payload.get("argument_excerpt"),
     )
     event_buffer.append(event)
@@ -183,7 +183,7 @@ if __name__ == "__main__":
             "tool_name": "data_lookup",
             "rule_id": "TP-001",
             "timestamp": (
-                datetime.datetime.now(datetime.UTC) - datetime.timedelta(minutes=4 - i)
+                datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=4 - i)
             ).isoformat(),
         }
         for i in range(1, 4)

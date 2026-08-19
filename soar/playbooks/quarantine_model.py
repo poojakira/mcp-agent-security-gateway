@@ -31,7 +31,7 @@ class SupplyChainAlert:
     file_path: str | None = None
     attack_technique: str | None = None
     decoded_payload: str | None = None
-    timestamp: str = field(default_factory=lambda: datetime.datetime.now(datetime.UTC).isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
 
 
 @dataclass
@@ -77,7 +77,7 @@ class ModelQuarantinePlaybook:
                 quarantine_dir.mkdir(parents=True, exist_ok=True)
                 target = (
                     quarantine_dir
-                    / f"{alert.model_repo.replace('/', '--')}_{int(datetime.datetime.now(datetime.UTC).timestamp())}"
+                    / f"{alert.model_repo.replace('/', '--')}_{int(datetime.datetime.now(datetime.timezone.utc).timestamp())}"
                 )
                 model_cache_path.rename(target)
                 actions_taken.append(f"Moved {alert.model_repo} to quarantine at {target}")
@@ -99,7 +99,7 @@ class ModelQuarantinePlaybook:
                     "finding_type": alert.finding_type,
                     "severity": alert.severity,
                     "cve": alert.cve,
-                    "blocked_at": datetime.datetime.now(datetime.UTC).isoformat(),
+                    "blocked_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                     "attack_technique": alert.attack_technique,
                 }
                 self._save_json(self.blocklist_path, blocklist)
@@ -138,7 +138,7 @@ class ModelQuarantinePlaybook:
             "attack_technique": alert.attack_technique,
             "affected_services": affected_services,
             "actions": actions_taken,
-            "timestamp": datetime.datetime.now(datetime.UTC).isoformat(),
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         }
         logger.info(f"Model quarantine incident: {json.dumps(incident)}")
         actions_taken.append("Incident context logged")
