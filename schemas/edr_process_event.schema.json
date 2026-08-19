@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MCP Gateway Layer 3 - EDR Process Spawn Event",
+  "description": "Telemetry event emitted when Layer 3 (Process-Spawn Evaluation) detects or blocks a process spawn attempt in tool-call arguments. Schema is compatible with CrowdStrike Falcon process tree and Microsoft Defender for Endpoint DeviceProcessEvents.",
+  "type": "object",
+  "required": ["event_type", "timestamp", "source", "agent_id", "request_id", "tool_call", "process_details", "decision"],
+  "properties": {
+    "event_type": {
+      "type": "string",
+      "enum": ["process_spawn_blocked", "process_spawn_detected"],
+      "description": "Whether the spawn was blocked or detected (shadow mode)"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the event"
+    },
+    "source": {
+      "type": "string",
+      "const": "mcp_gateway_layer3",
+      "description": "Fixed identifier for correlation in SIEM"
+    },
+    "agent_id": {
+      "type": "string",
+      "description": "Identifier of the agent that made the tool call"
+    },
+    "request_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique request ID for tracing through the full 5-layer pipeline"
+    },
+    "tool_call": {
+      "type": "object",
+      "properties": {
+        "tool_name": { "type": "string" },
+        "server_id": { "type": "string" },
+        "arguments_hash": {
+          "type": "string",
+          "description": "SHA-256 hash of the full argument payload (for matching without exposing content)"
+        }
+      },
+      "required": ["tool_name", "server_id"]
+    },
+    "process_details": {
+      "type": "object",
+      "description": "Maps to CrowdStrike Falcon ProcessRollup2 and Defender DeviceProcessEvents",
+      "properties": {
+        "command_line": {
+          "type": "string",
+          "description": "Detected command that would be spawned. Maps to Falcon: CommandLine, Defender: ProcessCommandLine"
+        },
+        "target_executable": {
+          "type": "string",
+          "description": "Resolved binary path. Maps to Falcon: ImageFileName, Defender: FileName"
+        },
+        "spawn_pattern": {
+          "type": "string",
+          "enum": ["shell_exec", "subprocess_popen", "os_system", "path_traversal", "encoded_command"],
+          "description": "Classification of the detected spawn pattern"
+        },
+        "parent_process": {
+          "type": "string",
+          "const": "mcp_agent_runtime",
+          "description": "The agent runtime is always the logical parent. Maps to Falcon: ParentBaseFileName"
+        }
+      },
+      "required": ["command_line", "spawn_pattern"]
+    },
+    "decision": {
+      "type": "string",
+      "enum": ["BLOCK", "QUARANTINE"],
+      "description": "Gateway decision for this event"
+    },
+    "rule_id": {
+      "type": "string",
+      "description": "The specific Layer 3 rule that triggered (e.g., PS-001, PS-004)"
+    },
+    "hash_chain": {
+      "type": "object",
+      "properties": {
+        "previous": { "type": "string", "description": "SHA-256 of previous audit entry" },
+        "current": { "type": "string", "description": "SHA-256 of this entry including previous hash" }
+      }
+    },
+    "mitre_attack": {
+      "type": "object",
+      "properties": {
+        "technique_id": { "type": "string", "description": "e.g., T1059.006" },
+        "technique_name": { "type": "string" },
+        "tactic": { "type": "string" }
+      }
+    }
+  }
+}

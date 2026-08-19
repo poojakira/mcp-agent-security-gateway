@@ -1,0 +1,38 @@
+title: Agent Tool-Call Volume Anomaly
+id: c5e8f291-7a3b-4d56-9c1e-2f4a8b6d3e9c
+status: experimental
+description: |
+  Detects when an agent's tool-call volume exceeds 3 standard deviations
+  above its baseline within a 15-minute sliding window. Sudden spikes in
+  tool-call frequency often indicate automated exploitation — a compromised
+  agent iterating through tool calls to enumerate data or chain operations.
+references:
+  - https://github.com/poojakira/mcp-agent-security-gateway
+  - https://attack.mitre.org/techniques/T1059/
+author: Pooja Kiran
+date: 2026/08/18
+tags:
+  - attack.execution
+  - attack.t1059
+  - attack.discovery
+  - attack.t1046
+logsource:
+  product: mcp_gateway
+  service: audit_log
+detection:
+  selection:
+    eventName: tool_call_decision
+  timeframe: 15m
+  condition: selection | count(agent_id) > baseline_mean + 3*baseline_stddev
+fields:
+  - agent_id
+  - tool_name
+  - decision
+  - timestamp
+  - request_count
+falsepositives:
+  - Batch processing agents that legitimately make many tool calls.
+    Set per-agent baselines during normal operation windows.
+  - Deployment of new agent versions with different call patterns.
+    Re-baseline after known deployments.
+level: medium

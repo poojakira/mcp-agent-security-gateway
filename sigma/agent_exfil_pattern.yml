@@ -1,0 +1,41 @@
+title: Agent Exfiltration Pattern - Egress Block After Layer Pass
+id: b7d4e183-5f9a-4c21-a8b2-3e1f6d9c5a7e
+status: experimental
+description: |
+  Detects when the MCP gateway blocks a request at Layer 5 (Network Egress)
+  after Layers 1-4 returned ALLOW. This pattern indicates a sophisticated
+  attack that passed trust validation, policy checks, process-spawn eval,
+  and semantic intent analysis — but attempted to exfiltrate data to an
+  unauthorized domain. The attack got through 4/5 layers before being caught.
+references:
+  - https://github.com/poojakira/mcp-agent-security-gateway
+  - https://attack.mitre.org/techniques/T1048/
+author: Pooja Kiran
+date: 2026/08/18
+tags:
+  - attack.exfiltration
+  - attack.t1048
+  - attack.t1567
+logsource:
+  product: mcp_gateway
+  service: audit_log
+detection:
+  selection:
+    decision: BLOCK
+    layer: 5
+    layer1_decision: ALLOW
+    layer2_decision: ALLOW
+    layer3_decision: ALLOW
+    layer4_decision: ALLOW
+  condition: selection
+fields:
+  - request_id
+  - tool_name
+  - target_domain
+  - agent_id
+  - hash_chain.current
+  - argument_excerpt
+falsepositives:
+  - New legitimate external domains not yet in the egress allowlist.
+    Review blocked domains weekly and update allowlist for approved services.
+level: critical
