@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
 COPY tests ./tests
+COPY soar ./soar
+COPY sigma ./sigma
 COPY Dockerfile docker-compose.yml locustfile.py ./
 COPY deploy ./deploy
 
