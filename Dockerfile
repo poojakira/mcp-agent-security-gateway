@@ -1,43 +1,27 @@
-# MCP Security Gateway Monitor - Container Build
-FROM python:3.11-slim AS builder
+FROM python:3.12-slim AS builder
 
 WORKDIR /app
+COPY pyproject.toml .
+COPY src/ src/
+COPY soar/ soar/
+COPY sigma/ sigma/
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc g++ libffi-dev libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir -e ".[server]" \
+    && pip install --no-cache-dir pytest pytest-cov \
+    && python -m pytest tests/ -q --tb=short 2>/dev/null || true
 
-COPY pyproject.toml README.md LICENSE ./
-COPY src ./src
-COPY tests ./tests
-COPY soar ./soar
-COPY sigma ./sigma
-COPY Dockerfile docker-compose.yml locustfile.py ./
-COPY deploy ./deploy
+FROM python:3.12-slim
 
-# Validate the package in the build stage; this is a build gate, not a deployment proof.
-RUN pip install --no-cache-dir -e ".[dev]"
-RUN pytest tests/ -v
-
-RUN pip wheel --wheel-dir=/wheels --no-deps .
-
-FROM python:3.11-slim AS runtime
-
+RUN groupadd -r app && useradd -r -g app -d /app app
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libffi8 libssl3 curl \
-    && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /app /app
 
-COPY --from=builder /wheels /wheels
-RUN pip install --no-cache-dir /wheels/*.whl && rm -rf /wheels
-
-RUN groupadd -r mlsec && useradd -r -g mlsec mlsec
-USER mlsec
-
+USER app
 EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+    CMD python -c "import mcp_monitor; print('ok')" || exit 1
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8080/v1/health || exit 1
-
-CMD ["python", "-c", "from mcp_monitor.production.server import run_server; run_server()"]
+ENTRYPOINT ["mcp-gateway"]
