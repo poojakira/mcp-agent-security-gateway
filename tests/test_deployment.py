@@ -37,7 +37,7 @@ class TestDockerfile:
     def test_runtime_stage(self):
         """Dockerfile must have a second FROM for the runtime stage."""
         content = Path(ROOT, "Dockerfile").read_text(encoding="utf-8")
-        from_lines = [l for l in content.splitlines() if l.strip().startswith("FROM")]
+        from_lines = [line for line in content.splitlines() if line.strip().startswith("FROM")]
         assert len(from_lines) >= 2, "Expected at least 2 FROM statements for multi-stage"
 
     def test_python_slim_base(self):
