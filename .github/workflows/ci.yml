@@ -107,7 +107,7 @@ jobs:
             --cov=mcp_monitor \
             --cov-report=term-missing \
             --cov-report=xml:coverage.xml \
-            --cov-fail-under=77 \
+            --cov-fail-under=90 \
             -W error::DeprecationWarning \
             -W error::PendingDeprecationWarning
 
