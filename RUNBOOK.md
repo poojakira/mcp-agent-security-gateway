@@ -25,14 +25,13 @@ pytest tests/ -v --cov=src --cov-report=term-missing
 ## Run the Gateway
 
 ```bash
-# Stdio proxy mode (default)
-python -m mcp_gateway --config config.yaml
+# Start the gateway server (entry point from pyproject.toml)
+mcp-gateway
 
-# With FastAPI admin/health endpoint
-uvicorn mcp_gateway.api:app --host 0.0.0.0 --port 8080
+# Or run directly via module
+python -m mcp_monitor.production.server
 
 # Environment overrides
-export MCP_GATEWAY_POLICY_FILE=policies/strict.yaml
 export MCP_GATEWAY_LOG_LEVEL=debug
 ```
 
@@ -52,10 +51,9 @@ curl http://localhost:8080/health
 ## K8s Deployment
 
 ```bash
-kubectl apply -f k8s/namespace.yaml
-kubectl apply -f k8s/configmap.yaml
-kubectl apply -f k8s/deployment.yaml
-kubectl apply -f k8s/service.yaml
+kubectl apply -f deploy/k8s/namespace.yaml
+kubectl apply -f deploy/k8s/deployment.yaml
+kubectl apply -f deploy/k8s/service.yaml
 
 # Verify
 kubectl -n mcp-gateway get pods
