@@ -125,7 +125,7 @@ Expected output: `OK`
 
 ## Step 4: Run the Tests (Prove It Works)
 
-This runs 529 automated tests that verify every security detection feature.
+This runs 698 automated tests that verify every security detection feature.
 
 **Windows:**
 ```powershell
@@ -139,10 +139,10 @@ pytest tests/ -q --tb=short
 
 **Expected output:**
 ```
-529 passed in ~55s
+698 passed in ~55s
 ```
 
-If you see "529 passed" — everything works correctly.
+If you see "698 passed" — everything works correctly.
 
 ---
 

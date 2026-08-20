@@ -4,8 +4,8 @@ Inline stdio proxy that intercepts MCP `tools/call` JSON-RPC messages, runs them
 
 [![Python 3.10 | 3.11 | 3.12](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Tests: 529 passed](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
-[![Coverage: 91%](https://img.shields.io/badge/coverage-91%25-brightgreen)](https://github.com/poojakira/mcp-agent-security-gateway/actions)
+[![Tests: 698 passed](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
+[![Coverage: 90%](https://img.shields.io/badge/coverage-90%25-brightgreen)](https://github.com/poojakira/mcp-agent-security-gateway/actions)
 [![CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
 
 ## Key Numbers
@@ -17,8 +17,8 @@ Inline stdio proxy that intercepts MCP `tools/call` JSON-RPC messages, runs them
 | Average latency (50k iterations) | 0.015 ms |
 | Prompt-injection rules | 50+ |
 | Attack categories | 9 |
-| Automated tests | 529 |
-| Code coverage | 91% |
+| Automated tests | 698 |
+| Code coverage | 90% |
 | Python versions tested | 3.10, 3.11, 3.12 |
 
 ## Overview
