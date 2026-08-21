@@ -87,7 +87,9 @@ class TerminalDashboard:
         # Final verdict
         lines.append("=" * 80)
         if report.detection_rate >= 90:
-            lines.append(f"  VERDICT: STRONG DEFENSE  --  {report.detection_rate:.1f}% detection rate")
+            lines.append(
+                f"  VERDICT: STRONG DEFENSE  --  {report.detection_rate:.1f}% detection rate"
+            )
         elif report.detection_rate >= 70:
             lines.append(
                 f"  VERDICT: GOOD DEFENSE  --  {report.detection_rate:.1f}% detection rate (gaps exist)"
