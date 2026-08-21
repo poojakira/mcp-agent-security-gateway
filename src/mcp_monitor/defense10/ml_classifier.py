@@ -242,7 +242,7 @@ class MLThreatClassifier:
             data = f.read()
         actual_hash = _hl.sha256(data).hexdigest()
         if actual_hash != expected_hash:
-            return False  # INTEGRITY FAILURE — model file tampered
+            return False  # INTEGRITY FAILURE  --  model file tampered
         self._pipeline = pickle.loads(data)  # nosec B301
         self._trained = True
         return True

@@ -13,7 +13,7 @@ WHAT THIS MODULE DOES:
 - Flags tools that have silently changed behavior between checks
 - Functions as a "health check" for behavioral integrity
 
-ANALOGY: Like a canary in a coal mine — if the canary dies (probe fails),
+ANALOGY: Like a canary in a coal mine  --  if the canary dies (probe fails),
 the mine (tool) is compromised even if everything looks fine on the surface.
 """
 

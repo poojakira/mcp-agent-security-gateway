@@ -165,7 +165,7 @@ def inspect_message(raw_message: str | bytes | dict) -> InspectionResult:
     else:
         parsed_data = raw_message
 
-    # Check if it's a dict with a method — i.e., a request
+    # Check if it's a dict with a method  --  i.e., a request
     if not isinstance(parsed_data, dict):
         return InspectionResult(
             action="allow",
@@ -320,7 +320,7 @@ class StdioMCPProxy:
         try:
             parsed = json.loads(raw_message)
         except (json.JSONDecodeError, ValueError):
-            # Can't parse — forward as-is (might be a partial/invalid message)
+            # Can't parse  --  forward as-is (might be a partial/invalid message)
             await self._transport.send(raw_message + b"\n")
             response = await self._transport.receive()
             self._stats["passthrough"] += 1

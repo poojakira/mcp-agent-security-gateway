@@ -6,13 +6,13 @@ line of code changed behavior silently. No schema changed. No capabilities
 changed. The BEHAVIOR changed.
 
 Existing solutions (manifest signing, schema diffing) cannot catch this because
-the interface stayed identical — only the runtime behavior drifted.
+the interface stayed identical  --  only the runtime behavior drifted.
 
 WHAT THIS MODULE DOES:
 - Records behavioral fingerprints: what a tool actually DOES given known inputs
 - Detects when outputs deviate from established baselines
 - Tracks statistical anomalies in output structure, field presence, and data flow
-- Flags "silent additions" — new fields appearing in outputs that weren't there before
+- Flags "silent additions"  --  new fields appearing in outputs that weren't there before
   (exactly how BCC was added: the tool started returning/using a field it never had)
 """
 
@@ -117,7 +117,7 @@ class BehavioralDriftDetector:
         current = self._create_sample(tool_name, input_data, output_data)
         current_fields = self._extract_field_paths(output_data)
 
-        # No baseline yet — can't detect drift
+        # No baseline yet  --  can't detect drift
         if tool_name not in self._baselines or not self._baselines[tool_name]:
             return (False, [])
 

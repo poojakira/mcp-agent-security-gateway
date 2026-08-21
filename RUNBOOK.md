@@ -1,4 +1,4 @@
-# RUNBOOK — MCP Agent Security Gateway
+# RUNBOOK  --  MCP Agent Security Gateway
 
 ## Prerequisites
 

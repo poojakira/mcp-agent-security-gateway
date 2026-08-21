@@ -86,15 +86,15 @@ Each layer can independently block a request. Every decision is logged to a SHA-
 
 Nine attack categories, each with multiple detection rules:
 
-- **Instruction override** — "ignore previous instructions," system-prompt rewriting attempts
-- **Role manipulation** — "you are now DAN," persona hijacking in tool arguments
-- **Delimiter injection** — injected markdown fences, XML tags, separator sequences to break context boundaries
-- **Encoded payload attacks** — base64-wrapped instructions, hex-encoded shell commands, URL-encoded injection
-- **PII exfiltration** — SSN, credit card, email, phone, IP address, AWS key ID, JWT, passport number, driver's license in outbound tool arguments
-- **Unicode and homoglyph normalization** — Cyrillic/Latin lookalike substitution, zero-width characters, bidirectional text overrides
-- **Prompt injection** — 50+ rules covering direct injection, indirect injection via retrieved context, multi-turn escalation
-- **Tool poisoning** — tool descriptions containing hidden instructions for the agent, malicious default parameter values
-- **Indirect injection** — injection vectors embedded in tool responses that attempt to influence subsequent agent behavior
+- **Instruction override**  --  "ignore previous instructions," system-prompt rewriting attempts
+- **Role manipulation**  --  "you are now DAN," persona hijacking in tool arguments
+- **Delimiter injection**  --  injected markdown fences, XML tags, separator sequences to break context boundaries
+- **Encoded payload attacks**  --  base64-wrapped instructions, hex-encoded shell commands, URL-encoded injection
+- **PII exfiltration**  --  SSN, credit card, email, phone, IP address, AWS key ID, JWT, passport number, driver's license in outbound tool arguments
+- **Unicode and homoglyph normalization**  --  Cyrillic/Latin lookalike substitution, zero-width characters, bidirectional text overrides
+- **Prompt injection**  --  50+ rules covering direct injection, indirect injection via retrieved context, multi-turn escalation
+- **Tool poisoning**  --  tool descriptions containing hidden instructions for the agent, malicious default parameter values
+- **Indirect injection**  --  injection vectors embedded in tool responses that attempt to influence subsequent agent behavior
 
 ## Quick Start
 
@@ -194,10 +194,10 @@ Measured on a single-core benchmark harness, 50,000 iterations per run, Python 3
 The gateway adds negligible overhead to MCP tool calls. A typical tool server response takes 50-500ms; the gateway adds 0.015ms on average.
 
 Additional reliability mechanisms:
-- **Circuit breaker** — if the gateway errors on 5 consecutive requests, it fails open (configurable to fail closed)
-- **Rate limiting** — per-agent, per-tool, configurable token-bucket
-- **Shadow mode** — log decisions without enforcing them, for rollout validation
-- **Write-ahead logging** — pending decisions survive process crashes
+- **Circuit breaker**  --  if the gateway errors on 5 consecutive requests, it fails open (configurable to fail closed)
+- **Rate limiting**  --  per-agent, per-tool, configurable token-bucket
+- **Shadow mode**  --  log decisions without enforcing them, for rollout validation
+- **Write-ahead logging**  --  pending decisions survive process crashes
 
 ## Standards Coverage
 
@@ -205,20 +205,20 @@ Additional reliability mechanisms:
 
 | OWASP ID | Category | Coverage |
 |----------|----------|----------|
-| LLM01 | Prompt Injection | Layers 4, 5 — 50+ rules |
-| LLM02 | Insecure Output Handling | Layer 4 — output content scanning |
-| LLM06 | Sensitive Information Disclosure | Layer 4 — PII detection, 9 data types |
-| LLM07 | Insecure Plugin Design | Layers 2, 3 — tool-call policy + spawn eval |
-| LLM08 | Excessive Agency | Layer 2 — action boundary enforcement |
+| LLM01 | Prompt Injection | Layers 4, 5  --  50+ rules |
+| LLM02 | Insecure Output Handling | Layer 4  --  output content scanning |
+| LLM06 | Sensitive Information Disclosure | Layer 4  --  PII detection, 9 data types |
+| LLM07 | Insecure Plugin Design | Layers 2, 3  --  tool-call policy + spawn eval |
+| LLM08 | Excessive Agency | Layer 2  --  action boundary enforcement |
 
 ### MITRE ATLAS
 
 | Technique | Coverage |
 |-----------|----------|
-| AML.T0051 — LLM Prompt Injection | 50+ detection rules |
-| AML.T0054 — LLM Plugin Compromise | Server trust + tool-call policy |
-| AML.T0052 — Jailbreak | Role manipulation detection |
-| AML.T0048 — Exfiltration via ML API | Egress control + PII scanning |
+| AML.T0051  --  LLM Prompt Injection | 50+ detection rules |
+| AML.T0054  --  LLM Plugin Compromise | Server trust + tool-call policy |
+| AML.T0052  --  Jailbreak | Role manipulation detection |
+| AML.T0048  --  Exfiltration via ML API | Egress control + PII scanning |
 
 ## Deployment
 

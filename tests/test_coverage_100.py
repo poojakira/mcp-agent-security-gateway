@@ -8,7 +8,7 @@ from mcp_monitor.audit.wal import WriteAheadLog
 from mcp_monitor.monitor import MCPSecurityMonitor
 
 # =====================================================================
-# monitor.py — inspect_output + inspect_call edge cases (lines 61-76, 128-164)
+# monitor.py  --  inspect_output + inspect_call edge cases (lines 61-76, 128-164)
 # =====================================================================
 
 
@@ -107,7 +107,7 @@ class TestMonitorInspectCallEdgeCases:
 
 
 # =====================================================================
-# audit/log.py — line 124: empty line in log file
+# audit/log.py  --  line 124: empty line in log file
 # =====================================================================
 
 
@@ -121,13 +121,13 @@ class TestAuditLogEmptyLines:
         # Manually append blank lines
         with log_path.open("a") as f:
             f.write("\n\n\n")
-        # Reload — should handle blanks gracefully
+        # Reload  --  should handle blanks gracefully
         log2 = AuditLog(str(log_path))
         assert len(log2) == 1
 
 
 # =====================================================================
-# audit/wal.py — lines 60-61 (OSError catch), 77 (blank line skip)
+# audit/wal.py  --  lines 60-61 (OSError catch), 77 (blank line skip)
 # =====================================================================
 
 
@@ -157,7 +157,7 @@ class TestWALEdgeCases:
 
 
 # =====================================================================
-# detectors/exfiltration.py — lines 83-84 (base64 decode exception)
+# detectors/exfiltration.py  --  lines 83-84 (base64 decode exception)
 # =====================================================================
 
 
@@ -176,7 +176,7 @@ class TestExfiltrationBase64Exception:
 
 
 # =====================================================================
-# advanced/manifest.py — lines 122, 152, 167
+# advanced/manifest.py  --  lines 122, 152, 167
 # Line 122: baseline_tampered violation
 # Line 152: capability_reduction
 # Line 167: verify_signature with wrong key
@@ -262,7 +262,7 @@ class TestManifestEdgeCases:
 
 
 # =====================================================================
-# advanced/canary.py — lines 165-166 (validator exception), 219-220 (drift count)
+# advanced/canary.py  --  lines 165-166 (validator exception), 219-220 (drift count)
 # =====================================================================
 
 
@@ -303,7 +303,7 @@ class TestCanaryEdgeCases:
 
 
 # =====================================================================
-# advanced/correlation.py — lines 86, 282, 285-287
+# advanced/correlation.py  --  lines 86, 282, 285-287
 # Line 86: condition check returns False
 # Lines 282, 285-287: _extract_values with list containing non-dict items
 # =====================================================================
@@ -356,7 +356,7 @@ class TestCorrelationEdgeCases:
 
 
 # =====================================================================
-# advanced/drift.py — lines 94, 103, 189, 241, 248, 262, 276
+# advanced/drift.py  --  lines 94, 103, 189, 241, 248, 262, 276
 # Line 94: baseline_window overflow trim
 # Line 103: size_history overflow trim
 # Line 189: field_removed detection missing field
@@ -385,7 +385,7 @@ class TestDriftEdgeCases:
         d = BehavioralDriftDetector()
         for i in range(3):
             d.record_baseline("tool", {"x": i}, {"r": "small"})
-        # Only 3 samples — size anomaly check should be skipped
+        # Only 3 samples  --  size anomaly check should be skipped
         drifted, alerts = d.check_drift("tool", {"x": 4}, {"r": "x" * 100000})
         size_alerts = [a for a in alerts if a.drift_type == "size_anomaly"]
         assert len(size_alerts) == 0
@@ -421,13 +421,13 @@ class TestDriftEdgeCases:
         from mcp_monitor.advanced.drift import BehavioralDriftDetector
 
         d = BehavioralDriftDetector()
-        # No baseline recorded — check_drift should handle gracefully
+        # No baseline recorded  --  check_drift should handle gracefully
         drifted, alerts = d.check_drift("new_tool", {"x": 1}, {"y": 2})
         assert not drifted
 
 
 # =====================================================================
-# advanced/invariants.py — lines 142, 156, 173, 181, 202, 232-234,
+# advanced/invariants.py  --  lines 142, 156, 173, 181, 202, 232-234,
 #   270-271, 299, 309
 # These are: FIELD_PRESENT violation, VALUE_MATCHES pass/fail,
 #   VALUE_NOT_IN_SET, nested path resolution, _resolve_path non-dict
@@ -693,7 +693,7 @@ class TestFinalCoverageGaps:
         # Record baselines with empty outputs (size ~2 bytes for '{}')
         for i in range(10):
             d.record_baseline("t", {"x": i}, {})
-        # The avg is tiny but not zero — let's make it truly 0-like
+        # The avg is tiny but not zero  --  let's make it truly 0-like
         # Actually avg won't be exactly 0 since even {} serializes to "{}"
         # But this exercises the path where threshold_low is very small
         drifted, alerts = d.check_drift("t", {"x": 11}, {})
@@ -786,9 +786,9 @@ class TestFinalFourLines:
         # Record baselines for tool_A only
         for i in range(5):
             d.record_baseline("tool_A", {"x": i}, {"status": "ok"})
-        # Now check_drift for tool_B — it has no baselines
+        # Now check_drift for tool_B  --  it has no baselines
         # This triggers the early return at line 125 (no baselines)
-        # But we want line 248 — let's call _get_always_present_fields directly
+        # But we want line 248  --  let's call _get_always_present_fields directly
         result = d._get_always_present_fields("nonexistent_tool")
         assert result == set()
 
@@ -850,7 +850,7 @@ class TestFinalFourLines:
         )
 
         e = InvariantEnforcer(include_builtins=False)
-        # FIELD_PRESENT with empty path — should check if data itself exists
+        # FIELD_PRESENT with empty path  --  should check if data itself exists
         e.add_invariant(
             Invariant(
                 name="data_present",

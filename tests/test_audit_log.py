@@ -1,4 +1,4 @@
-"""Tests for AuditLog and WriteAheadLog — 20 tests."""
+"""Tests for AuditLog and WriteAheadLog  --  20 tests."""
 
 import json
 import os

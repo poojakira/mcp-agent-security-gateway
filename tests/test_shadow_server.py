@@ -1,4 +1,4 @@
-"""Tests for ShadowServerDetector — 20 tests."""
+"""Tests for ShadowServerDetector  --  20 tests."""
 
 import pytest
 

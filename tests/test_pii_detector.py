@@ -1,4 +1,4 @@
-"""Tests for PIIDetector — 25 tests."""
+"""Tests for PIIDetector  --  25 tests."""
 
 import pytest
 

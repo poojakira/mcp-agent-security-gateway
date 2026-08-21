@@ -1,4 +1,4 @@
-"""Tests for PromptInjectionDetector — 20 tests."""
+"""Tests for PromptInjectionDetector  --  20 tests."""
 
 import pytest
 

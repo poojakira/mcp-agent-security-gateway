@@ -1,4 +1,4 @@
-"""Real-time MCP Security Gateway — FastAPI + WebSocket streaming server.
+"""Real-time MCP Security Gateway  --  FastAPI + WebSocket streaming server.
 
 Run: uvicorn mcp_monitor.server.realtime:app --reload
 Or:  python -m mcp_monitor.server.realtime
@@ -33,7 +33,7 @@ from mcp_monitor.layers.proxy import ProxyAction
 # ---------------------------------------------------------------------------
 # App setup
 # ---------------------------------------------------------------------------
-app = FastAPI(title="MCP Security Gateway — Real-Time Monitor")
+app = FastAPI(title="MCP Security Gateway  --  Real-Time Monitor")
 
 DASHBOARD_PATH = Path(__file__).parent / "dashboard.html"
 
@@ -755,7 +755,7 @@ async def _broadcast_scan(tool_call: dict[str, Any], verdict: Any, source: str) 
 
 
 # ---------------------------------------------------------------------------
-# Live workload agent — produces real-world tool-call traffic
+# Live workload agent  --  produces real-world tool-call traffic
 # ---------------------------------------------------------------------------
 
 _agent_running = False

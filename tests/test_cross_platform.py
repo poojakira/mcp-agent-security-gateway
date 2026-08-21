@@ -232,7 +232,7 @@ class TestEdgeCases:
         d = ShadowServerDetector({"srv"})
         d.register_server("srv", ["api"])
         call = {"name": "a" * 1000 + ".api", "server_id": "srv", "arguments": {}}
-        # Should not crash — capability prefix "aaa..." != "api" so it's flagged
+        # Should not crash  --  capability prefix "aaa..." != "api" so it's flagged
         is_shadow, reason = d.detect(call)
         assert is_shadow  # Correct: unknown capability prefix
         assert "not registered for capability" in reason

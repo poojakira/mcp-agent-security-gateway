@@ -23,7 +23,7 @@ class TerminalDashboard:
         lines: list[str] = []
         lines.append("")
         lines.append("=" * 80)
-        lines.append("  MCP SECURITY GATEWAY MONITOR — CATALOG ATTACK SIMULATION")
+        lines.append("  MCP SECURITY GATEWAY MONITOR  --  CATALOG ATTACK SIMULATION")
         lines.append("=" * 80)
         lines.append("")
         lines.append(f"  Timestamp:       {time.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -87,14 +87,14 @@ class TerminalDashboard:
         # Final verdict
         lines.append("=" * 80)
         if report.detection_rate >= 90:
-            lines.append(f"  VERDICT: STRONG DEFENSE — {report.detection_rate:.1f}% detection rate")
+            lines.append(f"  VERDICT: STRONG DEFENSE  --  {report.detection_rate:.1f}% detection rate")
         elif report.detection_rate >= 70:
             lines.append(
-                f"  VERDICT: GOOD DEFENSE — {report.detection_rate:.1f}% detection rate (gaps exist)"
+                f"  VERDICT: GOOD DEFENSE  --  {report.detection_rate:.1f}% detection rate (gaps exist)"
             )
         else:
             lines.append(
-                f"  VERDICT: WEAK DEFENSE — {report.detection_rate:.1f}% detection rate (critical gaps!)"
+                f"  VERDICT: WEAK DEFENSE  --  {report.detection_rate:.1f}% detection rate (critical gaps!)"
             )
         lines.append("=" * 80)
         lines.append("")

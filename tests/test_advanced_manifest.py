@@ -1,4 +1,4 @@
-"""Tests for manifest signing and verification — 15 tests."""
+"""Tests for manifest signing and verification  --  15 tests."""
 
 import pytest
 

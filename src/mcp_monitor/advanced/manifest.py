@@ -56,7 +56,7 @@ class ToolManifest:
 class ManifestSigner:
     """Signs tool manifests using HMAC-SHA256.
 
-    The signing key should be a secret held by the security team — NOT by
+    The signing key should be a secret held by the security team  --  NOT by
     the tool server itself. This ensures that a compromised server cannot
     re-sign its own modified manifest.
     """

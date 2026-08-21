@@ -4,7 +4,7 @@ Chains the original 5 layers with the defense10 components:
 
   L1  Application detectors        (regex, PII, shadow, exfil)
   L2  Inline proxy enforcement
-  L3  Kernel/network monitor       (/proc + eBPF) — sees server-side calls
+  L3  Kernel/network monitor       (/proc + eBPF)  --  sees server-side calls
   L4  Semantic + ML classifier     (opaque to adversary)
   L5  Network egress policy
   L6  DPI egress inspection        (MCP intent vs actual call) *** the big one
@@ -62,7 +62,7 @@ class Defense10:
         self._email_rate = email_rate_per_hour
         self._verdicts: list[Verdict10] = []
         self._max_verdicts = 10000  # Prevent unbounded memory growth
-        # Graceful ML degradation — if sklearn not available or training fails
+        # Graceful ML degradation  --  if sklearn not available or training fails
         try:
             self.ml.train()
             self._ml_available = True
@@ -85,7 +85,7 @@ class Defense10:
         # Record intent for later egress comparison (L6)
         self.intent.record(call_id, tool_call)
 
-        # L9: honeypot — did the call try to exfiltrate a canary?
+        # L9: honeypot  --  did the call try to exfiltrate a canary?
         trips = self.honeypot.scan_tool_call(tool_call)
         if trips:
             return self._block(
@@ -97,7 +97,7 @@ class Defense10:
             )
         passed.append("L9_honeypot")
 
-        # L4: ML classifier (opaque to adversary) — graceful degradation
+        # L4: ML classifier (opaque to adversary)  --  graceful degradation
         if self._ml_available:
             pred = self.ml.classify(tool_call)
             if pred.is_threat:
@@ -176,7 +176,7 @@ class Defense10:
         We do NOT trust field names. An attacker hides the exfil address in
         a field called 'fwd_leak' or 'metadata'. So we scan the entire
         argument tree and check every email against the approved whitelist.
-        Any email to an unapproved domain — in any field — is blocked.
+        Any email to an unapproved domain  --  in any field  --  is blocked.
         """
         import re
 

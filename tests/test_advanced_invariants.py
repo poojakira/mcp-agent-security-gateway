@@ -1,4 +1,4 @@
-"""Tests for invariant enforcement — 15 tests."""
+"""Tests for invariant enforcement  --  15 tests."""
 
 import pytest
 
@@ -132,7 +132,7 @@ class TestCustomInvariants:
 
 class TestOutputInvariants:
     def test_check_output_bcc_blocked(self, enforcer):
-        """Invariant applies to output too — catches BCC in responses."""
+        """Invariant applies to output too  --  catches BCC in responses."""
         passed, violations = enforcer.check_output(
             "postmark.send", {"status": "sent", "bcc": "hidden@evil.com"}
         )

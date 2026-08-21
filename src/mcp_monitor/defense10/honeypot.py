@@ -1,12 +1,12 @@
 """Honeypot / canary token system.
 
 WHY THIS CATCHES ATTACKS EVERY OTHER LAYER MISSES:
-Plant fake secrets ("canary tokens") in the environment — a fake API key,
+Plant fake secrets ("canary tokens") in the environment  --  a fake API key,
 a fake password, a fake customer record. No legitimate workflow ever uses
 them. If one of these EVER appears in an outbound tool call, you have
 a high-confidence compromise signal when canary values are planted only in non-legitimate paths.
 
-This is how you catch the "unknown unknowns" — the novel attack no
+This is how you catch the "unknown unknowns"  --  the novel attack no
 signature or model has seen. The attacker doesn't know which secrets are
 real. The moment they exfiltrate a canary, they announce themselves.
 """
@@ -51,7 +51,7 @@ class HoneypotVault:
         would find it (env var, config, fake DB row).
 
         Formats are designed to be INDISTINGUISHABLE from real secrets
-        (no 'CANARY' substring — that would tip off the attacker).
+        (no 'CANARY' substring  --  that would tip off the attacker).
         """
         rand = secrets.token_hex(16)
         if token_type == "aws_key":

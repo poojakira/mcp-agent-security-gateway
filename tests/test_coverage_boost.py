@@ -1,4 +1,4 @@
-"""Coverage boost tests — targeting the biggest gaps to reach 90%+ overall.
+"""Coverage boost tests  --  targeting the biggest gaps to reach 90%+ overall.
 
 Covers:
 - redteam/simulator.py (108 lines, 0% → ~100%)
@@ -26,7 +26,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 # ===========================================================================
-# SECTION 1: redteam/simulator.py — full coverage (108 lines)
+# SECTION 1: redteam/simulator.py  --  full coverage (108 lines)
 # ===========================================================================
 
 
@@ -207,7 +207,7 @@ class TestAttackSimulator:
 
 
 # ===========================================================================
-# SECTION 2: redteam/payloads.py and __init__.py — imports (3+3 lines)
+# SECTION 2: redteam/payloads.py and __init__.py  --  imports (3+3 lines)
 # ===========================================================================
 
 
@@ -236,7 +236,7 @@ class TestRedteamImports:
 
 
 # ===========================================================================
-# SECTION 3: server/workload.py — full coverage (8 lines)
+# SECTION 3: server/workload.py  --  full coverage (8 lines)
 # ===========================================================================
 
 
@@ -272,7 +272,7 @@ class TestWorkload:
 
 
 # ===========================================================================
-# SECTION 4: monitor.py — additional coverage for code paths
+# SECTION 4: monitor.py  --  additional coverage for code paths
 # ===========================================================================
 
 
@@ -422,12 +422,12 @@ class TestMonitorPaths:
 
 
 # ===========================================================================
-# SECTION 5: production/logging.py — remaining 10 lines (TraceLogAdapter)
+# SECTION 5: production/logging.py  --  remaining 10 lines (TraceLogAdapter)
 # ===========================================================================
 
 
 class TestProductionLogging:
-    """Test production logging module — TraceLogAdapter and edge cases."""
+    """Test production logging module  --  TraceLogAdapter and edge cases."""
 
     def test_json_formatter_basic(self):
         from mcp_monitor.production.logging import JSONFormatter
@@ -546,7 +546,7 @@ class TestProductionLogging:
 
 
 # ===========================================================================
-# SECTION 6: production/server.py — comprehensive route tests (136 missed)
+# SECTION 6: production/server.py  --  comprehensive route tests (136 missed)
 # ===========================================================================
 
 
@@ -1176,7 +1176,7 @@ class TestProductionServer:
 
 
 # ===========================================================================
-# SECTION 7: server/realtime.py — deeper coverage (228 missed lines)
+# SECTION 7: server/realtime.py  --  deeper coverage (228 missed lines)
 # ===========================================================================
 
 
@@ -1725,7 +1725,7 @@ class TestRealtimeServer:
         original = realtime._demo_workload_enabled
         try:
             with patch.dict(os.environ, {"MCP_DEMO_MODE": "0"}):
-                # Run startup — it should not start workload agent
+                # Run startup  --  it should not start workload agent
                 asyncio.run(realtime.startup_event())
                 assert realtime._demo_workload_enabled is False
         finally:
@@ -1743,7 +1743,7 @@ class TestRealtimeServer:
 
 
 # ===========================================================================
-# SECTION 8: proxy/stdio_proxy.py — additional coverage (67 missed)
+# SECTION 8: proxy/stdio_proxy.py  --  additional coverage (67 missed)
 # ===========================================================================
 
 
@@ -2025,7 +2025,7 @@ class TestStdioProxy:
 
 
 # ===========================================================================
-# SECTION 9: Additional realtime.py coverage — build_defense helpers
+# SECTION 9: Additional realtime.py coverage  --  build_defense helpers
 # ===========================================================================
 
 
@@ -2230,7 +2230,7 @@ class TestRealtimeDefenseHelpers:
 
 
 # ===========================================================================
-# SECTION 10: production/server.py — run_server and main entry points
+# SECTION 10: production/server.py  --  run_server and main entry points
 # ===========================================================================
 
 
@@ -2254,7 +2254,7 @@ class TestProductionServerEntryPoints:
 
 
 # ===========================================================================
-# SECTION 11: dashboard/report.py and terminal.py — 110 lines, 0% covered
+# SECTION 11: dashboard/report.py and terminal.py  --  110 lines, 0% covered
 # ===========================================================================
 
 

@@ -1,4 +1,4 @@
-"""Tests for the 10/10 defense layer — real ML, DPI, rate limiting, honeypots."""
+"""Tests for the 10/10 defense layer  --  real ML, DPI, rate limiting, honeypots."""
 
 import pytest
 

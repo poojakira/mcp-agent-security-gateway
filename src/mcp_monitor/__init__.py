@@ -1,4 +1,4 @@
-"""MCP Security Gateway Monitor — stdlib-only security monitor for MCP tool calls."""
+"""MCP Security Gateway Monitor  --  stdlib-only security monitor for MCP tool calls."""
 
 from mcp_monitor.audit.log import AuditLog
 from mcp_monitor.audit.wal import WriteAheadLog

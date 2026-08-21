@@ -5,7 +5,7 @@ description: |
   Detects when the MCP gateway blocks a request at Layer 5 (Network Egress)
   after Layers 1-4 returned ALLOW. This pattern indicates a sophisticated
   attack that passed trust validation, policy checks, process-spawn eval,
-  and semantic intent analysis — but attempted to exfiltrate data to an
+  and semantic intent analysis  --  but attempted to exfiltrate data to an
   unauthorized domain. The attack got through 4/5 layers before being caught.
 references:
   - https://github.com/poojakira/mcp-agent-security-gateway

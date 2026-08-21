@@ -1,4 +1,4 @@
-# MCP Agent Security Gateway — Complete Setup & Run Guide
+# MCP Agent Security Gateway  --  Complete Setup & Run Guide
 
 **For everyone: engineers, hiring managers, demo audiences, and first-time users.**
 
@@ -6,7 +6,7 @@
 
 ## What Is This?
 
-When AI agents (like Claude, GPT, or custom bots) use tools — sending emails, querying databases, calling APIs — there's a security gap: **nothing checks what the agent is actually doing before it does it.**
+When AI agents (like Claude, GPT, or custom bots) use tools  --  sending emails, querying databases, calling APIs  --  there's a security gap: **nothing checks what the agent is actually doing before it does it.**
 
 This project is a **security checkpoint** that sits between an AI agent and its tools. Think of it like a security guard at a building entrance:
 
@@ -44,7 +44,7 @@ You need **two things** installed on your computer:
 | Git | Open terminal, type `git --version` | [git-scm.com](https://git-scm.com/) |
 
 **Optional** (only for production deployment):
-- Docker Desktop — [docker.com](https://www.docker.com/products/docker-desktop/)
+- Docker Desktop  --  [docker.com](https://www.docker.com/products/docker-desktop/)
 
 ---
 
@@ -89,7 +89,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-You'll see `(.venv)` at the start of your prompt — that means it worked.
+You'll see `(.venv)` at the start of your prompt  --  that means it worked.
 
 ---
 
@@ -142,7 +142,7 @@ pytest tests/ -q --tb=short
 698 passed in ~55s
 ```
 
-If you see "698 passed" — everything works correctly.
+If you see "698 passed"  --  everything works correctly.
 
 ---
 
@@ -189,7 +189,7 @@ Allowed: 80
 Blocked: 120
 ```
 
-The key number: **p99 should be under 50ms**. This means 99% of tool calls are inspected in under 50 milliseconds — fast enough for real-time use.
+The key number: **p99 should be under 50ms**. This means 99% of tool calls are inspected in under 50 milliseconds  --  fast enough for real-time use.
 
 ---
 
@@ -220,7 +220,7 @@ You'll see the security monitoring dashboard.
 
 ---
 
-## Step 8: Test It — Send a Simulated Attack
+## Step 8: Test It  --  Send a Simulated Attack
 
 With the dashboard running (Step 7), open a **second** terminal window and send a malicious tool call:
 
@@ -252,7 +252,7 @@ curl -X POST http://localhost:8000/api/scan \
   }'
 ```
 
-**Expected response — the attack gets BLOCKED:**
+**Expected response  --  the attack gets BLOCKED:**
 ```json
 {
   "allowed": false,
@@ -262,7 +262,7 @@ curl -X POST http://localhost:8000/api/scan \
 }
 ```
 
-Now check the dashboard in your browser — you'll see the blocked event appear in real-time.
+Now check the dashboard in your browser  --  you'll see the blocked event appear in real-time.
 
 ---
 
@@ -281,7 +281,7 @@ py -X utf8 run_realtime.py
 MCP_DEMO_MODE=1 python3 run_realtime.py
 ```
 
-Open http://localhost:8000 — you'll see synthetic tool calls flowing through with some being blocked.
+Open http://localhost:8000  --  you'll see synthetic tool calls flowing through with some being blocked.
 
 **Stop:** Press `Ctrl+C` in the terminal.
 
@@ -347,7 +347,7 @@ Invoke-RestMethod -Uri http://localhost:8080/v1/health
 | Port 8000 already in use | Another program is using that port. On Windows: `Get-NetTCPConnection -LocalPort 8000` to find it |
 | `ModuleNotFoundError` | Make sure your venv is activated (you see `(.venv)` in prompt) |
 | Tests fail | Make sure you ran `pip install -e ".[dev,server]"` not just `pip install -e .` |
-| Dashboard is blank | Normal if no traffic yet — send a test call (Step 8) or use demo mode (Step 9) |
+| Dashboard is blank | Normal if no traffic yet  --  send a test call (Step 8) or use demo mode (Step 9) |
 | Docker won't start | Set `MCP_API_KEY` environment variable first |
 
 ---
@@ -387,6 +387,6 @@ docker compose up --build -d
 
 ## Why This Matters
 
-Traditional AI security focuses on **what the LLM says**. This project focuses on **what the AI agent does**. As AI systems gain the ability to take actions in the real world — sending emails, modifying databases, deploying code — the gap between "generating text" and "executing actions" becomes the most critical security boundary.
+Traditional AI security focuses on **what the LLM says**. This project focuses on **what the AI agent does**. As AI systems gain the ability to take actions in the real world  --  sending emails, modifying databases, deploying code  --  the gap between "generating text" and "executing actions" becomes the most critical security boundary.
 
 This gateway is that boundary.

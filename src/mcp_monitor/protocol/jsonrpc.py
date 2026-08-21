@@ -201,7 +201,7 @@ class MCPJSONRPCAdapter:
 
         # Check if this is a response (has result or error field, no method)
         if "result" in msg or "error" in msg:
-            # Response message — not a tool call request to inspect
+            # Response message  --  not a tool call request to inspect
             return None
 
         # Must have a method for requests/notifications

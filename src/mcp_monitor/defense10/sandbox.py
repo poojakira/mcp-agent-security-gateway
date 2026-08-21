@@ -93,7 +93,7 @@ class DockerSandbox:
         if c.no_new_privileges:
             args += ["--security-opt", "no-new-privileges"]
         args += ["--memory", c.memory, "--cpus", c.cpus]
-        # Validate extra_args — reject dangerous flags
+        # Validate extra_args  --  reject dangerous flags
         _BLOCKED_PATTERNS = (
             "--privileged",
             "--network=host",

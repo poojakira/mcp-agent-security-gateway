@@ -1,4 +1,4 @@
-"""Tests for ExfiltrationDetector — 20 tests."""
+"""Tests for ExfiltrationDetector  --  20 tests."""
 
 import base64
 

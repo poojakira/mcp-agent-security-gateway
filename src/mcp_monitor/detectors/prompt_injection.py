@@ -1,9 +1,9 @@
 """Prompt injection detection for MCP tool call arguments.
 
 Hybrid detector using:
-  1. Input normalization — strips zero-width chars, normalizes homoglyphs, decodes base64
-  2. FAST regex first-pass (< 1ms) — 50+ patterns for known injection families
-  3. ML second-pass — TF-IDF classifier from defense10 for ambiguous cases
+  1. Input normalization  --  strips zero-width chars, normalizes homoglyphs, decodes base64
+  2. FAST regex first-pass (< 1ms)  --  50+ patterns for known injection families
+  3. ML second-pass  --  TF-IDF classifier from defense10 for ambiguous cases
 
 If regex matches with high confidence, the ML pass is skipped.
 If regex doesn't match, the ML classifier provides a secondary risk signal.
@@ -211,7 +211,7 @@ def normalize_input(text: str) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# Detection patterns — 50+ rules covering major injection families
+# Detection patterns  --  50+ rules covering major injection families
 # ---------------------------------------------------------------------------
 
 INJECTION_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
@@ -665,7 +665,7 @@ class PromptInjectionDetector:
                     if pattern.search(text) and name not in matched:
                         matched.append(name)
 
-        # If regex matched, high confidence — skip ML
+        # If regex matched, high confidence  --  skip ML
         if matched:
             return (True, matched)
 

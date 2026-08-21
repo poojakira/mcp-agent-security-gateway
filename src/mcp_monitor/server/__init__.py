@@ -1,4 +1,4 @@
-"""MCP Security Gateway — Real-Time Server."""
+"""MCP Security Gateway  --  Real-Time Server."""
 
 from mcp_monitor.server.realtime import app
 

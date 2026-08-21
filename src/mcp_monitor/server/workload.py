@@ -1,9 +1,9 @@
-"""Realistic agent workload — generates real-world MCP tool-call traffic.
+"""Realistic agent workload  --  generates real-world MCP tool-call traffic.
 
 This models what a deployed AI assistant actually does in production: a steady
 stream of mostly-legitimate tool calls (email, calendar, files, database,
 search, API requests) with a realistic low rate of malicious/anomalous calls
-mixed in (the way real threat traffic appears — rare, not constant).
+mixed in (the way real threat traffic appears  --  rare, not constant).
 
 Every generated call is a genuine tool call routed through the real 5-layer
 defense; nothing is hard-coded as "detected". The verdict comes from the
@@ -105,7 +105,7 @@ _BENIGN_BUILDERS: list = [
 ]
 
 # ---------------------------------------------------------------------------
-# Malicious / anomalous calls (should be BLOCKED) — injected at a low rate
+# Malicious / anomalous calls (should be BLOCKED)  --  injected at a low rate
 # ---------------------------------------------------------------------------
 
 _THREAT_BUILDERS: list = [

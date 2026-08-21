@@ -1,4 +1,4 @@
-"""HTML Security Report Generator — deep-level dashboard."""
+"""HTML Security Report Generator  --  deep-level dashboard."""
 
 from __future__ import annotations
 
@@ -129,7 +129,7 @@ tr:hover{{background:#16213e}}
 .graph-section{{background:#0d1b2a;border-radius:8px;padding:15px;margin:15px 0;border:1px solid #1e3a5f;overflow-x:auto}}
 </style></head><body>
 <div class="container">
-<h1>MCP Security Gateway Monitor — Real-Time Dashboard</h1>
+<h1>MCP Security Gateway Monitor  --  Real-Time Dashboard</h1>
 <p>Generated: {time.strftime('%Y-%m-%d %H:%M:%S')} | Execution: {report.execution_time_ms:.1f}ms</p>
 
 <div class="stats">

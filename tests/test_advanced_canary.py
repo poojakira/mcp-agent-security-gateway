@@ -1,4 +1,4 @@
-"""Tests for tool canary system — 15 tests."""
+"""Tests for tool canary system  --  15 tests."""
 
 import pytest
 

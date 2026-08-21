@@ -36,7 +36,7 @@ try:
             )
             self.decision = decision
 
-except ImportError:  # pragma: no cover — FastAPI is an optional dependency
+except ImportError:  # pragma: no cover  --  FastAPI is an optional dependency
 
     class RateLimitExceeded(Exception):  # type: ignore[no-redef]
         """Raised by check_rate_limit() when a key has exceeded its configured limit.
@@ -108,7 +108,7 @@ class RateLimiter:
         """Enforce the rate limit for *key*, raising RateLimitExceeded (HTTP 429)
         if the limit has been exceeded.
 
-        Unlike :meth:`check`, this method **does not return** — it either succeeds
+        Unlike :meth:`check`, this method **does not return**  --  it either succeeds
         silently or raises so that callers cannot accidentally ignore the decision.
 
         Parameters

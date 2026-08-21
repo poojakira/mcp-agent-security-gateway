@@ -1,4 +1,4 @@
-"""Tests for behavioral drift detection — 15 tests."""
+"""Tests for behavioral drift detection  --  15 tests."""
 
 import pytest
 

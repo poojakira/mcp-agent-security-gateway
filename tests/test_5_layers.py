@@ -1,4 +1,4 @@
-"""Tests for 5-Layer Defense System — 72 tests."""
+"""Tests for 5-Layer Defense System  --  72 tests."""
 
 import base64
 
@@ -53,7 +53,7 @@ class TestProxy:
         )
         # "ignore previous instructions" is a high-confidence injection pattern.
         # With expanded detection (55+ patterns + normalization), this scores above
-        # block_threshold. Both BLOCK and QUARANTINE are acceptable outcomes —
+        # block_threshold. Both BLOCK and QUARANTINE are acceptable outcomes  -- 
         # the key assertion is that it's NOT allowed through.
         assert d.action in (ProxyAction.QUARANTINE, ProxyAction.BLOCK)
 

@@ -169,7 +169,7 @@ class TestToolServerIsolation:
                 timestamp=datetime.datetime.now(datetime.timezone.utc).isoformat(),
             ),
         ]
-        # Only 2 events — threshold is 3
+        # Only 2 events  --  threshold is 3
         assert playbook.should_trigger(events, "server-A") is False
 
     def test_threshold_met(self):

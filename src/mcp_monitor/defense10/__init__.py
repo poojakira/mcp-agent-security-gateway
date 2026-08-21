@@ -1,4 +1,4 @@
-"""Defense10 — the components that push detection toward 10/10.
+"""Defense10  --  the components that push detection toward 10/10.
 
 These are REAL, FUNCTIONAL implementations (not policy stubs):
 - ml_classifier: scikit-learn model, opaque to adversaries reading our source

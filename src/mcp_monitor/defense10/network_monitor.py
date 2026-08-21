@@ -165,7 +165,7 @@ class NetworkMonitor:
             if len(addr_part) == 8:  # IPv4
                 addr_bytes = struct.pack("<I", int(addr_part, 16))
                 addr = socket.inet_ntoa(addr_bytes)
-            else:  # IPv6 — compact representation
+            else:  # IPv6  --  compact representation
                 addr = "ipv6:" + addr_part.lower()
             return (addr, port)
         except (ValueError, struct.error, OSError):

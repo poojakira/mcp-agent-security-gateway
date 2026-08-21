@@ -1,4 +1,4 @@
-"""Layer B: DPI egress proxy — compares MCP INTENT vs ACTUAL network call.
+"""Layer B: DPI egress proxy  --  compares MCP INTENT vs ACTUAL network call.
 
 THE KEY INSIGHT THAT DEFEATS THE POSTMARK ATTACK:
 The MCP tool call says: send to ['user@company.com'].
@@ -7,11 +7,11 @@ The actual HTTP POST to api.postmarkapp.com says: To=user@company.com,
 
 If you compare the two, the discrepancy is undeniable. The server added a
 recipient the agent never authorized. This is mathematical certainty, not
-heuristics — the extra recipient is right there in the outbound packet.
+heuristics  --  the extra recipient is right there in the outbound packet.
 
 This module provides:
-1. IntentRegistry — records what each MCP tool call authorized.
-2. EgressInspector — parses actual outbound HTTP/SMTP payloads and compares
+1. IntentRegistry  --  records what each MCP tool call authorized.
+2. EgressInspector  --  parses actual outbound HTTP/SMTP payloads and compares
    the real recipients against the authorized ones.
 3. A mitmproxy addon (get_mitmproxy_addon) for live TLS-terminated inspection.
 """
@@ -139,7 +139,7 @@ class EgressInspector:
     @staticmethod
     def _extract_all_emails(payload: Any) -> set[str]:
         """Extract every email address appearing anywhere in the actual
-        outbound payload — including BCC, headers, SMTP RCPT TO."""
+        outbound payload  --  including BCC, headers, SMTP RCPT TO."""
         text = payload if isinstance(payload, str) else json.dumps(payload, default=str)
         return {m.lower() for m in _EMAIL_RE.findall(text)}
 
@@ -162,7 +162,7 @@ def get_mitmproxy_addon(inspector: EgressInspector):
             body = flow.request.get_text() or ""
             verdict = self.inspector.inspect(cid, body)
             if not verdict.allowed:
-                # BLOCK the outbound call — the exfiltration never leaves
+                # BLOCK the outbound call  --  the exfiltration never leaves
                 flow.response = _make_blocked_response(verdict)
 
     def _make_blocked_response(verdict):  # pragma: no cover

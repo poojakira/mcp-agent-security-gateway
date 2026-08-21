@@ -1,4 +1,4 @@
-"""Tests for cross-tool correlation engine — 15 tests."""
+"""Tests for cross-tool correlation engine  --  15 tests."""
 
 import pytest
 

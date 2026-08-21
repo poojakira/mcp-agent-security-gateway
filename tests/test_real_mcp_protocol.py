@@ -45,7 +45,7 @@ def scan_mcp_message(adapter: MCPJSONRPCAdapter, detector: PromptInjectionDetect
 
 
 # ===========================================================================
-# Section 1: Malicious tool calls — injection payloads in JSON-RPC format
+# Section 1: Malicious tool calls  --  injection payloads in JSON-RPC format
 # ===========================================================================
 
 
@@ -182,7 +182,7 @@ class TestMaliciousToolCalls:
 
 
 # ===========================================================================
-# Section 2: Benign tool calls — should NOT trigger detection
+# Section 2: Benign tool calls  --  should NOT trigger detection
 # ===========================================================================
 
 
@@ -676,7 +676,7 @@ class TestBatchRequests:
 
 
 # ===========================================================================
-# Section 6: End-to-end integration — full pipeline
+# Section 6: End-to-end integration  --  full pipeline
 # ===========================================================================
 
 

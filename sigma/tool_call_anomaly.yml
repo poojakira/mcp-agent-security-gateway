@@ -4,7 +4,7 @@ status: experimental
 description: |
   Detects when an agent's tool-call volume exceeds 3 standard deviations
   above its baseline within a 15-minute sliding window. Sudden spikes in
-  tool-call frequency often indicate automated exploitation — a compromised
+  tool-call frequency often indicate automated exploitation  --  a compromised
   agent iterating through tool calls to enumerate data or chain operations.
 references:
   - https://github.com/poojakira/mcp-agent-security-gateway
