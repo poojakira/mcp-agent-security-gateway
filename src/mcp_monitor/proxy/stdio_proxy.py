@@ -23,6 +23,7 @@ import json
 import logging
 import sys
 from dataclasses import dataclass
+from enum import Enum
 from typing import Any, Protocol
 
 from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
@@ -36,14 +37,32 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 
+class Decision(str, Enum):
+    """Explicit security enforcement decision."""
+
+    ALLOW = "allow"
+    BLOCK = "block"
+    INDETERMINATE = "indeterminate"
+
+
 @dataclass
 class InspectionResult:
     """Result of inspecting a JSON-RPC message."""
 
-    action: str  # "allow" or "block"
+    decision: Decision
     reason: str
     matched_patterns: list[str]
     request_id: int | str | None = None
+    detector_errors: list[str] = None
+
+    def __post_init__(self):
+        if self.detector_errors is None:
+            self.detector_errors = []
+
+    @property
+    def action(self) -> str:
+        """Backward compatibility: return decision value as string."""
+        return self.decision.value
 
 
 # ---------------------------------------------------------------------------
@@ -150,7 +169,8 @@ def inspect_message(raw_message: str | bytes | dict) -> InspectionResult:
     Returns
     -------
     InspectionResult
-        Decision with action ("allow" or "block"), reason, and matched patterns.
+        Decision with decision (Decision.ALLOW/Decision.BLOCK/Decision.INDETERMINATE),
+        reason, and matched patterns.
     """
     # Parse the message
     if isinstance(raw_message, str | bytes):
@@ -158,7 +178,7 @@ def inspect_message(raw_message: str | bytes | dict) -> InspectionResult:
             parsed_data = json.loads(raw_message)
         except (json.JSONDecodeError, ValueError) as e:
             return InspectionResult(
-                action="allow",
+                decision=Decision.ALLOW,
                 reason=f"Invalid JSON, passing through: {e}",
                 matched_patterns=[],
             )
@@ -168,7 +188,7 @@ def inspect_message(raw_message: str | bytes | dict) -> InspectionResult:
     # Check if it's a dict with a method — i.e., a request
     if not isinstance(parsed_data, dict):
         return InspectionResult(
-            action="allow",
+            decision=Decision.ALLOW,
             reason="Not a JSON-RPC request object",
             matched_patterns=[],
         )
@@ -179,7 +199,7 @@ def inspect_message(raw_message: str | bytes | dict) -> InspectionResult:
     # Only inspect tools/call messages
     if method != "tools/call":
         return InspectionResult(
-            action="allow",
+            decision=Decision.ALLOW,
             reason=f"Non-tool-call method: {method}",
             matched_patterns=[],
             request_id=request_id,
@@ -190,7 +210,7 @@ def inspect_message(raw_message: str | bytes | dict) -> InspectionResult:
         tool_calls = _adapter.parse_message(parsed_data)
     except JSONRPCError as e:
         return InspectionResult(
-            action="block",
+            decision=Decision.BLOCK,
             reason=f"Malformed tool call: {e.message}",
             matched_patterns=["malformed_jsonrpc"],
             request_id=request_id,
@@ -198,22 +218,33 @@ def inspect_message(raw_message: str | bytes | dict) -> InspectionResult:
 
     # Run detection on each tool call
     all_matched: list[str] = []
+    detector_errors: list[str] = []
     for tool_call in tool_calls:
         internal = tool_call.to_internal_format()
-        detected, patterns = _detector.detect(internal)
+        try:
+            detected, patterns = _detector.detect(internal)
+        except Exception as exc:
+            detector_errors.append(f"prompt_injection: {exc}")
+            return InspectionResult(
+                decision=Decision.INDETERMINATE,
+                reason=f"Detector failed: {exc}",
+                matched_patterns=[],
+                request_id=request_id,
+                detector_errors=detector_errors,
+            )
         if detected:
             all_matched.extend(patterns)
 
     if all_matched:
         return InspectionResult(
-            action="block",
+            decision=Decision.BLOCK,
             reason=f"Prompt injection detected: {', '.join(all_matched)}",
             matched_patterns=all_matched,
             request_id=request_id,
         )
 
     return InspectionResult(
-        action="allow",
+        decision=Decision.ALLOW,
         reason="Tool call passed security inspection",
         matched_patterns=[],
         request_id=request_id,
@@ -340,7 +371,7 @@ class StdioMCPProxy:
         # Inspect the tool call
         result = self._inspect(parsed)
 
-        if result.action == "block":
+        if result.decision == Decision.BLOCK:
             # Block: return error response, do NOT forward
             logger.warning(
                 "BLOCKED tool call id=%s reason=%s patterns=%s",
@@ -353,7 +384,22 @@ class StdioMCPProxy:
                 request_id=request_id,
                 code=self.SECURITY_BLOCK_CODE,
                 message=f"Security: {result.reason}",
-                data={"patterns": result.matched_patterns},
+                data={"patterns": result.matched_patterns, "detector_errors": result.detector_errors},
+            ).rstrip(b"\n")
+
+        if result.decision == Decision.INDETERMINATE:
+            # Fail-closed in enforcement mode
+            logger.error(
+                "Detector failure - failing closed id=%s errors=%s",
+                request_id,
+                result.detector_errors,
+            )
+            self._stats["blocked"] += 1
+            return _build_error_response(
+                request_id=request_id,
+                code=self.SECURITY_BLOCK_CODE,
+                message=f"Security: Detector failure - failing closed: {result.reason}",
+                data={"patterns": result.matched_patterns, "detector_errors": result.detector_errors},
             ).rstrip(b"\n")
 
         # Allow: forward to downstream and relay response
@@ -365,12 +411,13 @@ class StdioMCPProxy:
     def _inspect(self, parsed: dict[str, Any]) -> InspectionResult:
         """Run security inspection on a parsed JSON-RPC tools/call message."""
         request_id = parsed.get("id")
+        detector_errors: list[str] = []
 
         try:
             tool_calls = self._adapter.parse_message(parsed)
         except JSONRPCError as e:
             return InspectionResult(
-                action="block",
+                decision=Decision.BLOCK,
                 reason=f"Malformed tool call: {e.message}",
                 matched_patterns=["malformed_jsonrpc"],
                 request_id=request_id,
@@ -379,20 +426,32 @@ class StdioMCPProxy:
         all_matched: list[str] = []
         for tool_call in tool_calls:
             internal = tool_call.to_internal_format()
-            detected, patterns = self._detector.detect(internal)
+            try:
+                detected, patterns = self._detector.detect(internal)
+            except Exception as exc:
+                logger.exception("Prompt injection detector failed")
+                detector_errors.append(f"prompt_injection: {exc}")
+                # Fail-closed: treat detector failure as INDETERMINATE
+                return InspectionResult(
+                    decision=Decision.INDETERMINATE,
+                    reason=f"Detector failed: {exc}",
+                    matched_patterns=[],
+                    request_id=request_id,
+                    detector_errors=detector_errors,
+                )
             if detected:
                 all_matched.extend(patterns)
 
         if all_matched:
             return InspectionResult(
-                action="block",
+                decision=Decision.BLOCK,
                 reason=f"Prompt injection detected: {', '.join(all_matched)}",
                 matched_patterns=all_matched,
                 request_id=request_id,
             )
 
         return InspectionResult(
-            action="allow",
+            decision=Decision.ALLOW,
             reason="Tool call passed security inspection",
             matched_patterns=[],
             request_id=request_id,
