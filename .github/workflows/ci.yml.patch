@@ -1,0 +1,33 @@
+# CI Coverage Gate: 75% → 90%
+# Apply this patch to .github/workflows/ci.yml
+#
+# This raises the minimum coverage threshold to 90% to match
+# production-grade quality standards for a security gateway.
+
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -1,1 +1,1 @@
+-          --cov-fail-under=75
++          --cov-fail-under=90
+
+# If your ci.yml uses a different format, apply the equivalent change:
+#
+# Before:
+#   - name: Run tests with coverage
+#     run: |
+#       pytest --cov=mcp_gateway --cov-report=xml --cov-fail-under=75
+#
+# After:
+#   - name: Run tests with coverage
+#     run: |
+#       pytest --cov=mcp_gateway --cov-report=xml --cov-fail-under=90
+#
+# Alternative formats:
+#   [tool.coverage.report]
+#   fail_under = 90
+#
+# Rationale:
+#   - Security-critical code requires higher coverage guarantees
+#   - Current test suite (569 tests) already provides broad coverage
+#   - 90% threshold ensures new code maintains quality bar
+#   - Uncovered code in a security gateway is a risk surface

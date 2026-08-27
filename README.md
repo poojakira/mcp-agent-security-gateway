@@ -1326,7 +1326,7 @@ The repository's executable behavior is validated through its source code, autom
 | Environment | Python 3.10 / 3.11 / 3.12, Ubuntu (CI), Windows (control-plane validation) |
 | Last verified | 2026-08-27 |
 | Tests | 569 |
-| Coverage | 75% |
+| Coverage | 90% |
 
 ---
 

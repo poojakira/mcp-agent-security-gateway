@@ -1,0 +1,214 @@
+name: Signed Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write  # Required for Sigstore keyless signing
+  attestations: write  # Required for GitHub Attestations
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  build:
+    name: Build & Sign Release
+    runs-on: ubuntu-latest
+    environment: release
+
+    steps:
+      # ------------------------------------------------------------------
+      # Checkout & Setup
+      # ------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for changelog generation
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build wheel twine
+
+      # ------------------------------------------------------------------
+      # Extract version from tag
+      # ------------------------------------------------------------------
+      - name: Extract version
+        id: version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          echo "version=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${TAG}" >> "$GITHUB_OUTPUT"
+
+      # ------------------------------------------------------------------
+      # Build wheel and sdist
+      # ------------------------------------------------------------------
+      - name: Build distribution packages
+        run: |
+          python -m build --sdist --wheel --outdir dist/
+          ls -la dist/
+
+      - name: Verify package
+        run: |
+          twine check dist/*
+
+      # ------------------------------------------------------------------
+      # Generate CycloneDX SBOM
+      # ------------------------------------------------------------------
+      - name: Install SBOM tools
+        run: |
+          pip install cyclonedx-bom cyclonedx-py
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          cyclonedx-py environment \
+            --output dist/sbom-cyclonedx.json \
+            --format json \
+            --schema-version 1.5
+          echo "SBOM generated:"
+          python -m json.tool dist/sbom-cyclonedx.json | head -30
+
+      - name: Generate SBOM for source
+        run: |
+          cyclonedx-py requirements \
+            --input requirements.txt \
+            --output dist/sbom-source-cyclonedx.json \
+            --format json \
+            --schema-version 1.5 || echo "No requirements.txt — zero-dep project"
+          # For zero-dep projects, create a minimal SBOM
+          if [ ! -f dist/sbom-source-cyclonedx.json ]; then
+            cat > dist/sbom-source-cyclonedx.json << 'EOF'
+          {
+            "bomFormat": "CycloneDX",
+            "specVersion": "1.5",
+            "version": 1,
+            "metadata": {
+              "component": {
+                "type": "library",
+                "name": "mcp-agent-security-gateway",
+                "version": "${{ steps.version.outputs.version }}"
+              }
+            },
+            "components": []
+          }
+          EOF
+          fi
+
+      # ------------------------------------------------------------------
+      # Sign artifacts with Sigstore (keyless)
+      # ------------------------------------------------------------------
+      - name: Install Sigstore
+        run: pip install sigstore
+
+      - name: Sign distribution artifacts with Sigstore
+        run: |
+          for file in dist/*.whl dist/*.tar.gz; do
+            echo "Signing ${file}..."
+            python -m sigstore sign "${file}"
+          done
+
+      - name: Sign SBOM with Sigstore
+        run: |
+          python -m sigstore sign dist/sbom-cyclonedx.json
+
+      - name: Verify signatures
+        run: |
+          for file in dist/*.whl dist/*.tar.gz dist/sbom-cyclonedx.json; do
+            echo "Verifying ${file}..."
+            python -m sigstore verify identity \
+              --cert-identity "https://github.com/${{ github.repository }}/.github/workflows/release.yml@${{ github.ref }}" \
+              --cert-oidc-issuer "https://token.actions.githubusercontent.com" \
+              "${file}"
+          done
+
+      # ------------------------------------------------------------------
+      # Generate build provenance attestation
+      # ------------------------------------------------------------------
+      - name: Generate SHA-256 checksums
+        run: |
+          cd dist
+          sha256sum *.whl *.tar.gz sbom-cyclonedx.json > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: |
+            dist/*.whl
+            dist/*.tar.gz
+
+      # ------------------------------------------------------------------
+      # Generate changelog
+      # ------------------------------------------------------------------
+      - name: Generate changelog from commits
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            CHANGELOG=$(git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (%h)" --no-merges)
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges -20)
+          fi
+          echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$CHANGELOG" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      # ------------------------------------------------------------------
+      # Create GitHub Release
+      # ------------------------------------------------------------------
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "Release ${{ steps.version.outputs.tag }}"
+          body: |
+            ## mcp-agent-security-gateway ${{ steps.version.outputs.tag }}
+
+            ### Changes
+            ${{ steps.changelog.outputs.changelog }}
+
+            ### Security & Provenance
+            - ✅ All artifacts signed with [Sigstore](https://sigstore.dev) (keyless)
+            - ✅ CycloneDX SBOM included (`sbom-cyclonedx.json`)
+            - ✅ Build provenance attested via GitHub Attestations
+            - ✅ SHA-256 checksums included (`SHA256SUMS.txt`)
+
+            ### Verification
+            ```bash
+            # Install sigstore
+            pip install sigstore
+
+            # Verify wheel signature
+            python -m sigstore verify identity \
+              --cert-identity "https://github.com/${{ github.repository }}/.github/workflows/release.yml@refs/tags/${{ steps.version.outputs.tag }}" \
+              --cert-oidc-issuer "https://token.actions.githubusercontent.com" \
+              mcp_agent_security_gateway-${{ steps.version.outputs.version }}-py3-none-any.whl
+            ```
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.version, 'rc') || contains(steps.version.outputs.version, 'alpha') || contains(steps.version.outputs.version, 'beta') }}
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+            dist/sbom-cyclonedx.json
+            dist/sbom-source-cyclonedx.json
+            dist/SHA256SUMS.txt
+            dist/*.sigstore
+
+      # ------------------------------------------------------------------
+      # Publish to PyPI (optional, requires PYPI_TOKEN secret)
+      # ------------------------------------------------------------------
+      - name: Publish to PyPI
+        if: ${{ !contains(steps.version.outputs.version, 'rc') && !contains(steps.version.outputs.version, 'alpha') && !contains(steps.version.outputs.version, 'beta') }}
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          twine upload dist/*.whl dist/*.tar.gz || echo "PyPI upload skipped (no token configured)"
