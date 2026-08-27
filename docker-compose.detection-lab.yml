@@ -1,0 +1,105 @@
+# Detection Engineering Lab
+# docker-compose stack: MCP Gateway + Elasticsearch + Kibana + Filebeat
+#
+# This is a LAB ENVIRONMENT for practicing detection engineering.
+# Not production-hardened. No TLS, default credentials, single-node.
+#
+# Usage:
+#   docker compose -f docker-compose.detection-lab.yml up -d
+#   Open Kibana at http://localhost:5601
+#   Run attack simulations: python -m mcp_monitor.siem.attack_simulations
+#   View detections in Kibana > Security > Alerts
+#
+# Requires: Docker with at least 4GB RAM allocated
+
+services:
+  # MCP Security Gateway (generates security events)
+  mcp-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-gateway
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+    environment:
+      - MCP_API_KEY=lab-api-key-not-for-production
+      - MCP_ALLOWED_SERVERS=postmark,filesystem,processor
+      - MCP_DEMO_MODE=0
+      - MCP_LOG_LEVEL=INFO
+      - MCP_SIEM_ENABLED=true
+      - MCP_SIEM_OUTPUT=/var/log/mcp-gateway/events.ndjson
+    volumes:
+      - gateway-logs:/var/log/mcp-gateway
+    networks:
+      - detection-lab
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Elasticsearch (SIEM backend)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - cluster.name=detection-lab
+    ports:
+      - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    networks:
+      - detection-lab
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Kibana (visualization and detection rule management)
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.14.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - xpack.security.enabled=false
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - detection-lab
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  # Filebeat (ships gateway NDJSON logs to Elasticsearch)
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.14.0
+    container_name: filebeat
+    user: root
+    volumes:
+      - ./detection_lab/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - gateway-logs:/var/log/mcp-gateway:ro
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - detection-lab
+
+volumes:
+  es-data:
+    driver: local
+  gateway-logs:
+    driver: local
+
+networks:
+  detection-lab:
+    driver: bridge

@@ -1,0 +1,44 @@
+# Filebeat configuration for MCP Gateway Detection Lab
+# Ships NDJSON security events from the gateway to Elasticsearch
+
+filebeat.inputs:
+  - type: log
+    id: mcp-gateway-events
+    enabled: true
+    paths:
+      - /var/log/mcp-gateway/events.ndjson
+    json:
+      keys_under_root: true
+      overwrite_keys: true
+      add_error_key: true
+      expand_keys: true
+    fields:
+      event.module: mcp_security_gateway
+      event.dataset: mcp.security
+    fields_under_root: true
+
+processors:
+  - timestamp:
+      field: "@timestamp"
+      layouts:
+        - "2006-01-02T15:04:05.999999999Z07:00"
+      test:
+        - "2026-08-27T12:00:00.000000Z"
+  - drop_fields:
+      fields: ["agent", "ecs", "host", "input", "log"]
+      ignore_missing: true
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  index: "mcp-security-events-%{+yyyy.MM.dd}"
+
+setup:
+  template:
+    name: "mcp-security-events"
+    pattern: "mcp-security-events-*"
+  ilm:
+    enabled: false
+
+logging:
+  level: warning
+  to_files: false

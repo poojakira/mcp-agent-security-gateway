@@ -1,0 +1,136 @@
+# Elastic Security Detection Rules for MCP Agent Security Gateway
+# These rules are designed for Elastic Security / Kibana Detection Engine
+# Import via Kibana > Security > Rules > Import rules
+#
+# Lab environment: tested locally against docker-compose ELK stack
+# Not validated at production scale
+
+# Rule 1: Critical - Prompt injection blocked
+[[rule]]
+name = "MCP Gateway: Prompt Injection Blocked"
+description = "A prompt injection attempt was detected and blocked by the MCP security gateway. Indicates an attacker attempting to manipulate agent behavior through tool-call arguments."
+severity = "critical"
+risk_score = 85
+type = "query"
+index = ["mcp-security-events-*"]
+language = "kuery"
+query = 'event.action:"mcp.tool_call.block" and mcp.findings:*injection* and event.outcome:"failure"'
+tags = ["MCP Security", "Prompt Injection", "MITRE ATT&CK T1059"]
+threat = [
+    { framework = "MITRE ATT&CK", tactic = { id = "TA0002", name = "Execution" }, technique = [{ id = "T1059", name = "Command and Scripting Interpreter" }] }
+]
+
+[[rule]]
+name = "MCP Gateway: Data Exfiltration Attempt"
+description = "An MCP tool call was blocked due to exfiltration indicators: hidden recipients, oversized payloads, raw-IP destinations, or suspicious outbound URLs."
+severity = "high"
+risk_score = 75
+type = "query"
+index = ["mcp-security-events-*"]
+language = "kuery"
+query = 'mcp.layer_name:"network_egress" and event.outcome:"failure" and (mcp.findings:*exfiltration* or mcp.findings:*hidden_recipient* or mcp.findings:*raw_ip*)'
+tags = ["MCP Security", "Exfiltration", "MITRE ATT&CK T1567"]
+threat = [
+    { framework = "MITRE ATT&CK", tactic = { id = "TA0010", name = "Exfiltration" }, technique = [{ id = "T1567", name = "Exfiltration Over Web Service" }] }
+]
+
+[[rule]]
+name = "MCP Gateway: Shadow MCP Server Detected"
+description = "An agent attempted to communicate with an unregistered MCP server. This may indicate a tool-call redirection attack or compromised agent configuration."
+severity = "high"
+risk_score = 70
+type = "query"
+index = ["mcp-security-events-*"]
+language = "kuery"
+query = 'mcp.layer_name:"server_trust" and event.outcome:"failure" and mcp.findings:*unregistered*'
+tags = ["MCP Security", "Shadow Server", "MITRE ATT&CK T1199"]
+threat = [
+    { framework = "MITRE ATT&CK", tactic = { id = "TA0001", name = "Initial Access" }, technique = [{ id = "T1199", name = "Trusted Relationship" }] }
+]
+
+[[rule]]
+name = "MCP Gateway: PII Detected in Tool Arguments"
+description = "Sensitive data (SSN, credit card, API key, etc.) was detected in outbound tool-call arguments. May indicate data leakage through agent actions."
+severity = "high"
+risk_score = 65
+type = "query"
+index = ["mcp-security-events-*"]
+language = "kuery"
+query = 'mcp.findings:*pii* or mcp.findings:*sensitive_data* or mcp.findings:*credit_card* or mcp.findings:*ssn*'
+tags = ["MCP Security", "Data Leakage", "PII"]
+threat = [
+    { framework = "MITRE ATT&CK", tactic = { id = "TA0009", name = "Collection" }, technique = [{ id = "T1005", name = "Data from Local System" }] }
+]
+
+[[rule]]
+name = "MCP Gateway: Circuit Breaker Opened"
+description = "A circuit breaker transitioned to open state due to repeated failures. The gateway is now denying all requests on this path (fail-closed). Investigate the upstream failure."
+severity = "medium"
+risk_score = 50
+type = "query"
+index = ["mcp-security-events-*"]
+language = "kuery"
+query = 'event.action:"circuit_breaker.open"'
+tags = ["MCP Security", "Operational", "Availability"]
+
+[[rule]]
+name = "MCP Gateway: Rate Limit Exceeded"
+description = "A client exceeded the configured request rate limit. May indicate automated probing, brute-force attempts, or misconfigured client."
+severity = "medium"
+risk_score = 45
+type = "query"
+index = ["mcp-security-events-*"]
+language = "kuery"
+query = 'event.action:"rate_limit.exceeded"'
+tags = ["MCP Security", "Rate Limiting", "Availability"]
+
+[[rule]]
+name = "MCP Gateway: Process Spawn Attempt Blocked"
+description = "Tool-call arguments contained process-execution indicators (subprocess, os.system, cmd.exe, bash). The gateway blocked the request."
+severity = "critical"
+risk_score = 90
+type = "query"
+index = ["mcp-security-events-*"]
+language = "kuery"
+query = 'mcp.layer_name:"process_spawn" and event.outcome:"failure"'
+tags = ["MCP Security", "Execution", "MITRE ATT&CK T1059"]
+threat = [
+    { framework = "MITRE ATT&CK", tactic = { id = "TA0002", name = "Execution" }, technique = [{ id = "T1059", name = "Command and Scripting Interpreter" }] }
+]
+
+# Correlation-based rules (threshold/event_count type)
+
+[[rule]]
+name = "MCP Gateway: Multiple Blocks from Same Session (Probing)"
+description = "Three or more blocked requests from the same agent session within 60 seconds. Indicates systematic probing for gateway bypasses."
+severity = "high"
+risk_score = 80
+type = "threshold"
+index = ["mcp-security-events-*"]
+language = "kuery"
+query = 'event.outcome:"failure" and mcp.enforcement_action:("block" or "deny")'
+threshold_field = ["source.session_id"]
+threshold_value = 3
+tags = ["MCP Security", "Probing", "MITRE ATT&CK T1190"]
+threat = [
+    { framework = "MITRE ATT&CK", tactic = { id = "TA0043", name = "Reconnaissance" }, technique = [{ id = "T1595", name = "Active Scanning" }] }
+]
+
+[[rule]]
+name = "MCP Gateway: Recon then Exfiltration (Attack Chain)"
+description = "An agent session showed reconnaissance activity followed by an exfiltration attempt within 5 minutes. Matches the recon-access-exfil attack pattern."
+severity = "critical"
+risk_score = 95
+type = "eql"
+index = ["mcp-security-events-*"]
+language = "eql"
+query = '''
+sequence by source.session_id with maxspan=5m
+  [any where mcp.findings : "*list*" or mcp.findings : "*discover*"]
+  [any where mcp.findings : "*sensitive*" or mcp.findings : "*pii*"]
+  [any where mcp.layer_name == "network_egress" and event.outcome == "failure"]
+'''
+tags = ["MCP Security", "Attack Chain", "MITRE ATT&CK T1567"]
+threat = [
+    { framework = "MITRE ATT&CK", tactic = { id = "TA0010", name = "Exfiltration" }, technique = [{ id = "T1567", name = "Exfiltration Over Web Service" }] }
+]
