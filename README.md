@@ -1101,10 +1101,12 @@ the GitHub Actions pipeline completed successfully.
 ### Python 3.12
 
 ```text
-529 tests collected
-529 tests passed
-77.38% total coverage
+569 tests collected
+569 tests passed
+75% total coverage
 ```
+
+The count increased from the earlier 529/77.38% baseline after the detection engineering lab (`src/mcp_monitor/siem/`) added 21 tests. Total coverage moved to 75% because the Elasticsearch HTTP shipper and the manually-run attack-simulation CLI are not fully unit-tested (see `detection_lab/README.md`). Coverage by SIEM module: `ecs_formatter.py` 100%, `correlation.py` 93%, `shipper.py` 53%, `attack_simulations.py` 0% (exercised manually against a running gateway, not in unit tests).
 
 The CI pipeline also completed successfully for:
 
@@ -1323,8 +1325,8 @@ The repository's executable behavior is validated through its source code, autom
 | Tested at commit | `a8ba4c4b582ace77bbfb14fd64b561b0d460e214` |
 | Environment | Python 3.10 / 3.11 / 3.12, Ubuntu (CI), Windows (control-plane validation) |
 | Last verified | 2026-08-27 |
-| Tests | 529 |
-| Coverage | 77.38% |
+| Tests | 569 |
+| Coverage | 75% |
 
 ---
 
