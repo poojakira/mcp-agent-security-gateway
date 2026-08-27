@@ -85,6 +85,10 @@ services:
     image: docker.elastic.co/beats/filebeat:8.14.0
     container_name: filebeat
     user: root
+    # --strict.perms=false is required because bind-mounted config files
+    # appear world-writable on Windows/macOS Docker Desktop, which Filebeat
+    # otherwise rejects. Verified end-to-end on Docker Desktop 29.x.
+    command: ["filebeat", "-e", "--strict.perms=false"]
     volumes:
       - ./detection_lab/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - gateway-logs:/var/log/mcp-gateway:ro

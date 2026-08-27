@@ -30,13 +30,18 @@ processors:
 
 output.elasticsearch:
   hosts: ["http://elasticsearch:9200"]
-  index: "mcp-security-events-%{+yyyy.MM.dd}"
+  index: "mcp-security-events"
 
+# Lab configuration: disable Filebeat's index-template and ILM management.
+# Elasticsearch auto-creates the "mcp-security-events" data stream on first
+# write. This keeps the lab simple and avoids template-provisioning errors.
+# For a production deployment you would define an explicit index template
+# and ILM policy. Verified end-to-end on Docker Desktop 29.x (events queryable
+# via GET /mcp-security-events*/_count).
 setup:
-  template:
-    name: "mcp-security-events"
-    pattern: "mcp-security-events-*"
   ilm:
+    enabled: false
+  template:
     enabled: false
 
 logging:

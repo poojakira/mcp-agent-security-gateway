@@ -20,6 +20,7 @@
 10. [Production Deployment (Docker)](#10-production-deployment-docker)
 11. [Troubleshooting](#11-troubleshooting)
 12. [Maintenance](#12-maintenance)
+13. [Detection Engineering Lab (SIEM)](#13-detection-engineering-lab-siem)
 
 ---
 
@@ -706,3 +707,90 @@ python3 benchmark/tool_call_latency.py --iterations 200
 ## Architecture Notes
 
 > **IMPORTANT:** This is a prototype with 51% detection rate. It demonstrates the architecture for MCP security monitoring but is NOT production-hardened. For production use, evaluate detection accuracy against your threat model and supplement with additional controls.
+
+---
+
+## 13. Detection Engineering Lab (SIEM)
+
+The `src/mcp_monitor/siem/` module and `detection_lab/` directory provide a lab for practicing detection engineering (event normalization, correlation, detection-rule authoring, attack simulation). This is a lab environment, not a production SIEM. See [`detection_lab/README.md`](detection_lab/README.md) for the full walkthrough and scope limitations.
+
+### 13.1 Run the SIEM test suite
+
+No external services are required. From the repository root:
+
+**Windows (PowerShell):**
+```powershell
+py -m pytest tests/test_siem.py -v
+```
+
+**Linux / macOS (bash):**
+```bash
+pytest tests/test_siem.py -v
+```
+
+Expected: 21 passed. Covers ECS formatting, correlation rules, and log shipping.
+
+### 13.2 List attack simulation scenarios
+
+```bash
+python -m mcp_monitor.siem.attack_simulations --list
+```
+
+Expected: 6 scenarios (SIM-001 through SIM-006) with MITRE tactic and step counts.
+
+### 13.3 Run the correlation engine standalone
+
+The correlation engine has no external dependencies. This snippet fires the injection-then-privilege-escalation rule (COR-002):
+
+```bash
+python -c "from mcp_monitor.siem.correlation import CorrelationEngine, BUILTIN_RULES, SecurityEvent; import time; e = CorrelationEngine(); e.add_rules(BUILTIN_RULES); e.ingest(SecurityEvent(timestamp=time.time(), event_type='block', session_id='t', findings=['prompt_injection_detected'])); m = e.ingest(SecurityEvent(timestamp=time.time(), event_type='block', session_id='t', layer_name='process_spawn', findings=['subprocess_detected'])); print(f'matches: {len(m)}'); [print(f'  {x.rule_id}: {x.rule_name} ({x.severity})') for x in m]"
+```
+
+Expected: `matches: 1` followed by `COR-002: injection_then_privilege_escalation (critical)`.
+
+### 13.4 Run attack simulations against a running gateway
+
+The simulations submit tool calls to the control plane, so **the gateway must be running first** (see section 3). Without it, every step reports `connection_error`.
+
+```bash
+# Terminal 1: start the control plane
+python run_realtime.py
+
+# Terminal 2: run the simulations
+python -m mcp_monitor.siem.attack_simulations --scenario all
+```
+
+Exit code is 0 only if every scenario's steps matched their expected block/allow outcome.
+
+### 13.5 Full ELK detection stack (optional, Docker required)
+
+> **Verified end-to-end** on Docker Desktop 29.x (Windows, 8 GB allocated) on 2026-08-27: Elasticsearch reaches green, Filebeat ships ECS events, and events are queryable in Elasticsearch with 0 shipping errors. A full bring-up needs at least 4 GB of memory and a few minutes for Elasticsearch and Kibana to become healthy. Two Filebeat settings (`--strict.perms=false` and disabled template/ILM management) are already baked into the compose file and `detection_lab/filebeat.yml` for cross-platform reliability.
+
+```bash
+docker compose -f docker-compose.detection-lab.yml up -d
+
+# Wait for Elasticsearch to report green
+curl -s http://localhost:9200/_cluster/health
+
+# Generate events (requires the gateway service in the stack to be healthy)
+python -m mcp_monitor.siem.attack_simulations --scenario all
+
+# Confirm events were shipped to Elasticsearch
+curl -s "http://localhost:9200/mcp-security-events*/_count"
+
+# Open Kibana, import detection_rules/elastic_rules.toml, view Security > Alerts
+# http://localhost:5601
+
+# Tear down (removes volumes)
+docker compose -f docker-compose.detection-lab.yml down -v
+```
+
+### 13.6 Troubleshooting the lab
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| `ModuleNotFoundError: mcp_monitor.siem` | Package not installed from this checkout | `pip install -e ".[dev,server]"` from repo root |
+| Attack sim reports `connection_error` | Gateway not running | Start `python run_realtime.py` first (section 3) |
+| Elasticsearch never healthy | Insufficient memory | Allocate 4 GB+ to Docker; check `docker logs elasticsearch` |
+| No alerts in Kibana | Rules not imported or no events | Import `detection_rules/elastic_rules.toml`; confirm Filebeat is shipping |
+

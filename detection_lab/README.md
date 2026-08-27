@@ -173,6 +173,23 @@ Or use the Elastic Detection Rules API:
 # Or manually create rules matching the queries in elastic_rules.toml
 ```
 
+## Verification Status
+
+Verified on Docker Desktop 29.1.3 (Windows, 8 GB allocated to Docker) on 2026-08-27:
+
+- **SIEM unit tests**: 21/21 pass (`pytest tests/test_siem.py`)
+- **Correlation engine**: fires COR-002 on injection-then-escalation (standalone, no services)
+- **Attack simulation CLI**: `--list` works; against a stopped gateway it correctly reports `connection_error`
+- **Elasticsearch**: single-node stack reaches green status
+- **Filebeat end-to-end**: ECS events written by `FileShipper` are shipped to Elasticsearch and are queryable via `GET /mcp-security-events*/_count`, with all ECS fields (`event.action`, `mcp.enforcement_action`, `threat.technique.id`) preserved. Confirmed 0 Filebeat errors with the committed config.
+
+Two configuration fixes were required to make Filebeat work under Docker Desktop and were applied to this repo:
+
+1. `--strict.perms=false` on the Filebeat command. Bind-mounted config files appear world-writable on Windows/macOS, which Filebeat otherwise rejects.
+2. `setup.template.enabled: false` and `setup.ilm.enabled: false` in `filebeat.yml`. Without these, Filebeat 8.x tries to provision a data-stream template and fails with "no matching index template found". With them, Elasticsearch auto-creates the data stream on first write.
+
+**Not independently load-tested**: throughput limits, multi-node behavior, and Kibana alert-rule execution (as opposed to event ingestion) were not measured.
+
 ## Scope and Limitations
 
 This is a lab environment. Specific limitations:

@@ -1223,6 +1223,35 @@ CI results, synthetic workloads, and adversarial fixtures demonstrate reproducib
 
 ---
 
+# Detection Engineering Lab
+
+The `src/mcp_monitor/siem/` module and the `detection_lab/` directory provide a lab environment for practicing detection engineering against the gateway's security event stream. This is a lab, not a production SIEM deployment.
+
+Components:
+
+- **ECS formatter** (`siem/ecs_formatter.py`): transforms gateway security decisions into Elastic Common Schema (ECS 8.x) events with MITRE ATT&CK threat mapping.
+- **Correlation engine** (`siem/correlation.py`): in-memory, per-session sliding-window engine with 6 built-in rules that detect multi-event attack chains (for example, recon then sensitive-data access then exfiltration) that are not visible when events are examined individually.
+- **Log shippers** (`siem/shipper.py`): Elasticsearch bulk API, NDJSON file (for Filebeat pickup), and stdout backends.
+- **Attack simulations** (`siem/attack_simulations.py`): 6 Atomic Red Team style scenarios that generate detectable events against a running gateway.
+- **Detection rules** (`detection_rules/elastic_rules.toml`): 9 Elastic Security rules (KQL, EQL sequence, threshold) mapped to MITRE ATT&CK.
+- **Lab stack** (`docker-compose.detection-lab.yml`, `detection_lab/filebeat.yml`): Elasticsearch, Kibana, and Filebeat wired to the gateway.
+
+See [`detection_lab/README.md`](detection_lab/README.md) for the full walkthrough, correlation rule table, and scope limitations.
+
+Quick validation (no external services required):
+
+```bash
+# Run the SIEM test suite (21 tests)
+pytest tests/test_siem.py -v
+
+# List the attack simulation scenarios
+python -m mcp_monitor.siem.attack_simulations --list
+```
+
+The correlation engine and ECS formatter run without any external dependencies. The attack simulations require a running gateway (`python run_realtime.py`) because they submit tool calls to the control plane. The full ELK stack (`docker compose -f docker-compose.detection-lab.yml up -d`) requires Docker with at least 4 GB of memory available.
+
+---
+
 # Engineering Direction
 
 I am continuing to evolve this project around one core idea:
@@ -1259,10 +1288,13 @@ src/mcp_monitor/
 ├── layers/         # Composable security decision layers
 ├── advanced/       # Correlation, drift, manifests, canaries, invariants
 ├── defense10/      # Additional agent-security experiments
+├── siem/           # SIEM integration: ECS formatter, correlation engine, log shippers, attack simulations
 └── redteam/        # Adversarial evaluation components
 
 tests/
 deploy/k8s/
+detection_rules/    # Elastic Security detection rules (MITRE ATT&CK mapped)
+detection_lab/      # docker-compose ELK stack + Filebeat config
 benchmark/
 evidence/
 ```
@@ -1277,6 +1309,7 @@ I maintain supporting engineering documentation for operation, security review, 
 - [`SECURITY.md`](SECURITY.md) — security policy and vulnerability reporting
 - [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md) — security review and validation notes
 - [`THREAT_MODEL.md`](THREAT_MODEL.md) — threat model, adversaries, attack surfaces, and mitigations
+- [`detection_lab/README.md`](detection_lab/README.md) — detection engineering lab: SIEM integration, correlation rules, attack simulations
 - [`RESEARCH_REPORT.md`](RESEARCH_REPORT.md) — technical research and supporting analysis
 
 The repository's executable behavior is validated through its source code, automated tests, and CI pipeline.
