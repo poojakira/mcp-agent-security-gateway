@@ -829,6 +829,20 @@ I scope this fail-closed behavior specifically to the circuit-breaker fallback p
 
 ---
 
+## Failure Semantics
+
+| Failure Scenario | Expected Behavior | Scope | Tested? |
+|---|---|---|---|
+| Detector unavailable | Circuit breaker opens → DENY | HTTP inspection path | ✅ (circuit breaker tests) |
+| Request timeout | Configurable timeout → propagates to caller | All paths | ✅ |
+| Malformed JSON-RPC | Parse error returned to client | stdio proxy | ✅ |
+| Policy engine unavailable | Circuit breaker → DENY | HTTP inspection | ✅ |
+| Audit logger unavailable | Inspection continues, audit gap logged | All paths | Partial |
+| Missing API key config | Rejects protected requests (401) | HTTP inspection | ✅ |
+| Downstream MCP server crash | Connection error propagates | stdio proxy | ✅ |
+
+---
+
 # Shadow Mode
 
 The HTTP inspection service supports shadow mode:
@@ -1196,6 +1210,19 @@ CI results, synthetic workloads, and adversarial fixtures demonstrate reproducib
 
 ---
 
+# Known Limitations
+
+1. **Not globally fail-closed**: Fail-closed behavior is scoped specifically to the circuit-breaker fallback path. Other failure modes (e.g., audit logger unavailable) do not block requests.
+2. **Detection is heuristic**: Prompt-injection detection, PII detection, and exfiltration signals can produce false positives and false negatives. They are security signals, not guarantees.
+3. **Enforcement is external**: The gateway returns security decisions. The integrating runtime must honor and enforce those decisions before executing tool actions.
+4. **No OS-level hooking**: Process-event evaluation operates on supplied event objects. It does not independently install eBPF, auditd, ETW, or kernel-level hooks.
+5. **Egress policy is advisory**: The network egress policy engine returns ALLOW/DENY decisions but does not intercept packets or socket connections.
+6. **Audit gap under logger failure**: If the audit logger becomes unavailable, inspection continues but audit entries may be lost during the gap.
+7. **Single-node state**: Circuit breaker state, rate limiter counters, and audit chains are per-process. Distributed deployments require external coordination.
+8. **ML detector optional**: The ML-assisted prompt-injection path is optional and not active by default.
+
+---
+
 # Engineering Direction
 
 I am continuing to evolve this project around one core idea:
@@ -1249,9 +1276,22 @@ I maintain supporting engineering documentation for operation, security review, 
 - [`RUNBOOK.md`](RUNBOOK.md) — setup, operation, testing, and deployment guidance
 - [`SECURITY.md`](SECURITY.md) — security policy and vulnerability reporting
 - [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md) — security review and validation notes
+- [`THREAT_MODEL.md`](THREAT_MODEL.md) — threat model, adversaries, attack surfaces, and mitigations
 - [`RESEARCH_REPORT.md`](RESEARCH_REPORT.md) — technical research and supporting analysis
 
 The repository's executable behavior is validated through its source code, automated tests, and CI pipeline.
+
+---
+
+# Verification
+
+| Property | Value |
+|---|---|
+| Tested at commit | `a8ba4c4b582ace77bbfb14fd64b561b0d460e214` |
+| Environment | Python 3.10 / 3.11 / 3.12, Ubuntu (CI), Windows (control-plane validation) |
+| Last verified | 2026-08-27 |
+| Tests | 529 |
+| Coverage | 77.38% |
 
 ---
 
