@@ -74,22 +74,22 @@ When an incident is detected:
 - [ ] **Declare incident commander** (first responder until handed off)
 - [ ] **Check gateway health**:
   ```bash
-  # Health check endpoint
-  curl -s http://gateway:8080/health | jq .
+  # Health check endpoint (port 8080 production API)
+  curl -s http://gateway:8080/v1/health | jq .
 
-  # Check all 5 defense layers
-  curl -s http://gateway:8080/health/layers | jq .
+  # Readiness check
+  curl -s http://gateway:8080/v1/ready | jq .
 
-  # Recent error rate
-  curl -s http://gateway:8080/metrics | grep error_rate
+  # Runtime metrics (includes error counters)
+  curl -s http://gateway:8080/v1/metrics
   ```
 - [ ] **Check logs** for immediate root cause:
   ```bash
-  # Last 100 error-level logs
+  # Last 100 error-level logs (systemd)
   journalctl -u mcp-gateway --since "5 min ago" -p err
 
-  # Or containerized:
-  kubectl logs -l app=mcp-gateway --tail=100 --since=5m | grep -i error
+  # Or from the process stdout/log file:
+  tail -n 100 gateway-monitor.log | grep -i error
   ```
 - [ ] **Determine blast radius** — which agents/consumers are affected?
 - [ ] **Begin mitigation** (see failure modes below)
@@ -105,14 +105,15 @@ When an incident is detected:
 
 **Immediate Mitigation:**
 ```bash
-# Check memory usage
-kubectl top pods -l app=mcp-gateway
+# Check the process and its memory usage
+ps aux | grep -i mcp | grep -v grep
 
-# Force restart with increased memory
-kubectl rollout restart deployment/mcp-gateway
+# Restart the server process (the `mcp-gateway` entry point only starts the HTTP server)
+# Stop the current process (Ctrl+C in its terminal, or kill <PID>), then restart:
+mcp-gateway            # or: python -m mcp_monitor ... per your deployment
 
-# If OOM, scale vertically temporarily
-kubectl set resources deployment/mcp-gateway -c gateway --limits=memory=2Gi
+# If running under a supervisor (systemd/pm2/supervisord), restart the unit:
+systemctl restart mcp-gateway
 ```
 
 **Root Cause Investigation:**
@@ -128,13 +129,14 @@ kubectl set resources deployment/mcp-gateway -c gateway --limits=memory=2Gi
 
 **Immediate Mitigation:**
 ```bash
-# Enable fail-open temporarily (ONLY for availability-critical scenarios)
-# WARNING: This reduces security posture
-export MCP_GATEWAY_POLICY_TIMEOUT_ACTION=allow
-kubectl rollout restart deployment/mcp-gateway
+# Adjust detector/policy behavior via environment/config, then restart the server.
+# The gateway is configured through environment variables and config files, not CLI subcommands.
 
-# Or increase timeout
-export MCP_GATEWAY_POLICY_TIMEOUT_MS=10000
+# Example: relax a timeout in your environment/config, then restart the process:
+#   edit .env / your config source
+mcp-gateway            # restart the server so it re-reads config
+# or under a supervisor:
+systemctl restart mcp-gateway
 ```
 
 **Root Cause Investigation:**
@@ -150,15 +152,16 @@ export MCP_GATEWAY_POLICY_TIMEOUT_MS=10000
 
 **Immediate Mitigation:**
 ```bash
-# Identify which rule is triggering
-grep "BLOCKED" /var/log/mcp-gateway/audit.log | tail -50 | \
-  jq -r '.rule_id' | sort | uniq -c | sort -rn
+# Identify which rule/detector is triggering from the audit log
+grep "BLOCKED" gateway-monitor.log | tail -50 | \
+  jq -r '.detector' | sort | uniq -c | sort -rn
 
-# Temporarily disable overly aggressive rule
-mcp-gateway rules disable RULE_ID --duration 1h --reason "false-positive investigation"
-
-# Or switch to audit-only mode for that layer
-mcp-gateway layer set INPUT_VALIDATION --mode audit
+# Adjust detection thresholds / rule config in your config source,
+# then restart the server so it re-reads the config:
+#   edit config (see RUNBOOK section 9, "Tuning Detection Thresholds")
+mcp-gateway            # restart the server
+# or under a supervisor:
+systemctl restart mcp-gateway
 ```
 
 **Root Cause Investigation:**
@@ -174,17 +177,19 @@ mcp-gateway layer set INPUT_VALIDATION --mode audit
 
 **Immediate Mitigation:**
 ```bash
-# CRITICAL: Enable strict mode immediately
-mcp-gateway mode set STRICT --all-layers
+# 1. Preserve evidence: snapshot the current audit log and WAL data
+cp gateway-monitor.log "incident-$(date +%s).log"
+cp -r /var/lib/mcp-gateway/ "forensic-$(date +%s)/" 2>/dev/null || true
 
-# Block the specific bypass vector if known
-mcp-gateway rules add EMERGENCY_BLOCK --pattern "<detected pattern>" --action deny
+# 2. Tighten detection: edit your config/env to enable strict thresholds and
+#    add an emergency block pattern for the detected vector, then restart:
+#    edit config (see RUNBOOK section 9)
+mcp-gateway            # restart the server so it re-reads config
+# or under a supervisor:
+systemctl restart mcp-gateway
 
-# Rotate any potentially compromised credentials
-mcp-gateway credentials rotate --all
-
-# Capture forensic snapshot
-mcp-gateway forensic snapshot --output /tmp/incident-$(date +%s).tar.gz
+# 3. Rotate any potentially compromised credentials out-of-band
+#    (in your secrets manager / .env), then restart the server to pick them up.
 ```
 
 **Root Cause Investigation:**
@@ -201,16 +206,15 @@ mcp-gateway forensic snapshot --output /tmp/incident-$(date +%s).tar.gz
 
 **Immediate Mitigation:**
 ```bash
-# Validate current config
-mcp-gateway config validate
+# Restore config from a known-good source (e.g. git), then restart the server
+# so it re-reads the config. The gateway has no `config validate/reload` subcommand.
+git -C /path/to/config checkout main -- .    # or copy known-good config into place
+mcp-gateway            # restart the server
+# or under a supervisor:
+systemctl restart mcp-gateway
 
-# Force reload from known-good source
-mcp-gateway config reload --source git://main
-
-# Check for config differences across replicas
-for pod in $(kubectl get pods -l app=mcp-gateway -o name); do
-  kubectl exec $pod -- mcp-gateway config hash
-done
+# Verify replicas are consistent by comparing the deployed config files/hashes
+sha256sum /etc/mcp-gateway/config.* 2>/dev/null
 ```
 
 ---
@@ -221,15 +225,18 @@ done
 
 **Immediate Mitigation:**
 ```bash
-# Gateway should continue operating (zero runtime deps)
-# Verify local buffering is active
-mcp-gateway buffer status
+# The gateway core is stdlib-only and continues operating even if
+# logging/metrics backends are unreachable. Verify it is still serving:
+curl -s http://gateway:8080/v1/health | jq .
 
-# Check buffer isn't filling up
-du -sh /var/lib/mcp-gateway/buffer/
+# Check local audit/WAL storage isn't filling the disk
+du -sh /var/lib/mcp-gateway/ 2>/dev/null
+df -h
 
-# If buffer is full, flush to alternate sink
-mcp-gateway buffer flush --target file:///tmp/emergency-audit.jsonl
+# If local storage is full, archive/rotate the audit log out of the way,
+# then restart the server:
+mv gateway-monitor.log "gateway-monitor-$(date +%s).log"
+mcp-gateway            # restart the server
 ```
 
 ---
@@ -239,47 +246,38 @@ mcp-gateway buffer flush --target file:///tmp/emergency-audit.jsonl
 ### Application Rollback
 
 ```bash
-# 1. Identify last known-good version
-kubectl rollout history deployment/mcp-gateway
+# 1. Identify the last known-good version/commit
+git -C /path/to/mcp-agent-security-gateway log --oneline -10
 
-# 2. Rollback to previous revision
-kubectl rollout undo deployment/mcp-gateway
+# 2. Check out the previous known-good revision
+git -C /path/to/mcp-agent-security-gateway checkout <known-good-sha>
+pip install -e .          # reinstall the entry point from that revision
 
-# 3. Or rollback to specific revision
-kubectl rollout undo deployment/mcp-gateway --to-revision=<N>
-
-# 4. Verify rollback
-kubectl rollout status deployment/mcp-gateway
-curl -s http://gateway:8080/health | jq .version
+# 3. Restart the server and verify
+mcp-gateway               # or restart via your supervisor
+curl -s http://gateway:8080/v1/health | jq .
 ```
 
 ### Configuration Rollback
 
 ```bash
-# 1. List config history
-mcp-gateway config history --limit 10
+# 1. Restore the previous config from version control
+git -C /path/to/config log --oneline -10
+git -C /path/to/config checkout <COMMIT_SHA> -- .
 
-# 2. Restore specific version
-mcp-gateway config restore --version <COMMIT_SHA>
-
-# 3. Validate restored config
-mcp-gateway config validate
-
-# 4. Apply (hot-reload, no restart needed)
-mcp-gateway config apply
+# 2. Restart the server so it re-reads the restored config
+mcp-gateway               # or: systemctl restart mcp-gateway
 ```
 
-### Policy Rollback
+### Detection Rule / Policy Rollback
 
 ```bash
-# 1. List policy versions
-mcp-gateway policy versions
+# Detection rules live in config, not a runtime API. Roll them back via VCS:
+git -C /path/to/config checkout <known-good-sha> -- rules/   # adjust path
 
-# 2. Rollback to specific policy version
-mcp-gateway policy rollback --to <VERSION>
-
-# 3. Verify all 5 layers are active
-mcp-gateway layer status --all
+# Restart the server to apply, then verify readiness:
+mcp-gateway
+curl -s http://gateway:8080/v1/ready | jq .
 ```
 
 ### Emergency: Full System Rollback
@@ -287,14 +285,16 @@ mcp-gateway layer status --all
 For catastrophic failures affecting the entire deployment:
 
 ```bash
-# 1. Switch traffic to standby (if available)
-kubectl patch service mcp-gateway -p '{"spec":{"selector":{"version":"standby"}}}'
+# 1. Check out the last known-good revision of code + config together
+git checkout <known-good-sha>
+pip install -e .
 
-# 2. Rollback deployment, config, and policies atomically
-./scripts/emergency-rollback.sh --confirm
+# 2. Restart the server process
+mcp-gateway               # or restart via your supervisor
 
 # 3. Verify
-./scripts/smoke-test.sh --environment production
+curl -s http://gateway:8080/v1/health | jq .
+curl -s http://gateway:8080/v1/ready | jq .
 ```
 
 ### Rollback Decision Matrix

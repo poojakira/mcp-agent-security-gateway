@@ -582,9 +582,11 @@ curl http://localhost:8080/v1/health
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
+| `/v1/inspect_call` | POST | Submit a tool call for inspection |
+| `/v1/inspect_output` | POST | Submit a tool output for inspection |
 | `/v1/health` | GET | Health check |
-| `/v1/scan` | POST | Submit tool call for inspection |
-| `/v1/stats` | GET | Runtime statistics |
+| `/v1/ready` | GET | Readiness check |
+| `/v1/metrics` | GET | Runtime metrics |
 
 ### Load Testing
 
