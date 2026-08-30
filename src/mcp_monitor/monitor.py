@@ -18,7 +18,6 @@ from mcp_monitor.detectors.pii_detector import PIIDetector
 from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
 from mcp_monitor.detectors.shadow_server import ShadowServerDetector
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -157,9 +156,7 @@ class MCPSecurityMonitor:
         elif decision == Decision.INDETERMINATE:
             # Fail-closed in enforcement mode, fail-open in shadow mode
             if self.shadow_mode:
-                logger.warning(
-                    "Detector failure in shadow mode - allowing: %s", detector_errors
-                )
+                logger.warning("Detector failure in shadow mode - allowing: %s", detector_errors)
                 decision = Decision.ALLOW
                 allowed = True
             else:
@@ -247,9 +244,7 @@ class MCPSecurityMonitor:
                 allowed = True
         elif decision == Decision.INDETERMINATE:
             if self.shadow_mode:
-                logger.warning(
-                    "Detector failure in shadow mode - allowing: %s", detector_errors
-                )
+                logger.warning("Detector failure in shadow mode - allowing: %s", detector_errors)
                 decision = Decision.ALLOW
                 allowed = True
             else:

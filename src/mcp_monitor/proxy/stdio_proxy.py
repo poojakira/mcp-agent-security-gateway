@@ -384,7 +384,10 @@ class StdioMCPProxy:
                 request_id=request_id,
                 code=self.SECURITY_BLOCK_CODE,
                 message=f"Security: {result.reason}",
-                data={"patterns": result.matched_patterns, "detector_errors": result.detector_errors},
+                data={
+                    "patterns": result.matched_patterns,
+                    "detector_errors": result.detector_errors,
+                },
             ).rstrip(b"\n")
 
         if result.decision == Decision.INDETERMINATE:
@@ -399,7 +402,10 @@ class StdioMCPProxy:
                 request_id=request_id,
                 code=self.SECURITY_BLOCK_CODE,
                 message=f"Security: Detector failure - failing closed: {result.reason}",
-                data={"patterns": result.matched_patterns, "detector_errors": result.detector_errors},
+                data={
+                    "patterns": result.matched_patterns,
+                    "detector_errors": result.detector_errors,
+                },
             ).rstrip(b"\n")
 
         # Allow: forward to downstream and relay response

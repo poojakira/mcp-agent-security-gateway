@@ -8,19 +8,20 @@ and are properly logged.
 from __future__ import annotations
 
 import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mcp_monitor.monitor import MCPSecurityMonitor, Decision
 from mcp_monitor.audit.log import AuditLog
+from mcp_monitor.monitor import Decision, MCPSecurityMonitor
 from mcp_monitor.proxy.stdio_proxy import (
+    Decision as ProxyDecision,
+)
+from mcp_monitor.proxy.stdio_proxy import (
+    InspectionResult,
     StdioMCPProxy,
     inspect_message,
-    Decision as ProxyDecision,
-    InspectionResult,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -87,7 +88,9 @@ class TestEnforcementModeDetectorFailures:
         }
 
         with patch.object(
-            monitor.pii_detector, "scan_tool_call", side_effect=ValueError("Regex compilation failed")
+            monitor.pii_detector,
+            "scan_tool_call",
+            side_effect=ValueError("Regex compilation failed"),
         ):
             result = monitor.inspect_call(tool_call)
 
@@ -138,9 +141,15 @@ class TestEnforcementModeDetectorFailures:
         }
 
         with patch.object(monitor.injection_detector, "detect", side_effect=RuntimeError("Fail 1")):
-            with patch.object(monitor.pii_detector, "scan_tool_call", side_effect=RuntimeError("Fail 2")):
-                with patch.object(monitor.shadow_detector, "detect", side_effect=RuntimeError("Fail 3")):
-                    with patch.object(monitor.exfiltration_detector, "detect", side_effect=RuntimeError("Fail 4")):
+            with patch.object(
+                monitor.pii_detector, "scan_tool_call", side_effect=RuntimeError("Fail 2")
+            ):
+                with patch.object(
+                    monitor.shadow_detector, "detect", side_effect=RuntimeError("Fail 3")
+                ):
+                    with patch.object(
+                        monitor.exfiltration_detector, "detect", side_effect=RuntimeError("Fail 4")
+                    ):
                         result = monitor.inspect_call(tool_call)
 
         assert result["decision"] == Decision.BLOCK.value
@@ -165,7 +174,9 @@ class TestShadowModeDetectorFailures:
         }
 
         with patch.object(
-            shadow_monitor.injection_detector, "detect", side_effect=RuntimeError("ML model unavailable")
+            shadow_monitor.injection_detector,
+            "detect",
+            side_effect=RuntimeError("ML model unavailable"),
         ):
             result = shadow_monitor.inspect_call(tool_call)
 
@@ -181,10 +192,20 @@ class TestShadowModeDetectorFailures:
             "arguments": {"input": "benign content"},
         }
 
-        with patch.object(shadow_monitor.injection_detector, "detect", side_effect=RuntimeError("Fail 1")):
-            with patch.object(shadow_monitor.pii_detector, "scan_tool_call", side_effect=RuntimeError("Fail 2")):
-                with patch.object(shadow_monitor.shadow_detector, "detect", side_effect=RuntimeError("Fail 3")):
-                    with patch.object(shadow_monitor.exfiltration_detector, "detect", side_effect=RuntimeError("Fail 4")):
+        with patch.object(
+            shadow_monitor.injection_detector, "detect", side_effect=RuntimeError("Fail 1")
+        ):
+            with patch.object(
+                shadow_monitor.pii_detector, "scan_tool_call", side_effect=RuntimeError("Fail 2")
+            ):
+                with patch.object(
+                    shadow_monitor.shadow_detector, "detect", side_effect=RuntimeError("Fail 3")
+                ):
+                    with patch.object(
+                        shadow_monitor.exfiltration_detector,
+                        "detect",
+                        side_effect=RuntimeError("Fail 4"),
+                    ):
                         result = shadow_monitor.inspect_call(tool_call)
 
         assert result["decision"] == Decision.ALLOW.value
@@ -242,7 +263,9 @@ class TestStdioProxyDetectorFailures:
             "params": {"name": "test", "arguments": {"input": "test"}},
         }
 
-        with patch("mcp_monitor.proxy.stdio_proxy._detector.detect", side_effect=RuntimeError("Fail")):
+        with patch(
+            "mcp_monitor.proxy.stdio_proxy._detector.detect", side_effect=RuntimeError("Fail")
+        ):
             result = inspect_message(msg)
 
         assert result.decision == ProxyDecision.INDETERMINATE
@@ -251,7 +274,7 @@ class TestStdioProxyDetectorFailures:
     def test_inspect_message_detector_exception_blocks_in_proxy(self):
         """StdioMCPProxy blocks on detector exception (enforcement mode)."""
         from unittest.mock import AsyncMock
-        
+
         transport = MagicMock()
         transport.start = AsyncMock()
         transport.stop = AsyncMock()
@@ -375,9 +398,7 @@ class TestCompoundAttacks:
         }
 
         # Detector returns wrong type (not tuple)
-        with patch.object(
-            monitor.injection_detector, "detect", return_value="not a tuple"
-        ):
+        with patch.object(monitor.injection_detector, "detect", return_value="not a tuple"):
             result = monitor.inspect_call(tool_call)
 
         # Should handle gracefully and fail closed
@@ -392,9 +413,7 @@ class TestCompoundAttacks:
             "arguments": {"input": "test"},
         }
 
-        with patch.object(
-            monitor.injection_detector, "detect", return_value=None
-        ):
+        with patch.object(monitor.injection_detector, "detect", return_value=None):
             result = monitor.inspect_call(tool_call)
 
         assert result["decision"] == Decision.BLOCK.value
