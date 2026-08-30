@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 import urllib.error
@@ -58,10 +59,17 @@ def _make_request(gateway_url: str, tool_call: dict[str, Any], session_id: str) 
     payload = {**tool_call, "session_id": session_id}
     data = json.dumps(payload).encode("utf-8")
 
+    headers = {"Content-Type": "application/json"}
+    # Forward an API key if configured, so simulations work against a gateway
+    # that enforces authentication (e.g. the production server in the lab stack).
+    api_key = os.environ.get("MCP_API_KEY")
+    if api_key:
+        headers["X-API-Key"] = api_key
+
     req = urllib.request.Request(
         f"{gateway_url}/api/scan",
         data=data,
-        headers={"Content-Type": "application/json"},
+        headers=headers,
         method="POST",
     )
 
@@ -477,8 +485,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--gateway-url",
-        default="http://localhost:8000",
-        help="Gateway URL (default: http://localhost:8000)",
+        default=os.environ.get("MCP_GATEWAY_URL", "http://localhost:8000"),
+        help="Gateway URL (default: $MCP_GATEWAY_URL or http://localhost:8000)",
     )
     parser.add_argument("--list", action="store_true", help="List available scenarios")
     parser.add_argument("--json", action="store_true", help="Output results as JSON")

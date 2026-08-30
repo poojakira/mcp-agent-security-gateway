@@ -40,6 +40,15 @@ class Config:
             "1",
             "yes",
         )
+        # SIEM event export: when enabled, every inspected call is appended as a
+        # single-line JSON (NDJSON) record to siem_output, which Filebeat tails
+        # and ships to Elasticsearch in the detection-engineering lab.
+        self.siem_enabled: bool = os.environ.get("MCP_SIEM_ENABLED", "false").lower() in (
+            "true",
+            "1",
+            "yes",
+        )
+        self.siem_output: str | None = os.environ.get("MCP_SIEM_OUTPUT")
 
     @staticmethod
     def _parse_allowed_servers(value: str) -> set[str]:

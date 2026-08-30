@@ -275,12 +275,17 @@ class ProductionServer:
         if method == "GET" and path == "/v1/metrics":
             return self._handle_metrics()
 
-        if method == "POST" and path in {"/v1/inspect_call", "/v1/inspect_output"}:
+        # /api/scan is the detection-lab alias for /v1/inspect_call. It lets the
+        # attack-simulation harness (which POSTs tool calls to /api/scan) drive
+        # the production gateway so events flow to the SIEM pipeline. Auth is
+        # applied the same way as the /v1 endpoints.
+        if method == "POST" and path in {"/v1/inspect_call", "/v1/inspect_output", "/api/scan"}:
             auth_status = self._authorize(headers)
             if auth_status is not None:
                 return auth_status
-            self._record_wal_event(path, body, trace_id, span_id)
-            if path == "/v1/inspect_call":
+            effective_path = "/v1/inspect_call" if path == "/api/scan" else path
+            self._record_wal_event(effective_path, body, trace_id, span_id)
+            if effective_path == "/v1/inspect_call":
                 return self._handle_inspect_call(body, trace_id, span_id)
             return self._handle_inspect_output(body, trace_id, span_id)
         return 404, {"error": "Not found"}
@@ -393,7 +398,39 @@ class ProductionServer:
         result["trace_id"] = trace_id
         result["span_id"] = span_id
 
+        # Emit a SIEM event (NDJSON) for the detection-engineering lab pipeline.
+        self._write_siem_event(result, trace_id, span_id)
+
         return 200, result
+
+    def _write_siem_event(self, result: dict[str, Any], trace_id: str, span_id: str) -> None:
+        """Append a single NDJSON security event for Filebeat/Elasticsearch.
+
+        No-op unless MCP_SIEM_ENABLED is set and MCP_SIEM_OUTPUT points at a
+        writable path. Failures are swallowed: SIEM export must never break the
+        inspection request path.
+        """
+        if not self.config.siem_enabled or not self.config.siem_output:
+            return
+        try:
+            event = {
+                "@timestamp": time.strftime("%Y-%m-%dT%H:%M:%S.000000Z", time.gmtime()),
+                "event_type": "tool_call_inspected",
+                "allowed": result.get("allowed"),
+                "decision": "block" if result.get("allowed") is False else "allow",
+                "risk_score": result.get("risk_score"),
+                "findings": result.get("findings", []),
+                "detector": result.get("detector"),
+                "call_id": result.get("call_id"),
+                "trace_id": trace_id,
+                "span_id": span_id,
+            }
+            output_path = self.config.siem_output
+            os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+            with open(output_path, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps(event, default=str) + "\n")
+        except Exception as exc:  # noqa: BLE001 - SIEM export is best-effort
+            self._logger.error(f"SIEM event write failed: {exc}")
 
     def _handle_inspect_output(
         self, body: bytes, trace_id: str, span_id: str

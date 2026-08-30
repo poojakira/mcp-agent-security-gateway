@@ -27,6 +27,7 @@ services:
       - MCP_ALLOWED_SERVERS=postmark,filesystem,processor
       - MCP_DEMO_MODE=0
       - MCP_LOG_LEVEL=INFO
+      - MCP_LISTEN_HOST=0.0.0.0
       - MCP_SIEM_ENABLED=true
       - MCP_SIEM_OUTPUT=/var/log/mcp-gateway/events.ndjson
     volumes:

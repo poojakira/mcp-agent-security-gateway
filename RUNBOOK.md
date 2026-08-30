@@ -774,10 +774,16 @@ docker compose -f docker-compose.detection-lab.yml up -d
 # Wait for Elasticsearch to report green
 curl -s http://localhost:9200/_cluster/health
 
-# Generate events (requires the gateway service in the stack to be healthy)
-python -m mcp_monitor.siem.attack_simulations --scenario all
+# Generate events by running the attack simulations against the in-stack
+# gateway. Run them INSIDE the gateway container so they reach it over the
+# lab network and the gateway writes SIEM NDJSON that Filebeat ships to ES.
+# The gateway's /api/scan endpoint drives the same detectors as /v1/inspect_call.
+docker compose -f docker-compose.detection-lab.yml exec \
+  -e MCP_GATEWAY_URL=http://localhost:8080 \
+  -e MCP_API_KEY=lab-api-key-not-for-production \
+  mcp-gateway python -m mcp_monitor.siem.attack_simulations --scenario all
 
-# Confirm events were shipped to Elasticsearch
+# Confirm events were shipped to Elasticsearch (allow a few seconds for Filebeat)
 curl -s "http://localhost:9200/mcp-security-events*/_count"
 
 # Open Kibana, import detection_rules/elastic_rules.toml, view Security > Alerts

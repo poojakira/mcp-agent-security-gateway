@@ -31,6 +31,13 @@ COPY --from=builder /wheels /wheels
 RUN pip install --no-cache-dir /wheels/*.whl && rm -rf /wheels
 
 RUN groupadd -r mlsec && useradd -r -g mlsec mlsec
+
+# Create the SIEM log directory owned by the runtime user. When the
+# detection-lab compose mounts a named volume here, Docker initializes the
+# empty volume from this path and preserves the mlsec ownership, so the
+# non-root process can write events.ndjson for Filebeat to ship.
+RUN mkdir -p /var/log/mcp-gateway && chown -R mlsec:mlsec /var/log/mcp-gateway
+
 USER mlsec
 
 EXPOSE 8080
