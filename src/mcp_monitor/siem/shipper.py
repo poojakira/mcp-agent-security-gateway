@@ -230,7 +230,7 @@ class ElasticsearchShipper(LogShipper):
                         ).decode()
                         req.add_header("Authorization", f"Basic {credentials}")
 
-                    with urllib.request.urlopen(req, timeout=self.timeout_seconds) as resp:
+                    with urllib.request.urlopen(req, timeout=self.timeout_seconds) as resp:  # nosec B310
                         response_body = json.loads(resp.read())
                         if response_body.get("errors"):
                             logger.warning("Elasticsearch bulk response contained errors")
