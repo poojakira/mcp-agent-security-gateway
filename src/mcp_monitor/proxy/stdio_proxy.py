@@ -27,6 +27,7 @@ from enum import Enum
 from typing import Any, Protocol
 
 from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
+from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
 
 logger = logging.getLogger(__name__)
@@ -308,13 +309,22 @@ class StdioMCPProxy:
         *,
         transport: Transport | None = None,
         detector: PromptInjectionDetector | None = None,
+        rate_limiter: RateLimiter | None = None,
+        tool_calls_per_minute: int = 300,
     ) -> None:
         self.command = command
         self._transport = transport or SubprocessTransport(command)
         self._detector = detector or PromptInjectionDetector(enable_ml=False)
         self._adapter = MCPJSONRPCAdapter()
+        # Rate limit tool calls at the proxy layer (separate from production/ server rate limiter).
+        # Default: 300 tool calls/minute, burst up to 300. Reduces DoS risk and
+        # limits blast radius if an agent is compromised or stuck in a loop.
+        self._rate_limiter = rate_limiter or RateLimiter(
+            tokens_per_minute=tool_calls_per_minute,
+            burst_size=tool_calls_per_minute,
+        )
         self._running = False
-        self._stats = {"allowed": 0, "blocked": 0, "passthrough": 0}
+        self._stats = {"allowed": 0, "blocked": 0, "passthrough": 0, "rate_limited": 0}
 
     @property
     def stats(self) -> dict[str, int]:
@@ -367,6 +377,19 @@ class StdioMCPProxy:
             response = await self._transport.receive()
             self._stats["passthrough"] += 1
             return response
+
+        # Rate limit check — applied only to tool calls to limit blast radius
+        # of a compromised or looping agent.
+        if not self._rate_limiter.allow():
+            logger.warning("Rate limit exceeded for tool call id=%s", request_id)
+            self._stats["rate_limited"] += 1
+            return _build_error_response(
+                request_id=request_id,
+                code=-32029,  # JSON-RPC application-defined: Too Many Requests
+                message="Security: tool call rate limit exceeded. "
+                f"Remaining tokens: {self._rate_limiter.remaining_tokens():.1f}",
+                data={"retry_after_seconds": 60},
+            ).rstrip(b"\n")
 
         # Inspect the tool call
         result = self._inspect(parsed)

@@ -163,3 +163,51 @@ class TestScanToolCall:
         has_pii, findings = detector.scan_tool_call(call)
         assert has_pii
         assert "ip_address" in findings
+
+
+
+# --- IP regex precision tests (regression for false-positive fix) ---
+
+
+class TestIPAddressRegex:
+    """Verify the IP address regex matches valid IPs and rejects non-IPs.
+
+    The old regex r'\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b' would
+    match strings like '3.12.0.windows' partially or over-match version strings
+    like '256.0.0.1'. The tightened regex enforces valid octet ranges (0-255)
+    and rejects octets above 255 or non-numeric final components.
+    """
+
+    def test_valid_private_ip(self, detector):
+        result = detector.detect("192.168.0.1")
+        assert "ip_address" in result
+
+    def test_valid_loopback(self, detector):
+        result = detector.detect("127.0.0.1")
+        assert "ip_address" in result
+
+    def test_valid_public_ip(self, detector):
+        result = detector.detect("8.8.8.8")
+        assert "ip_address" in result
+
+    def test_valid_max_octet(self, detector):
+        result = detector.detect("255.255.255.0")
+        assert "ip_address" in result
+
+    def test_invalid_octet_256_rejected(self, detector):
+        result = detector.detect("256.0.0.1")
+        assert "ip_address" not in result
+
+    def test_invalid_octet_999_rejected(self, detector):
+        result = detector.detect("999.999.999.999")
+        assert "ip_address" not in result
+
+    def test_python_version_string_not_matched(self, detector):
+        # "3.12.0" is only 3 parts — must NOT match as IP
+        result = detector.detect("python 3.12.0")
+        assert "ip_address" not in result
+
+    def test_dotted_windows_platform_not_matched(self, detector):
+        # "3.12.0.windows" — last part is not numeric, must not match
+        result = detector.detect("Python 3.12.0.windows on Windows")
+        assert "ip_address" not in result

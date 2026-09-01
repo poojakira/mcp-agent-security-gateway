@@ -16,7 +16,12 @@ PII_PATTERNS: dict[str, re.Pattern[str]] = {
     "ssn": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
     "credit_card": re.compile(r"\b\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b"),
     "phone_us": re.compile(r"\b\d{3}[-.]?\d{3}[-.]?\d{4}\b"),
-    "ip_address": re.compile(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b"),
+    # Matches valid IPv4 octets (0-255) only; avoids false positives on version
+    # strings like "3.12.0" (only 3 parts) or "3.12.0.windows" (non-numeric last).
+    "ip_address": re.compile(
+        r"\b(?:(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)\.){3}"
+        r"(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)\b"
+    ),
     "date_of_birth": re.compile(r"\b(0[1-9]|1[0-2])/(0[1-9]|[12]\d|3[01])/(19|20)\d{2}\b"),
     "passport": re.compile(r"\b[A-Z]{1,2}\d{6,9}\b"),
     "aws_key": re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
