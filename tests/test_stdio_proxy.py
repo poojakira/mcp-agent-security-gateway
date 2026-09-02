@@ -382,7 +382,12 @@ class TestStdioMCPProxy:
             msg_init = make_initialize(request_id=2)
             await proxy.handle_message(msg_init)
 
-            assert proxy.stats == {"blocked": 1, "allowed": 1, "passthrough": 1}
+            # Check the meaningful counters as a subset so the assertion stays
+            # robust if additional counters (e.g. rate_limited) are added.
+            assert proxy.stats["blocked"] == 1
+            assert proxy.stats["allowed"] == 1
+            assert proxy.stats["passthrough"] == 1
+            assert proxy.stats.get("rate_limited", 0) == 0
 
             await proxy.stop()
 
