@@ -1,14 +1,24 @@
 #!/usr/bin/env python3
 """Run the MCP Security Gateway Monitor dashboard.
 
-Sets up the 5-layer defense system, runs the full red-team attack catalog,
-prints a terminal report, generates an HTML dashboard, and opens it in
-the default browser.
+Wires the detector-backed Layer-2 inspector into the 5-layer defense, replays
+the bundled red-team attack catalog, prints a terminal report, generates an
+HTML dashboard, and opens it in the default browser.
+
+NOTE ON THE DETECTION NUMBER
+----------------------------
+The percentage printed here is a **regression self-test against the bundled
+catalog** (``mcp_monitor/redteam/payloads.py``) shipped in this repo. It proves
+the five layers are wired correctly and that every catalogued technique is
+caught end-to-end. It is *not* a real-world detection rate against novel,
+unseen attacks. Treat it as a build gate, not a benchmark.
 """
 
 import os
+import tempfile
 import webbrowser
 
+from mcp_monitor.audit.log import AuditLog
 from mcp_monitor.dashboard import HTMLReportGenerator, TerminalDashboard
 from mcp_monitor.layers import (
     FiveLayerDefense,
@@ -19,12 +29,20 @@ from mcp_monitor.layers import (
 )
 from mcp_monitor.layers.egress import EgressRule
 from mcp_monitor.layers.kernel import ServerPolicy
+from mcp_monitor.monitor import MCPSecurityMonitor
 from mcp_monitor.redteam import AttackSimulator
 
 
 def main() -> None:
-    # --- Layer 2: Inline Proxy Gateway ---
-    proxy = InlineProxyGateway(block_threshold=50, quarantine_threshold=30)
+    # --- Layer 1/2 inspector: the real detector suite (prompt-injection, PII,
+    # shadow-server, exfiltration) backing the inline proxy. Without this the
+    # proxy has no content intelligence, which is the configuration that made
+    # earlier demo runs under-report. ---
+    audit = AuditLog(os.path.join(tempfile.gettempdir(), "mcp_dashboard_selftest_audit.log"))
+    inspector = MCPSecurityMonitor(allowed_servers={"mcp-server"}, audit_log=audit)
+
+    # --- Layer 2: Inline Proxy Gateway (detector-backed) ---
+    proxy = InlineProxyGateway(inspector=inspector, block_threshold=50, quarantine_threshold=30)
 
     # --- Layer 3: Kernel Monitor with a default server policy ---
     kernel = KernelMonitor()
@@ -78,7 +96,9 @@ def main() -> None:
     html_gen = HTMLReportGenerator()
     html_content = html_gen.generate(report)
 
-    output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "security_dashboard.html")
+    output_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "security_dashboard.html"
+    )
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html_content)
 

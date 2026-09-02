@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import functools
 import json
+import urllib.error
 import urllib.request
 from collections.abc import Callable
 from typing import Any
@@ -48,23 +49,44 @@ class ToolBlocked(Exception):
 
 
 class GatewayClient:
-    """Thin HTTP client for the MCP security gateway's /api/scan endpoint."""
+    """Thin HTTP client for the MCP security gateway's /api/scan endpoint.
 
-    def __init__(self, base_url: str = "http://localhost:8000", timeout: float = 5.0) -> None:
+    Availability policy
+    -------------------
+    ``fail_closed`` selects what happens when the gateway is unreachable (network
+    error, timeout, non-2xx). The default is **fail-open** so that a monitoring
+    deployment never takes the agent down when the gateway blips. Security-
+    critical deployments should pass ``fail_closed=True`` so an unreachable
+    gateway causes tool calls to be *blocked* rather than silently allowed.
+    """
+
+    def __init__(
+        self,
+        base_url: str = "http://localhost:8000",
+        timeout: float = 5.0,
+        *,
+        fail_closed: bool = False,
+    ) -> None:
         normalized_url = base_url.rstrip("/")
         parsed = urlparse(normalized_url)
         if parsed.scheme not in {"http", "https"} or not parsed.netloc:
             raise ValueError("GatewayClient base_url must be an absolute HTTP or HTTPS endpoint")
         self.base_url = normalized_url
         self.timeout = timeout
+        self.fail_closed = fail_closed
 
     def scan(self, tool_call: dict[str, Any]) -> dict[str, Any]:
         """POST a tool call to the gateway and return the verdict dict.
 
         The gateway records the event and streams it to the live dashboard.
-        On any transport error the call is fail-open (allowed) so the gateway
-        being down never breaks the agent; flip ``fail_open=False`` in your own
-        wrapper if you require fail-closed behavior.
+
+        Availability behaviour on transport error is governed by ``fail_closed``
+        (set at construction):
+
+        - ``fail_closed=False`` (default): return an allowing verdict so the
+          gateway being down never breaks the agent (fail-open).
+        - ``fail_closed=True``: return a blocking verdict so an unreachable
+          gateway causes the call to be blocked (fail-closed).
         """
         data = json.dumps(tool_call).encode("utf-8")
         req = urllib.request.Request(
@@ -73,9 +95,22 @@ class GatewayClient:
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        # base_url is validated in __init__ to be an absolute HTTP(S) URL.
-        with urllib.request.urlopen(req, timeout=self.timeout) as resp:  # nosec B310
-            return json.loads(resp.read().decode("utf-8"))
+        try:
+            # base_url is validated in __init__ to be an absolute HTTP(S) URL.
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:  # nosec B310
+                return json.loads(resp.read().decode("utf-8"))
+        except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
+            # Transport-level failure: apply the configured availability policy.
+            return {
+                "call_id": None,
+                "allowed": not self.fail_closed,
+                "blocked_by_layer": None if not self.fail_closed else 0,
+                "risk_score": 0,
+                "enforcement_action": "allow" if not self.fail_closed else "block",
+                "layer_results": [],
+                "transport_error": str(exc),
+                "fail_closed": self.fail_closed,
+            }
 
     def guard(self, fn: Callable[..., Any]) -> Callable[..., Any]:
         """Decorator: scan the tool call before running ``fn``.

@@ -77,9 +77,7 @@ def run_benchmark(
         sys.exit(2)
 
     # Build a real monitor instance with a temp audit log
-    _audit_file = tempfile.NamedTemporaryFile(
-        suffix=".jsonl", delete=False, mode="w"
-    )
+    _audit_file = tempfile.NamedTemporaryFile(suffix=".jsonl", delete=False, mode="w")
     _audit_file.close()
     monitor = MCPSecurityMonitor(
         allowed_servers={"trusted-server"},
@@ -202,8 +200,7 @@ def main() -> None:
     MIN_THROUGHPUT_CALLS_PER_SEC = args.threshold_throughput
 
     print(
-        f"Running benchmark: {args.iterations} iterations, "
-        f"{args.warmup} warmup...",
+        f"Running benchmark: {args.iterations} iterations, " f"{args.warmup} warmup...",
         file=sys.stderr,
     )
 

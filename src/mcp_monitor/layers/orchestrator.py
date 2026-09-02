@@ -13,15 +13,23 @@ from mcp_monitor.layers.proxy import InlineProxyGateway, ProxyAction
 from mcp_monitor.layers.semantic import SemanticIntentAnalyzer
 
 
-def _flatten(obj: Any) -> list[Any]:
-    """Recursively collect all scalar values from a nested dict/list."""
+def _flatten(obj: Any, _depth: int = 0, _max_depth: int = 64) -> list[Any]:
+    """Recursively collect all scalar values from a nested dict/list.
+
+    Depth-bounded so a maliciously nested tool-call argument cannot exhaust the
+    stack. Values below the depth limit are summarized as a marker string so the
+    signal (that deep nesting exists) still reaches the detectors.
+    """
     out: list[Any] = []
+    if _depth >= _max_depth:
+        out.append("__max_depth_exceeded__")
+        return out
     if isinstance(obj, dict):
         for v in obj.values():
-            out.extend(_flatten(v))
+            out.extend(_flatten(v, _depth + 1, _max_depth))
     elif isinstance(obj, list | tuple):
         for v in obj:
-            out.extend(_flatten(v))
+            out.extend(_flatten(v, _depth + 1, _max_depth))
     else:
         out.append(obj)
     return out

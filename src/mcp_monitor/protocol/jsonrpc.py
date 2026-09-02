@@ -86,6 +86,39 @@ class MCPJSONRPCAdapter:
     # Methods that carry tool call payloads we should inspect
     TOOL_CALL_METHODS: set[str] = {"tools/call"}
 
+    # Fail-closed resource limits. A gateway sits in the request path, so an
+    # unbounded ``json.loads`` on attacker-controlled input is a denial-of-service
+    # vector (memory blow-up) and a stack-exhaustion vector (deeply nested JSON).
+    # These defaults are generous for legitimate MCP traffic but reject abuse.
+    DEFAULT_MAX_MESSAGE_BYTES: int = 1_048_576  # 1 MiB of raw wire bytes
+    DEFAULT_MAX_DEPTH: int = 64  # nested container depth
+
+    def __init__(
+        self,
+        *,
+        max_message_bytes: int | None = None,
+        max_depth: int | None = None,
+    ) -> None:
+        """Create an adapter with fail-closed resource limits.
+
+        Parameters
+        ----------
+        max_message_bytes:
+            Maximum size of a raw ``str``/``bytes`` message. Larger inputs are
+            rejected with a ``-32600`` error *before* ``json.loads`` runs, so a
+            malicious peer cannot force an unbounded allocation. Defaults to
+            :data:`DEFAULT_MAX_MESSAGE_BYTES`. ``None`` uses the default; pass a
+            large value explicitly to opt out.
+        max_depth:
+            Maximum nesting depth of JSON containers, checked after parsing to
+            reject stack-exhaustion "JSON bombs". Defaults to
+            :data:`DEFAULT_MAX_DEPTH`.
+        """
+        self.max_message_bytes = (
+            self.DEFAULT_MAX_MESSAGE_BYTES if max_message_bytes is None else max_message_bytes
+        )
+        self.max_depth = self.DEFAULT_MAX_DEPTH if max_depth is None else max_depth
+
     # All known MCP methods
     KNOWN_METHODS: set[str] = {
         "tools/call",
@@ -127,12 +160,26 @@ class MCPJSONRPCAdapter:
         """
         # Parse JSON if needed
         if isinstance(raw, str | bytes):
+            # Enforce the byte budget *before* json.loads to avoid a memory
+            # blow-up on attacker-controlled input. For str we measure UTF-8
+            # bytes so the limit is transport-accurate.
+            raw_bytes = raw.encode("utf-8") if isinstance(raw, str) else raw
+            if len(raw_bytes) > self.max_message_bytes:
+                raise JSONRPCError(
+                    f"Message size {len(raw_bytes)} bytes exceeds limit "
+                    f"{self.max_message_bytes} bytes",
+                    code=-32600,
+                )
             try:
                 data = json.loads(raw)
             except (json.JSONDecodeError, ValueError) as e:
                 raise JSONRPCError(f"Invalid JSON: {e}", code=-32700) from e
         else:
             data = raw
+
+        # Reject deeply nested "JSON bombs" that would exhaust the stack in any
+        # recursive walk of the payload (detectors, flatten, serialization).
+        self._check_depth(data)
 
         # Handle batch requests (array of messages)
         if isinstance(data, list):
@@ -169,6 +216,31 @@ class MCPJSONRPCAdapter:
     # ------------------------------------------------------------------
     # Internal parsing
     # ------------------------------------------------------------------
+
+    def _check_depth(self, data: Any) -> None:
+        """Reject payloads nested deeper than ``max_depth``.
+
+        Uses an explicit work stack rather than recursion so that the guard
+        itself cannot be made to overflow by the very input it is protecting
+        against. Only container types (dict/list) contribute to depth.
+        """
+        # Each stack item is (node, depth_of_node).
+        stack: list[tuple[Any, int]] = [(data, 1)]
+        while stack:
+            node, depth = stack.pop()
+            if depth > self.max_depth:
+                raise JSONRPCError(
+                    f"Message nesting depth exceeds limit {self.max_depth}",
+                    code=-32600,
+                )
+            if isinstance(node, dict):
+                for v in node.values():
+                    if isinstance(v, dict | list):
+                        stack.append((v, depth + 1))
+            elif isinstance(node, list):
+                for v in node:
+                    if isinstance(v, dict | list):
+                        stack.append((v, depth + 1))
 
     def _parse_batch(self, messages: list) -> list[ParsedToolCall]:
         """Parse a JSON-RPC batch (array of messages)."""
