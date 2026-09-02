@@ -6,6 +6,7 @@ __pycache__/
 *.pkl
 
 .venv/
+.venv-audit/
 venv/
 .pytest_cache/
 __pycache__/

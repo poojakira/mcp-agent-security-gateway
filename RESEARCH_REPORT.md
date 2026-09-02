@@ -282,10 +282,13 @@ every email sent through the server.
    an embedding model (like MCP-Guard's E5-based model at 96% accuracy). Ours
    is easily evaded by any synonym not in our list.
 
-4. **The 94.1% detection rate is against its own test suite.** This number
-   means nothing against a real adversary who reads our source code and designs
+4. **The catalog detection rate is a self-test, not a real-world detection
+   rate.** The reproducible figure from `run_dashboard.py` is ~51% blocked on
+   its own bundled catalog (19 of 37 attacks), and even that number means
+   nothing against a real adversary who reads our source code and designs
    payloads to evade our specific patterns. A determined attacker with access
-   to our regex list bypasses us trivially.
+   to our regex list bypasses us trivially. Against novel or adaptive attacks,
+   real efficacy is much lower than the self-test figure.
 
 5. **Manifest signing has the "who signs first?" problem.** If the attacker
    IS the original publisher (as in the Postmark case), they sign their own

@@ -727,7 +727,7 @@ python3 benchmark/tool_call_latency.py --iterations 200
 
 ## Architecture Notes
 
-> **IMPORTANT:** This is a prototype with 51% detection rate. It demonstrates the architecture for MCP security monitoring but is NOT production-hardened. For production use, evaluate detection accuracy against your threat model and supplement with additional controls.
+> **IMPORTANT:** This is a prototype. Its reproducible self-test score is ~51% blocked on its own bundled red-team catalog (19 of 37 attacks, via `run_dashboard.py`). That is a self-test against known payloads, NOT a real-world detection rate — against novel or adaptive attacks real efficacy is much lower. It demonstrates the architecture for MCP security monitoring but is NOT production-hardened. For production use, evaluate detection accuracy against your own threat model and supplement with additional controls.
 
 ---
 

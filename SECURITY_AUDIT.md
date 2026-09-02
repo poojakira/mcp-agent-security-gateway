@@ -45,8 +45,9 @@ and renders the results as a dashboard. The HTML output and terminal report disp
 layer statistics, and timing metrics that are entirely derived from the simulator, not from monitoring
 actual MCP traffic.
 
-The README's "Honest status" section does mention the ~51% detection rate is "on the bundled
-simulator", but there is no prominent notice at the top of the README or in the dashboard output
+The README's "Honest status" section does mention the ~51% detection rate (19 of 37 attacks on the
+bundled red-team catalog) is a self-test "on the bundled simulator", but there is no prominent notice
+at the top of the README or in the dashboard output
 itself warning users that the numbers they see are generated/simulated.
 
 **Fix applied:** SIMULATED_DATA notice added to the top of README.md.
