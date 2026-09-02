@@ -283,12 +283,15 @@ every email sent through the server.
    is easily evaded by any synonym not in our list.
 
 4. **The catalog detection rate is a self-test, not a real-world detection
-   rate.** The reproducible figure from `run_dashboard.py` is ~51% blocked on
-   its own bundled catalog (19 of 37 attacks), and even that number means
-   nothing against a real adversary who reads our source code and designs
-   payloads to evade our specific patterns. A determined attacker with access
-   to our regex list bypasses us trivially. Against novel or adaptive attacks,
-   real efficacy is much lower than the self-test figure.
+   rate.** After hardening the argument-inspection path, the reproducible figure
+   from `run_dashboard.py` is now 37 of 37 blocked (100%) on its own bundled
+   catalog — but that number still means nothing against a real adversary who
+   reads our source code and designs payloads to evade our specific patterns.
+   The catalog is a fixed set of known payloads the rules were written for; a
+   determined attacker with access to our regex list bypasses us trivially.
+   Against novel or adaptive attacks, real efficacy is materially lower and
+   unmeasured. Treat the 100% catalog score as a regression signal, not a
+   security guarantee.
 
 5. **Manifest signing has the "who signs first?" problem.** If the attacker
    IS the original publisher (as in the Postmark case), they sign their own

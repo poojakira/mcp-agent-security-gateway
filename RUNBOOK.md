@@ -727,7 +727,7 @@ python3 benchmark/tool_call_latency.py --iterations 200
 
 ## Architecture Notes
 
-> **IMPORTANT:** This is a prototype. Its reproducible self-test score is ~51% blocked on its own bundled red-team catalog (19 of 37 attacks, via `run_dashboard.py`). That is a self-test against known payloads, NOT a real-world detection rate — against novel or adaptive attacks real efficacy is much lower. It demonstrates the architecture for MCP security monitoring but is NOT production-hardened. For production use, evaluate detection accuracy against your own threat model and supplement with additional controls.
+> **IMPORTANT — self-test score, not a real-world detection rate.** After hardening the argument-inspection path (recursive flattening of nested tool-call arguments so payloads hidden in nested structures reach the detectors), the reproducible score from `run_dashboard.py` is **37 of 37 blocked (100%) on the bundled red-team catalog**. This is a self-test against a fixed set of KNOWN payloads the rules were written for — it is NOT a real-world detection rate. Against novel or adaptive attacks, real efficacy is materially lower and unmeasured. This project demonstrates a working multi-layer MCP inspection architecture with real error handling, audit signing, and rate limiting; treat the catalog score as a regression signal, not a security guarantee. For production use, evaluate detection accuracy against your own threat model and supplement with additional controls.
 
 ---
 

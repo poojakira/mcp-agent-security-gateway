@@ -1101,12 +1101,11 @@ the local test run and GitHub Actions pipeline validate the suite.
 ### Python 3.12
 
 ```text
-569 tests collected
-569 tests passed
-75% total coverage
+622 tests collected
+622 tests passed
 ```
 
-The count increased from the earlier 529/77.38% baseline after the detection engineering lab (`src/mcp_monitor/siem/`) added 21 tests. Total coverage moved to 75% because the Elasticsearch HTTP shipper and the manually-run attack-simulation CLI are not fully unit-tested (see `detection_lab/README.md`). Coverage by SIEM module: `ecs_formatter.py` 100%, `correlation.py` 93%, `shipper.py` 53%, `attack_simulations.py` 0% (exercised manually against a running gateway, not in unit tests).
+The count increased from the earlier 595 baseline after adding 27 protocol/transport hardening tests (`tests/test_protocol_hardening.py` plus additions to `tests/test_client.py`) covering malformed/oversized/deeply-nested JSON-RPC inputs, unicode edge cases, and fail-closed client behaviour. Coverage is measured and gated in CI; the Elasticsearch HTTP shipper and the manually-run attack-simulation CLI are exercised in the detection lab rather than unit tests (see `detection_lab/README.md`).
 
 The CI pipeline also completed successfully for:
 
