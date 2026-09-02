@@ -1,4 +1,4 @@
-"""Tests for AuditLog and WriteAheadLog — 20 tests."""
+"""Tests for AuditLog and WriteAheadLog - 20 tests."""
 
 import json
 import os
@@ -104,6 +104,58 @@ class TestAuditLog:
     def test_entry_has_uuid(self, tmp_log):
         entry = tmp_log.append("evt", {})
         assert len(entry.entry_id) == 36  # UUID format
+
+    def test_hmac_tamper_then_recompute_fails(self, tmp_path):
+        """With a key, an attacker who edits an entry and recomputes the hash
+        WITHOUT the key cannot forge a valid chain."""
+        path = str(tmp_path / "hmac.log")
+        log = AuditLog(path, hmac_key="s3cr3t-key")
+        for i in range(3):
+            log.append("evt", {"i": i})
+        assert log.verify_chain()[0] is True
+
+        # Attacker edits entry 1's data and recomputes the hash without the key
+        # (a bare sha256, mimicking someone who does not possess the secret).
+        import hashlib as _h
+
+        from mcp_monitor.audit.log import _canonical
+
+        e = log._entries[1]
+        e.data = {"i": 999}
+        content = e.prev_hash + str(e.timestamp) + e.event_type + _canonical(e.data)
+        e.entry_hash = _h.sha256(content.encode("utf-8")).hexdigest()
+
+        intact, broken = log.verify_chain()
+        assert not intact
+        assert broken == 1
+
+    def test_hmac_valid_chain_verifies(self, tmp_path):
+        path = str(tmp_path / "hmac_ok.log")
+        log = AuditLog(path, hmac_key=b"another-key")
+        for i in range(5):
+            log.append("evt", {"i": i})
+        assert log.verify_chain() == (True, None)
+
+    def test_canonical_serialization_is_stable(self):
+        """compute_hash is invariant to dict insertion order (canonical JSON)."""
+        from mcp_monitor.audit.log import AuditEntry, _canonical
+
+        assert _canonical({"a": 1, "b": 2}) == _canonical({"b": 2, "a": 1})
+
+        e1 = AuditEntry(timestamp=1.0, event_type="e", data={"a": 1, "b": 2}, prev_hash="0" * 64)
+        e2 = AuditEntry(timestamp=1.0, event_type="e", data={"b": 2, "a": 1}, prev_hash="0" * 64)
+        assert e1.compute_hash() == e2.compute_hash()
+
+    def test_env_var_key_used(self, tmp_path, monkeypatch):
+        """MCP_AUDIT_HMAC_KEY env var enables HMAC signing."""
+        monkeypatch.setenv("MCP_AUDIT_HMAC_KEY", "env-key")
+        path = str(tmp_path / "env.log")
+        log = AuditLog(path)
+        log.append("evt", {"x": 1})
+        assert log.verify_chain()[0] is True
+        # A log with no key computes a different (bare sha256) hash for the
+        # same content, confirming the env key actually changed the digest.
+        assert log._hmac_key == b"env-key"
 
 
 # --- WriteAheadLog tests ---

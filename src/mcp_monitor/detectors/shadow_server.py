@@ -18,6 +18,8 @@ class ShadowServerDetector:
         self._allowed: set[str] = set(allowed_servers)
         # server_id -> {capabilities, registered_at, call_count}
         self._registry: dict[str, dict[str, Any]] = {}
+        # Calls observed from allowed-but-not-capability-registered servers.
+        self._unregistered_calls: dict[str, int] = {}
 
     # ------------------------------------------------------------------
     # Public API
@@ -54,6 +56,10 @@ class ShadowServerDetector:
         # Track usage
         if server_id in self._registry:
             self._registry[server_id]["call_count"] += 1
+        else:
+            # Allowed but not capability-registered: track separately so trust
+            # scoring can treat unproven volume as a risk signal.
+            self._unregistered_calls[server_id] = self._unregistered_calls.get(server_id, 0) + 1
 
         # Check capability mismatch
         tool_name: str = tool_call.get("name", "")
@@ -75,23 +81,46 @@ class ShadowServerDetector:
     def score_server_trust(self, server_id: str) -> int:
         """Return a trust score 0-100 for a given server.
 
+        Trust is grounded in *provenance* (was the server known/approved during
+        the initialization phase?), not in raw call volume. A high volume of
+        calls from an unknown or unregistered server is treated as a RISK
+        signal that *lowers* trust rather than raising it - an unapproved
+        endpoint should not be able to bootstrap trust simply by making many
+        requests.
+
         Scoring:
-        - Not in allowed list: 0
-        - In allowed list but not registered with capabilities: 30
-        - Registered with capabilities and history: 50-100 based on usage
+        - Not in allowed list (unknown/unapproved): 0. Additional calls from
+          such a server never increase trust.
+        - In allowed list but not registered with capabilities: 30, reduced by
+          observed call volume down to a floor (unproven server accumulating
+          traffic is more suspicious, not less).
+        - Registered with declared capabilities during the approved/init phase:
+          high base trust (90). Slightly reduced if it starts exhibiting
+          anomalously high call volume, but never below a trusted floor.
         """
+        # Unknown / unapproved server: no trust, regardless of call volume.
         if server_id not in self._allowed:
             return 0
 
-        if server_id not in self._registry:
-            return 30
+        info = self._registry.get(server_id)
+        call_count = info["call_count"] if info else self._unregistered_calls.get(server_id, 0)
 
-        info = self._registry[server_id]
-        # Base trust for registered servers
-        base = 50
-        # Bonus for usage history (up to 50 more)
-        usage_bonus = min(info["call_count"] * 5, 50)
-        return min(base + usage_bonus, 100)
+        if info is None:
+            # Allowed but never went through capability registration. Treat as
+            # provisional: start at 30 and DECREASE as unproven call volume
+            # grows, because an unproven endpoint driving lots of traffic is a
+            # risk signal, not a trust signal. Floor at 10.
+            penalty = min(call_count * 5, 20)
+            return max(30 - penalty, 10)
+
+        # Server was known/approved during initialization and declared its
+        # capabilities: it earns high base trust from provenance.
+        base = 90
+        # A registered server showing abnormally high volume gets a small
+        # penalty (possible compromise / abuse), but stays within a trusted
+        # band. Never let volume push trust UP.
+        volume_penalty = min(max(call_count - 20, 0), 20)
+        return max(min(base - volume_penalty, 100), 70)
 
     @property
     def allowed_servers(self) -> set[str]:

@@ -1,4 +1,4 @@
-"""Tests for ShadowServerDetector — 20 tests."""
+"""Tests for ShadowServerDetector - 20 tests."""
 
 import pytest
 
@@ -103,13 +103,48 @@ class TestTrustScoring:
         score = detector.score_server_trust("github")
         assert score >= 50
 
-    def test_score_increases_with_usage(self, detector):
+    def test_score_does_not_increase_with_usage(self, detector):
+        """Corrected behavior: raw call volume must NOT raise trust.
+
+        Previously this asserted trust increased with usage (backwards for a
+        security signal). Trust is now grounded in provenance, so a registered
+        server's score does not climb simply because it made more calls.
+        """
         initial = detector.score_server_trust("github")
-        # Simulate calls
         for _ in range(5):
             detector.detect({"name": "repos.list", "server_id": "github", "arguments": {}})
         after = detector.score_server_trust("github")
-        assert after > initial
+        assert after <= initial
+
+    def test_unknown_server_many_calls_not_trusted(self):
+        """An UNKNOWN/unapproved server making many calls stays untrusted."""
+        d = ShadowServerDetector(allowed_servers=set())
+        for _ in range(50):
+            d.detect({"name": "x.y", "server_id": "rogue", "arguments": {}})
+        assert d.score_server_trust("rogue") == 0
+
+    def test_unregistered_high_volume_lowers_trust(self):
+        """Allowed-but-unproven server: high call volume is a RISK signal.
+
+        Its trust should not exceed the initial provisional value and should
+        trend DOWN (never up) as unproven volume accumulates.
+        """
+        d = ShadowServerDetector(allowed_servers={"legacy"})
+        initial = d.score_server_trust("legacy")
+        for _ in range(10):
+            d.detect({"name": "do_thing", "server_id": "legacy", "arguments": {}})
+        after = d.score_server_trust("legacy")
+        assert after <= initial
+        assert after < 30  # dropped below the base provisional score
+
+    def test_registered_more_trusted_than_unregistered(self, detector):
+        """Provenance beats volume: a registered server outranks an unproven,
+        high-volume allowed server."""
+        d = ShadowServerDetector(allowed_servers={"github", "legacy"})
+        d.register_server("github", ["repos"])
+        for _ in range(20):
+            d.detect({"name": "do", "server_id": "legacy", "arguments": {}})
+        assert d.score_server_trust("github") > d.score_server_trust("legacy")
 
     def test_score_capped_at_100(self, detector):
         for _ in range(100):
@@ -117,12 +152,13 @@ class TestTrustScoring:
         score = detector.score_server_trust("github")
         assert score <= 100
 
-    def test_score_different_servers_independent(self, detector):
-        for _ in range(10):
+    def test_score_registered_high_volume_stays_trusted(self, detector):
+        """A registered server with very high volume gets a mild penalty but
+        stays in the trusted band (never inflated by volume)."""
+        for _ in range(200):
             detector.detect({"name": "repos.x", "server_id": "github", "arguments": {}})
-        github_score = detector.score_server_trust("github")
-        email_score = detector.score_server_trust("email")
-        assert github_score > email_score
+        score = detector.score_server_trust("github")
+        assert 70 <= score <= 90
 
     def test_tool_without_dot_skips_capability_check(self, detector):
         call = {"name": "simple_tool", "server_id": "github", "arguments": {}}

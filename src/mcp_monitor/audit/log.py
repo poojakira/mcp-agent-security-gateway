@@ -4,17 +4,42 @@ Every MCP tool-call decision is recorded as an AuditEntry whose hash depends
 on the previous entry's hash, creating a tamper-evident chain. If any
 historical entry is modified, ``verify_chain()`` reports the first broken
 index.
+
+Integrity model
+---------------
+Without a key the chain is **tamper-evident but not tamper-proof**: because the
+hash is a bare SHA-256 over public content, anyone who edits an entry can also
+recompute every downstream hash and produce a self-consistent forged chain.
+
+To make the chain **forgery-resistant**, supply a secret key via the
+``MCP_AUDIT_HMAC_KEY`` environment variable or the ``AuditLog(..., hmac_key=...)``
+constructor argument. When a key is present each entry hash is computed with
+``hmac.new(key, msg, sha256)``. An attacker who edits an entry but does not
+possess the key cannot recompute a valid HMAC, so ``verify_chain()`` detects
+the forgery.
 """
 
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
+import os
 import time
 import uuid
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
+
+
+def _canonical(data: dict[str, Any]) -> str:
+    """Deterministic JSON serialization used for hashing.
+
+    Uses ``json.dumps(..., sort_keys=True)`` so the hashed representation is
+    stable across runs and matches a canonical persisted form (independent of
+    dict insertion order or ``repr`` quirks of ``str(dict)``).
+    """
+    return json.dumps(data, sort_keys=True, separators=(",", ":"))
 
 
 @dataclass
@@ -28,19 +53,52 @@ class AuditEntry:
     prev_hash: str = ""
     entry_hash: str = ""
 
-    def compute_hash(self) -> str:
-        """Compute SHA-256 hash from prev_hash + timestamp + event_type + data."""
-        content = self.prev_hash + str(self.timestamp) + self.event_type + str(self.data)
-        return hashlib.sha256(content.encode("utf-8")).hexdigest()
+    def compute_hash(self, hmac_key: bytes | None = None) -> str:
+        """Compute the entry hash over prev_hash + timestamp + event_type + data.
+
+        The ``data`` field is serialized with canonical JSON (``sort_keys``) so
+        the digest is stable and matches the persisted representation.
+
+        If ``hmac_key`` is provided, an HMAC-SHA256 is computed with that key so
+        the hash cannot be forged without the key; otherwise a bare SHA-256 is
+        used (tamper-evident, not tamper-proof).
+        """
+        content = self.prev_hash + str(self.timestamp) + self.event_type + _canonical(self.data)
+        msg = content.encode("utf-8")
+        if hmac_key is not None:
+            return hmac.new(hmac_key, msg, hashlib.sha256).hexdigest()
+        return hashlib.sha256(msg).hexdigest()
 
 
 class AuditLog:
-    """SHA-256 hash-chained immutable audit log."""
+    """SHA-256 hash-chained immutable audit log.
 
-    def __init__(self, log_file: str) -> None:
+    Parameters
+    ----------
+    log_file:
+        Path to the append-only log file.
+    hmac_key:
+        Optional secret key for HMAC signing. If omitted, the value of the
+        ``MCP_AUDIT_HMAC_KEY`` environment variable is used when set. When no
+        key is available the chain is tamper-evident but not tamper-proof.
+    """
+
+    def __init__(self, log_file: str, hmac_key: str | bytes | None = None) -> None:
         self._log_file = Path(log_file)
         self._entries: list[AuditEntry] = []
+        self._hmac_key: bytes | None = self._resolve_key(hmac_key)
         self._load()
+
+    @staticmethod
+    def _resolve_key(hmac_key: str | bytes | None) -> bytes | None:
+        if hmac_key is None:
+            env = os.environ.get("MCP_AUDIT_HMAC_KEY")
+            if env:
+                return env.encode("utf-8")
+            return None
+        if isinstance(hmac_key, str):
+            return hmac_key.encode("utf-8")
+        return hmac_key
 
     # ------------------------------------------------------------------
     # Public API
@@ -55,7 +113,7 @@ class AuditLog:
             data=data,
             prev_hash=prev_hash,
         )
-        entry.entry_hash = entry.compute_hash()
+        entry.entry_hash = entry.compute_hash(self._hmac_key)
         self._entries.append(entry)
         self._persist(entry)
         return entry
@@ -73,7 +131,7 @@ class AuditLog:
             expected_prev = self._entries[i - 1].entry_hash if i > 0 else "0" * 64
             if entry.prev_hash != expected_prev:
                 return (False, i)
-            expected_hash = entry.compute_hash()
+            expected_hash = entry.compute_hash(self._hmac_key)
             if entry.entry_hash != expected_hash:
                 return (False, i)
         return (True, None)
