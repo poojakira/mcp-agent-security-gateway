@@ -340,14 +340,31 @@ curl -X POST http://localhost:8000/api/scan \
 ```
 
 **Expected response (blocked call):**
+
+`POST /api/scan` returns the verdict object produced by the 5-layer defense.
+The fields are `call_id`, `allowed`, `blocked_by_layer`, `risk_score`,
+`enforcement_action`, and a `layer_results` array (per-layer `findings` live
+here). There is no top-level `detector`/`reason` field — the blocking layer and
+its findings identify why the call was blocked.
+
 ```json
 {
+  "call_id": "71260b0c-d40d-408b-a9a0-8b41b0218a1f",
   "allowed": false,
-  "verdict": "BLOCKED",
-  "detector": "exfiltration",
-  "reason": "Suspicious BCC field detected — potential data exfiltration"
+  "blocked_by_layer": 2,
+  "risk_score": 0,
+  "enforcement_action": "block",
+  "layer_results": [
+    {"layer": 1, "layer_name": "audit_registry", "passed": true, "risk_score": 0, "findings": []},
+    {"layer": 2, "layer_name": "inline_proxy", "passed": false, "risk_score": 0,
+     "findings": ["rule:email_attacker_domain_block:Block email to known malicious domains"]}
+  ]
 }
 ```
+
+(The live WebSocket event streamed to the dashboard additionally carries
+`verdict`, `severity`, `category`, and latency fields; the HTTP response above
+is the synchronous decision payload.)
 
 ### Check Statistics
 
@@ -381,16 +398,18 @@ The gateway runs **4 detection layers** in sequence:
 For production alerting, integrate with your incident management:
 
 ```python
-# Example: Forward blocked calls to Slack
+# Example: Forward blocked calls to Slack.
+# Field names match the streamed security_event (see /ws and _broadcast_scan):
+# tool_name, server_id, blocked_by_layer, findings, category, severity, verdict.
 import requests
 
 def on_blocked(event):
     requests.post(SLACK_WEBHOOK_URL, json={
         "text": f"🚨 MCP tool call BLOCKED\n"
-               f"Tool: {event['name']}\n"
+               f"Tool: {event['tool_name']}\n"
                f"Server: {event['server_id']}\n"
-               f"Detector: {event['detector']}\n"
-               f"Reason: {event['reason']}"
+               f"Blocked by layer: {event['blocked_by_layer']}\n"
+               f"Findings: {', '.join(event['findings']) or 'n/a'}"
     })
 ```
 

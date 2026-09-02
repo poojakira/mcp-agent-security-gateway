@@ -165,7 +165,6 @@ class TestScanToolCall:
         assert "ip_address" in findings
 
 
-
 # --- IP regex precision tests (regression for false-positive fix) ---
 
 
