@@ -61,7 +61,8 @@ jobs:
 
       - name: pip-audit
         run: |
-          pip-audit --format json --output pip-audit.json || true
+          python -m pip install --upgrade pip pip-audit
+          pip-audit --skip-editable --format json --output pip-audit.json
           python .github/scripts/check_pip_audit.py
 
       - name: Generate CycloneDX SBOM
