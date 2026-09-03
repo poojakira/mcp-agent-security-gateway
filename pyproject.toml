@@ -23,6 +23,7 @@ dev = [
     "scikit-learn>=1.4",
     "fastapi>=0.100",
     "uvicorn[standard]>=0.20",
+    "ruff==0.8.4",
 ]
 ml = ["scikit-learn>=1.4"]
 dpi = ["mitmproxy>=10"]
