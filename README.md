@@ -1093,7 +1093,7 @@ I validate the project through automated tests and security-focused CI rather th
 For the currently verified commit:
 
 ```text
-cafad51bce76620ec221c440f332bc46f199b9f0
+cb604fd1b812fcf28eb010c65be7bccc307aaf5d
 ```
 
 the local test run and GitHub Actions pipeline validate the suite.
@@ -1321,11 +1321,11 @@ The repository's executable behavior is validated through its source code, autom
 
 | Property | Value |
 |---|---|
-| Tested at commit | `cafad51bce76620ec221c440f332bc46f199b9f0` |
+| Tested at commit | `cb604fd1b812fcf28eb010c65be7bccc307aaf5d` |
 | Environment | Python 3.10 / 3.11 / 3.12, Ubuntu (CI), Windows (control-plane validation) |
-| Last verified | 2026-08-27 |
-| Tests | 569 |
-| Coverage | 75% |
+| Last verified | 2026-09-03 |
+| Tests | 622 |
+| Coverage | 78% |
 
 ---
 

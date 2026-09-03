@@ -7,6 +7,7 @@ __pycache__/
 
 .venv/
 .venv-audit/
+.venv-verify/
 venv/
 .pytest_cache/
 __pycache__/
@@ -26,3 +27,10 @@ sbom.spdx.json
 bandit-report.json
 pip-audit.json
 coverage.xml
+
+# Local server run artifacts (proxy/test harness output)
+mcp_pid.txt
+mcp_srv.out.log
+mcp_srv.err.log
+srv_test.log
+srv_test_err.log

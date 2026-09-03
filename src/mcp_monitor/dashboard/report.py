@@ -129,17 +129,22 @@ tr:hover{{background:#16213e}}
 .graph-section{{background:#0d1b2a;border-radius:8px;padding:15px;margin:15px 0;border:1px solid #1e3a5f;overflow-x:auto}}
 </style></head><body>
 <div class="container">
-<h1>MCP Security Gateway Monitor — Real-Time Dashboard</h1>
+<h1>MCP Security Gateway Monitor — Regression Self-Test Report</h1>
 <p>Generated: {time.strftime('%Y-%m-%d %H:%M:%S')} | Execution: {report.execution_time_ms:.1f}ms</p>
+<p style="color:#ffcc66;font-size:0.9em;background:#2a2417;border:1px solid #5f4b1e;border-radius:6px;padding:10px">
+<strong>Source:</strong> static self-test against the bundled red-team catalog (<code>mcp_monitor/redteam/payloads.py</code>).
+This measures whether the five defense layers catch every <em>catalogued</em> technique end-to-end (a build gate),
+not a real-world detection rate against novel, unseen attacks. Numbers below are from this single reproducible run, not live traffic.
+</p>
 
 <div class="stats">
-<div class="stat-card"><div class="number">{report.total_attacks}</div><div class="label">Total Attacks</div></div>
+<div class="stat-card"><div class="number">{report.total_attacks}</div><div class="label">Catalog Attacks (self-test)</div></div>
 <div class="stat-card"><div class="number" style="color:#28a745">{report.blocked}</div><div class="label">Blocked</div></div>
 <div class="stat-card"><div class="number" style="color:#dc3545">{report.missed}</div><div class="label">Missed</div></div>
-<div class="stat-card"><div class="number" style="color:{verdict_color}">{report.detection_rate:.1f}%</div><div class="label">Detection Rate</div></div>
+<div class="stat-card"><div class="number" style="color:{verdict_color}">{report.detection_rate:.1f}%</div><div class="label">Self-Test Catch Rate</div></div>
 </div>
 
-<div class="verdict"><h2 style="color:{verdict_color}">Detection Rate: {report.detection_rate:.1f}%</h2></div>
+<div class="verdict"><h2 style="color:{verdict_color}">Self-Test Catch Rate: {report.detection_rate:.1f}% (bundled catalog, not real-world)</h2></div>
 
 <h2>Layer Performance</h2>
 {by_layer_html}
