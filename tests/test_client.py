@@ -67,20 +67,40 @@ def test_fail_open_can_be_explicitly_selected_for_monitoring() -> None:
     assert verdict["enforcement_action"] == "allow"
 
 
-def test_http_401_is_blocking() -> None:
+@pytest.mark.parametrize("status", [400, 401, 403, 429])
+def test_http_4xx_is_always_blocking_even_in_fail_open_mode(status: int) -> None:
     error = HTTPError(
         _UNREACHABLE,
-        401,
-        "Unauthorized",
+        status,
+        "Gateway denied request",
         hdrs=None,
-        fp=BytesIO(b'{"detail":"Unauthorized"}'),
+        fp=BytesIO(b'{"detail":"denied"}'),
     )
     with patch("mcp_monitor.client.urllib.request.urlopen", side_effect=error):
-        verdict = GatewayClient(_UNREACHABLE, api_key="wrong").scan(
+        verdict = GatewayClient(_UNREACHABLE, api_key="wrong", fail_closed=False).scan(
             {"name": "t", "server_id": "s", "arguments": {}}
         )
     assert verdict["allowed"] is False
     assert verdict["enforcement_action"] == "block"
+    assert verdict["gateway_denial"] is True
+    assert verdict["http_status"] == status
+
+
+def test_http_5xx_obeys_explicit_fail_open_choice() -> None:
+    error = HTTPError(
+        _UNREACHABLE,
+        503,
+        "Service unavailable",
+        hdrs=None,
+        fp=BytesIO(b'{"detail":"unavailable"}'),
+    )
+    with patch("mcp_monitor.client.urllib.request.urlopen", side_effect=error):
+        verdict = GatewayClient(_UNREACHABLE, fail_closed=False).scan(
+            {"name": "t", "server_id": "s", "arguments": {}}
+        )
+    assert verdict["allowed"] is True
+    assert verdict["enforcement_action"] == "allow"
+    assert verdict["http_status"] == 503
 
 
 def test_guard_blocks_before_tool_execution() -> None:
