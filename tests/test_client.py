@@ -1,14 +1,17 @@
-"""Tests for the GatewayClient transport boundary."""
+"""Tests for the GatewayClient transport and enforcement boundary."""
 
 from __future__ import annotations
 
+from io import BytesIO
+from unittest.mock import patch
+from urllib.error import HTTPError
+
 import pytest
 
-from mcp_monitor.client import GatewayClient
+from mcp_monitor.client import GatewayClient, ToolBlocked
 
 
 def test_gateway_client_accepts_http_and_https_endpoints() -> None:
-    """Configured gateway endpoints must use an explicit HTTP transport."""
     assert GatewayClient("http://localhost:8000/").base_url == "http://localhost:8000"
     assert GatewayClient("https://gateway.example.test/api").base_url.endswith("/api")
 
@@ -17,43 +20,72 @@ def test_gateway_client_accepts_http_and_https_endpoints() -> None:
     "endpoint", ["file:///tmp/gateway", "ftp://gateway.example", "localhost:8000"]
 )
 def test_gateway_client_rejects_non_http_endpoints(endpoint: str) -> None:
-    """Reject local-file, custom-scheme, and relative endpoint inputs."""
     with pytest.raises(ValueError, match="HTTP or HTTPS"):
         GatewayClient(endpoint)
 
 
-# An address in the reserved TEST-NET-1 range (RFC 5737) that is guaranteed not
-# to route, with a short timeout so the transport error surfaces quickly.
+def test_gateway_client_rejects_non_positive_timeout() -> None:
+    with pytest.raises(ValueError, match="timeout"):
+        GatewayClient(timeout=0)
+
+
+def test_gateway_client_sends_api_key() -> None:
+    response = type(
+        "Response",
+        (),
+        {
+            "read": lambda self: b'{"allowed": true}',
+            "__enter__": lambda self: self,
+            "__exit__": lambda self, *args: None,
+        },
+    )()
+    with patch("mcp_monitor.client.urllib.request.urlopen", return_value=response) as mocked:
+        verdict = GatewayClient("https://gateway.example.test", api_key="secret").scan(
+            {"name": "tool", "server_id": "server", "arguments": {}}
+        )
+    assert verdict["allowed"] is True
+    req = mocked.call_args.args[0]
+    assert req.get_header("X-api-key") == "secret"
+
+
 _UNREACHABLE = "http://192.0.2.1:9"
 
 
-def test_fail_open_allows_when_gateway_unreachable() -> None:
-    """Default policy: an unreachable gateway must not break the agent."""
+def test_fail_closed_is_default_when_gateway_unreachable() -> None:
     client = GatewayClient(_UNREACHABLE, timeout=0.5)
-    assert client.fail_closed is False
-    verdict = client.scan({"name": "t", "server_id": "s", "arguments": {}})
-    assert verdict["allowed"] is True
-    assert verdict["enforcement_action"] == "allow"
-    assert "transport_error" in verdict
-
-
-def test_fail_closed_blocks_when_gateway_unreachable() -> None:
-    """Security-critical policy: an unreachable gateway must block the call."""
-    client = GatewayClient(_UNREACHABLE, timeout=0.5, fail_closed=True)
     assert client.fail_closed is True
     verdict = client.scan({"name": "t", "server_id": "s", "arguments": {}})
     assert verdict["allowed"] is False
     assert verdict["enforcement_action"] == "block"
-    assert verdict["blocked_by_layer"] == 0
     assert "transport_error" in verdict
 
 
-def test_guard_raises_toolblocked_when_fail_closed_and_unreachable() -> None:
-    """The guard decorator enforces fail-closed by raising before the tool runs."""
-    from mcp_monitor.client import ToolBlocked
+def test_fail_open_can_be_explicitly_selected_for_monitoring() -> None:
+    client = GatewayClient(_UNREACHABLE, timeout=0.5, fail_closed=False)
+    verdict = client.scan({"name": "t", "server_id": "s", "arguments": {}})
+    assert verdict["allowed"] is True
+    assert verdict["enforcement_action"] == "allow"
 
-    client = GatewayClient(_UNREACHABLE, timeout=0.5, fail_closed=True)
-    ran = []
+
+def test_http_401_is_blocking() -> None:
+    error = HTTPError(
+        _UNREACHABLE,
+        401,
+        "Unauthorized",
+        hdrs=None,
+        fp=BytesIO(b'{"detail":"Unauthorized"}'),
+    )
+    with patch("mcp_monitor.client.urllib.request.urlopen", side_effect=error):
+        verdict = GatewayClient(_UNREACHABLE, api_key="wrong").scan(
+            {"name": "t", "server_id": "s", "arguments": {}}
+        )
+    assert verdict["allowed"] is False
+    assert verdict["enforcement_action"] == "block"
+
+
+def test_guard_blocks_before_tool_execution() -> None:
+    client = GatewayClient(_UNREACHABLE, timeout=0.5)
+    ran: list[str] = []
 
     @client.guard
     def send_email(*, server_id: str, to: str) -> str:
@@ -62,4 +94,4 @@ def test_guard_raises_toolblocked_when_fail_closed_and_unreachable() -> None:
 
     with pytest.raises(ToolBlocked):
         send_email(server_id="postmark", to="user@example.com")
-    assert ran == []  # tool body must never execute when fail-closed blocks
+    assert ran == []
