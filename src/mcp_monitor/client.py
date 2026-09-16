@@ -24,6 +24,10 @@ Security-critical deployments fail closed by default. If the gateway is
 unreachable, the wrapped tool call is blocked. Monitoring-only callers can
 explicitly opt into ``fail_closed=False`` after considering the availability
 trade-off.
+
+An explicit HTTP authorization denial (4xx) is always blocking, even when
+``fail_closed=False``. The fail-open option applies only to gateway availability
+failures such as connection errors, timeouts, or server-side 5xx responses.
 """
 
 from __future__ import annotations
@@ -57,6 +61,7 @@ class GatewayClient:
             The production gateway rejects anonymous protected requests.
         fail_closed: Transport availability policy. Defaults to ``True`` so an
             unreachable gateway blocks execution instead of silently allowing it.
+            Explicit HTTP 4xx authorization/policy denials always block.
     """
 
     def __init__(
@@ -81,9 +86,10 @@ class GatewayClient:
     def scan(self, tool_call: dict[str, Any]) -> dict[str, Any]:
         """POST a tool call to the gateway and return the verdict dict.
 
-        Transport or non-2xx failures are treated as unavailable-gateway events
-        and follow ``fail_closed``. A protected gateway's HTTP 401 is therefore
-        blocking in the default security-oriented mode.
+        HTTP 4xx responses are explicit gateway denials and therefore block the
+        call regardless of the availability mode. HTTP 5xx responses follow
+        ``fail_closed`` because they represent gateway-side availability failure.
+        Transport failures also follow ``fail_closed``.
         """
         data = json.dumps(tool_call).encode("utf-8")
         headers = {"Content-Type": "application/json"}
@@ -101,7 +107,31 @@ class GatewayClient:
                 if not isinstance(payload, dict):
                     raise ValueError("Gateway response must be a JSON object")
                 return payload
-        except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
+        except urllib.error.HTTPError as exc:
+            if 400 <= exc.code < 500:
+                return {
+                    "call_id": None,
+                    "allowed": False,
+                    "blocked_by_layer": 0,
+                    "risk_score": 100,
+                    "enforcement_action": "block",
+                    "layer_results": [],
+                    "http_status": exc.code,
+                    "gateway_denial": True,
+                    "fail_closed": self.fail_closed,
+                }
+            return {
+                "call_id": None,
+                "allowed": not self.fail_closed,
+                "blocked_by_layer": None if not self.fail_closed else 0,
+                "risk_score": 0 if not self.fail_closed else 100,
+                "enforcement_action": "allow" if not self.fail_closed else "block",
+                "layer_results": [],
+                "http_status": exc.code,
+                "transport_error": "gateway_server_error",
+                "fail_closed": self.fail_closed,
+            }
+        except (urllib.error.URLError, TimeoutError, OSError, ValueError):
             return {
                 "call_id": None,
                 "allowed": not self.fail_closed,
@@ -109,7 +139,7 @@ class GatewayClient:
                 "risk_score": 0,
                 "enforcement_action": "allow" if not self.fail_closed else "block",
                 "layer_results": [],
-                "transport_error": str(exc),
+                "transport_error": "gateway_unavailable",
                 "fail_closed": self.fail_closed,
             }
 
