@@ -1323,9 +1323,9 @@ The repository's executable behavior is validated through its source code, autom
 
 | Property | Value |
 |---|---|
-| Tested at commit | `cb604fd1b812fcf28eb010c65be7bccc307aaf5d` |
+| Evidence source | [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md) + GitHub Actions CI |
 | Environment | Python 3.10 / 3.11 / 3.12, Ubuntu (CI), Windows (control-plane validation) |
-| Last verified | 2026-09-03 |
+| Metrics reconciled | 2026-09-20 |
 | Tests | 629 |
 | Coverage | 78.47% |
 
