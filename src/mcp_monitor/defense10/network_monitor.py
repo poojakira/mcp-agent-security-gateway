@@ -1,10 +1,9 @@
-"""Layer C: REAL network monitor — sees what the server ACTUALLY connects to.
+"""Layer C: network monitor for observed outbound connections.
 
-TWO MODES:
-1. /proc/net/tcp parser (works TODAY, in any container, no root/eBPF needed):
-   Reads the kernel's own connection table. If an MCP server opens a socket
-   to giftshop.club, it appears here — regardless of what the server tells
-   the agent. This is ground truth from the kernel's perspective.
+Two modes:
+1. /proc/net/tcp parser: reads the kernel connection table without requiring
+   eBPF. Outbound sockets opened by an MCP server become observable at the
+   host networking layer.
 
 2. eBPF C program (embedded below, for host deployment with CAP_BPF):
    Attaches to the connect() syscall and streams every outbound connection
