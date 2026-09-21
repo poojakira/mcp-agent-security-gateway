@@ -94,7 +94,7 @@ class TerminalDashboard:
             )
         else:
             lines.append(
-                f"  VERDICT: WEAK DEFENSE — {report.detection_rate:.1f}% detection rate (critical gaps!)"
+                f"  VERDICT: catalog regression below target — {report.detection_rate:.1f}% blocked"
             )
         lines.append("=" * 80)
         lines.append("")
