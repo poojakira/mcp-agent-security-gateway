@@ -1,6 +1,6 @@
 # MCP Agent Security Gateway
 
-**Repository owner & maintainer:** Pooja Kiran ([@poojakira](https://github.com/poojakira)) — I review changes, verify public claims, and maintain the repository record.
+**Repository owner & maintainer:** Pooja Kiran ([@poojakira](https://github.com/poojakira)) — I lead the design, implementation, validation, documentation, and maintenance of this repository, and I verify public claims against repository evidence.
 
 Security controls for MCP/JSON-RPC tool calls at the agent-to-tool boundary.
 
