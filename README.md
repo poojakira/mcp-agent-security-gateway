@@ -1101,8 +1101,8 @@ the local test run and GitHub Actions pipeline validate the suite.
 ### Python 3.12
 
 ```text
-622 tests collected
-622 tests passed
+629 tests collected
+629 tests passed
 ```
 
 The count increased from the earlier 595 baseline after adding 27 protocol/transport hardening tests (`tests/test_protocol_hardening.py` plus additions to `tests/test_client.py`) covering malformed/oversized/deeply-nested JSON-RPC inputs, unicode edge cases, and fail-closed client behaviour. Coverage is measured and gated in CI; the Elasticsearch HTTP shipper and the manually-run attack-simulation CLI are exercised in the detection lab rather than unit tests (see `detection_lab/README.md`).
