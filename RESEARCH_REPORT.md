@@ -107,7 +107,7 @@ changes behavior.
 | 5 | Provide tamper-evident audit trail | YES | SHA-256 hash chain; cryptographically sound |
 | 6 | Detect behavioral drift between versions | YES | New-field detection works; same-field value changes harder |
 | 7 | Enforce declarative security policies | YES | Invariant system is well-designed |
-| 8 | Test suite | CURRENT LOCAL SNAPSHOT | 569 tests passed, 0 failed on Windows/Python 3.12.10 (2026-08-06); 75% coverage |
+| 8 | Test suite | HISTORICAL LOCAL SNAPSHOT | 569 tests passed, 0 failed on Windows/Python 3.12.10 (2026-08-06); 75% coverage. Current verified CI metrics are maintained in `VERIFIED_METRICS.md` (629 passing tests; 78.47% statement coverage as of the latest reconciled snapshot). |
 | 9 | Zero external dependencies | YES | Pure stdlib; eliminates supply-chain risk in the monitor itself |
 | 10 | Cross-platform (Windows/Linux/macOS) | CI TARGET | CI is configured for multiple Python versions/platforms; re-run Actions before citing verified matrix status |
 
