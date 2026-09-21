@@ -1,8 +1,8 @@
 # Security Audit — mcp-security-gateway-monitor
 
 **Audit date:** 2026-08-05  
-**Auditor:** agent/mcp_monitor (automated Strictness-10 review)  
-**Branch:** agent/security-hardening-v1
+**Audit owner:** Pooja Kiran ([@poojakira](https://github.com/poojakira))  
+**Review scope:** security-hardening review
 
 ---
 
