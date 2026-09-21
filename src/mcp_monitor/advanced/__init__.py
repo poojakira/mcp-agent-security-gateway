@@ -1,10 +1,10 @@
-"""Advanced MCP security layer — what OpenAI/Anthropic refused to build.
+"""Advanced MCP security controls for higher-assurance tool execution.
 
-This module addresses the 5 critical gaps left open by the protocol designers:
+This module implements five controls that complement the base MCP protocol:
 
 1. MANIFEST SIGNING — Cryptographic proof that a tool's schema hasn't changed
-   since approval. Anthropic's position: "securing STDIO is the deployer's
-   responsibility." Our position: the protocol MUST enforce manifest integrity.
+   since approval. The control treats manifest integrity as an explicit
+   deployment responsibility.
 
 2. BEHAVIORAL DRIFT — Runtime detection of tools that silently change behavior
    between versions (the Postmark attack pattern: 15 clean versions, then BCC
