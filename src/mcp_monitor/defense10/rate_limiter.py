@@ -1,8 +1,7 @@
-"""Layer 5+ : Rate limiting + recipient whitelist (BLAST RADIUS LIMITING).
+"""Layer 5+: rate limiting and recipient allowlisting for blast-radius control.
 
-WHY THIS IS THE MOST IMPORTANT LAYER AGAINST A DETERMINED ADVERSARY:
-Detection is never 100%. Something eventually evades every filter.
-So the final defense is: even if the attack SUCCEEDS, cap the damage.
+Detection is imperfect, so this layer limits the impact of requests that pass
+upstream checks.
 
 The Postmark attack exfiltrated 3,000-15,000 emails/DAY. With:
   - max 10 emails/hour per server
