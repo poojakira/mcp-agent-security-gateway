@@ -1,6 +1,7 @@
 # MCP Agent Security Gateway
 
 > Quantitative résumé and portfolio claims are reconciled in [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md).
+> Frozen application/resume snapshot evidence, including the earlier 622-test / 78% CI result, is documented in [`RESUME_EVIDENCE.md`](RESUME_EVIDENCE.md).
 
 **Security controls for MCP tool calls, agent-to-tool interactions, and AI agent execution boundaries.**
 
