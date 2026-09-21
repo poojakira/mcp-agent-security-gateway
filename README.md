@@ -1,5 +1,7 @@
 # MCP Agent Security Gateway
 
+> Quantitative résumé and portfolio claims are reconciled in [`VERIFIED_METRICS.md`](VERIFIED_METRICS.md).
+
 **Security controls for MCP tool calls, agent-to-tool interactions, and AI agent execution boundaries.**
 
 [![CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
