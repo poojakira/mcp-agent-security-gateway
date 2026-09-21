@@ -105,8 +105,8 @@
   },
   "capability_claims": {
     "detection_rate": {
-      "value": "~51%",
-      "scope": "bundled attack catalog (AttackSimulator.run_full_catalog)",
+      "value": "37/37 blocked (100%)",
+      "scope": "fixed bundled red-team self-test catalog (AttackSimulator.run_full_catalog); regression signal only, not a real-world detection rate",
       "not_a_general_rate": true
     },
     "latency_p99": {
