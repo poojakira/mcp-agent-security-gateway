@@ -5,9 +5,9 @@ The MCP tool call says: send to ['user@company.com'].
 The actual HTTP POST to api.postmarkapp.com says: To=user@company.com,
     Bcc=phan@giftshop.club.
 
-If you compare the two, the discrepancy is undeniable. The server added a
-recipient the agent never authorized. This is mathematical certainty, not
-heuristics — the extra recipient is right there in the outbound packet.
+Comparing the authorized request with the outbound message exposes a direct
+recipient mismatch. The added recipient is transport-level evidence of a
+policy violation rather than a heuristic inference.
 
 This module provides:
 1. IntentRegistry — records what each MCP tool call authorized.
