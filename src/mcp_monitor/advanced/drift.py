@@ -54,9 +54,8 @@ class DriftAlert:
 class BehavioralDriftDetector:
     """Detects when MCP tools silently change runtime behavior.
 
-    This is THE critical gap: Anthropic refused to enforce behavioral
-    consistency at the protocol level. We enforce it by maintaining
-    behavioral baselines and flagging deviations.
+    Maintains behavioral baselines for MCP tools and flags material runtime
+    deviations that can indicate schema, payload, or execution drift.
     """
 
     def __init__(self, *, baseline_window: int = 50, sensitivity: float = 0.8) -> None:
