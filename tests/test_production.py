@@ -104,6 +104,31 @@ class TestConfig:
             cfg = Config()
             assert cfg.allowed_servers == set()
 
+    def test_production_mode_requires_durable_authenticated_configuration(self):
+        env = {
+            "MCP_ENV": "production",
+            "MCP_ALLOW_ANONYMOUS": "false",
+        }
+        with patch.dict(os.environ, env, clear=True):
+            with pytest.raises(ValueError, match="Invalid production configuration"):
+                Config()
+
+    def test_production_mode_accepts_explicit_security_configuration(self):
+        env = {
+            "MCP_ENV": "production",
+            "MCP_API_KEY": "a" * 32,
+            "MCP_WAL_PATH": "/var/lib/mcp/wal.jsonl",
+            "MCP_AUDIT_PATH": "/var/lib/mcp/audit.jsonl",
+            "MCP_ALLOWED_SERVERS": "github,filesystem",
+            "MCP_ALLOW_ANONYMOUS": "false",
+            "MCP_RATE_LIMIT_RPM": "600",
+            "MCP_MAX_PAYLOAD_KB": "100",
+        }
+        with patch.dict(os.environ, env, clear=True):
+            cfg = Config()
+        assert cfg.environment == "production"
+        assert cfg.allowed_servers == {"github", "filesystem"}
+
     def test_repr(self):
         """Config has a useful repr."""
         env = {"MCP_LISTEN_PORT": "8080", "MCP_SHADOW_MODE": "false"}
