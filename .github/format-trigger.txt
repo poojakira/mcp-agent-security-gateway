@@ -1,0 +1,1 @@
+Run Ruff formatting once across first-party Python sources.
