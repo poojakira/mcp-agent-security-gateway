@@ -3,7 +3,9 @@
 **Author:** Repository research assessment
 **Date:** July 10, 2026  
 **Classification:** Honest, Skeptical Technical Assessment  
-**Repository:** github.com/poojakira/mcp-security-gateway-monitor
+
+**Current-architecture note:** This report originated before several later enforcement and host-monitoring additions. Where older criticism conflicts with current `main`, the text below has been reconciled to the current repository while preserving limitations and historical metrics.
+**Repository:** github.com/poojakira/mcp-agent-security-gateway
 
 ---
 
@@ -265,16 +267,18 @@ every email sent through the server.
 
 ### What This Project Gets Wrong (Or Oversells)
 
-1. **It's a library pretending to be a gateway.** The biggest single weakness
-   is that this CANNOT enforce anything unless the calling code respects its
-   verdicts. A real gateway (like Lasso Security, MintMCP, or agentgateway)
-   sits inline with no bypass. This is aspirational, not enforced.
+1. **Enforcement depends on the integration path.** The repository now includes
+   a real stdio MCP proxy that can block selected `tools/call` requests before
+   they reach a downstream server. The separate HTTP/control-plane and library
+   paths still protect only traffic that is explicitly routed through them, so
+   the project is not a universal or bypass-proof gateway.
 
-2. **Layer 3 (Kernel) is a policy engine without actual kernel access.** The
-   code accepts `SyscallEvent` objects but has no mechanism to generate them.
-   Without real eBPF probes (which require root/CAP_BPF), this layer is
-   theoretical. Facebook's `mcpguard-dynamic` or `MCPSpy` actually hook into
-   the kernel. We don't.
+2. **Kernel/network monitoring is split across two implementations.** The original
+   `KernelMonitor` layer evaluates supplied syscall/network events. A newer
+   `defense10/network_monitor.py` adds `/proc/net/tcp` observation and ships an
+   embedded eBPF connect-monitor program for host deployment with CAP_BPF/root.
+   The repository does not prove that the eBPF path is deployed in production;
+   treat it as host-deployment code plus testable policy logic, not production telemetry evidence.
 
 3. **Layer 4 (Semantic) is a synonym dictionary, not AI.** Calling it "LLM
    Semantic Intent Analyzer" overstates what it does. It's a hardcoded list of
@@ -341,7 +345,7 @@ library with a stdlib-only core and a broad set of MCP monitoring components.
 
 ### What This Is Not
 
-- Not a production gateway (it's a library, not an inline proxy)
+- Not a production-hardened universal gateway; the stdio path is inline, while other paths require explicit routing/integration
 - Not a replacement for real eBPF monitoring (Layer 3 is theoretical)
 - Not AI-powered semantic analysis (Layer 4 is a synonym dictionary)
 - Not a complete solution against sophisticated adversaries
