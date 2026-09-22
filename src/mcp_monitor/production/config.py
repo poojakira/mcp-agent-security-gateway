@@ -49,6 +49,30 @@ class Config:
             "yes",
         )
         self.siem_output: str | None = os.environ.get("MCP_SIEM_OUTPUT")
+        self.environment: str = os.environ.get("MCP_ENV", "development").strip().lower()
+
+        if self.environment == "production":
+            self.validate_for_production()
+
+    def validate_for_production(self) -> None:
+        """Fail fast when a production deployment is missing security-critical configuration."""
+        errors: list[str] = []
+        if self.allow_anonymous:
+            errors.append("MCP_ALLOW_ANONYMOUS must be false")
+        if not self.api_key or len(self.api_key) < 32:
+            errors.append("MCP_API_KEY must be configured with at least 32 characters")
+        if not self.wal_path:
+            errors.append("MCP_WAL_PATH must point to durable storage")
+        if not self.audit_path:
+            errors.append("MCP_AUDIT_PATH must point to durable storage")
+        if not self.allowed_servers:
+            errors.append("MCP_ALLOWED_SERVERS must contain at least one approved server")
+        if self.rate_limit_rpm <= 0:
+            errors.append("MCP_RATE_LIMIT_RPM must be greater than zero")
+        if self.max_payload_kb <= 0:
+            errors.append("MCP_MAX_PAYLOAD_KB must be greater than zero")
+        if errors:
+            raise ValueError("Invalid production configuration: " + "; ".join(errors))
 
     @staticmethod
     def _parse_allowed_servers(value: str) -> set[str]:
