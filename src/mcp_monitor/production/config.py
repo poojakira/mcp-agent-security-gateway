@@ -59,6 +59,8 @@ class Config:
         errors: list[str] = []
         if self.allow_anonymous:
             errors.append("MCP_ALLOW_ANONYMOUS must be false")
+        if self.shadow_mode:
+            errors.append("MCP_SHADOW_MODE must be false in MCP_ENV=production")
         if not self.api_key or len(self.api_key) < 32:
             errors.append("MCP_API_KEY must be configured with at least 32 characters")
         if not self.wal_path:
