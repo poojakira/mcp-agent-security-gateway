@@ -15,6 +15,11 @@ import time
 from secrets import compare_digest
 from typing import Any
 
+_MAX_REQUEST_LINE_BYTES = 8 * 1024
+_MAX_HEADER_LINE_BYTES = 8 * 1024
+_MAX_HEADER_BYTES = 32 * 1024
+_MAX_HEADER_COUNT = 100
+
 from mcp_monitor.audit.log import AuditEntry, AuditLog
 from mcp_monitor.audit.wal import WriteAheadLog
 from mcp_monitor.monitor import MCPSecurityMonitor
@@ -140,33 +145,93 @@ class ProductionServer:
             if not request_line:
                 writer.close()
                 return
+            if len(request_line) > _MAX_REQUEST_LINE_BYTES or not request_line.endswith(b"\n"):
+                await self._send_response(writer, 414, {"error": "Request line too long"})
+                return
 
-            # Parse request line
-            request_str = request_line.decode("utf-8", errors="replace").strip()
-            parts = request_str.split(" ")
-            if len(parts) < 2:
+            # Parse a strict origin-form HTTP request line. The gateway does not
+            # support proxy-form absolute URIs or ambiguous HTTP framing.
+            try:
+                request_str = request_line.decode("ascii").strip()
+            except UnicodeDecodeError:
+                await self._send_response(writer, 400, {"error": "Invalid request line"})
+                return
+            parts = request_str.split()
+            if len(parts) != 3:
                 await self._send_response(writer, 400, {"error": "Bad request"})
                 return
 
-            method = parts[0].upper()
-            path = parts[1]
+            method, path, http_version = parts
+            method = method.upper()
+            if method not in {"GET", "POST"}:
+                await self._send_response(writer, 405, {"error": "Method not allowed"})
+                return
+            if http_version not in {"HTTP/1.0", "HTTP/1.1"}:
+                await self._send_response(writer, 505, {"error": "HTTP version not supported"})
+                return
+            if not path.startswith("/") or path.startswith("//") or "://" in path:
+                await self._send_response(writer, 400, {"error": "Invalid request target"})
+                return
 
-            # Read headers
+            # Read headers with strict size/count/duplicate framing checks.
             headers: dict[str, str] = {}
+            total_header_bytes = 0
+            header_count = 0
             while True:
                 header_line = await asyncio.wait_for(reader.readline(), timeout=10.0)
-                header_str = header_line.decode("utf-8", errors="replace").strip()
-                if not header_str:
+                if not header_line:
+                    await self._send_response(writer, 400, {"error": "Unexpected EOF in headers"})
+                    return
+                if len(header_line) > _MAX_HEADER_LINE_BYTES:
+                    await self._send_response(writer, 431, {"error": "Header line too large"})
+                    return
+                total_header_bytes += len(header_line)
+                header_count += 1
+                if total_header_bytes > _MAX_HEADER_BYTES or header_count > _MAX_HEADER_COUNT:
+                    await self._send_response(writer, 431, {"error": "Request headers too large"})
+                    return
+                if header_line in {b"\r\n", b"\n"}:
                     break
-                if ":" in header_str:
-                    key, value = header_str.split(":", 1)
-                    headers[key.strip().lower()] = value.strip()
+                try:
+                    header_str = header_line.decode("ascii").rstrip("\r\n")
+                except UnicodeDecodeError:
+                    await self._send_response(writer, 400, {"error": "Invalid header encoding"})
+                    return
+                if ":" not in header_str:
+                    await self._send_response(writer, 400, {"error": "Malformed header"})
+                    return
+                key, value = header_str.split(":", 1)
+                normalized_key = key.strip().lower()
+                if not normalized_key or any(ch.isspace() for ch in normalized_key):
+                    await self._send_response(writer, 400, {"error": "Malformed header name"})
+                    return
+                if normalized_key in {"content-length", "transfer-encoding"} and normalized_key in headers:
+                    await self._send_response(writer, 400, {"error": "Ambiguous request framing"})
+                    return
+                headers[normalized_key] = value.strip()
 
-            # Read body if content-length specified
+            if "transfer-encoding" in headers:
+                # Chunked request bodies are intentionally unsupported by this
+                # small control-plane server. Reject instead of attempting to
+                # normalize mixed framing.
+                await self._send_response(writer, 400, {"error": "Transfer-Encoding unsupported"})
+                return
+
+            # Read body if content-length specified.
             body = b""
-            content_length = int(headers.get("content-length", "0"))
+            raw_content_length = headers.get("content-length", "0")
+            try:
+                content_length = int(raw_content_length)
+            except ValueError:
+                await self._send_response(writer, 400, {"error": "Invalid Content-Length"})
+                return
+            if content_length < 0:
+                await self._send_response(writer, 400, {"error": "Invalid Content-Length"})
+                return
+            if method == "GET" and content_length:
+                await self._send_response(writer, 400, {"error": "GET body not supported"})
+                return
             if content_length > 0:
-                # Check payload size
                 max_bytes = int(self.config.max_payload_kb * 1024)
                 if content_length > max_bytes:
                     await self._send_response(writer, 413, {"error": "Payload too large"})
