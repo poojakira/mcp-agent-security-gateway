@@ -7,8 +7,9 @@ on:
 
 permissions:
   contents: write
-  id-token: write  # Required for Sigstore keyless signing
-  attestations: write  # Required for GitHub Attestations
+  id-token: write
+  attestations: write
+  packages: write
 
 env:
   PYTHON_VERSION: "3.11"
@@ -33,10 +34,40 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install build dependencies
+      - name: Install release dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install build wheel twine
+          pip install build wheel twine pip-audit bandit ruff pyright
+          pip install -e ".[dev,server]"
+
+      - name: Verify tag matches package version
+        run: |
+          python - <<'PY'
+          import os, tomllib
+          with open("pyproject.toml", "rb") as fh:
+              version = tomllib.load(fh)["project"]["version"]
+          tag = os.environ["GITHUB_REF_NAME"]
+          expected = f"v{version}"
+          if tag != expected:
+              raise SystemExit(f"release tag {tag!r} does not match package version {expected!r}")
+          print(f"release version verified: {version}")
+          PY
+
+      - name: Run release gates
+        env:
+          MCP_ENV: production
+          MCP_API_KEY: release-validation-key-at-least-32-characters
+          MCP_ALLOWED_SERVERS: github
+          MCP_WAL_PATH: /tmp/mcp-release-wal.jsonl
+          MCP_AUDIT_PATH: /tmp/mcp-release-audit.jsonl
+          MCP_ALLOW_ANONYMOUS: "false"
+        run: |
+          ruff check src tests run_realtime.py
+          ruff format --check src tests run_realtime.py
+          PYTHONPATH=src pyright src/mcp_monitor/detectors src/mcp_monitor/audit tests/test_prompt_injection.py tests/test_pii_detector.py tests/test_audit_log.py
+          bandit -r src -ll
+          pip-audit --skip-editable --progress-spinner=off
+          pytest tests/ -q --cov=mcp_monitor --cov-fail-under=77
 
       # ------------------------------------------------------------------
       # Extract version from tag
@@ -139,7 +170,7 @@ jobs:
           cat SHA256SUMS.txt
 
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-path: |
             dist/*.whl
@@ -160,6 +191,39 @@ jobs:
           echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
           echo "$CHANGELOG" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
+
+      # ------------------------------------------------------------------
+      # Build, publish, and attest the runtime image
+      # ------------------------------------------------------------------
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push runtime image
+        id: image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+            ghcr.io/${{ github.repository }}:latest
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ github.ref_name }}
+
+      - name: Attest runtime image provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.image.outputs.digest }}
+          push-to-registry: true
 
       # ------------------------------------------------------------------
       # Create GitHub Release
@@ -211,4 +275,8 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
-          twine upload dist/*.whl dist/*.tar.gz || echo "PyPI upload skipped (no token configured)"
+          if [ -z "$TWINE_PASSWORD" ]; then
+            echo "PYPI_TOKEN is not configured; skipping PyPI publication."
+            exit 0
+          fi
+          twine upload dist/*.whl dist/*.tar.gz
