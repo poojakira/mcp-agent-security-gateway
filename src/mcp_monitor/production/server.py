@@ -336,8 +336,11 @@ class ProductionServer:
         if method == "GET" and path == "/v1/ready":
             return self._handle_ready()
 
-        # Metrics
+        # Metrics expose operational/security telemetry and require the service key.
         if method == "GET" and path == "/v1/metrics":
+            auth_status = self._authorize(headers)
+            if auth_status is not None:
+                return auth_status
             return self._handle_metrics()
 
         # /api/scan is the detection-lab alias for /v1/inspect_call. It lets the
