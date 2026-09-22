@@ -1,13 +1,13 @@
-"""Realistic agent workload — generates real-world MCP tool-call traffic.
+"""Synthetic agent workload for MCP tool-call regression and dashboard traffic.
 
-This models what a deployed AI assistant actually does in production: a steady
+This generates representative tool-call patterns for a demo/test workload: a steady
 stream of mostly-legitimate tool calls (email, calendar, files, database,
 search, API requests) with a realistic low rate of malicious/anomalous calls
-mixed in (the way real threat traffic appears — rare, not constant).
+mixed in at a low configured rate.
 
-Every generated call is a genuine tool call routed through the real 5-layer
+Every generated call is evaluated by the configured 5-layer
 defense; nothing is hard-coded as "detected". The verdict comes from the
-gateway evaluating the actual payload. This is the live feed source for the
+gateway against the generated payload. This is the synthetic feed source for the
 product dashboard.
 """
 
