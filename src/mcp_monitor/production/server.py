@@ -15,11 +15,6 @@ import time
 from secrets import compare_digest
 from typing import Any
 
-_MAX_REQUEST_LINE_BYTES = 8 * 1024
-_MAX_HEADER_LINE_BYTES = 8 * 1024
-_MAX_HEADER_BYTES = 32 * 1024
-_MAX_HEADER_COUNT = 100
-
 from mcp_monitor.audit.log import AuditEntry, AuditLog
 from mcp_monitor.audit.wal import WriteAheadLog
 from mcp_monitor.monitor import MCPSecurityMonitor
@@ -31,6 +26,12 @@ from mcp_monitor.production.metrics import MetricsCollector
 from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.production.shutdown import GracefulShutdown
 from mcp_monitor.production.tracing import Tracer
+
+_MAX_REQUEST_LINE_BYTES = 8 * 1024
+_MAX_HEADER_LINE_BYTES = 8 * 1024
+_MAX_HEADER_BYTES = 32 * 1024
+_MAX_HEADER_COUNT = 100
+
 
 
 class ProductionServer:
