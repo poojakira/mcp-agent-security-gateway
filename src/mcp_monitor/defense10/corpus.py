@@ -1,4 +1,4 @@
-"""Production training corpus for MCP tool-call threat classification.
+"""Synthetic training corpus for MCP tool-call threat-classification experiments.
 
 1000+ labelled examples for binary classification of MCP tool calls.
 Label 1 = malicious/suspicious, Label 0 = benign/normal.
