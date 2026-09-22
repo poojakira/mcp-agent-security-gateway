@@ -6,6 +6,8 @@ metadata:
   labels:
     app.kubernetes.io/name: mcp-monitor
 data:
+  MCP_ENV: "production"
+  MCP_LISTEN_HOST: "0.0.0.0"
   MCP_LISTEN_PORT: "8080"
   MCP_SHADOW_MODE: "false"
   MCP_WEBHOOK_URL: ""
@@ -13,9 +15,9 @@ data:
   MCP_CIRCUIT_BREAKER_THRESHOLD: "5"
   MCP_CIRCUIT_BREAKER_TIMEOUT: "30"
   MCP_LOG_LEVEL: "INFO"
-  MCP_ALLOWED_SERVERS: ""
+  # Conservative example. Replace with the exact server IDs approved in your environment.
+  MCP_ALLOWED_SERVERS: "github"
+  MCP_ALLOW_ANONYMOUS: "false"
   MCP_MAX_PAYLOAD_KB: "512"
-  # WAL and audit files are written to the mcp-monitor-data PVC in the sample deployment.
-  # For horizontal scaling, use an external audit/WAL backend or per-pod PVC StatefulSet.
   MCP_WAL_PATH: "/data/mcp_monitor_wal.jsonl"
   MCP_AUDIT_PATH: "/data/mcp_monitor_audit.jsonl"
