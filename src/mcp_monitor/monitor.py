@@ -24,8 +24,8 @@ logger = logging.getLogger(__name__)
 class Decision(Enum):
     """Explicit security enforcement decision.
 
-    ALLOW    - All detectors passed, request is safe.
-    BLOCK    - At least one detector found a threat.
+    ALLOW    - No configured detector produced a blocking signal.
+    BLOCK    - At least one configured detector produced a blocking signal.
     INDETERMINATE - Detector failure/timeout/unavailable; fail-closed in enforcement mode.
     """
 
