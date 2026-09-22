@@ -2,9 +2,7 @@
 
 ## Scope
 
-`mcp-agent-security-gateway` is a research and portfolio project: a stdlib-first
-security monitor for MCP tool calls. It has not been hardened for production or
-run at scale. Use it as a reference implementation, not a turnkey control.
+`mcp-agent-security-gateway` is maintained as a production-oriented security gateway for MCP/JSON-RPC tool calls. Supported runtime paths are expected to fail explicitly, emit audit evidence, and enforce configured policy before forwarding controlled requests. Deployment at a specific scale or environment still requires operator validation, SLOs, and integration testing.
 
 ## Reporting a Vulnerability
 
