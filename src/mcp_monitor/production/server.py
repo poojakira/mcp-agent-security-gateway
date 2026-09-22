@@ -563,10 +563,14 @@ class ProductionServer:
             200: "OK",
             400: "Bad Request",
             404: "Not Found",
+            405: "Method Not Allowed",
             413: "Payload Too Large",
+            414: "URI Too Long",
             429: "Too Many Requests",
+            431: "Request Header Fields Too Large",
             500: "Internal Server Error",
             503: "Service Unavailable",
+            505: "HTTP Version Not Supported",
         }
         status_msg = status_messages.get(status, "Unknown")
 
