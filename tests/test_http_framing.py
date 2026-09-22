@@ -26,14 +26,17 @@ class _Writer:
 
 
 def _request(raw: bytes) -> bytes:
-    reader = asyncio.StreamReader()
-    reader.feed_data(raw)
-    reader.feed_eof()
-    writer = _Writer()
-    with patch.dict("os.environ", {}, clear=False):
-        server = ProductionServer(Config())
-    asyncio.run(server._handle_connection(reader, writer))
-    return bytes(writer.buffer)
+    async def _exercise_request() -> bytes:
+        reader = asyncio.StreamReader()
+        reader.feed_data(raw)
+        reader.feed_eof()
+        writer = _Writer()
+        with patch.dict("os.environ", {}, clear=False):
+            server = ProductionServer(Config())
+        await server._handle_connection(reader, writer)
+        return bytes(writer.buffer)
+
+    return asyncio.run(_exercise_request())
 
 
 def test_duplicate_content_length_is_rejected():
