@@ -397,19 +397,25 @@ class ProductionServer:
         }
 
     def _handle_ready(self) -> tuple[int, dict[str, Any]]:
-        """GET /v1/ready - Readiness probe (checks WAL writability)."""
+        """GET /v1/ready - Require both forensic persistence paths to be writable."""
         try:
-            # Test WAL writability by checking parent dir is writable
-            wal_path = self.config.wal_path or os.path.join(
-                tempfile.gettempdir(), "mcp_monitor_wal.jsonl"
-            )
-            wal_dir = os.path.dirname(wal_path) or "."
-            if os.access(wal_dir, os.W_OK):
-                return 200, {"status": "ready"}
-            else:
-                return 503, {"status": "not_ready", "reason": "WAL not writable"}
+            paths = {
+                "WAL": self.config.wal_path
+                or os.path.join(tempfile.gettempdir(), "mcp_monitor_wal.jsonl"),
+                "audit": self.config.audit_path
+                or os.path.join(tempfile.gettempdir(), "mcp_monitor_audit.jsonl"),
+            }
+            for label, path in paths.items():
+                parent = os.path.dirname(path) or "."
+                if not os.path.isdir(parent) or not os.access(parent, os.W_OK):
+                    return 503, {
+                        "status": "not_ready",
+                        "reason": f"{label} directory not writable",
+                    }
+            return 200, {"status": "ready"}
         except Exception as exc:
-            return 503, {"status": "not_ready", "reason": str(exc)}
+            self._logger.error("Readiness check failed: %s", exc)
+            return 503, {"status": "not_ready", "reason": "readiness_check_failed"}
 
     def _handle_metrics(self) -> tuple[int, str]:
         """GET /v1/metrics - Prometheus text exposition format."""
