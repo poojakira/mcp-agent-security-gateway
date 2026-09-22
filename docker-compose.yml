@@ -6,22 +6,30 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
     environment:
-      - MCP_LISTEN_PORT=8080
-      - MCP_SHADOW_MODE=false
-      - MCP_WEBHOOK_URL=
-      - MCP_RATE_LIMIT_RPM=600
-      - MCP_CIRCUIT_BREAKER_THRESHOLD=5
-      - MCP_CIRCUIT_BREAKER_TIMEOUT=30
-      - MCP_LOG_LEVEL=INFO
-      - MCP_API_KEY=${MCP_API_KEY:?set MCP_API_KEY}
-      - MCP_ALLOWED_SERVERS=
-      - MCP_MAX_PAYLOAD_KB=512
-      - MCP_WAL_PATH=/tmp/mcp_monitor_wal.jsonl
-      - MCP_AUDIT_PATH=/tmp/mcp_monitor_audit.jsonl
+      MCP_ENV: production
+      MCP_LISTEN_HOST: 0.0.0.0
+      MCP_LISTEN_PORT: 8080
+      MCP_SHADOW_MODE: "false"
+      MCP_WEBHOOK_URL: ${MCP_WEBHOOK_URL:-}
+      MCP_RATE_LIMIT_RPM: 600
+      MCP_CIRCUIT_BREAKER_THRESHOLD: 5
+      MCP_CIRCUIT_BREAKER_TIMEOUT: 30
+      MCP_LOG_LEVEL: INFO
+      MCP_API_KEY: ${MCP_API_KEY:?set MCP_API_KEY to a random value of at least 32 characters}
+      MCP_ALLOWED_SERVERS: ${MCP_ALLOWED_SERVERS:?set MCP_ALLOWED_SERVERS to approved comma-separated server IDs}
+      MCP_MAX_PAYLOAD_KB: 512
+      MCP_WAL_PATH: /var/lib/mcp/wal.jsonl
+      MCP_AUDIT_PATH: /var/lib/mcp/audit.jsonl
+      MCP_ALLOW_ANONYMOUS: "false"
+    volumes:
+      - mcp-state:/var/lib/mcp
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/v1/health')"]
-      interval: 30s
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/v1/ready', timeout=3).read()"]
+      interval: 15s
       timeout: 5s
-      retries: 3
+      retries: 5
       start_period: 10s
     restart: unless-stopped
+
+volumes:
+  mcp-state:
