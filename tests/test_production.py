@@ -745,6 +745,17 @@ class TestProductionServer:
         assert status == 200
         assert body["status"] == "ready"
 
+    def test_ready_fails_when_audit_directory_is_missing(self, tmp_path):
+        missing = tmp_path / "missing" / "audit.jsonl"
+        server = self._make_server(
+            MCP_WAL_PATH=str(tmp_path / "wal.jsonl"),
+            MCP_AUDIT_PATH=str(missing),
+        )
+        status, body = server._handle_ready()
+        assert status == 503
+        assert body["status"] == "not_ready"
+        assert "audit" in body["reason"].lower()
+
     def test_metrics_endpoint(self):
         """GET /v1/metrics returns Prometheus format."""
         server = self._make_server()
