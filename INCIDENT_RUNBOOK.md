@@ -81,7 +81,7 @@ When an incident is detected:
   curl -s http://gateway:8080/v1/ready | jq .
 
   # Runtime metrics (includes error counters)
-  curl -s http://gateway:8080/v1/metrics
+  curl -s -H "X-API-Key: $MCP_API_KEY" http://gateway:8080/v1/metrics
   ```
 - [ ] **Check logs** for immediate root cause:
   ```bash
@@ -302,8 +302,8 @@ curl -s http://gateway:8080/v1/ready | jq .
 | Scenario | Rollback Target | Estimated Recovery |
 |----------|-----------------|-------------------|
 | Bad code deploy | Application version | 2–5 minutes |
-| Bad policy rule | Policy version | < 1 minute (hot-reload) |
-| Bad configuration | Config version | < 1 minute (hot-reload) |
+| Bad policy rule | Policy/config version | restart required in this implementation |
+| Bad configuration | Config version | restart required in this implementation |
 | Infrastructure issue | Scale or failover | 5–10 minutes |
 | Data corruption | Full restore from backup | 30–60 minutes |
 
