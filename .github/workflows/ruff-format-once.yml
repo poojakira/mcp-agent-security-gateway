@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/ruff-format-once.yml"
+      - ".github/format-trigger.txt"
 
 permissions:
   contents: write
