@@ -1,10 +1,16 @@
 # Kubernetes Deployment
 
-This directory contains a conservative sample deployment for the MCP Security Gateway Monitor.
+This directory contains a conservative single-replica deployment for the MCP
+Security Gateway.
 
-## Required Secret
+## Before applying
 
-Create `mcp-monitor-secrets` before applying the deployment. Do not commit a real API key.
+The sample ConfigMap runs the service under `MCP_ENV=production`, binds on
+`0.0.0.0:8080`, disables anonymous access, and writes audit/WAL state to the
+PVC. Replace the example `MCP_ALLOWED_SERVERS=github` with the exact server IDs
+approved for your environment.
+
+Create the API key Secret:
 
 ```bash
 kubectl apply -f deploy/k8s/namespace.yaml
@@ -14,16 +20,19 @@ kubectl create secret generic mcp-monitor-secrets \
   --from-literal=MCP_API_KEY="$MCP_API_KEY"
 ```
 
-`secret.example.yaml` is documentation-only and intentionally not an applyable Kubernetes Secret. Use `kubectl create secret` or your cluster secret manager for the real value.
+`secret.example.yaml` is documentation-only and intentionally not an
+applyable Secret.
 
 ## Image
 
-Build and push the image to a registry your cluster can pull, then update `image:` in `deployment.yaml`.
+The sample Deployment references the repository release image. For controlled
+production promotion, replace the tag with an **immutable digest**, for example:
 
-```bash
-docker build -t registry.example.com/mcp-monitor:0.1.0 .
-docker push registry.example.com/mcp-monitor:0.1.0
+```yaml
+image: ghcr.io/poojakira/mcp-agent-security-gateway@sha256:<digest>
 ```
+
+Do not deploy a locally mutable `:latest` tag.
 
 ## Apply
 
@@ -35,9 +44,13 @@ kubectl apply -f deploy/k8s/service.yaml
 kubectl apply -f deploy/k8s/hpa.yaml
 ```
 
-## Durability And Scaling
+## Durability and scaling
 
-The sample deployment uses one replica and a `ReadWriteOnce` PVC for `/data` because the local WAL and audit log append to files and are not safe for concurrent multi-pod writes to the same path. `hpa.yaml` is pinned at one replica for that reason. For high availability, move audit/WAL persistence to an external backend or replace the Deployment with a StatefulSet that gives each pod its own PVC.
+The sample uses one replica and a `ReadWriteOnce` PVC because the local WAL
+and audit files are single-writer state. The HPA is deliberately capped at one
+replica. Do not increase replicas against the same file-backed paths. Move
+audit/WAL persistence to an external concurrency-safe backend or give each pod
+its own durable volume before horizontal scaling.
 
 ## Verify
 
@@ -47,8 +60,8 @@ kubectl logs -n mcp-monitor deploy/mcp-monitor
 kubectl port-forward -n mcp-monitor svc/mcp-monitor 8080:80
 curl http://127.0.0.1:8080/v1/health
 curl http://127.0.0.1:8080/v1/ready
+curl -H "X-API-Key: $MCP_API_KEY" http://127.0.0.1:8080/v1/metrics
 ```
 
-
-
-
+The health and readiness endpoints are intentionally unauthenticated for
+orchestration. Runtime metrics and inspection endpoints require the service key.
