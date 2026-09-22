@@ -37,3 +37,5 @@ jobs:
           git add -A
           git commit -m "style: apply Ruff formatter"
           git push origin HEAD:main
+
+# trigger: production formatting maintenance
