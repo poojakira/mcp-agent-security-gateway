@@ -3,12 +3,14 @@
 Target: 5000 requests/second sustained throughput.
 
 Run with:
-    locust -f locustfile.py --host=http://localhost:8080 --users 500 --spawn-rate 50
+    MCP_API_KEY=<service-key> locust -f locustfile.py --host=http://localhost:8080 --users 500 --spawn-rate 50
 
 For headless mode targeting 5000 req/s:
     locust -f locustfile.py --host=http://localhost:8080 \
         --users 1000 --spawn-rate 100 --headless --run-time 60s
 """
+
+import os
 
 from locust import HttpUser, between, task
 
@@ -22,6 +24,14 @@ class MCPLoadUser(HttpUser):
 
     wait_time = between(0.01, 0.05)
 
+    def on_start(self):
+        api_key = os.environ.get("MCP_API_KEY", "")
+        if len(api_key) < 32:
+            raise RuntimeError(
+                "MCP_API_KEY (at least 32 characters) is required for production load tests"
+            )
+        self.auth_headers = {"X-API-Key": api_key}
+
     @task(5)
     def inspect_call_clean(self):
         """Normal tool call - should be allowed."""
@@ -32,7 +42,7 @@ class MCPLoadUser(HttpUser):
                 "path": "/home/user/documents/report.txt",
             },
         }
-        self.client.post("/v1/inspect_call", json=payload)
+        self.client.post("/v1/inspect_call", json=payload, headers=self.auth_headers)
 
     @task(3)
     def inspect_call_injection(self):
@@ -45,7 +55,7 @@ class MCPLoadUser(HttpUser):
                 "working_dir": "/tmp",
             },
         }
-        self.client.post("/v1/inspect_call", json=payload)
+        self.client.post("/v1/inspect_call", json=payload, headers=self.auth_headers)
 
     @task(3)
     def inspect_call_path_traversal(self):
@@ -57,7 +67,7 @@ class MCPLoadUser(HttpUser):
                 "path": "../../../../etc/shadow",
             },
         }
-        self.client.post("/v1/inspect_call", json=payload)
+        self.client.post("/v1/inspect_call", json=payload, headers=self.auth_headers)
 
     @task(2)
     def inspect_output(self):
@@ -69,7 +79,7 @@ class MCPLoadUser(HttpUser):
                 "rows_affected": 1,
             },
         }
-        self.client.post("/v1/inspect_output", json=payload)
+        self.client.post("/v1/inspect_output", json=payload, headers=self.auth_headers)
 
     @task(2)
     def inspect_output_clean(self):
@@ -81,7 +91,7 @@ class MCPLoadUser(HttpUser):
                 "count": 3,
             },
         }
-        self.client.post("/v1/inspect_output", json=payload)
+        self.client.post("/v1/inspect_output", json=payload, headers=self.auth_headers)
 
     @task(1)
     def health_check(self):
@@ -96,4 +106,4 @@ class MCPLoadUser(HttpUser):
     @task(1)
     def metrics(self):
         """Metrics endpoint."""
-        self.client.get("/v1/metrics")
+        self.client.get("/v1/metrics", headers=self.auth_headers)
