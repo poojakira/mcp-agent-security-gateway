@@ -24,8 +24,8 @@ spec:
           type: RuntimeDefault
       containers:
         - name: mcp-monitor
-          # Build and push this tag to your registry before applying.
-          image: mcp-monitor:0.1.0
+          # Release image. Pin to an immutable digest for controlled production promotion.
+          image: ghcr.io/poojakira/mcp-agent-security-gateway:v0.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
