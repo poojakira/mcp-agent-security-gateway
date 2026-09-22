@@ -1,0 +1,60 @@
+name: Production Policy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  production-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+      - name: Enforce active production surfaces
+        shell: python
+        run: |
+          from pathlib import Path
+
+          required = Path("PRODUCTION.md")
+          if not required.is_file():
+              raise SystemExit("PRODUCTION.md is required")
+
+          active_candidates = [
+              Path("README.md"),
+              Path("SECURITY.md"),
+              Path("RUNBOOK.md"),
+              Path("docs/SECURITY_CONTROLS.md"),
+              Path("docs/DEPLOYMENT_GUIDE.md"),
+              Path("deploy/k8s/README.md"),
+          ]
+          forbidden = (
+              "not production-ready",
+              "archived experimental reference architecture",
+              "research and portfolio project",
+              "open-source research/engineering project",
+              "integration-topology prototype",
+              "scope: prototype security gateway",
+              "status: archived",
+          )
+
+          failures = []
+          for path in active_candidates:
+              if not path.is_file():
+                  continue
+              text = path.read_text(encoding="utf-8", errors="replace").lower()
+              for marker in forbidden:
+                  if marker in text:
+                      failures.append(f"{path}: retired active-system marker: {marker!r}")
+
+          if failures:
+              raise SystemExit("\n".join(failures))
+
+          print("active production surfaces verified")
