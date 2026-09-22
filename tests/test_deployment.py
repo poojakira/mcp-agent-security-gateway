@@ -130,11 +130,14 @@ class TestDockerCompose:
             data = yaml.safe_load(f)
         service = data["services"]["mcp-monitor"]
         assert "environment" in service
-        env_list = service["environment"]
-        env_names = [e.split("=")[0] for e in env_list]
-        assert "MCP_LISTEN_PORT" in env_names
-        assert "MCP_SHADOW_MODE" in env_names
-        assert "MCP_API_KEY" in env_names
+        env = service["environment"]
+        assert env["MCP_ENV"] == "production"
+        assert env["MCP_LISTEN_HOST"] == "0.0.0.0"
+        assert "MCP_LISTEN_PORT" in env
+        assert "MCP_SHADOW_MODE" in env
+        assert "MCP_API_KEY" in env
+        assert "MCP_ALLOWED_SERVERS" in env
+        assert env["MCP_ALLOW_ANONYMOUS"] == "false"
 
 
 class TestKubernetesNamespace:
@@ -199,10 +202,14 @@ class TestKubernetesConfigMap:
         with open(os.path.join(K8S_DIR, "configmap.yaml")) as f:
             data = yaml.safe_load(f)
         config_data = data["data"]
+        assert config_data["MCP_ENV"] == "production"
+        assert config_data["MCP_LISTEN_HOST"] == "0.0.0.0"
         assert "MCP_LISTEN_PORT" in config_data
         assert "MCP_SHADOW_MODE" in config_data
         assert "MCP_RATE_LIMIT_RPM" in config_data
         assert "MCP_LOG_LEVEL" in config_data
+        assert config_data["MCP_ALLOWED_SERVERS"]
+        assert config_data["MCP_ALLOW_ANONYMOUS"] == "false"
 
 
 class TestKubernetesDeployment:
@@ -302,16 +309,17 @@ class TestKubernetesDeployment:
         assert security_context["readOnlyRootFilesystem"] is True
         assert "ALL" in security_context["capabilities"]["drop"]
 
-    def test_image_requires_registry_replacement_before_cluster_apply(self):
-        ## The sample image tag must be explicitly documented as local-only.
+    def test_image_uses_repository_release_registry(self):
         with open(os.path.join(K8S_DIR, "deployment.yaml")) as f:
             data = yaml.safe_load(f)
         container = data["spec"]["template"]["spec"]["containers"][0]
-        assert container["image"] == "mcp-monitor:0.1.0"
+        assert container["image"].startswith(
+            "ghcr.io/poojakira/mcp-agent-security-gateway:"
+        )
         assert container["imagePullPolicy"] == "IfNotPresent"
         with open(os.path.join(K8S_DIR, "README.md")) as f:
             runbook = f.read()
-        assert "update `image:` in `deployment.yaml`" in runbook
+        assert "immutable digest" in runbook.lower()
 
 
 class TestKubernetesSecretExample:
