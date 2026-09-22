@@ -753,6 +753,30 @@ class TestProductionServer:
         assert "mcp_request_total" in body
         assert "# TYPE" in body
 
+    def test_metrics_route_requires_api_key(self):
+        server = self._make_server(MCP_API_KEY="a" * 32)
+        status, body = asyncio.run(
+            server._route("GET", "/v1/metrics", b"", {}, "t" * 32, "s" * 16)
+        )
+        assert status == 401
+        assert body["error"] == "Unauthorized"
+
+    def test_metrics_route_accepts_service_key(self):
+        key = "a" * 32
+        server = self._make_server(MCP_API_KEY=key)
+        status, body = asyncio.run(
+            server._route(
+                "GET",
+                "/v1/metrics",
+                b"",
+                {"x-api-key": key},
+                "t" * 32,
+                "s" * 16,
+            )
+        )
+        assert status == 200
+        assert "mcp_request_total" in body
+
     def test_inspect_call_endpoint(self):
         """POST /v1/inspect_call processes tool calls."""
         server = self._make_server(MCP_ALLOWED_SERVERS="test-server")
