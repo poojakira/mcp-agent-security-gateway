@@ -40,6 +40,11 @@ RUN mkdir -p /var/log/mcp-gateway && chown -R mlsec:mlsec /var/log/mcp-gateway
 
 USER mlsec
 
+# Container deployments must listen on the container interface. Local direct
+# execution still defaults to 127.0.0.1 in Config.
+ENV MCP_LISTEN_HOST=0.0.0.0 \
+    MCP_LISTEN_PORT=8080
+
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
