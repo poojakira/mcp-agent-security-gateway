@@ -1,1 +1,2 @@
-Run Ruff formatting once across first-party Python sources.
+Ruff formatting maintenance trigger
+Requested after CI format-check failure.
