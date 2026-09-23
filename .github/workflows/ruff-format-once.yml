@@ -12,7 +12,6 @@ permissions:
 
 jobs:
   format:
-    if: github.event.head_commit.message == 'chore: run one-time Ruff formatting'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
