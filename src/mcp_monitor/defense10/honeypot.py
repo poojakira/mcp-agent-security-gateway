@@ -99,7 +99,7 @@ class HoneypotVault:
 
     def scan_tool_call(self, tool_call: dict[str, Any]) -> list[CanaryTrip]:
         """Convenience: scan a full MCP tool call."""
-        return self.scan(tool_call, context=f"tool_call:{tool_call.get('name','')}")
+        return self.scan(tool_call, context=f"tool_call:{tool_call.get('name', '')}")
 
     def all_trips(self) -> list[CanaryTrip]:
         return list(self._trips)

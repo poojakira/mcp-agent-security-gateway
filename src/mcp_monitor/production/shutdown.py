@@ -107,14 +107,13 @@ class GracefulShutdown:
         """
         self._initiate_shutdown()
         _logger.info(
-            f"Draining {self.active_requests} in-flight requests "
-            f"(timeout: {self.drain_timeout}s)"
+            f"Draining {self.active_requests} in-flight requests (timeout: {self.drain_timeout}s)"
         )
 
         drained = self.wait_for_drain()
         if not drained:
             _logger.warning(
-                f"Drain timeout exceeded, " f"{self.active_requests} requests still in flight"
+                f"Drain timeout exceeded, {self.active_requests} requests still in flight"
             )
 
         if self.on_shutdown:

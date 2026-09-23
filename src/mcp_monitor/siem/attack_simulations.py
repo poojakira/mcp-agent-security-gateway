@@ -401,13 +401,13 @@ def run_scenario(
     all_matched = True
 
     if verbose:
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"  Scenario: {scenario.name} ({scenario.scenario_id})")
         print(f"  MITRE: {scenario.mitre_tactic}")
         print(f"  Steps: {len(scenario.steps)}")
         if scenario.correlation_rule:
             print(f"  Expected correlation: {scenario.correlation_rule}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
     for i, step in enumerate(scenario.steps, 1):
         if verbose:
@@ -523,12 +523,12 @@ def main() -> None:
     passed_scenarios = sum(1 for r in all_reports if r["all_matched"])
 
     if not args.quiet:
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("  SIMULATION SUMMARY")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
         print(f"  Scenarios: {passed_scenarios}/{len(all_reports)} passed")
         print(f"  Steps: {matched_steps}/{total_steps} matched expected outcome")
-        print(f"{'='*60}\n")
+        print(f"{'=' * 60}\n")
 
     if args.json:
         print(json.dumps(all_reports, indent=2, default=str))

@@ -277,9 +277,7 @@ class TestBenignToolCalls:
                 "arguments": {
                     "language": "python",
                     "code": (
-                        "import pandas as pd\n"
-                        "df = pd.read_csv('sales.csv')\n"
-                        "print(df.describe())\n"
+                        "import pandas as pd\ndf = pd.read_csv('sales.csv')\nprint(df.describe())\n"
                     ),
                 },
             },

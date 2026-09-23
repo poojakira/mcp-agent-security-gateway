@@ -254,7 +254,7 @@ class TestMLAccuracy:
         for s in tb:
             if not clf.classify({"arguments": json.loads(s)}).is_threat:
                 correct += 1
-        assert correct / total >= 0.90, f"held-out accuracy {correct/total:.3f} < 0.90"
+        assert correct / total >= 0.90, f"held-out accuracy {correct / total:.3f} < 0.90"
 
     def test_zero_false_positives_on_benign(self):
         """No benign business email should be flagged (usability requirement)."""

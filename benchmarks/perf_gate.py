@@ -200,7 +200,7 @@ def main() -> None:
     MIN_THROUGHPUT_CALLS_PER_SEC = args.threshold_throughput
 
     print(
-        f"Running benchmark: {args.iterations} iterations, " f"{args.warmup} warmup...",
+        f"Running benchmark: {args.iterations} iterations, {args.warmup} warmup...",
         file=sys.stderr,
     )
 

@@ -577,7 +577,7 @@ def _gen_benign_calendar() -> str:
             "tool": _rng.choice(["create_event", "calendar", "schedule"]),
             "arguments": {
                 "title": _rng.choice(_CALENDAR_EVENTS),
-                "date": f"2026-{_rng.randint(1,12):02d}-{_rng.randint(1,28):02d}",
+                "date": f"2026-{_rng.randint(1, 12):02d}-{_rng.randint(1, 28):02d}",
                 "duration_minutes": _rng.choice([30, 45, 60, 90]),
             },
         }

@@ -265,7 +265,7 @@ class BehavioralDriftDetector:
             return DriftAlert(
                 tool_name=tool_name,
                 drift_type="size_anomaly",
-                details=f"Payload size {current_size} is {current_size/avg:.1f}x the average ({avg:.0f})",
+                details=f"Payload size {current_size} is {current_size / avg:.1f}x the average ({avg:.0f})",
                 severity=60,
             )
         if current_size < threshold_low and avg > 10:

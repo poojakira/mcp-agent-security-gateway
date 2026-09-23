@@ -128,18 +128,16 @@ class MetricsCollector:
             lines.append(f"mcp_active_requests {self._active_requests}")
 
             # request_duration_seconds histogram
-            lines.append("# HELP mcp_request_duration_seconds " "Request duration histogram.")
+            lines.append("# HELP mcp_request_duration_seconds Request duration histogram.")
             lines.append("# TYPE mcp_request_duration_seconds histogram")
             cumulative = 0
             for i, bound in enumerate(self._buckets):
                 cumulative += self._duration_buckets[i]
                 if bound == float("inf"):
-                    lines.append(
-                        f'mcp_request_duration_seconds_bucket{{le="+Inf"}} ' f"{cumulative}"
-                    )
+                    lines.append(f'mcp_request_duration_seconds_bucket{{le="+Inf"}} {cumulative}')
                 else:
                     lines.append(
-                        f'mcp_request_duration_seconds_bucket{{le="{bound}"}} ' f"{cumulative}"
+                        f'mcp_request_duration_seconds_bucket{{le="{bound}"}} {cumulative}'
                     )
             lines.append(f"mcp_request_duration_seconds_sum {self._duration_sum}")
             lines.append(f"mcp_request_duration_seconds_count {self._duration_count}")

@@ -313,9 +313,7 @@ class TestKubernetesDeployment:
         with open(os.path.join(K8S_DIR, "deployment.yaml")) as f:
             data = yaml.safe_load(f)
         container = data["spec"]["template"]["spec"]["containers"][0]
-        assert container["image"].startswith(
-            "ghcr.io/poojakira/mcp-agent-security-gateway:"
-        )
+        assert container["image"].startswith("ghcr.io/poojakira/mcp-agent-security-gateway:")
         assert container["imagePullPolicy"] == "IfNotPresent"
         with open(os.path.join(K8S_DIR, "README.md")) as f:
             runbook = f.read()

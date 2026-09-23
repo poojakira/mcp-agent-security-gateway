@@ -62,36 +62,22 @@ def test_transfer_encoding_is_rejected():
 
 
 def test_absolute_form_request_target_is_rejected():
-    response = _request(
-        b"GET http://evil.example/v1/health HTTP/1.1\r\n"
-        b"Host: gateway\r\n\r\n"
-    )
+    response = _request(b"GET http://evil.example/v1/health HTTP/1.1\r\nHost: gateway\r\n\r\n")
     assert response.startswith(b"HTTP/1.1 400")
 
 
 def test_oversized_header_line_is_rejected():
     value = b"a" * (8 * 1024 + 16)
-    response = _request(
-        b"GET /v1/health HTTP/1.1\r\n"
-        + b"X-Large: "
-        + value
-        + b"\r\n\r\n"
-    )
+    response = _request(b"GET /v1/health HTTP/1.1\r\n" + b"X-Large: " + value + b"\r\n\r\n")
     assert response.startswith(b"HTTP/1.1 431")
 
 
 def test_unsupported_method_is_rejected():
-    response = _request(
-        b"TRACE /v1/health HTTP/1.1\r\n"
-        b"Host: gateway\r\n\r\n"
-    )
+    response = _request(b"TRACE /v1/health HTTP/1.1\r\nHost: gateway\r\n\r\n")
     assert response.startswith(b"HTTP/1.1 405")
 
 
 def test_valid_health_request_reaches_router():
-    response = _request(
-        b"GET /v1/health HTTP/1.1\r\n"
-        b"Host: gateway\r\n\r\n"
-    )
+    response = _request(b"GET /v1/health HTTP/1.1\r\nHost: gateway\r\n\r\n")
     assert response.startswith(b"HTTP/1.1 200")
     assert b'"status": "healthy"' in response

@@ -33,7 +33,6 @@ _MAX_HEADER_BYTES = 32 * 1024
 _MAX_HEADER_COUNT = 100
 
 
-
 class ProductionServer:
     """asyncio HTTP server with full production infrastructure.
 
@@ -206,7 +205,10 @@ class ProductionServer:
                 if not normalized_key or any(ch.isspace() for ch in normalized_key):
                     await self._send_response(writer, 400, {"error": "Malformed header name"})
                     return
-                if normalized_key in {"content-length", "transfer-encoding"} and normalized_key in headers:
+                if (
+                    normalized_key in {"content-length", "transfer-encoding"}
+                    and normalized_key in headers
+                ):
                     await self._send_response(writer, 400, {"error": "Ambiguous request framing"})
                     return
                 headers[normalized_key] = value.strip()

@@ -780,9 +780,7 @@ class TestProductionServer:
 
     def test_metrics_route_requires_api_key(self):
         server = self._make_server(MCP_API_KEY="a" * 32)
-        status, body = asyncio.run(
-            server._route("GET", "/v1/metrics", b"", {}, "t" * 32, "s" * 16)
-        )
+        status, body = asyncio.run(server._route("GET", "/v1/metrics", b"", {}, "t" * 32, "s" * 16))
         assert status == 401
         assert body["error"] == "Unauthorized"
 

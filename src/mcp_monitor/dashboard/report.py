@@ -130,7 +130,7 @@ tr:hover{{background:#16213e}}
 </style></head><body>
 <div class="container">
 <h1>MCP Security Gateway Monitor — Regression Self-Test Report</h1>
-<p>Generated: {time.strftime('%Y-%m-%d %H:%M:%S')} | Execution: {report.execution_time_ms:.1f}ms</p>
+<p>Generated: {time.strftime("%Y-%m-%d %H:%M:%S")} | Execution: {report.execution_time_ms:.1f}ms</p>
 <p style="color:#ffcc66;font-size:0.9em;background:#2a2417;border:1px solid #5f4b1e;border-radius:6px;padding:10px">
 <strong>Source:</strong> static self-test against the bundled red-team catalog (<code>mcp_monitor/redteam/payloads.py</code>).
 This measures whether the five defense layers catch every <em>catalogued</em> technique end-to-end (a build gate),
