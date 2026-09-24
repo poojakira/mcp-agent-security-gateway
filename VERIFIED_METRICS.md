@@ -4,14 +4,14 @@ This file is the evidence anchor for quantitative claims about this repository.
 
 ## Verified baseline
 
-**Code commit:** `0f25219d0f20521382819654f8a267202febe304`  
-**Successful main CI run:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/35158937752  
-**Verification date:** 2026-09-16
+**Code commit:** `a5d39be286a9bac62b01d898ace17607ae058e89`  
+**Successful main CI run:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/35809388960  
+**Verification date:** 2026-09-23
 
 | Claim | Verified value | Evidence |
 |---|---:|---|
-| Automated tests | **629 passed** | Main CI, Python 3.11 unit-test job; CI also reports 629 tests collected |
-| Statement coverage | **78.47%** | Main CI coverage report; gate is 77% |
+| Automated tests | **641 passed** | Main CI, Python 3.11 unit-test job; CI also reports 641 tests collected |
+| Statement coverage | **79.54%** | Main CI coverage report; gate is 77% |
 | Prompt-injection regex patterns | **55** | `src/mcp_monitor/detectors/prompt_injection.py`, `INJECTION_PATTERNS` contains 55 compiled entries |
 | Elastic Security rules | **9** | `detection_rules/elastic_rules.toml` contains 9 `[[rule]]` records |
 | Core SIEM tests | **21** | `tests/test_siem.py` contains 21 `test_*` functions |
