@@ -1,4 +1,4 @@
-name: Production Policy
+name: Documentation Integrity
 
 on:
   push:
@@ -10,51 +10,32 @@ permissions:
   contents: read
 
 jobs:
-  production-policy:
+  documentation-integrity:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
-      - name: Enforce active production surfaces
+      - name: Reject unresolved placeholders and merge conflicts
         shell: python
         run: |
           from pathlib import Path
 
-          required = Path("PRODUCTION.md")
-          if not required.is_file():
-              raise SystemExit("PRODUCTION.md is required")
-
-          active_candidates = [
-              Path("README.md"),
-              Path("SECURITY.md"),
-              Path("RUNBOOK.md"),
-              Path("docs/SECURITY_CONTROLS.md"),
-              Path("docs/DEPLOYMENT_GUIDE.md"),
-              Path("deploy/k8s/README.md"),
+          candidates = [
+              Path("README.md"), Path("SECURITY.md"), Path("RUNBOOK.md"),
+              Path("PRODUCTION.md"), Path("THREAT_MODEL.md"),
           ]
-          forbidden = (
-              "not production-ready",
-              "archived experimental reference architecture",
-              "research and portfolio project",
-              "open-source research/engineering project",
-              "integration-topology prototype",
-              "scope: prototype security gateway",
-              "status: archived",
-          )
-
+          forbidden = ("<<<<<<<", "=======", ">>>>>>>", "TODO: FILL", "TBD_METRIC")
           failures = []
-          for path in active_candidates:
+          for path in candidates:
               if not path.is_file():
                   continue
-              text = path.read_text(encoding="utf-8", errors="replace").lower()
+              body = path.read_text(encoding="utf-8", errors="replace")
               for marker in forbidden:
-                  if marker in text:
-                      failures.append(f"{path}: retired active-system marker: {marker!r}")
-
+                  if marker in body:
+                      failures.append(f"{path}: unresolved marker {marker!r}")
           if failures:
               raise SystemExit("\n".join(failures))
-
-          print("active production surfaces verified")
+          print("documentation integrity verified; honest research/prototype/limitation wording is allowed")
