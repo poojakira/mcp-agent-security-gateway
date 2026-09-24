@@ -20,73 +20,26 @@ dangerous ones.
 
 ### Technical Summary
 
-A Python library (zero external dependencies, stdlib-only) that provides:
+A stdlib-first Python base package with optional feature/development dependencies that provides:
 
-1. **4 Pattern Detectors** — regex/rule-based scanning of tool call arguments
-2. **5 Advanced Modules** — cryptographic manifest signing, behavioral drift
-   detection, cross-tool correlation, declarative invariant enforcement, canary
-   probes
-3. **5-Layer Defense System** — inline proxy, kernel monitor, semantic analyzer,
-   network egress policy, unified orchestrator
-4. **Red Team Simulator** — 17 documented attack patterns for validation
-5. **Security Dashboard** — terminal + HTML visualization
+1. MCP/JSON-RPC parsing and inline stdio enforcement for supported `tools/call` requests
+2. Prompt-injection-oriented inspection with normalization and 55 compiled regex patterns
+3. Server registration/capability checks plus PII and exfiltration signals
+4. Hash-chained audit logging, optional HMAC protection, and write-ahead logging
+5. Rate limiting, circuit-breaker, telemetry, ECS/SIEM lab, Docker, and Kubernetes artifacts
+6. Optional host/network-monitoring components under `defense10`
 
-**Scale:** Historical local snapshot: 42 Python files, ~3,600 lines of code, 313 automated tests. Re-run repository metrics before citing current counts.
+The current evidence anchor is `VERIFIED_METRICS.md`; historical counts in this report are not current metrics.
 
 ---
 
 ## 2. MOTIVATION — WHY BUILD THIS?
 
-### The Incident That Triggered This
+MCP gives agents a standardized way to call external tools, which creates a trust boundary between model-generated requests and systems that can read data, send messages, access networks, or execute operations.
 
-On **September 17, 2025**, version 1.0.16 of the npm package `postmark-mcp`
-was published. It contained a single line of code that silently added a BCC
-field to every email sent through the MCP server, forwarding copies to
-`phan@giftshop.club`.
+This project focuses on that boundary. Its engineering question is not whether MCP itself is secure or insecure; it is whether a caller can apply explicit validation, authorization, detection, audit, and policy controls before selected tool calls reach a downstream server.
 
-**Timeline (verified from multiple sources):**
-
-| Date | Event | Source |
-|------|-------|--------|
-| 2025 (earlier) | Attacker publishes `postmark-mcp` on npm, copying legitimate Postmark Labs code | The Register, BleepingComputer |
-| Through v1.0.15 | 15 clean versions build trust, reach 1,500 weekly downloads | The Hacker News |
-| Sep 17, 2025 | v1.0.16 released with one-line BCC backdoor | Koi Security discovery |
-| Sep 17–25, 2025 | ~7 days of silent exfiltration | InfoSec Writeups estimate |
-| Sep 25, 2025 | Koi Security discovers and reports | Snyk, Qualys |
-| Sep 25, 2025 | Postmark publishes official statement denying any involvement | postmarkapp.com |
-| Sep 29, 2025 | Package removed from npm | The Register |
-
-**Estimated impact:** 3,000–15,000 emails per day exfiltrated from ~300
-organizations. Contents included invoices, password resets, authentication
-tokens, and internal correspondence.
-
-### The Protocol Gap
-
-In **April 2026**, OX Security disclosed that MCP's STDIO transport enables
-remote code execution on approximately 200,000 server instances. The flaw
-affects all official SDKs (Python, TypeScript, Java, Rust) and spans 150
-million+ downloads.
-
-**Anthropic's response:** "The behavior is expected. Securing the STDIO
-interface is the responsibility of whoever deploys it."
-
-**What the MCP specification does NOT provide:**
-- No per-tool authorization
-- No agent identity standard
-- No audit log format
-- No behavioral verification
-- No manifest integrity checking
-- No semantic validation of tool calls
-
-### The Market Context
-
-As of mid-2026:
-- 97 million monthly MCP SDK downloads
-- 5,200+ registered servers
-- 40% with zero authentication (Zuplo audit)
-- 43% with command injection vulnerabilities
-- 79% handling credentials in plaintext
-- 40+ CVEs filed in 2026 alone
+External incident statistics and market-size figures are intentionally excluded from the repository-evidence argument. They should be independently sourced and revalidated if used in a separate research paper.
 
 ---
 
@@ -103,15 +56,15 @@ changes behavior.
 | # | Objective | Achieved? | Honest Assessment |
 |---|-----------|-----------|-------------------|
 | 1 | Detect BCC injection in email tools | YES | Works for literal BCC field and 16 synonyms |
-| 2 | Detect prompt injection in tool arguments | YES | 12 regex patterns; evadable with creative rephrasing |
+| 2 | Detect prompt injection in tool arguments | YES | 55 compiled regex patterns plus normalization; deterministic/heuristic and still evadable |
 | 3 | Block calls to unregistered MCP servers | YES | Effective; requires manual server registration |
 | 4 | Detect PII leakage in tool calls/outputs | YES | 9 patterns; misses semantic PII (described, not literal) |
-| 5 | Provide tamper-evident audit trail | YES | SHA-256 hash chain; cryptographically sound |
+| 5 | Provide tamper-evident audit trail | YES | Hash chain with optional HMAC; integrity guarantees depend on key protection and storage trust |
 | 6 | Detect behavioral drift between versions | YES | New-field detection works; same-field value changes harder |
 | 7 | Enforce declarative security policies | YES | Invariant system is well-designed |
-| 8 | Test suite | HISTORICAL LOCAL SNAPSHOT | 569 tests passed, 0 failed on Windows/Python 3.12.10 (2026-08-06); 75% coverage. Current verified CI metrics are maintained in `VERIFIED_METRICS.md` (629 passing tests; 78.47% statement coverage as of the latest reconciled snapshot). |
-| 9 | Zero external dependencies | YES | Pure stdlib; eliminates supply-chain risk in the monitor itself |
-| 10 | Cross-platform (Windows/Linux/macOS) | CI TARGET | CI is configured for multiple Python versions/platforms; re-run Actions before citing verified matrix status |
+| 8 | Test suite | CURRENT CI VERIFIED | `VERIFIED_METRICS.md` records 641 passing tests and 79.54% statement coverage for the current reconciled snapshot; older application snapshots remain historical. |
+| 9 | No mandatory base runtime dependencies | YES | `dependencies = []`; optional ML/server/ATT&CK/dev features add third-party packages |
+| 10 | Cross-platform validation | PARTIAL | Current CI verifies Linux Python 3.10/3.11/3.12 plus a Windows control-plane job; macOS is not part of the current verified matrix |
 
 ---
 
@@ -144,10 +97,7 @@ changes behavior.
 | Process spawn detection | Catches shell commands | Can't see in-process behavior |
 | Rate limiting | Flags connection bursts | May false-positive on legitimate bursts |
 
-**Critical honesty note:** Layer 3 in this codebase is the POLICY ENGINE and
-DETECTION LOGIC. It does NOT include actual eBPF probes. In production, you
-would need a companion daemon (bcc, libbpf, or Cilium Tetragon) to feed real
-syscall events into this engine.
+**Critical honesty note:** The original `KernelMonitor` path evaluates supplied process/network events. A separate `defense10/network_monitor.py` implementation adds `/proc/net/tcp` observation and an embedded eBPF connect-monitor program for privileged Linux host deployment. The repository does not prove that this host path is deployed or operating in production.
 
 ### Layer 4: Semantic Intent Analysis
 
@@ -159,10 +109,7 @@ syscall events into this engine.
 | Base64 email detection | Decodes and checks for hidden emails | Only catches email addresses |
 | Multi-field coordination | Flags email tools with extra recipient fields | Heuristic-based |
 
-**Critical honesty note:** This is NOT an LLM-based semantic analyzer. It is
-a rule-based engine with a synonym dictionary. A real LLM-based solution
-(like MCP-Guard's neural detector at 96% accuracy) would be significantly
-more robust against creative evasion.
+**Critical honesty note:** The five-layer semantic path is rule/heuristic based, not an LLM semantic analyzer. The optional ML classifier is a separate secondary signal and does not establish universal detection effectiveness.
 
 ### Layer 5: Network Egress Policy
 
@@ -249,11 +196,9 @@ every email sent through the server.
 
 ### What This Project Gets Right
 
-1. **Zero dependencies is genuinely smart.** A security tool with its own
-   dependency tree is an attack surface. Using only stdlib eliminates this.
+1. **The base package keeps mandatory runtime dependencies at zero.** Optional features and engineering tooling still introduce third-party dependencies, so the defensible claim is stdlib-first rather than dependency-free overall.
 
-2. **The hash-chained audit log is sound.** SHA-256 chain with WAL persistence
-   is a well-established pattern. Forensically valuable.
+2. **The audit path is materially stronger than a plain append-only file.** Hash chaining, WAL persistence, and optional HMAC are implemented and tested; external anchoring and production key custody are not established by this repository.
 
 3. **The invariant system is the right abstraction.** Declarative policies that
    tools cannot violate is architecturally correct.
@@ -346,7 +291,7 @@ library with a stdlib-only core and a broad set of MCP monitoring components.
 ### What This Is Not
 
 - Not a production-hardened universal gateway; the stdio path is inline, while other paths require explicit routing/integration
-- Not a replacement for real eBPF monitoring (Layer 3 is theoretical)
+- Not proof of production eBPF monitoring; host-monitor code exists but privileged deployment is not demonstrated here
 - Not AI-powered semantic analysis (Layer 4 is a synonym dictionary)
 - Not a complete solution against sophisticated adversaries
 - Not a substitute for network-level controls (egress firewalling)
@@ -372,10 +317,7 @@ that operates at the application layer without kernel access or network
 enforcement — can "completely stop" a supply-chain attack that operates below
 the protocol layer it monitors.
 
-**It raises the bar from zero to substantial.** That matters. The Postmark attack
-succeeded because there were ZERO detection mechanisms. This provides six layers
-of detection. But the honest answer to "does it completely solve the problem?"
-is: **No. Nothing does. Defense is depth, not a single product.**
+The repository adds multiple application and host-oriented security controls, but it does not completely solve MCP security. Its value is in explicit trust boundaries, enforceable paths, testable detections, auditability, and documented residual risk.
 
 ---
 
