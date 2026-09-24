@@ -59,8 +59,8 @@ Current evidence anchor: [VERIFIED_METRICS.md](VERIFIED_METRICS.md)
 
 | Claim | Current verified value | Scope |
 |---|---:|---|
-| Automated tests | **629 passed** | Main CI Python 3.11 job |
-| Statement coverage | **78.47%** | Main CI coverage report |
+| Automated tests | **641 passed** | Main CI Python 3.11 job |
+| Statement coverage | **79.54%** | Main CI coverage report |
 | Prompt-injection regex patterns | **55** | Compiled entries in the detector |
 | Elastic Security rules | **9** | Committed rule definitions |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
