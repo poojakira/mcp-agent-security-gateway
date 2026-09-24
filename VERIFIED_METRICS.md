@@ -2,7 +2,7 @@
 
 This file is the evidence anchor for quantitative claims about this repository.
 
-## Verified baseline
+## Historical main CI baseline
 
 **Code commit:** `a5d39be286a9bac62b01d898ace17607ae058e89`  
 **Successful main CI run:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/35809388960  
@@ -19,7 +19,16 @@ This file is the evidence anchor for quantitative claims about this repository.
 
 ## Claim boundary
 
-These values describe the committed repository and the cited CI run. They are not claims of universal detection effectiveness. The gateway only governs calls that are routed through the enforcement path, and heuristic detectors can have false positives and false negatives.
+These values describe the cited historical CI run, not the local repair. The gateway only governs calls routed through the enforcement path, and heuristic detectors can have false positives and false negatives.
+
+## Local repair verification (2026-09-24)
+
+The stdio proxy now rejects malformed/ambiguous JSON, inspects each tool call
+in a batch before forwarding, and does not wait for responses to notifications.
+`PYTHONPATH=src python -m pytest tests -q --cov=mcp_monitor --cov-report=term
+--cov-fail-under=77` completed with **648 passed** and **79.61% statement
+coverage** on Python 3.12. This is a local result; a new main-branch CI run
+is pending.
 
 ## Reproduce
 

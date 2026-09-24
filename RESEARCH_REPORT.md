@@ -62,7 +62,7 @@ changes behavior.
 | 5 | Provide tamper-evident audit trail | YES | Hash chain with optional HMAC; integrity guarantees depend on key protection and storage trust |
 | 6 | Detect behavioral drift between versions | YES | New-field detection works; same-field value changes harder |
 | 7 | Enforce declarative security policies | YES | Invariant system is well-designed |
-| 8 | Test suite | CURRENT CI VERIFIED | `VERIFIED_METRICS.md` records 641 passing tests and 79.54% statement coverage for the current reconciled snapshot; older application snapshots remain historical. |
+| 8 | Test suite | HISTORICAL CI VERIFIED | `VERIFIED_METRICS.md` records 641 passing tests and 79.54% statement coverage for the earlier `a5d39be` CI snapshot; the current local repair is reported separately. |
 | 9 | No mandatory base runtime dependencies | YES | `dependencies = []`; optional ML/server/ATT&CK/dev features add third-party packages |
 | 10 | Cross-platform validation | PARTIAL | Current CI verifies Linux Python 3.10/3.11/3.12 plus a Windows control-plane job; macOS is not part of the current verified matrix |
 

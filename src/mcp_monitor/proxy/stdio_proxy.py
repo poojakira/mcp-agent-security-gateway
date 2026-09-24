@@ -33,6 +33,16 @@ from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
 logger = logging.getLogger(__name__)
 
 
+def _unique_json_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    """Reject ambiguous JSON before security inspection or forwarding."""
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"Duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
 # ---------------------------------------------------------------------------
 # Decision types
 # ---------------------------------------------------------------------------
@@ -176,22 +186,31 @@ def inspect_message(raw_message: str | bytes | dict) -> InspectionResult:
     # Parse the message
     if isinstance(raw_message, str | bytes):
         try:
-            parsed_data = json.loads(raw_message)
+            parsed_data = json.loads(raw_message, object_pairs_hook=_unique_json_pairs)
         except (json.JSONDecodeError, ValueError) as e:
             return InspectionResult(
-                decision=Decision.ALLOW,
-                reason=f"Invalid JSON, passing through: {e}",
-                matched_patterns=[],
+                decision=Decision.BLOCK,
+                reason=f"Invalid JSON: {e}",
+                matched_patterns=["malformed_jsonrpc"],
             )
     else:
         parsed_data = raw_message
 
+    if isinstance(parsed_data, list):
+        if not parsed_data:
+            return InspectionResult(Decision.BLOCK, "Empty JSON-RPC batch", ["malformed_jsonrpc"])
+        for item in parsed_data:
+            result = inspect_message(item)
+            if result.decision != Decision.ALLOW:
+                return result
+        return InspectionResult(Decision.ALLOW, "Batch passed inspection", [])
+
     # Check if it's a dict with a method — i.e., a request
     if not isinstance(parsed_data, dict):
         return InspectionResult(
-            decision=Decision.ALLOW,
+            decision=Decision.BLOCK,
             reason="Not a JSON-RPC request object",
-            matched_patterns=[],
+            matched_patterns=["malformed_jsonrpc"],
         )
 
     method = parsed_data.get("method")
@@ -357,85 +376,61 @@ class StdioMCPProxy:
             The response bytes to send back to the client.
             Either an error (if blocked) or the real server response.
         """
-        # Parse enough to inspect
         try:
-            parsed = json.loads(raw_message)
-        except (json.JSONDecodeError, ValueError):
-            # Can't parse — forward as-is (might be a partial/invalid message)
-            await self._transport.send(raw_message + b"\n")
-            response = await self._transport.receive()
-            self._stats["passthrough"] += 1
-            return response
-
-        method = parsed.get("method") if isinstance(parsed, dict) else None
-        request_id = parsed.get("id") if isinstance(parsed, dict) else None
-
-        # Only inspect tools/call requests
-        if method != "tools/call":
-            # Pass through non-tool messages (initialize, tools/list, etc.)
-            await self._transport.send(raw_message + b"\n")
-            response = await self._transport.receive()
-            self._stats["passthrough"] += 1
-            return response
-
-        # Rate limit check — applied only to tool calls to limit blast radius
-        # of a compromised or looping agent.
-        if not self._rate_limiter.allow():
-            logger.warning("Rate limit exceeded for tool call id=%s", request_id)
-            self._stats["rate_limited"] += 1
-            return _build_error_response(
-                request_id=request_id,
-                code=-32029,  # JSON-RPC application-defined: Too Many Requests
-                message="Security: tool call rate limit exceeded. "
-                f"Remaining tokens: {self._rate_limiter.remaining_tokens():.1f}",
-                data={"retry_after_seconds": 60},
-            ).rstrip(b"\n")
-
-        # Inspect the tool call
-        result = self._inspect(parsed)
-
-        if result.decision == Decision.BLOCK:
-            # Block: return error response, do NOT forward
-            logger.warning(
-                "BLOCKED tool call id=%s reason=%s patterns=%s",
-                request_id,
-                result.reason,
-                result.matched_patterns,
-            )
+            parsed = json.loads(raw_message, object_pairs_hook=_unique_json_pairs)
+        except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as exc:
             self._stats["blocked"] += 1
-            return _build_error_response(
-                request_id=request_id,
-                code=self.SECURITY_BLOCK_CODE,
-                message=f"Security: {result.reason}",
-                data={
-                    "patterns": result.matched_patterns,
-                    "detector_errors": result.detector_errors,
-                },
-            ).rstrip(b"\n")
+            return _build_error_response(None, -32700, f"Invalid JSON: {exc}").rstrip(b"\n")
 
-        if result.decision == Decision.INDETERMINATE:
-            # Fail-closed in enforcement mode
-            logger.error(
-                "Detector failure - failing closed id=%s errors=%s",
-                request_id,
-                result.detector_errors,
-            )
+        is_batch = isinstance(parsed, list)
+        messages = parsed if is_batch else [parsed]
+        if not messages or any(not isinstance(message, dict) for message in messages):
             self._stats["blocked"] += 1
-            return _build_error_response(
-                request_id=request_id,
-                code=self.SECURITY_BLOCK_CODE,
-                message=f"Security: Detector failure - failing closed: {result.reason}",
-                data={
-                    "patterns": result.matched_patterns,
-                    "detector_errors": result.detector_errors,
-                },
-            ).rstrip(b"\n")
+            return _build_error_response(None, -32600, "Invalid JSON-RPC request").rstrip(b"\n")
 
-        # Allow: forward to downstream and relay response
+        denial: tuple[int, str, dict[str, Any]] | None = None
+        tool_count = 0
+        for message in messages:
+            if message.get("method") != "tools/call":
+                continue
+            tool_count += 1
+            if not self._rate_limiter.allow():
+                self._stats["rate_limited"] += 1
+                denial = (-32029, "Security: tool call rate limit exceeded", {})
+                break
+            result = self._inspect(message)
+            if result.decision != Decision.ALLOW:
+                self._stats["blocked"] += 1
+                reason = (
+                    "Security: Detector failure - failing closed"
+                    if result.decision == Decision.INDETERMINATE
+                    else f"Security: {result.reason}"
+                )
+                denial = (
+                    self.SECURITY_BLOCK_CODE,
+                    reason,
+                    {"patterns": result.matched_patterns},
+                )
+                break
+
+        if denial is not None:
+            code, reason, data = denial
+            # A batch is atomic here: no member is forwarded if any tool call fails.
+            # Return one error for each request so clients do not wait for omitted IDs.
+            responses = [
+                _build_error_response(message["id"], code, reason, data).rstrip(b"\n")
+                for message in messages
+                if "id" in message
+            ]
+            if not responses:
+                return b""  # Notifications have no JSON-RPC response.
+            return b"[" + b",".join(responses) + b"]" if is_batch else responses[0]
+
         await self._transport.send(raw_message + b"\n")
-        response = await self._transport.receive()
-        self._stats["allowed"] += 1
-        return response
+        self._stats["allowed" if tool_count else "passthrough"] += 1
+        if not any("id" in message and "method" in message for message in messages):
+            return b""  # Notifications and client responses are one-way.
+        return await self._transport.receive()
 
     def _inspect(self, parsed: dict[str, Any]) -> InspectionResult:
         """Run security inspection on a parsed JSON-RPC tools/call message."""
@@ -508,8 +503,9 @@ class StdioMCPProxy:
                     continue
 
                 response = await self.handle_message(line)
-                sys.stdout.buffer.write(response + b"\n")
-                sys.stdout.buffer.flush()
+                if response:
+                    sys.stdout.buffer.write(response + b"\n")
+                    sys.stdout.buffer.flush()
 
         except (KeyboardInterrupt, asyncio.CancelledError):
             pass

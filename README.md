@@ -30,6 +30,12 @@ Run a downstream stdio MCP server through the proxy:
 python -m mcp_monitor.proxy.stdio_proxy -- <server-command> [args...]
 ```
 
+The stdio proxy rejects malformed or duplicate-key JSON before forwarding.
+It inspects every `tools/call` in a JSON-RPC batch and rejects the whole batch
+if any call is blocked. Notifications are forwarded without waiting for a
+response; blocked notifications receive no response. These checks apply to
+traffic routed through this stdio proxy.
+
 Run the local FastAPI control plane:
 
 ```bash
@@ -55,17 +61,17 @@ These capabilities are split across multiple runtime paths. The inline stdio pro
 
 ## Verified evidence
 
-Current evidence anchor: [VERIFIED_METRICS.md](VERIFIED_METRICS.md)
+Historical main CI evidence and local verification: [VERIFIED_METRICS.md](VERIFIED_METRICS.md)
 
-| Claim | Current verified value | Scope |
+| Claim | Verified value | Scope |
 |---|---:|---|
-| Automated tests | **641 passed** | Main CI Python 3.11 job |
-| Statement coverage | **79.54%** | Main CI coverage report |
+| Automated tests | **648 passed locally** | Current checkout, Python 3.12; CI pending |
+| Statement coverage | **79.61% locally** | Current checkout, Python 3.12; CI pending |
 | Prompt-injection regex patterns | **55** | Compiled entries in the detector |
 | Elastic Security rules | **9** | Committed rule definitions |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
 
-The current verified CI run also includes Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, Grype, SBOM generation, Docker build validation, and Python 3.10/3.11/3.12 test jobs.
+The cited historical CI run includes Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, Grype, SBOM generation, Docker build validation, and Python 3.10/3.11/3.12 test jobs. These gates have not yet run against the local repair commit.
 
 Historical application-time metrics are preserved separately in [docs/evidence/RESUME_EVIDENCE.md](docs/evidence/RESUME_EVIDENCE.md).
 
