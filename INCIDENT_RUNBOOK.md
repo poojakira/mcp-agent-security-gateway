@@ -1,6 +1,9 @@
 # Incident Runbook — mcp-agent-security-gateway
 
-> Production incident response procedures for teams operating the MCP Agent Security Gateway.
+> Reference incident-response procedures for teams that choose to operate the
+> gateway. This is a template, not a record of an operated production service:
+> the project has no on-call rotation, SLA, or live deployment. Adapt the
+> severity levels and steps below to your own environment before relying on them.
 
 ---
 
