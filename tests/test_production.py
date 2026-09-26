@@ -823,18 +823,34 @@ class TestProductionServer:
         assert status == 400
         assert "error" in result
 
-    def test_inspect_call_deeply_nested_json_is_400_not_500(self):
-        """Deeply nested JSON (RecursionError) is a client 400, not a server 500.
+    def test_inspect_call_deeply_nested_json_is_not_500(self):
+        """Deeply nested JSON must never cause an unhandled 500.
 
-        Regression: attacker-controlled deep nesting previously raised
-        RecursionError inside json.loads and fell through to the generic 500
-        handler, misattributing hostile input as a server fault.
+        Regression + hardening: attacker-controlled deep nesting can raise
+        RecursionError either in json.loads (handled -> 400) or while the
+        detectors traverse the parsed structure (handled by the monitor ->
+        fail-closed block, HTTP 200 with allowed=false). Either outcome is
+        acceptable; a 500 (unhandled server fault) is not. The recursion limit
+        is lowered so the deep-recursion path fires deterministically across
+        platforms.
         """
+        import sys
+
         server = self._make_server()
-        body = b'{"arguments":{"q":' + b"[" * 5000 + b"]" * 5000 + b"}}"
-        status, result = server._handle_inspect_call(body, "t1", "s1")
-        assert status == 400
-        assert "error" in result
+        body = b'{"arguments":{"q":' + b"[" * 200 + b"]" * 200 + b"}}"
+        original_limit = sys.getrecursionlimit()
+        sys.setrecursionlimit(60)
+        try:
+            status, result = server._handle_inspect_call(body, "t1", "s1")
+        finally:
+            sys.setrecursionlimit(original_limit)
+        assert status != 500
+        assert status in (200, 400)
+        if status == 200:
+            # Fail-closed: the monitor blocks when a detector cannot complete.
+            assert result.get("allowed") is False
+        else:
+            assert "error" in result
 
     def test_inspect_output_endpoint(self):
         """POST /v1/inspect_output processes tool outputs."""
