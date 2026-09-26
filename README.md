@@ -1,3 +1,20 @@
+<!-- profile-growth-header -->
+
+# mcp-agent-security-gateway
+
+> **MCP / AI agent runtime security**
+
+Inspect and control MCP tool calls at the agent-to-tool boundary.
+
+**Why this project:** security teams need a reproducible way to test, inspect, or measure this boundary before treating a security control as effective.
+
+**Quick path**
+1. Read the threat model / scope below.
+2. Run the smallest documented example.
+3. Reproduce the tests or benchmark.
+4. Inspect the limitations and evidence before making deployment claims.
+5. Open an issue or PR if you find a gap, add a fixture, or improve the documentation.
+
 # MCP Agent Security Gateway
 
 Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
