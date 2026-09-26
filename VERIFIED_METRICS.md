@@ -25,10 +25,12 @@ These values describe the cited historical CI run, not the local repair. The gat
 
 The stdio proxy now rejects malformed/ambiguous JSON, inspects each tool call
 in a batch before forwarding, and does not wait for responses to notifications.
-`PYTHONPATH=src python -m pytest tests -q --cov=mcp_monitor --cov-report=term
---cov-fail-under=77` completed with **648 passed** and **79.61% statement
-coverage** on Python 3.12. This is a local result; a new main-branch CI run
-is pending.
+A later container-hardening pass added regression tests for graceful ML-detector
+degradation when the optional `ml` extra is absent and for deeply nested JSON
+being rejected as a 400. `PYTHONPATH=src python -m pytest tests -q
+--cov=mcp_monitor --cov-report=term --cov-fail-under=77` completed with
+**652 passed** and **79.2% statement coverage** on Python 3.12. This is a
+local result; a new main-branch CI run is pending.
 
 ## Reproduce
 

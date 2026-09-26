@@ -82,8 +82,8 @@ Historical main CI evidence and local verification: [VERIFIED_METRICS.md](VERIFI
 
 | Claim | Verified value | Scope |
 |---|---:|---|
-| Automated tests | **648 passed locally** | Current checkout, Python 3.12; CI pending |
-| Statement coverage | **79.61% locally** | Current checkout, Python 3.12; CI pending |
+| Automated tests | **652 passed locally** | Current checkout, Python 3.12; CI pending |
+| Statement coverage | **79.2% locally** | Current checkout, Python 3.12; CI pending |
 | Prompt-injection regex patterns | **55** | Compiled entries in the detector |
 | Elastic Security rules | **9** | Committed rule definitions |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
