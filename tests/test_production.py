@@ -823,6 +823,19 @@ class TestProductionServer:
         assert status == 400
         assert "error" in result
 
+    def test_inspect_call_deeply_nested_json_is_400_not_500(self):
+        """Deeply nested JSON (RecursionError) is a client 400, not a server 500.
+
+        Regression: attacker-controlled deep nesting previously raised
+        RecursionError inside json.loads and fell through to the generic 500
+        handler, misattributing hostile input as a server fault.
+        """
+        server = self._make_server()
+        body = b'{"arguments":{"q":' + b"[" * 5000 + b"]" * 5000 + b"}}"
+        status, result = server._handle_inspect_call(body, "t1", "s1")
+        assert status == 400
+        assert "error" in result
+
     def test_inspect_output_endpoint(self):
         """POST /v1/inspect_output processes tool outputs."""
         server = self._make_server(MCP_ALLOWED_SERVERS="test-server")

@@ -38,6 +38,14 @@ RUN groupadd -r mlsec && useradd -r -g mlsec mlsec
 # non-root process can write events.ndjson for Filebeat to ship.
 RUN mkdir -p /var/log/mcp-gateway && chown -R mlsec:mlsec /var/log/mcp-gateway
 
+# Create the WAL/audit state directory owned by the runtime user. The production
+# server writes MCP_WAL_PATH and MCP_AUDIT_PATH here (see docker-compose.yml,
+# which mounts the mcp-state named volume at /var/lib/mcp). Docker initializes
+# an empty named volume from this path and preserves the mlsec ownership, so the
+# non-root process can write wal.jsonl/audit.jsonl. Without this, the volume
+# mount point is created root-owned and protected requests fail with EACCES.
+RUN mkdir -p /var/lib/mcp && chown -R mlsec:mlsec /var/lib/mcp
+
 USER mlsec
 
 # Container deployments must listen on the container interface. Local direct

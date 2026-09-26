@@ -625,10 +625,17 @@ class PromptInjectionDetector:
             try:
                 from mcp_monitor.defense10.ml_classifier import MLThreatClassifier
 
-                self._ml_classifier = MLThreatClassifier(threshold=0.7)
-                self._ml_classifier.train()
+                classifier = MLThreatClassifier(threshold=0.7)
+                classifier.train()
+                # Only publish the classifier after a successful train(). Assigning
+                # before train() would leak an untrained instance if train() raised,
+                # and callers would then hit the ML dependency error at classify()
+                # time — turning a missing *optional* ML dep into a hard failure.
+                self._ml_classifier = classifier
             except Exception:
-                # If ML deps unavailable, degrade gracefully to regex-only
+                # ML deps (numpy/scikit-learn, the optional "ml" extra) unavailable
+                # or training failed: degrade gracefully to regex-only detection.
+                self._ml_classifier = None
                 self._enable_ml = False
         return self._ml_classifier
 

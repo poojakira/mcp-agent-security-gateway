@@ -433,8 +433,12 @@ class ProductionServer:
         """POST /v1/inspect_call - Forward to MCPSecurityMonitor."""
         try:
             tool_call = json.loads(body.decode("utf-8"))
-        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
-            return 400, {"error": f"Invalid JSON: {exc}"}
+        except (json.JSONDecodeError, UnicodeDecodeError, RecursionError) as exc:
+            # RecursionError: attacker-controlled deeply nested JSON exhausts the
+            # decoder's recursion limit. This is malformed *client* input, not a
+            # server fault, so it must be a 400 (not a 500) and must not leak a
+            # stack trace or inflate server-error metrics.
+            return 400, {"error": f"Invalid JSON: {type(exc).__name__}"}
 
         # Use circuit breaker
         try:
@@ -515,8 +519,12 @@ class ProductionServer:
         """POST /v1/inspect_output - Forward to MCPSecurityMonitor."""
         try:
             payload = json.loads(body.decode("utf-8"))
-        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
-            return 400, {"error": f"Invalid JSON: {exc}"}
+        except (json.JSONDecodeError, UnicodeDecodeError, RecursionError) as exc:
+            # RecursionError: attacker-controlled deeply nested JSON exhausts the
+            # decoder's recursion limit. This is malformed *client* input, not a
+            # server fault, so it must be a 400 (not a 500) and must not leak a
+            # stack trace or inflate server-error metrics.
+            return 400, {"error": f"Invalid JSON: {type(exc).__name__}"}
 
         tool_name = payload.get("tool_name", "")
         output = payload.get("output", {})
