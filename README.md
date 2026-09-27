@@ -95,13 +95,13 @@ Historical main CI evidence and local verification: [VERIFIED_METRICS.md](VERIFI
 
 | Claim | Verified value | Scope |
 |---|---:|---|
-| Automated tests | **652 passed locally** | Current checkout, Python 3.12; CI pending |
-| Statement coverage | **79.2% locally** | Current checkout, Python 3.12; CI pending |
+| Automated tests | **652 passed** | Current checkout, Python 3.12; confirmed by main CI |
+| Statement coverage | **79.2%** | Current checkout, Python 3.12; confirmed by main CI |
 | Prompt-injection regex patterns | **55** | Compiled entries in the detector |
 | Elastic Security rules | **9** | Committed rule definitions |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
 
-The cited historical CI run includes Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, Grype, SBOM generation, Docker build validation, and Python 3.10/3.11/3.12 test jobs. These gates have not yet run against the local repair commit.
+The cited CI run includes Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, Grype, SBOM generation, Docker build validation, and Python 3.10/3.11/3.12 test jobs. These gates now pass on the current `main` commit.
 
 Historical application-time metrics are preserved separately in [docs/evidence/RESUME_EVIDENCE.md](docs/evidence/RESUME_EVIDENCE.md).
 

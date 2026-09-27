@@ -29,8 +29,8 @@ A later container-hardening pass added regression tests for graceful ML-detector
 degradation when the optional `ml` extra is absent and for deeply nested JSON
 being rejected as a 400. `PYTHONPATH=src python -m pytest tests -q
 --cov=mcp_monitor --cov-report=term --cov-fail-under=77` completed with
-**652 passed** and **79.2% statement coverage** on Python 3.12. This is a
-local result; a new main-branch CI run is pending.
+**652 passed** and **79.2% statement coverage** on Python 3.12. This local
+result is now confirmed by a green main-branch CI run (74d41a5).
 
 ## Reproduce
 
