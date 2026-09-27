@@ -79,9 +79,18 @@ class TestAttackSimulator:
     def test_report_summary_counts_consistent(self, simulator):
         report = simulator.run_full_catalog()
         results = simulator.get_all_results()
-        # blocked + allowed should account for all results
         blocked = sum(1 for r in results if getattr(r, "blocked", False))
-        assert 0 <= blocked <= len(results)
+
+        # The report must faithfully describe the run it produced.
+        assert report.total_attacks == len(results)
+        assert report.blocked == blocked
+        assert report.missed == report.total_attacks - report.blocked
+        assert report.blocked + report.missed == report.total_attacks
+        assert len(report.results) == report.total_attacks
+        # detection_rate is the blocked percentage of the catalog.
+        expected_rate = blocked / max(report.total_attacks, 1) * 100
+        assert report.detection_rate == pytest.approx(expected_rate)
+        assert 0.0 <= report.detection_rate <= 100.0
 
     def test_empty_before_run(self, defense):
         sim = AttackSimulator(defense)
