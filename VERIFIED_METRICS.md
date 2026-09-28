@@ -21,17 +21,14 @@ This file is the evidence anchor for quantitative claims about this repository.
 
 These values describe the cited historical CI run, not the local repair. The gateway only governs calls routed through the enforcement path, and heuristic detectors can have false positives and false negatives.
 
-## Local repair verification (2026-09-24)
+## Current main verification (2026-09-27)
 
-The stdio proxy now rejects malformed/ambiguous JSON, inspects each tool call
-in a batch before forwarding, and does not wait for responses to notifications.
-A later container-hardening pass added regression tests for graceful ML-detector
-degradation when the optional `ml` extra is absent and for deeply nested JSON
-being rejected as a 400. `PYTHONPATH=src python -m pytest tests -q
---cov=mcp_monitor --cov-report=term --cov-fail-under=77` completed with
-**659 passed** and **82% statement coverage** on Python 3.12, after adding
-integration tests for the red-team simulator (that module went from 0% to 99%).
-This is a local result; a main-branch CI re-run for the added tests is pending.
+Commit `c68e200` on `main`. `python -m pytest tests --cov=mcp_monitor` completed with
+**659 passed** and **82% statement coverage** on Python 3.12. The full GitHub Actions
+suite (CI, Production Gate, Documentation Integrity) — including Ruff, Pyright, Bandit,
+pip-audit, CodeQL, Trivy, SBOM, Docker build validation, and the Python 3.10/3.11/3.12
+matrix plus the Windows control-plane job — passes on this commit. The red-team simulator
+module is now covered at 99% (previously 0%).
 
 ## Reproduce
 

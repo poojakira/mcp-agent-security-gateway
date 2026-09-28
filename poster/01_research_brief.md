@@ -2,7 +2,7 @@
 
 ## Repository
 `github.com/poojakira/mcp-agent-security-gateway` (public, default branch `main`, primary language Python).
-Audited at HEAD commit `a5ef8e370522776b4a9a55309c5def28540d9190`.
+Audited at HEAD commit `c68e200d320ce68793096598e516b4d015bc21ad`.
 
 ## Academic Project Title
 **Runtime Policy Enforcement at the AI Agent-to-Tool Boundary**
@@ -58,8 +58,8 @@ Correctness/behavior validation via the repository's automated test suite with s
 
 ## Current Verified Evidence (local, this audit)
 Environment: Windows, Python 3.12.10, fresh venv, `pip install -e ".[dev,server]"`, `PYTHONPATH=src`.
-- **652 tests passed** (`pytest tests -q --cov=mcp_monitor`), 0 failed, ~92 s.
-- **79.23% statement coverage** (TOTAL 4804 statements, 998 missed) — consistent with the repo's "79.2% locally" claim.
+- **659 tests passed** (`pytest tests -q --cov=mcp_monitor`), 0 failed; also green in GitHub Actions on `main`.
+- **82% statement coverage** (TOTAL 4804 statements, 880 missed) — consistent with the repo's README/VERIFIED_METRICS.
 - **55** entries in `INJECTION_PATTERNS` (verified by importing the detector module).
 - **9** Elastic `[[rule]]` records in `detection_rules/elastic_rules.toml`.
 - **21** `test_*` functions in `tests/test_siem.py`; **7** in `tests/test_siem_scenarios.py`.

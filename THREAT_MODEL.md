@@ -49,7 +49,7 @@ This document describes the threat model for the MCP Agent Security Gateway. It 
 **Threat**: Adversary embeds instructions in tool arguments that manipulate downstream behavior or bypass security controls.
 
 **Mitigations**:
-- 50+ prompt-injection detection rules
+- 55 prompt-injection detection patterns (see `INJECTION_PATTERNS` in `src/mcp_monitor/detectors/prompt_injection.py`)
 - Unicode normalization (zero-width removal, homoglyph handling, BiDi control stripping)
 - Base64/ROT13 decoding attempts before inspection
 - Multi-layer policy evaluation

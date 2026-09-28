@@ -272,7 +272,7 @@ every email sent through the server.
 | Literal BCC in MCP arguments | 10/10 | Catches immediately |
 | BCC synonym in MCP arguments | 8/10 | 16 synonyms covered, but not all |
 | BCC hidden server-side (not in MCP data) | 2/10 | Blind at MCP layer |
-| Prompt injection (known patterns) | 8/10 | 12 patterns; creative phrasing evades |
+| Prompt injection (known patterns) | 8/10 | 55 patterns; creative phrasing evades |
 | Rogue MCP server | 9/10 | Registration check is solid |
 | Multi-step credential theft | 7/10 | Correlation works but has time-window limits |
 | Base64-encoded exfiltration | 6/10 | Catches email patterns; misses other data |

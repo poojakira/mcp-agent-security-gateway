@@ -1,13 +1,13 @@
 # Claim Ledger — Poster 01 (mcp-agent-security-gateway)
 
-Audited HEAD: `a5ef8e370522776b4a9a55309c5def28540d9190`. Local env: Windows, Python 3.12.10.
+Audited HEAD: `c68e200d320ce68793096598e516b4d015bc21ad`. Local env: Windows, Python 3.12.10.
 
 Classification key: VERIFIED_CURRENT / VERIFIED_HISTORICAL / PARTIAL / UNVERIFIED / UNSUPPORTED.
 
 | # | Claim | Classification | Evidence |
 |---|---|---|---|
-| 1 | 652 automated tests pass | VERIFIED_CURRENT | `pytest tests -q` → "652 passed in 92.29s" on my clean venv (Py 3.12.10). |
-| 2 | 79.2% statement coverage | VERIFIED_CURRENT | `--cov=mcp_monitor` → TOTAL 4804 stmts, 998 missed = 79.23%. |
+| 1 | 659 automated tests pass | VERIFIED_CURRENT | `pytest tests -q` → "659 passed" on a clean venv (Py 3.12.10); also green in GitHub Actions on `main`. |
+| 2 | 82% statement coverage | VERIFIED_CURRENT | `--cov=mcp_monitor` → TOTAL 4804 stmts, 880 missed = 82%. |
 | 3 | 55 prompt-injection regex patterns | VERIFIED_CURRENT | `len(prompt_injection.INJECTION_PATTERNS)` == 55 (imported module). Note: file has 59 `re.compile` calls total; 4 are outside the collection — README's "55" is correct for the named list. |
 | 4 | 9 Elastic Security rules | VERIFIED_CURRENT | 9 `^[[rule]]` records in `detection_rules/elastic_rules.toml`. |
 | 5 | 21 core SIEM tests | VERIFIED_CURRENT | 21 `def test_` in `tests/test_siem.py`. |
