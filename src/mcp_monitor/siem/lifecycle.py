@@ -28,6 +28,7 @@ IMPORTANT — scope and honesty caveats:
 from __future__ import annotations
 
 import json
+import os
 import statistics
 import time
 from dataclasses import dataclass, field
@@ -53,7 +54,12 @@ except ModuleNotFoundError:  # Python 3.10
 
 # lifecycle.py -> siem -> mcp_monitor -> src -> <repo root>
 REPO_ROOT = Path(__file__).resolve().parents[3]
-ELASTIC_RULES_PATH = REPO_ROOT / "detection_rules" / "elastic_rules.toml"
+ELASTIC_RULES_PATH = Path(
+    os.environ.get(
+        "MCP_ELASTIC_RULES_PATH",
+        str(REPO_ROOT / "detection_rules" / "elastic_rules.toml"),
+    )
+)
 DEFAULT_ARTIFACT_DIR = REPO_ROOT / "docs" / "detection"
 
 
