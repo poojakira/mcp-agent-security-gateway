@@ -1,5 +1,3 @@
-<!-- profile-growth-header -->
-
 <!-- security-systems-poster -->
 ## Research Poster
 
@@ -9,40 +7,83 @@
 
 > Technical research poster (36 x 48 in). Click the image for the print-resolution **[PDF](poster/poster_36x48.pdf)**.
 > Every metric on it is evidence-backed; historical/projected numbers are labeled and separated from current results.
-> Part of the *Pooja Kiran - Security Systems* engineering poster collection.
 <!-- security-systems-poster -->
-
-
-# mcp-agent-security-gateway
-
-> **MCP / AI agent runtime security**
-
-Inspect and control MCP tool calls at the agent-to-tool boundary.
-
-**Why this project:** security teams need a reproducible way to test, inspect, or measure this boundary before treating a security control as effective.
-
-**Quick path**
-1. Read the threat model / scope below.
-2. Run the smallest documented example.
-3. Reproduce the tests or benchmark.
-4. Inspect the limitations and evidence before making deployment claims.
-5. Open an issue or PR if you find a gap, add a fixture, or improve the documentation.
 
 # MCP Agent Security Gateway
 
+> Inspect and enforce AI-agent MCP/JSON-RPC tool calls at the agent-to-tool boundary before they execute.
+
+[![CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-659%20passing-brightgreen)](VERIFIED_METRICS.md)
+[![Coverage](https://img.shields.io/badge/coverage-82%25-brightgreen)](VERIFIED_METRICS.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
 
-Security controls for MCP/JSON-RPC tool calls at the agent-to-tool boundary.
+## Overview
 
-## Threat model
+`mcp-agent-security-gateway` sits between an AI agent (MCP client) and downstream MCP servers and inspects each `tools/call` request over JSON-RPC before it executes, returning an allow/block decision. It applies prompt-injection, PII/exfiltration, capability/shadow-server, and process/egress-policy checks, and records tamper-evident audit and telemetry. It exists because an agent that can call tools, assume roles, and load artifacts is making privileged decisions on infrastructure, and nothing in the base MCP protocol inspects those calls. Enforcement applies only to traffic routed through a supported integration path — this is a production-oriented research prototype, not a network firewall or a deployed SOC.
 
-This project assumes an AI agent may produce unsafe or manipulated tool calls even when the underlying model and MCP server are otherwise functioning correctly. The gateway focuses on risks such as prompt-injection content in tool arguments, unexpected server/capability use, sensitive-data leakage, suspicious process-execution intent, and disallowed egress destinations.
+## Verified Snapshot
 
-It is **not** an OS firewall, endpoint agent, or complete DLP system. Only traffic routed through the gateway can be inspected or blocked.
+Reproduced on current `main` (Python 3.12); also green in GitHub Actions. Evidence: [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
 
-See [THREAT_MODEL.md](THREAT_MODEL.md) for the full model and residual risks.
+| Metric | Current verified result |
+|---|---:|
+| Tests | 659 passing |
+| Statement coverage | 82% |
+| Prompt-injection patterns | 55 (`INJECTION_PATTERNS`) |
+| Elastic Security rules | 9 |
+| Core SIEM tests | 21 |
 
-## Quick start
+## Security Problem
+
+MCP gives agents a standardized way to invoke external tools that can read data, send messages, reach networks, or execute operations. That creates a trust boundary between model-generated requests and systems that can act. The gateway addresses whether a caller can apply explicit validation, authorization, detection, audit, and policy controls before selected tool calls reach a downstream server — covering prompt-injection content in arguments, unexpected server/capability use, sensitive-data leakage, process-execution intent, and disallowed egress destinations.
+
+## Threat Model & Scope
+
+Adversaries modeled: malicious prompt authors, compromised MCP servers, rogue agents, and insiders with log access. See [THREAT_MODEL.md](THREAT_MODEL.md) for the full model and residual risks.
+
+**In scope:** JSON-RPC traffic routed through the gateway (stdio proxy or the HTTP control plane); heuristic detection; tamper-evident audit.
+
+**Out of scope / not claimed:** It is not an OS firewall, endpoint agent, or complete DLP system. Its egress control is application-layer policy, not packet-level enforcement. Detectors are heuristic (false positives and negatives possible). Enforcement depends on the integration path; only routed traffic can be inspected or blocked.
+
+## Architecture
+
+```text
+Agent / MCP client
+       |
+       v
+Inline stdio proxy  OR  HTTP control plane (/v1/inspect_call)
+       |
+       +--> parse / normalize (JSON-RPC 2.0)
+       +--> capability + shadow-server checks
+       +--> content / policy signals (injection, PII, exfiltration, egress)
+       +--> audit (hash-chained) + WAL + telemetry
+       |
+       v
+allow / block decision  (fail-closed on detector/circuit-breaker error)
+       |
+       v
+downstream MCP server or integrating application
+```
+
+Enforcement depends on the integration path: the Python wrapper raises `ToolBlocked` when the control plane returns `allowed=false`; the stdio proxy rejects malformed/duplicate-key JSON and blocks disallowed batched calls.
+
+## Core Capabilities
+
+- Inline MCP stdio proxy for selected `tools/call` requests
+- JSON-RPC 2.0 parsing and request validation
+- Prompt-injection-oriented argument inspection with normalization (55 patterns)
+- Server-registry and capability (shadow-server) checks
+- PII/sensitive-data and exfiltration signals
+- Application-level process-execution and egress-policy decisions
+- Hash-chained audit logging and write-ahead logging
+- Rate limiting, tracing, metrics, circuit breaker (fail-closed), shadow mode
+- ECS-formatted security events plus a local Elastic detection lab (9 rules)
+- Docker and Kubernetes deployment templates
+
+## Installation
 
 ```bash
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
@@ -54,98 +95,23 @@ python -m pip install -e ".[dev,server]"
 python -m pytest tests -q
 ```
 
+## Usage
+
 Run a downstream stdio MCP server through the proxy:
 
 ```bash
 python -m mcp_monitor.proxy.stdio_proxy -- <server-command> [args...]
 ```
 
-The stdio proxy rejects malformed or duplicate-key JSON before forwarding.
-It inspects every `tools/call` in a JSON-RPC batch and rejects the whole batch
-if any call is blocked. Notifications are forwarded without waiting for a
-response; blocked notifications receive no response. These checks apply to
-traffic routed through this stdio proxy.
-
-Run the local FastAPI control plane:
+Run the local FastAPI control plane (default `127.0.0.1:8000`):
 
 ```bash
 python run_realtime.py
 ```
 
-Default local endpoints include `/`, `/docs`, `/api/scan`, `/api/stats`, and `/ws` on `127.0.0.1:8000`.
+Production API (port 8080) requires `X-API-Key` on inspection/metrics endpoints; `/v1/health` and `/v1/ready` are open for orchestration. See [RUNBOOK.md](RUNBOOK.md).
 
-## What is implemented
-
-- Inline MCP stdio proxy for selected `tools/call` requests
-- JSON-RPC parsing and request validation
-- Prompt-injection-oriented argument inspection with normalization
-- Server-registry and capability checks
-- PII/sensitive-data and exfiltration signals
-- Application-level process-execution and egress-policy decisions
-- Hash-chained audit logging and write-ahead logging
-- Rate limiting, tracing, metrics, circuit-breaker components, and shadow mode
-- ECS-formatted security events plus a local Elastic detection lab
-- Docker and Kubernetes deployment templates
-
-These capabilities are split across multiple runtime paths. The inline stdio proxy, FastAPI control plane, and HTTP inspection surfaces do not provide identical enforcement behavior; integration-specific limits are documented in the runbooks and source.
-
-## Verified evidence
-
-Historical main CI evidence and local verification: [VERIFIED_METRICS.md](VERIFIED_METRICS.md)
-
-| Claim | Verified value | Scope |
-|---|---:|---|
-| Automated tests | **659 passed** | Current checkout, Python 3.12; also verified by GitHub Actions on `main` |
-| Statement coverage | **82%** | Current checkout, Python 3.12; also verified by GitHub Actions on `main` |
-| Prompt-injection regex patterns | **55** | `INJECTION_PATTERNS` entries in the detector |
-| Elastic Security rules | **9** | Committed rule definitions |
-| Core SIEM tests | **21** | `tests/test_siem.py` |
-
-The CI run includes Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, Grype, SBOM generation, Docker build validation, and Python 3.10/3.11/3.12 test jobs. These gates pass on the current `main` commit.
-
-Historical application-time metrics are preserved separately in [docs/evidence/RESUME_EVIDENCE.md](docs/evidence/RESUME_EVIDENCE.md).
-
-## Architecture
-
-```text
-Agent / MCP client
-       |
-       v
-Inline stdio proxy or HTTP control plane
-       |
-       +--> parse / normalize
-       +--> trust + capability checks
-       +--> content / policy signals
-       +--> audit + telemetry
-       |
-       v
-allow / block decision
-       |
-       v
-downstream MCP server or integrating application
-```
-
-Enforcement depends on the integration path. For example, the Python wrapper raises `ToolBlocked` when the control plane returns `allowed=false`; transport failures are surfaced to the caller rather than silently converted into an allow/deny decision.
-
-## Detection lab
-
-The optional local detection lab converts gateway security events to ECS, evaluates correlation logic, and includes ATT&CK-mapped Elastic rule definitions and attack-simulation fixtures. It is a development/validation environment, not evidence of production SOC deployment.
-
-See [detection_lab/README.md](detection_lab/README.md).
-
-## Performance claims
-
-No production latency or throughput guarantee is made in this README. Benchmark scripts and environment-scoped baselines live under `benchmark/`, `benchmarks/`, and [docs/PERFORMANCE_BASELINE.md](docs/PERFORMANCE_BASELINE.md). Treat those values as reproducible benchmark evidence for the documented environment, not deployment SLOs.
-
-## Security and contribution guidance
-
-- [SECURITY.md](SECURITY.md)
-- [CONTRIBUTING.md](CONTRIBUTING.md)
-- [INCIDENT_RUNBOOK.md](INCIDENT_RUNBOOK.md)
-- [RUNBOOK.md](RUNBOOK.md)
-- [THREAT_MODEL.md](THREAT_MODEL.md)
-
-## Reproducing the main checks
+## Testing
 
 ```bash
 python -m pytest tests -q --cov=mcp_monitor
@@ -155,7 +121,27 @@ bandit -r src -ll
 pip-audit
 ```
 
-GitHub Actions is the authoritative environment for the repository's current published test/coverage claims.
+Current verified: **659 passing, 82% statement coverage**. GitHub Actions is the authoritative environment for published test/coverage claims.
+
+## CI/CD
+
+GitHub Actions runs Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, SBOM generation, Docker build validation, and the Python 3.10/3.11/3.12 test matrix plus a Windows control-plane job. These gates pass on the current `main` commit.
+
+## Security & Documentation
+
+- [SECURITY.md](SECURITY.md) · [THREAT_MODEL.md](THREAT_MODEL.md) · [SECURITY_AUDIT.md](SECURITY_AUDIT.md)
+- [RUNBOOK.md](RUNBOOK.md) · [INCIDENT_RUNBOOK.md](INCIDENT_RUNBOOK.md) · [PRODUCTION.md](PRODUCTION.md)
+- [VERIFIED_METRICS.md](VERIFIED_METRICS.md) · [RESEARCH_REPORT.md](RESEARCH_REPORT.md)
+- Detection lab: [detection_lab/README.md](detection_lab/README.md)
+- Performance baselines: [docs/PERFORMANCE_BASELINE.md](docs/PERFORMANCE_BASELINE.md)
+
+## Limitations
+
+Heuristic detectors can be evaded; the fixed red-team catalog is a regression suite, not a population-level detection rate. No production latency/throughput/uptime guarantee is made. Enforcement is only as strong as the integration path routing traffic through the gateway.
+
+## Project Status
+
+**Production-oriented research prototype.** Functional, tested, and CI-validated, with fail-closed auth and tamper-evident audit — but not proven at production scale or in a live SOC deployment.
 
 ## License
 
