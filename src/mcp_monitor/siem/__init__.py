@@ -11,6 +11,13 @@ not been validated at production scale.
 
 from mcp_monitor.siem.correlation import CorrelationEngine, CorrelationRule
 from mcp_monitor.siem.ecs_formatter import ECSEvent, ECSFormatter
+from mcp_monitor.siem.lifecycle import (
+    build_coverage_matrix,
+    build_synthetic_dataset,
+    run_latency_bench,
+    run_precision_recall,
+    write_artifacts,
+)
 from mcp_monitor.siem.shipper import ElasticsearchShipper, FileShipper, LogShipper
 
 __all__ = [
@@ -21,4 +28,9 @@ __all__ = [
     "LogShipper",
     "ElasticsearchShipper",
     "FileShipper",
+    "build_coverage_matrix",
+    "build_synthetic_dataset",
+    "run_precision_recall",
+    "run_latency_bench",
+    "write_artifacts",
 ]

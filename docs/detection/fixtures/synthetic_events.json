@@ -1,0 +1,216 @@
+{
+  "_meta": {
+    "description": "Synthetic labeled event sequences for the detection harness.",
+    "disclaimer": "SYNTHETIC FIXTURES ONLY \u2014 hand-labeled, NOT real-world MCP traffic."
+  },
+  "sequences": [
+    {
+      "seq_id": "mal-cor001",
+      "label": "malicious",
+      "description": "recon (tools/list) -> sensitive read -> network egress exfil",
+      "expected_rules": [
+        "COR-001"
+      ],
+      "events": [
+        {
+          "tool_name": "tools/list",
+          "findings": [
+            "discover"
+          ],
+          "enforcement_action": "allow"
+        },
+        {
+          "tool_name": "read_file",
+          "findings": [
+            "sensitive"
+          ],
+          "offset": 5
+        },
+        {
+          "tool_name": "email.send",
+          "layer_name": "network_egress",
+          "findings": [
+            "exfiltration",
+            "hidden_recipient"
+          ],
+          "offset": 10
+        }
+      ]
+    },
+    {
+      "seq_id": "mal-cor002",
+      "label": "malicious",
+      "description": "prompt injection -> process spawn",
+      "expected_rules": [
+        "COR-002"
+      ],
+      "events": [
+        {
+          "findings": [
+            "prompt_injection detected"
+          ]
+        },
+        {
+          "layer_name": "process_spawn",
+          "findings": [
+            "subprocess"
+          ],
+          "offset": 5
+        }
+      ]
+    },
+    {
+      "seq_id": "mal-cor003",
+      "label": "malicious",
+      "description": "shadow/unregistered server -> exfil",
+      "expected_rules": [
+        "COR-003"
+      ],
+      "events": [
+        {
+          "layer_name": "server_trust",
+          "findings": [
+            "unregistered",
+            "shadow_server"
+          ]
+        },
+        {
+          "layer_name": "network_egress",
+          "findings": [
+            "exfiltration"
+          ],
+          "offset": 5
+        }
+      ]
+    },
+    {
+      "seq_id": "mal-cor004",
+      "label": "malicious",
+      "description": "three high-risk blocks in quick succession",
+      "expected_rules": [
+        "COR-004"
+      ],
+      "events": [
+        {
+          "enforcement_action": "block",
+          "risk_score": 70
+        },
+        {
+          "enforcement_action": "deny",
+          "risk_score": 80,
+          "offset": 1
+        },
+        {
+          "enforcement_action": "block",
+          "risk_score": 65,
+          "offset": 2
+        }
+      ]
+    },
+    {
+      "seq_id": "mal-cor005",
+      "label": "malicious",
+      "description": "prompt injection -> exfil (indirect injection chain)",
+      "expected_rules": [
+        "COR-005"
+      ],
+      "events": [
+        {
+          "findings": [
+            "prompt_injection"
+          ]
+        },
+        {
+          "layer_name": "network_egress",
+          "findings": [
+            "exfiltration"
+          ],
+          "offset": 5
+        }
+      ]
+    },
+    {
+      "seq_id": "mal-cor006",
+      "label": "malicious",
+      "description": "sensitive data access -> unregistered server (staging)",
+      "expected_rules": [
+        "COR-006"
+      ],
+      "events": [
+        {
+          "tool_name": "get_secret",
+          "findings": [
+            "credentials"
+          ]
+        },
+        {
+          "layer_name": "server_trust",
+          "findings": [
+            "unregistered"
+          ],
+          "offset": 5
+        }
+      ]
+    },
+    {
+      "seq_id": "ben-normal-1",
+      "label": "benign",
+      "description": "ordinary allowed tool calls, no attack pattern",
+      "expected_rules": [],
+      "events": [
+        {
+          "tool_name": "math.add",
+          "enforcement_action": "allow",
+          "findings": [
+            "normal"
+          ]
+        },
+        {
+          "tool_name": "math.multiply",
+          "enforcement_action": "allow",
+          "findings": [
+            "normal"
+          ],
+          "offset": 3
+        }
+      ]
+    },
+    {
+      "seq_id": "ben-single-block",
+      "label": "benign",
+      "description": "a single low-risk block, insufficient for any multi-event rule",
+      "expected_rules": [],
+      "events": [
+        {
+          "enforcement_action": "block",
+          "risk_score": 30,
+          "findings": [
+            "policy_violation"
+          ]
+        }
+      ]
+    },
+    {
+      "seq_id": "ben-low-risk-blocks",
+      "label": "benign",
+      "description": "repeated but LOW-risk blocks (<60), below COR-004 threshold",
+      "expected_rules": [],
+      "events": [
+        {
+          "enforcement_action": "block",
+          "risk_score": 40
+        },
+        {
+          "enforcement_action": "block",
+          "risk_score": 45,
+          "offset": 1
+        },
+        {
+          "enforcement_action": "block",
+          "risk_score": 30,
+          "offset": 2
+        }
+      ]
+    }
+  ]
+}

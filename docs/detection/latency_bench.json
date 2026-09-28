@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "description": "Ingest+evaluate latency microbenchmark.",
+    "disclaimer": "LOCAL SYNTHETIC-LOAD MICROBENCHMARK. Single process, in-memory engine, synthetic events. NOT a production throughput or SLA measurement.",
+    "generated_at": "2026-09-28T06:21:47Z",
+    "n_events": 2000,
+    "rules_loaded": 6
+  },
+  "latency_ms": {
+    "p50": 0.4729999927803874,
+    "p95": 1.193000003695488,
+    "p99": 1.7469000013079494,
+    "min": 0.001300009898841381,
+    "max": 4.281999994418584,
+    "mean": 0.5366948998780572
+  },
+  "throughput_events_per_s_local": 1863.2560142218804
+}

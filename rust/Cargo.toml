@@ -1,0 +1,24 @@
+# Rust port of the stdio MCP proxy core (Gap 5: systems-programming signal).
+#
+# STATUS: VERIFIED via containerized toolchain (rust:1-slim Docker image):
+#   docker run --rm -v "${PWD}:/work" -w /work rust:1-slim sh -c "cargo test"
+#   -> cargo build: 0 warnings; cargo test: 9 passed, 0 failed.
+# The host has no local cargo/rustc; see rust/README.md for the exact runbook.
+[package]
+name = "mcp-stdio-proxy"
+version = "0.1.0"
+edition = "2021"
+description = "Rust port of the fail-closed JSON-RPC inspection core of the MCP stdio proxy"
+license = "MIT"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[[bin]]
+name = "mcp-stdio-proxy"
+path = "src/main.rs"
+
+[lib]
+name = "mcp_stdio_proxy"
+path = "src/lib.rs"

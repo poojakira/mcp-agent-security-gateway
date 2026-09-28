@@ -1,0 +1,4 @@
+/build
+/mcp-inspect
+/test_inspect
+*.o

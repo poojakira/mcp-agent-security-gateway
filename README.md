@@ -1,7 +1,7 @@
 <!-- security-systems-poster -->
 ## Research Poster
 
-**Security Systems / 01 — Runtime Policy Enforcement at the AI Agent-to-Tool Boundary**
+**Security Systems / 01 ΓÇö Runtime Policy Enforcement at the AI Agent-to-Tool Boundary**
 
 [![Research poster](poster/poster.png)](poster/poster_36x48.pdf)
 
@@ -22,7 +22,7 @@ Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
 
 ## Overview
 
-`mcp-agent-security-gateway` sits between an AI agent (MCP client) and downstream MCP servers and inspects each `tools/call` request over JSON-RPC before it executes, returning an allow/block decision. It applies prompt-injection, PII/exfiltration, capability/shadow-server, and process/egress-policy checks, and records tamper-evident audit and telemetry. It exists because an agent that can call tools, assume roles, and load artifacts is making privileged decisions on infrastructure, and nothing in the base MCP protocol inspects those calls. Enforcement applies only to traffic routed through a supported integration path — this is a production-oriented research prototype, not a network firewall or a deployed SOC.
+`mcp-agent-security-gateway` sits between an AI agent (MCP client) and downstream MCP servers and inspects each `tools/call` request over JSON-RPC before it executes, returning an allow/block decision. It applies prompt-injection, PII/exfiltration, capability/shadow-server, and process/egress-policy checks, and records tamper-evident audit and telemetry. It exists because an agent that can call tools, assume roles, and load artifacts is making privileged decisions on infrastructure, and nothing in the base MCP protocol inspects those calls. Enforcement applies only to traffic routed through a supported integration path ΓÇö this is a production-oriented research prototype, not a network firewall or a deployed SOC.
 
 ## Verified Snapshot
 
@@ -38,7 +38,7 @@ Reproduced on current `main` (Python 3.12); also green in GitHub Actions. Eviden
 
 ## Security Problem
 
-MCP gives agents a standardized way to invoke external tools that can read data, send messages, reach networks, or execute operations. That creates a trust boundary between model-generated requests and systems that can act. The gateway addresses whether a caller can apply explicit validation, authorization, detection, audit, and policy controls before selected tool calls reach a downstream server — covering prompt-injection content in arguments, unexpected server/capability use, sensitive-data leakage, process-execution intent, and disallowed egress destinations.
+MCP gives agents a standardized way to invoke external tools that can read data, send messages, reach networks, or execute operations. That creates a trust boundary between model-generated requests and systems that can act. The gateway addresses whether a caller can apply explicit validation, authorization, detection, audit, and policy controls before selected tool calls reach a downstream server ΓÇö covering prompt-injection content in arguments, unexpected server/capability use, sensitive-data leakage, process-execution intent, and disallowed egress destinations.
 
 ## Threat Model & Scope
 
@@ -82,6 +82,24 @@ Enforcement depends on the integration path: the Python wrapper raises `ToolBloc
 - Rate limiting, tracing, metrics, circuit breaker (fail-closed), shadow mode
 - ECS-formatted security events plus a local Elastic detection lab (9 rules)
 - Docker and Kubernetes deployment templates
+
+## Recent verified additions
+
+These follow the same discipline as the rest of the repo: separate detection from enforcement, attach scope to every metric, and label anything synthetic or unverified. They are additive modules with their own verified test counts and do not change the repository-wide test/coverage snapshot above.
+
+### Policy-as-code PDP (enforcement)
+
+`src/mcp_monitor/policy/policy_engine.py` is a fail-closed, default-deny Python Policy Decision Point: deny-wins evaluation, structured reason codes, and anti-SSRF egress checks. Enforcement is proven, not asserted — `tests/test_policy_enforcement.py` is **15 passed** (verified locally with `.venv`, Ruff clean), including tests that a denied tool call **never reaches the downstream transport** (`send`/`receive` not called) and that allowed calls do. Rego policies under `policy/rego/` exist for OPA parity but are **UNVERIFIED here — requires the `opa` binary**. See [docs/policy/POLICY_AS_CODE.md](docs/policy/POLICY_AS_CODE.md).
+
+### Detection-engineering lifecycle
+
+`src/mcp_monitor/siem/lifecycle.py` generates a coverage matrix (6 correlation rules + 9 Elastic rules mapped to 7 ATT&CK techniques, with ATLAS cross-references) plus per-rule precision/recall. The precision/recall numbers are computed on **synthetic fixtures only**: micro-averaged P/R/F1 = **1.000** over **9 fixture sequences** — this measures fixture coverage, **not real-world efficacy**. A local latency microbench over **2000 synthetic events** records **p50 0.47ms, p95 1.19ms, p99 1.75ms (~1863 events/s single-process)** — a **local microbench, not a production SLA**. Artifacts in [docs/detection/](docs/detection/); tuning log in [docs/detection/TUNING_LOG.md](docs/detection/TUNING_LOG.md); tests in `tests/test_detection_lifecycle.py`.
+
+### Native inspection cores (Rust + C++)
+
+The `rust/` crate ports the fail-closed JSON-RPC inspection decision (parse, duplicate-key rejection, batch atomicity, allow/block/indeterminate) to Rust. Verified via a `rust:1-slim` Docker build: `cargo build` **0 warnings**, `cargo test` **9 passed / 0 failed**. See [rust/README.md](rust/README.md).
+
+The `cpp/` directory ports the same fail-closed inspection core to C++17, with a small self-contained JSON parser that explicitly rejects duplicate keys. Verified via a `gcc:13` Docker build: compiled with `-Wall -Wextra -Wpedantic` (no warnings), `make test` **11/11 checks passed**, and the CMake path reports `ctest` **100% passed (1/1)**. Both native cores hold the same parity table as the Python implementation. See [cpp/README.md](cpp/README.md).
 
 ## Installation
 
@@ -129,9 +147,9 @@ GitHub Actions runs Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, SBOM genera
 
 ## Security & Documentation
 
-- [SECURITY.md](SECURITY.md) · [THREAT_MODEL.md](THREAT_MODEL.md) · [SECURITY_AUDIT.md](SECURITY_AUDIT.md)
-- [RUNBOOK.md](RUNBOOK.md) · [INCIDENT_RUNBOOK.md](INCIDENT_RUNBOOK.md) · [PRODUCTION.md](PRODUCTION.md)
-- [VERIFIED_METRICS.md](VERIFIED_METRICS.md) · [RESEARCH_REPORT.md](RESEARCH_REPORT.md)
+- [SECURITY.md](SECURITY.md) ┬╖ [THREAT_MODEL.md](THREAT_MODEL.md) ┬╖ [SECURITY_AUDIT.md](SECURITY_AUDIT.md)
+- [RUNBOOK.md](RUNBOOK.md) ┬╖ [INCIDENT_RUNBOOK.md](INCIDENT_RUNBOOK.md) ┬╖ [PRODUCTION.md](PRODUCTION.md)
+- [VERIFIED_METRICS.md](VERIFIED_METRICS.md) ┬╖ [RESEARCH_REPORT.md](RESEARCH_REPORT.md)
 - Detection lab: [detection_lab/README.md](detection_lab/README.md)
 - Performance baselines: [docs/PERFORMANCE_BASELINE.md](docs/PERFORMANCE_BASELINE.md)
 
@@ -141,8 +159,8 @@ Heuristic detectors can be evaded; the fixed red-team catalog is a regression su
 
 ## Project Status
 
-**Production-oriented research prototype.** Functional, tested, and CI-validated, with fail-closed auth and tamper-evident audit — but not proven at production scale or in a live SOC deployment.
+**Production-oriented research prototype.** Functional, tested, and CI-validated, with fail-closed auth and tamper-evident audit ΓÇö but not proven at production scale or in a live SOC deployment.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT ΓÇö see [LICENSE](LICENSE).

@@ -1,0 +1,155 @@
+{
+  "_meta": {
+    "description": "Per-rule precision/recall over SYNTHETIC labeled fixtures.",
+    "disclaimer": "SYNTHETIC FIXTURES ONLY. These sequences are hand-crafted to exercise specific rule logic and are NOT real-world MCP traffic. Metrics describe behaviour on these fixtures only and must not be read as real-world detection efficacy.",
+    "generated_at": "2026-09-28T06:21:46Z",
+    "sequence_count": 9,
+    "malicious_sequences": 6,
+    "benign_sequences": 3
+  },
+  "per_rule": {
+    "COR-001": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "COR-002": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "COR-003": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "COR-004": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "COR-005": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "COR-006": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    }
+  },
+  "micro_average": {
+    "tp": 6,
+    "fp": 0,
+    "fn": 0,
+    "tn": 48,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0
+  },
+  "per_sequence": [
+    {
+      "seq_id": "mal-cor001",
+      "label": "malicious",
+      "expected_rules": [
+        "COR-001"
+      ],
+      "fired_rules": [
+        "COR-001"
+      ]
+    },
+    {
+      "seq_id": "mal-cor002",
+      "label": "malicious",
+      "expected_rules": [
+        "COR-002"
+      ],
+      "fired_rules": [
+        "COR-002"
+      ]
+    },
+    {
+      "seq_id": "mal-cor003",
+      "label": "malicious",
+      "expected_rules": [
+        "COR-003"
+      ],
+      "fired_rules": [
+        "COR-003"
+      ]
+    },
+    {
+      "seq_id": "mal-cor004",
+      "label": "malicious",
+      "expected_rules": [
+        "COR-004"
+      ],
+      "fired_rules": [
+        "COR-004"
+      ]
+    },
+    {
+      "seq_id": "mal-cor005",
+      "label": "malicious",
+      "expected_rules": [
+        "COR-005"
+      ],
+      "fired_rules": [
+        "COR-005"
+      ]
+    },
+    {
+      "seq_id": "mal-cor006",
+      "label": "malicious",
+      "expected_rules": [
+        "COR-006"
+      ],
+      "fired_rules": [
+        "COR-006"
+      ]
+    },
+    {
+      "seq_id": "ben-normal-1",
+      "label": "benign",
+      "expected_rules": [],
+      "fired_rules": []
+    },
+    {
+      "seq_id": "ben-single-block",
+      "label": "benign",
+      "expected_rules": [],
+      "fired_rules": []
+    },
+    {
+      "seq_id": "ben-low-risk-blocks",
+      "label": "benign",
+      "expected_rules": [],
+      "fired_rules": []
+    }
+  ]
+}

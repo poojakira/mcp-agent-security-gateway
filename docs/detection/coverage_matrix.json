@@ -1,0 +1,207 @@
+{
+  "_meta": {
+    "description": "Detection coverage matrix for MCP correlation + Elastic rules.",
+    "disclaimer": "Coverage is measured against the set of ATT&CK techniques referenced by these rules. It does not imply coverage of the full ATT&CK matrix.",
+    "generated_at": "2026-09-28T06:21:46Z",
+    "correlation_rule_count": 6,
+    "elastic_rule_count": 9
+  },
+  "entries": [
+    {
+      "source": "correlation",
+      "rule_id": "COR-001",
+      "rule_name": "recon_sensitive_access_exfil",
+      "severity": "critical",
+      "tactic_id": "TA0010",
+      "tactic_name": "Exfiltration",
+      "technique_id": "T1567",
+      "technique_name": "Exfiltration Over Web Service",
+      "atlas": "AML.T0024 (Exfiltration via ML Inference API)"
+    },
+    {
+      "source": "correlation",
+      "rule_id": "COR-002",
+      "rule_name": "injection_then_privilege_escalation",
+      "severity": "critical",
+      "tactic_id": "TA0004",
+      "tactic_name": "Privilege Escalation",
+      "technique_id": "T1059",
+      "technique_name": "Command and Scripting Interpreter",
+      "atlas": "AML.T0051 (LLM Prompt Injection)"
+    },
+    {
+      "source": "correlation",
+      "rule_id": "COR-003",
+      "rule_name": "shadow_server_then_exfil",
+      "severity": "critical",
+      "tactic_id": "TA0010",
+      "tactic_name": "Exfiltration",
+      "technique_id": "T1199",
+      "technique_name": "Trusted Relationship",
+      "atlas": ""
+    },
+    {
+      "source": "correlation",
+      "rule_id": "COR-004",
+      "rule_name": "persistent_blocked_attempts",
+      "severity": "high",
+      "tactic_id": "TA0001",
+      "tactic_name": "Initial Access",
+      "technique_id": "T1190",
+      "technique_name": "Exploit Public-Facing Application",
+      "atlas": ""
+    },
+    {
+      "source": "correlation",
+      "rule_id": "COR-005",
+      "rule_name": "injection_then_exfil",
+      "severity": "critical",
+      "tactic_id": "TA0010",
+      "tactic_name": "Exfiltration",
+      "technique_id": "T1567",
+      "technique_name": "Exfiltration Over Web Service",
+      "atlas": "AML.T0024 (Exfiltration via ML Inference API)"
+    },
+    {
+      "source": "correlation",
+      "rule_id": "COR-006",
+      "rule_name": "sensitive_access_then_shadow_server",
+      "severity": "high",
+      "tactic_id": "TA0009",
+      "tactic_name": "Collection",
+      "technique_id": "T1074",
+      "technique_name": "Data Staged",
+      "atlas": "AML.T0035 (ML Artifact Collection)"
+    },
+    {
+      "source": "elastic",
+      "rule_id": "MCP Gateway: Prompt Injection Blocked",
+      "rule_name": "MCP Gateway: Prompt Injection Blocked",
+      "severity": "critical",
+      "tactic_id": "TA0002",
+      "tactic_name": "Execution",
+      "technique_id": "T1059",
+      "technique_name": "Command and Scripting Interpreter",
+      "atlas": "AML.T0051 (LLM Prompt Injection)"
+    },
+    {
+      "source": "elastic",
+      "rule_id": "MCP Gateway: Data Exfiltration Attempt",
+      "rule_name": "MCP Gateway: Data Exfiltration Attempt",
+      "severity": "high",
+      "tactic_id": "TA0010",
+      "tactic_name": "Exfiltration",
+      "technique_id": "T1567",
+      "technique_name": "Exfiltration Over Web Service",
+      "atlas": "AML.T0024 (Exfiltration via ML Inference API)"
+    },
+    {
+      "source": "elastic",
+      "rule_id": "MCP Gateway: Shadow MCP Server Detected",
+      "rule_name": "MCP Gateway: Shadow MCP Server Detected",
+      "severity": "high",
+      "tactic_id": "TA0001",
+      "tactic_name": "Initial Access",
+      "technique_id": "T1199",
+      "technique_name": "Trusted Relationship",
+      "atlas": ""
+    },
+    {
+      "source": "elastic",
+      "rule_id": "MCP Gateway: PII Detected in Tool Arguments",
+      "rule_name": "MCP Gateway: PII Detected in Tool Arguments",
+      "severity": "high",
+      "tactic_id": "TA0009",
+      "tactic_name": "Collection",
+      "technique_id": "T1005",
+      "technique_name": "Data from Local System",
+      "atlas": "AML.T0035 (ML Artifact Collection)"
+    },
+    {
+      "source": "elastic",
+      "rule_id": "MCP Gateway: Circuit Breaker Opened",
+      "rule_name": "MCP Gateway: Circuit Breaker Opened",
+      "severity": "medium",
+      "tactic_id": "",
+      "tactic_name": "",
+      "technique_id": "",
+      "technique_name": "",
+      "atlas": ""
+    },
+    {
+      "source": "elastic",
+      "rule_id": "MCP Gateway: Rate Limit Exceeded",
+      "rule_name": "MCP Gateway: Rate Limit Exceeded",
+      "severity": "medium",
+      "tactic_id": "",
+      "tactic_name": "",
+      "technique_id": "",
+      "technique_name": "",
+      "atlas": ""
+    },
+    {
+      "source": "elastic",
+      "rule_id": "MCP Gateway: Process Spawn Attempt Blocked",
+      "rule_name": "MCP Gateway: Process Spawn Attempt Blocked",
+      "severity": "critical",
+      "tactic_id": "TA0002",
+      "tactic_name": "Execution",
+      "technique_id": "T1059",
+      "technique_name": "Command and Scripting Interpreter",
+      "atlas": "AML.T0051 (LLM Prompt Injection)"
+    },
+    {
+      "source": "elastic",
+      "rule_id": "MCP Gateway: Multiple Blocks from Same Session (Probing)",
+      "rule_name": "MCP Gateway: Multiple Blocks from Same Session (Probing)",
+      "severity": "high",
+      "tactic_id": "TA0043",
+      "tactic_name": "Reconnaissance",
+      "technique_id": "T1595",
+      "technique_name": "Active Scanning",
+      "atlas": ""
+    },
+    {
+      "source": "elastic",
+      "rule_id": "MCP Gateway: Recon then Exfiltration (Attack Chain)",
+      "rule_name": "MCP Gateway: Recon then Exfiltration (Attack Chain)",
+      "severity": "critical",
+      "tactic_id": "TA0010",
+      "tactic_name": "Exfiltration",
+      "technique_id": "T1567",
+      "technique_name": "Exfiltration Over Web Service",
+      "atlas": "AML.T0024 (Exfiltration via ML Inference API)"
+    }
+  ],
+  "techniques_referenced": [
+    "T1005",
+    "T1059",
+    "T1074",
+    "T1190",
+    "T1199",
+    "T1567",
+    "T1595"
+  ],
+  "techniques_covered": [
+    "T1005",
+    "T1059",
+    "T1074",
+    "T1190",
+    "T1199",
+    "T1567",
+    "T1595"
+  ],
+  "techniques_not_covered": [],
+  "unmapped_rules": [
+    {
+      "source": "elastic",
+      "rule_id": "MCP Gateway: Circuit Breaker Opened",
+      "rule_name": "MCP Gateway: Circuit Breaker Opened"
+    },
+    {
+      "source": "elastic",
+      "rule_id": "MCP Gateway: Rate Limit Exceeded",
+      "rule_name": "MCP Gateway: Rate Limit Exceeded"
+    }
+  ]
+}
