@@ -1,3 +1,25 @@
-# Canonical maintainer identity
-Pooja Kiran <90021441+poojakira@users.noreply.github.com> <poojakiran@users.noreply.github.com>
-Pooja Kiran <90021441+poojakira@users.noreply.github.com> <poojakira@users.noreply.github.com>
+# Canonical maintainer identity: all owner identity variants and owner-operated
+# automation bots are mapped to a single canonical author, poojakira.
+# This is display-only canonicalization (git shortlog/log --use-mailmap and the
+# GitHub contributors graph); it does not rewrite commit history.
+#
+# Genuine external collaborators are intentionally NOT listed here so their
+# real authorship is preserved.
+
+# --- owner name/email variants ---
+poojakira <90021441+poojakira@users.noreply.github.com> Pooja Kiran <90021441+poojakira@users.noreply.github.com>
+poojakira <90021441+poojakira@users.noreply.github.com> Pooja Kiran Bharadwaj <90021441+poojakira@users.noreply.github.com>
+poojakira <90021441+poojakira@users.noreply.github.com> Pooja Kiran <poojakira@users.noreply.github.com>
+poojakira <90021441+poojakira@users.noreply.github.com> Pooja Kiran <poojakiran@users.noreply.github.com>
+poojakira <90021441+poojakira@users.noreply.github.com> Pooja Kiran <poojakiranbhardwaj@gmail.com>
+poojakira <90021441+poojakira@users.noreply.github.com> Pooja Kiran <[email protected]>
+poojakira <90021441+poojakira@users.noreply.github.com> <poojakira@users.noreply.github.com>
+poojakira <90021441+poojakira@users.noreply.github.com> <poojakiran@users.noreply.github.com>
+poojakira <90021441+poojakira@users.noreply.github.com> <poojakiranbhardwaj@gmail.com>
+poojakira <90021441+poojakira@users.noreply.github.com> <[email protected]>
+poojakira <90021441+poojakira@users.noreply.github.com> poojakiran <poojakiran@users.noreply.github.com>
+
+# --- owner-operated automation bots ---
+poojakira <90021441+poojakira@users.noreply.github.com> Pooja Asset Builder <actions@users.noreply.github.com>
+poojakira <90021441+poojakira@users.noreply.github.com> Pooja Avatar Builder <actions@users.noreply.github.com>
+poojakira <90021441+poojakira@users.noreply.github.com> AI Agent <bot@example.com>
