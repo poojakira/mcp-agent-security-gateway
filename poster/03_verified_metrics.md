@@ -1,5 +1,7 @@
 # Verified Metrics — Poster 01
 
+> Evidence status: The verification below applies to the cited 2026-09-27 commit. The rendered PDF has its own printed commit and date. Neither artifact asserts a fresh run on the latest `main`.
+
 ## Current local verification (independent re-run for this poster)
 - **Date:** 2026-09-27
 - **Environment:** Windows, CPython 3.12.10, fresh `venv`, `pip install -e ".[dev,server]"`, `PYTHONPATH=src`

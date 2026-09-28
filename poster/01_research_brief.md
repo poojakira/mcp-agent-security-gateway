@@ -1,5 +1,7 @@
 # Research Brief — Poster 01
 
+> Evidence status: The verification below applies to the cited 2026-09-27 commit. The rendered PDF has its own printed commit and date. Neither artifact asserts a fresh run on the latest `main`.
+
 ## Repository
 `github.com/poojakira/mcp-agent-security-gateway` (public, default branch `main`, primary language Python).
 Audited at HEAD commit `c68e200d320ce68793096598e516b4d015bc21ad`.
@@ -56,7 +58,7 @@ Agent/MCP client → inline stdio proxy **or** FastAPI control plane → parse/n
 ## Evaluation Method
 Correctness/behavior validation via the repository's automated test suite with statement coverage, executed in a clean local environment. Static counts (patterns, rules, SIEM tests) verified by importing the module and counting committed rule records. Historical validation preserved from a prior main-branch CI run. No production/latency SLO is claimed.
 
-## Current Verified Evidence (local, this audit)
+## Evidence at Poster Snapshot (local, this audit)
 Environment: Windows, Python 3.12.10, fresh venv, `pip install -e ".[dev,server]"`, `PYTHONPATH=src`.
 - **659 tests passed** (`pytest tests -q --cov=mcp_monitor`), 0 failed; also green in GitHub Actions on `main`.
 - **82% statement coverage** (TOTAL 4804 statements, 880 missed) — consistent with the repo's README/VERIFIED_METRICS.

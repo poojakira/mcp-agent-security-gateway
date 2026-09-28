@@ -6,6 +6,7 @@
 [![Research poster](poster/poster.png)](poster/poster_36x48.pdf)
 
 > Technical research poster (36 x 48 in). Click the image for the print-resolution **[PDF](poster/poster_36x48.pdf)**.
+> Poster measurements are dated snapshots at their printed commits. Use the repository evidence files for newer results; do not read the poster as a verification of the latest `main`.
 > Every metric on it is evidence-backed; historical/projected numbers are labeled and separated from current results.
 <!-- security-systems-poster -->
 
@@ -23,6 +24,8 @@ Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
 ## Overview
 
 `mcp-agent-security-gateway` sits between an AI agent (MCP client) and downstream MCP servers and inspects each `tools/call` request over JSON-RPC before it executes, returning an allow/block decision. It applies prompt-injection, PII/exfiltration, capability/shadow-server, and process/egress-policy checks, and records tamper-evident audit and telemetry. It exists because an agent that can call tools, assume roles, and load artifacts is making privileged decisions on infrastructure, and nothing in the base MCP protocol inspects those calls. Enforcement applies only to traffic routed through a supported integration path ΓÇö this is a production-oriented research prototype, not a network firewall or a deployed SOC.
+
+**Data-protection scope:** PII and exfiltration checks apply to supported, routed tool-call paths. They are signals and scoped policy controls, not complete data-loss prevention.
 
 ## Verified Snapshot
 

@@ -1,5 +1,7 @@
 # Reproduce the Work — Poster 01
 
+> Evidence status: The verification below applies to the cited 2026-09-27 commit. The rendered PDF has its own printed commit and date. Neither artifact asserts a fresh run on the latest `main`.
+
 **Repository:** `github.com/poojakira/mcp-agent-security-gateway`
 **Environment (this verification):** Windows, CPython 3.12.10, fresh venv. HEAD `c68e200d320ce68793096598e516b4d015bc21ad`.
 
