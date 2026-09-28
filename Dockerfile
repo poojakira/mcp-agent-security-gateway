@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
 COPY tests ./tests
+COPY detection_rules ./detection_rules
 COPY Dockerfile docker-compose.yml locustfile.py ./
 COPY deploy ./deploy
 
@@ -28,6 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /wheels /wheels
+COPY --from=builder /app/detection_rules /app/detection_rules
 RUN pip install --no-cache-dir /wheels/*.whl && rm -rf /wheels
 
 RUN groupadd -r mlsec && useradd -r -g mlsec mlsec
@@ -51,7 +53,8 @@ USER mlsec
 # Container deployments must listen on the container interface. Local direct
 # execution still defaults to 127.0.0.1 in Config.
 ENV MCP_LISTEN_HOST=0.0.0.0 \
-    MCP_LISTEN_PORT=8080
+    MCP_LISTEN_PORT=8080 \
+    MCP_ELASTIC_RULES_PATH=/app/detection_rules/elastic_rules.toml
 
 EXPOSE 8080
 
