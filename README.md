@@ -95,13 +95,13 @@ Historical main CI evidence and local verification: [VERIFIED_METRICS.md](VERIFI
 
 | Claim | Verified value | Scope |
 |---|---:|---|
-| Automated tests | **659 passed** | Current checkout, Python 3.12 (local; CI re-run pending for the added tests) |
-| Statement coverage | **82%** | Current checkout, Python 3.12 (local; CI re-run pending) |
-| Prompt-injection regex patterns | **55** | Compiled entries in the detector |
+| Automated tests | **659 passed** | Current checkout, Python 3.12; also verified by GitHub Actions on `main` |
+| Statement coverage | **82%** | Current checkout, Python 3.12; also verified by GitHub Actions on `main` |
+| Prompt-injection regex patterns | **55** | `INJECTION_PATTERNS` entries in the detector |
 | Elastic Security rules | **9** | Committed rule definitions |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
 
-The cited CI run includes Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, Grype, SBOM generation, Docker build validation, and Python 3.10/3.11/3.12 test jobs. These gates now pass on the current `main` commit.
+The CI run includes Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, Grype, SBOM generation, Docker build validation, and Python 3.10/3.11/3.12 test jobs. These gates pass on the current `main` commit.
 
 Historical application-time metrics are preserved separately in [docs/evidence/RESUME_EVIDENCE.md](docs/evidence/RESUME_EVIDENCE.md).
 
@@ -148,7 +148,7 @@ No production latency or throughput guarantee is made in this README. Benchmark 
 ## Reproducing the main checks
 
 ```bash
-python -m pytest tests -q --cov=src/mcp_monitor
+python -m pytest tests -q --cov=mcp_monitor
 ruff check src tests
 ruff format --check src tests
 bandit -r src -ll

@@ -1,7 +1,7 @@
 # Reproduce the Work — Poster 01
 
 **Repository:** `github.com/poojakira/mcp-agent-security-gateway`
-**Environment (this verification):** Windows, CPython 3.12.10, fresh venv. HEAD `a5ef8e370522776b4a9a55309c5def28540d9190`.
+**Environment (this verification):** Windows, CPython 3.12.10, fresh venv. HEAD `c68e200d320ce68793096598e516b4d015bc21ad`.
 
 ```powershell
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
@@ -13,7 +13,7 @@ $env:PYTHONPATH="src"
 python -m pytest tests -q --cov=mcp_monitor --cov-report=term
 ```
 
-**Expected (observed 2026-09-26):** `652 passed`, TOTAL coverage `79%` (79.23%; 4804 stmts, 998 missed).
+**Expected (observed 2026-09-27):** `659 passed`, TOTAL coverage `82%` (4804 stmts, 880 missed).
 
 Static counts:
 ```powershell
