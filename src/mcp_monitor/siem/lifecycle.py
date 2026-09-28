@@ -42,9 +42,9 @@ from mcp_monitor.siem.correlation import (
 )
 
 try:  # Python 3.11+
-    import tomllib  # type: ignore
-except ModuleNotFoundError:  # pragma: no cover - fallback for < 3.11
-    tomllib = None  # type: ignore
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10
+    import tomli as tomllib
 
 
 # ------------------------------------------------------------------
@@ -113,8 +113,6 @@ class CoverageEntry:
 
 def _elastic_rules_raw() -> list[dict[str, Any]]:
     """Parse the committed Elastic rules TOML into a list of rule dicts."""
-    if tomllib is None:  # pragma: no cover
-        raise RuntimeError("tomllib unavailable; Python 3.11+ required to parse Elastic rules")
     if not ELASTIC_RULES_PATH.exists():
         raise FileNotFoundError(f"Elastic rules not found at {ELASTIC_RULES_PATH}")
     with ELASTIC_RULES_PATH.open("rb") as fh:
