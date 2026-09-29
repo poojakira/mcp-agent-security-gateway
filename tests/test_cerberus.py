@@ -17,10 +17,7 @@ from mcp_monitor.production.cerberus import (
 
 
 def test_fingerprint_matches_contract_vector() -> None:
-    assert (
-        fingerprint_value("203.0.113.5", "tenant-test-salt")
-        == "6cdeaf7f56c523fbc8056310c25982fa"
-    )
+    assert fingerprint_value("203.0.113.5", "tenant-test-salt") == "6cdeaf7f56c523fbc8056310c25982fa"
 
 
 @pytest.mark.parametrize(
