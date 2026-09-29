@@ -405,7 +405,7 @@ class ProductionServer:
             return None
         if not self.config.api_keys:
             self._metrics.inc_error()
-            return 503, {"error": "MCP_API_KEY or MCP_API_KEYS is not configured"}
+            return 503, {"error": "MCP_API_KEY is not configured"}
         if self._match_api_key(headers) is None:
             self._metrics.inc_error()
             return 401, {"error": "Unauthorized"}
