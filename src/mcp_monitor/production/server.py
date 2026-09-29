@@ -19,6 +19,7 @@ from mcp_monitor.audit.log import AuditEntry, AuditLog
 from mcp_monitor.audit.wal import WriteAheadLog
 from mcp_monitor.monitor import MCPSecurityMonitor
 from mcp_monitor.production.alerting import AlertingHook
+from mcp_monitor.production.cerberus import build_event, iso8601_utc, resolve_source_ip
 from mcp_monitor.production.circuit_breaker import CircuitBreaker
 from mcp_monitor.production.config import Config
 from mcp_monitor.production.logging import get_logger
@@ -140,6 +141,14 @@ class ProductionServer:
         writer: asyncio.StreamWriter,
     ) -> None:
         """Handle a single HTTP connection."""
+        peername = writer.get_extra_info("peername")
+        if isinstance(peername, (tuple, list)) and peername:
+            peer_address = str(peername[0])
+        elif peername:
+            peer_address = str(peername)
+        else:
+            peer_address = ""
+
         try:
             request_line = await asyncio.wait_for(reader.readline(), timeout=30.0)
             if not request_line:
@@ -263,6 +272,7 @@ class ProductionServer:
             self._metrics.inc_active()
             self._metrics.inc_request(path)
             start_time = time.monotonic()
+            request_started_at = time.time()
 
             # Tracing
             traceparent = headers.get("traceparent", "")
@@ -300,6 +310,24 @@ class ProductionServer:
                 self._metrics.observe_duration(duration)
                 self._metrics.dec_active()
                 self._shutdown.request_finished()
+
+            if (
+                self.config.cerberus_enabled
+                and method == "POST"
+                and path in {"/v1/inspect_call", "/v1/inspect_output", "/api/scan"}
+            ):
+                credential = self._match_api_key(headers)
+                if credential is not None:
+                    endpoint = "/v1/inspect_call" if path == "/api/scan" else path
+                    self._write_cerberus_event(
+                        endpoint=endpoint,
+                        credential=credential,
+                        headers=headers,
+                        peer_address=peer_address,
+                        request_started_at=request_started_at,
+                        latency_ms=max(0, int(round(duration * 1000))),
+                        status=status,
+                    )
 
             # Add trace headers to response
             response_headers = {
@@ -361,15 +389,24 @@ class ProductionServer:
             return self._handle_inspect_output(body, trace_id, span_id)
         return 404, {"error": "Not found"}
 
+    def _match_api_key(self, headers: dict[str, str]) -> str | None:
+        """Return the supplied credential when it matches a configured stable key."""
+        supplied = headers.get("x-api-key", "")
+        if not supplied:
+            return None
+        for configured in self.config.api_keys:
+            if compare_digest(supplied, configured):
+                return supplied
+        return None
+
     def _authorize(self, headers: dict[str, str]) -> tuple[int, dict[str, str]] | None:
         """Authorize protected inspection endpoints."""
         if self.config.allow_anonymous:
             return None
-        if not self.config.api_key:
+        if not self.config.api_keys:
             self._metrics.inc_error()
-            return 503, {"error": "MCP_API_KEY is not configured"}
-        supplied = headers.get("x-api-key", "")
-        if not supplied or not compare_digest(supplied, self.config.api_key):
+            return 503, {"error": "MCP_API_KEY or MCP_API_KEYS is not configured"}
+        if self._match_api_key(headers) is None:
             self._metrics.inc_error()
             return 401, {"error": "Unauthorized"}
         return None
@@ -391,6 +428,59 @@ class ProductionServer:
         )
         entry.entry_hash = entry.compute_hash()
         self._wal.write(entry)
+
+    def _write_cerberus_event(
+        self,
+        *,
+        endpoint: str,
+        credential: str,
+        headers: dict[str, str],
+        peer_address: str,
+        request_started_at: float,
+        latency_ms: int,
+        status: int,
+    ) -> None:
+        """Append one privacy-preserving Cerberus event to the local delivery queue.
+
+        The request path never sends raw credentials or raw addresses to
+        Cerberus. Source selection happens locally, forwarded addresses are used
+        only behind explicitly trusted proxy CIDRs, and only fingerprinted event
+        fields are written to the queue.
+        """
+        if (
+            not self.config.cerberus_enabled
+            or not self.config.cerberus_tenant_salt
+            or not self.config.cerberus_output
+            or not peer_address
+        ):
+            return
+
+        try:
+            source_ip = resolve_source_ip(
+                peer_address,
+                headers.get("x-forwarded-for"),
+                self.config.trusted_proxy_cidrs,
+            )
+            event = build_event(
+                ts=iso8601_utc(request_started_at),
+                credential=credential,
+                endpoint=endpoint,
+                tokens_in=0,
+                tokens_out=0,
+                latency_ms=latency_ms,
+                status=status,
+                source_ip=source_ip,
+                tenant_salt=self.config.cerberus_tenant_salt,
+                cost=None,
+            )
+            output_path = self.config.cerberus_output
+            os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+            with open(output_path, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps(event, separators=(",", ":")) + "\n")
+        except Exception as exc:
+            # Telemetry is observation-only and must not break MCP inspection.
+            # Invalid/untrusted source values are dropped before fingerprinting.
+            self._logger.error(f"Cerberus telemetry event dropped: {exc}")
 
     def _handle_health(self) -> tuple[int, dict[str, Any]]:
         """GET /v1/health - Health check endpoint."""
