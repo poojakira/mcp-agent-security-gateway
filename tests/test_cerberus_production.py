@@ -7,6 +7,7 @@ import json
 import os
 from unittest.mock import patch
 
+from mcp_monitor.production.cerberus import derive_ip_fingerprints
 from mcp_monitor.production.config import Config
 from mcp_monitor.production.server import ProductionServer
 
@@ -130,8 +131,6 @@ def test_spoofed_forwarded_header_is_ignored_for_untrusted_peer(tmp_path) -> Non
     event = json.loads((tmp_path / "cerberus.ndjson").read_text(encoding="utf-8").strip())
 
     # The event must represent the socket peer, not the untrusted forwarded value.
-    from mcp_monitor.production.cerberus import derive_ip_fingerprints
-
     expected = derive_ip_fingerprints("198.51.100.8", "ephemeral-contract-test-salt")
     spoofed = derive_ip_fingerprints("203.0.113.99", "ephemeral-contract-test-salt")
     assert event["ip_fp"] == expected["ip_fp"]
