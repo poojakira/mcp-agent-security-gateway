@@ -11,8 +11,8 @@ from __future__ import annotations
 import hashlib
 import hmac
 import ipaddress
-from datetime import datetime, timezone
 from collections.abc import Iterable
+from datetime import datetime, timezone
 from typing import Any
 
 _MAX_INT32 = 2_147_483_647
