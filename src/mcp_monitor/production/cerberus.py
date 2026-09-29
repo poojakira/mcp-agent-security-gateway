@@ -12,7 +12,8 @@ import hashlib
 import hmac
 import ipaddress
 from datetime import datetime, timezone
-from typing import Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 _MAX_INT32 = 2_147_483_647
 
@@ -180,7 +181,7 @@ def build_event(
     _validate_non_negative_int("status", status)
 
     if cost is not None:
-        if isinstance(cost, bool) or not isinstance(cost, (int, float)):
+        if isinstance(cost, bool) or not isinstance(cost, int | float):
             raise TypeError("cost must be a non-negative number or null")
         if cost < 0 or cost != cost or cost in (float("inf"), float("-inf")):
             raise ValueError("cost must be finite and non-negative")
