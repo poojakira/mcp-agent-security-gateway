@@ -142,7 +142,7 @@ class ProductionServer:
     ) -> None:
         """Handle a single HTTP connection."""
         peername = writer.get_extra_info("peername")
-        if isinstance(peername, (tuple, list)) and peername:
+        if isinstance(peername, tuple | list) and peername:
             peer_address = str(peername[0])
         elif peername:
             peer_address = str(peername)
