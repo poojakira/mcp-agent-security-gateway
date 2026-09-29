@@ -47,16 +47,14 @@ class Config:
         self.trusted_proxy_cidrs: tuple[str, ...] = self._parse_csv(
             os.environ.get("MCP_TRUSTED_PROXY_CIDRS", "")
         )
-        self.cerberus_enabled: bool = os.environ.get(
-            "MCP_CERBERUS_ENABLED", "false"
-        ).lower() in ("true", "1", "yes")
-        self.cerberus_tenant_salt: str | None = os.environ.get(
-            "MCP_CERBERUS_TENANT_SALT"
+        self.cerberus_enabled: bool = os.environ.get("MCP_CERBERUS_ENABLED", "false").lower() in (
+            "true",
+            "1",
+            "yes",
         )
+        self.cerberus_tenant_salt: str | None = os.environ.get("MCP_CERBERUS_TENANT_SALT")
         self.cerberus_output: str | None = os.environ.get("MCP_CERBERUS_OUTPUT")
-        self.cerberus_schema_version: str = os.environ.get(
-            "MCP_CERBERUS_SCHEMA_VERSION", "1"
-        )
+        self.cerberus_schema_version: str = os.environ.get("MCP_CERBERUS_SCHEMA_VERSION", "1")
         self.cerberus_client: str = os.environ.get(
             "MCP_CERBERUS_CLIENT", "mcp-agent-security-gateway"
         )
@@ -86,7 +84,9 @@ class Config:
         elif any(len(key) < 32 for key in self.api_keys):
             errors.append("All configured MCP API credentials must contain at least 32 characters")
         if self.cerberus_enabled and not self.cerberus_tenant_salt:
-            errors.append("MCP_CERBERUS_TENANT_SALT is required when Cerberus telemetry is enabled")
+            errors.append(
+                "MCP_CERBERUS_TENANT_SALT is required when Cerberus telemetry is enabled"
+            )
         if self.cerberus_enabled and not self.cerberus_output:
             errors.append("MCP_CERBERUS_OUTPUT is required when Cerberus telemetry is enabled")
         if not self.wal_path:
