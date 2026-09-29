@@ -35,10 +35,30 @@ class Config:
         self.wal_path: str | None = os.environ.get("MCP_WAL_PATH")
         self.audit_path: str | None = os.environ.get("MCP_AUDIT_PATH")
         self.api_key: str | None = os.environ.get("MCP_API_KEY")
+        self.api_keys: tuple[str, ...] = self._parse_api_keys(
+            self.api_key,
+            os.environ.get("MCP_API_KEYS", ""),
+        )
         self.allow_anonymous: bool = os.environ.get("MCP_ALLOW_ANONYMOUS", "false").lower() in (
             "true",
             "1",
             "yes",
+        )
+        self.trusted_proxy_cidrs: tuple[str, ...] = self._parse_csv(
+            os.environ.get("MCP_TRUSTED_PROXY_CIDRS", "")
+        )
+        self.cerberus_enabled: bool = os.environ.get(
+            "MCP_CERBERUS_ENABLED", "false"
+        ).lower() in ("true", "1", "yes")
+        self.cerberus_tenant_salt: str | None = os.environ.get(
+            "MCP_CERBERUS_TENANT_SALT"
+        )
+        self.cerberus_output: str | None = os.environ.get("MCP_CERBERUS_OUTPUT")
+        self.cerberus_schema_version: str = os.environ.get(
+            "MCP_CERBERUS_SCHEMA_VERSION", "1"
+        )
+        self.cerberus_client: str = os.environ.get(
+            "MCP_CERBERUS_CLIENT", "mcp-agent-security-gateway"
         )
         # SIEM event export: when enabled, every inspected call is appended as a
         # single-line JSON (NDJSON) record to siem_output, which Filebeat tails
@@ -61,8 +81,14 @@ class Config:
             errors.append("MCP_ALLOW_ANONYMOUS must be false")
         if self.shadow_mode:
             errors.append("MCP_SHADOW_MODE must be false in MCP_ENV=production")
-        if not self.api_key or len(self.api_key) < 32:
-            errors.append("MCP_API_KEY must be configured with at least 32 characters")
+        if not self.api_keys:
+            errors.append("MCP_API_KEY or MCP_API_KEYS must configure at least one credential")
+        elif any(len(key) < 32 for key in self.api_keys):
+            errors.append("All configured MCP API credentials must contain at least 32 characters")
+        if self.cerberus_enabled and not self.cerberus_tenant_salt:
+            errors.append("MCP_CERBERUS_TENANT_SALT is required when Cerberus telemetry is enabled")
+        if self.cerberus_enabled and not self.cerberus_output:
+            errors.append("MCP_CERBERUS_OUTPUT is required when Cerberus telemetry is enabled")
         if not self.wal_path:
             errors.append("MCP_WAL_PATH must point to durable storage")
         if not self.audit_path:
@@ -75,6 +101,27 @@ class Config:
             errors.append("MCP_MAX_PAYLOAD_KB must be greater than zero")
         if errors:
             raise ValueError("Invalid production configuration: " + "; ".join(errors))
+
+    @staticmethod
+    def _parse_csv(value: str) -> tuple[str, ...]:
+        """Parse a comma-separated configuration value while preserving order."""
+        return tuple(item.strip() for item in value.split(",") if item.strip())
+
+    @classmethod
+    def _parse_api_keys(cls, primary: str | None, multiple: str) -> tuple[str, ...]:
+        """Combine the legacy single key and optional stable multi-key list."""
+        values: list[str] = []
+        if primary and primary.strip():
+            values.append(primary.strip())
+        values.extend(cls._parse_csv(multiple))
+
+        deduplicated: list[str] = []
+        seen: set[str] = set()
+        for value in values:
+            if value not in seen:
+                deduplicated.append(value)
+                seen.add(value)
+        return tuple(deduplicated)
 
     @staticmethod
     def _parse_allowed_servers(value: str) -> set[str]:
