@@ -8,8 +8,6 @@ updates:
       time: "09:00"
       timezone: "America/Phoenix"
     open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
     commit-message:
       prefix: "deps"
 
@@ -21,8 +19,5 @@ updates:
       time: "09:30"
       timezone: "America/Phoenix"
     open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "ci"
     commit-message:
       prefix: "ci"
