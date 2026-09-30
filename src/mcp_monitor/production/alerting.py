@@ -117,8 +117,11 @@ class AlertingHook:
         if not self.webhook_url:
             return
         parsed_url = urllib.parse.urlparse(self.webhook_url)
-        if parsed_url.scheme not in {"http", "https"}:
-            _logger.warning("Webhook alert skipped: unsupported URL scheme")
+        local_hosts = {"localhost", "127.0.0.1", "::1"}
+        if parsed_url.scheme != "https" and not (
+            parsed_url.scheme == "http" and parsed_url.hostname in local_hosts
+        ):
+            _logger.warning("Webhook alert skipped: HTTPS is required")
             return
         try:
             data = json.dumps(payload).encode("utf-8")
@@ -132,6 +135,7 @@ class AlertingHook:
         except Exception as exc:
             # Fire-and-forget: log error but don't raise
             _logger.warning(
-                f"Webhook alert failed: {exc}",
-                extra={"extra_fields": {"webhook_url": self.webhook_url}},
+                "Webhook alert delivery failed: %s",
+                type(exc).__name__,
+                extra={"extra_fields": {"webhook_host": parsed_url.hostname or "unknown"}},
             )
