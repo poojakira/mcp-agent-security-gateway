@@ -1,0 +1,67 @@
+name: Temporary Cerberus Network Diagnostics
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Host resolver diagnostics
+        shell: bash
+        run: |
+          set +e
+          echo "===== HOST: nslookup via 1.1.1.1 ====="
+          command -v nslookup >/dev/null 2>&1 || sudo apt-get update && sudo apt-get install -y dnsutils
+          nslookup api.cerberushq.dev 1.1.1.1
+          echo "===== HOST: normal resolver ====="
+          getent hosts api.cerberushq.dev
+          echo "===== HOST: resolv.conf ====="
+          cat /etc/resolv.conf
+          echo "===== HOST: curl health ====="
+          curl -sv --connect-timeout 10 --max-time 20 https://api.cerberushq.dev/health
+          echo "===== HOST: IPv4/IPv6 routes ====="
+          ip -4 route || true
+          ip -6 route || true
+
+      - name: Build production gateway image
+        run: docker build -t mcp-gateway:network-diag .
+
+      - name: Gateway runtime container diagnostics
+        shell: bash
+        run: |
+          set +e
+          docker run --rm --user 0 --entrypoint sh mcp-gateway:network-diag -lc '
+            echo "===== CONTAINER: install diagnostic-only dnsutils/iproute2 ====="
+            apt-get update >/dev/null 2>&1 && apt-get install -y --no-install-recommends dnsutils iproute2 >/dev/null 2>&1
+            echo "===== CONTAINER: nslookup via 1.1.1.1 ====="
+            nslookup api.cerberushq.dev 1.1.1.1 || true
+            echo "===== CONTAINER: normal resolver ====="
+            getent hosts api.cerberushq.dev || true
+            echo "===== CONTAINER: resolv.conf ====="
+            cat /etc/resolv.conf || true
+            echo "===== CONTAINER: curl health ====="
+            curl -sv --connect-timeout 10 --max-time 20 https://api.cerberushq.dev/health 2>&1 || true
+            echo "===== CONTAINER: IPv4/IPv6 addresses and routes ====="
+            ip -4 addr show || true
+            ip -6 addr show || true
+            ip -4 route show || true
+            ip -6 route show || true
+            echo "===== CONTAINER: Python getaddrinfo ====="
+            python - <<'"'"'PY'"'"'
+import socket
+for family_name, family in (("AF_INET", socket.AF_INET), ("AF_INET6", socket.AF_INET6), ("AF_UNSPEC", socket.AF_UNSPEC)):
+    try:
+        rows = socket.getaddrinfo("api.cerberushq.dev", 443, family, socket.SOCK_STREAM)
+        print(family_name, sorted({row[4][0] for row in rows}))
+    except Exception as exc:
+        print(family_name, type(exc).__name__, str(exc))
+PY
+          '
