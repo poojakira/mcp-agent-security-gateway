@@ -36,4 +36,16 @@ The resume rounds 78.41% to **78%**.
 
 ## Current repository state
 
-The current evidence anchor is [../../VERIFIED_METRICS.md](../../VERIFIED_METRICS.md). The repository has grown since the frozen application snapshot; current metrics must not be substituted into older submitted material retroactively.
+The current evidence anchor is [../../VERIFIED_METRICS.md](../../VERIFIED_METRICS.md).
+
+Latest verified code snapshot: `59eeac5221ab4eff3d5c5e421ccb46407de08037`.
+
+- **702 passing tests**
+- **82.76% statement coverage** (5,324 statements, 918 missed)
+- **55 prompt-injection patterns**
+- **9 Elastic Security rules**
+- **21 core SIEM tests**
+- Stable multi-credential authentication plus trusted-proxy-aware source attribution
+- Local HMAC-SHA256 credential/network fingerprinting without raw credential/IP export
+
+For current résumé material, the exact supported test-count claim is **"702 passing automated tests."** The repository has grown since the frozen application snapshot; current metrics must not be substituted into older submitted material retroactively. External Cerberus pilot completion must not be claimed until independent ingestion/validation evidence exists.
