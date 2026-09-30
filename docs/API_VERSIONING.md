@@ -43,7 +43,6 @@ additive-vs-breaking rule above.
 
 ## Authentication boundary
 
-Production configuration requires a service key of at least 32 characters.
-Protected requests send it in `X-API-Key`. Health and readiness remain
-unauthenticated for orchestration probes. Metrics are protected because they
-expose operational security telemetry.
+Production configuration requires at least one API credential of 32 or more characters. The legacy single-key variable `MCP_API_KEY` remains supported; `MCP_API_KEYS` adds a comma-separated set of stable credentials for per-credential attribution. Protected requests send the selected credential in `X-API-Key`. Health and readiness remain unauthenticated for orchestration probes. Metrics are protected because they expose operational security telemetry.
+
+Credential/network telemetry is not a new HTTP API version. It is generated locally from the authenticated request path. The socket peer is authoritative unless the peer belongs to an explicitly configured trusted-proxy CIDR, in which case a normalized forwarded source may be used. Raw credentials and raw source addresses remain local to the gateway.
