@@ -187,3 +187,10 @@ MIT — see [LICENSE](LICENSE).
 - **Security note:** Intentional attack payloads and red-team fixtures were preserved; they were not treated as live secrets or executable production behavior.
 - **Evidence boundary:** This update records repository and GitHub Actions evidence observed during the pass. It is not a claim of independent penetration testing, production deployment, or zero residual risk.
 <!-- repo-verification:end -->
+
+## Verification checkpoint — 2026-09-30
+
+- **Snapshot commit:** `fe00f82a07a0e6e8d62799f637a88bd7eb496732`
+- **Status:** PARTIALLY VERIFIED
+- **Evidence:** Security Hygiene and Documentation Integrity passed on the current main revision. CI and the Production Gate were still pending at the verification snapshot. A prior Ruff-format failure was repaired by the repository formatter workflow.
+- This checkpoint is intentionally date-bounded. It does not claim zero vulnerabilities or universal production readiness.
