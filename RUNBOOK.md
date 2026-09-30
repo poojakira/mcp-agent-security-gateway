@@ -149,6 +149,26 @@ Raw credentials and raw source addresses are not written to the identity telemet
 
 The static field/envelope mapping is complete. A live external baseline is still a separate operational step and is not claimed as completed by this repository.
 
+### First three-credential smoke batch
+
+Use a fresh queue generated with the live tenant salt. Do not reuse queue records created with an earlier validation salt.
+
+Set the transport connection details only in the runtime environment:
+
+```bash
+export MCP_IDENTITY_TELEMETRY_ENDPOINT="<https-ingest-endpoint>"
+export MCP_IDENTITY_TELEMETRY_BEARER_TOKEN="<runtime-secret>"
+```
+
+After one new protected request has been observed for each of three distinct configured credentials, run:
+
+```bash
+python -m mcp_monitor.production.identity_smoke
+```
+
+The smoke command refuses to send unless the queue contains at least three distinct `key_fp` values. It selects exactly one event from each of three credential paths, creates one batch, performs one HTTPS POST, and prints only the HTTP status plus the response body with configured token/salt values redacted. It does not print the bearer token, tenant salt, raw API credentials, raw source addresses, or internal source-record IDs.
+
+
 ## Readiness semantics
 
 `/v1/ready` returns 200 only when both forensic persistence directories
