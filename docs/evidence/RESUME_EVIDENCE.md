@@ -38,14 +38,14 @@ The resume rounds 78.41% to **78%**.
 
 The current evidence anchor is [../../VERIFIED_METRICS.md](../../VERIFIED_METRICS.md).
 
-Latest verified code snapshot: `59eeac5221ab4eff3d5c5e421ccb46407de08037`.
+Latest verified code snapshot: `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`.
 
-- **702 passing tests**
-- **82.76% statement coverage** (5,324 statements, 918 missed)
+- **707 passing tests**
+- **82.84% statement coverage** (5,337 statements, 916 missed)
 - **55 prompt-injection patterns**
 - **9 Elastic Security rules**
 - **21 core SIEM tests**
 - Stable multi-credential authentication plus trusted-proxy-aware source attribution
 - Local HMAC-SHA256 credential/network fingerprinting without raw credential/IP export
 
-For current résumé material, the exact supported test-count claim is **"702 passing automated tests."** The repository has grown since the frozen application snapshot; current metrics must not be substituted into older submitted material retroactively. External external validation pilot completion must not be claimed until independent ingestion/validation evidence exists.
+For current résumé material, the exact supported test-count claim is **"707 passing automated tests."** The repository has grown since the frozen application snapshot; current metrics must not be substituted into older submitted material retroactively. External validation pilot completion must not be claimed until independent ingestion/validation evidence exists.
