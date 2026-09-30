@@ -1,0 +1,118 @@
+"""Tests for identity telemetry canonicalization and fingerprinting."""
+
+from __future__ import annotations
+
+import re
+
+import pytest
+
+from mcp_monitor.production.identity_telemetry import (
+    build_event,
+    derive_ip_fingerprints,
+    fingerprint_value,
+    normalize_source_ip,
+    resolve_source_ip,
+)
+
+
+def test_fingerprint_matches_contract_vector() -> None:
+    actual = fingerprint_value("203.0.113.5", "tenant-test-salt")
+    expected = "6cdeaf7f56c523fbc8056310c25982fa"
+    assert actual == expected
+
+
+def test_source_normalization() -> None:
+    cases = (
+        ("203.0.113.5", "203.0.113.5"),
+        ("203.0.113.5:443", "203.0.113.5"),
+        ("[2001:db8::1]", "2001:db8::1"),
+        ("[2001:db8::1]:443", "2001:db8::1"),
+        ("for=192.0.2.60", "192.0.2.60"),
+        ('for="[2001:db8::7]:8443"', "2001:db8::7"),
+        ("::ffff:203.0.113.9", "203.0.113.9"),
+    )
+    for raw, expected in cases:
+        assert str(normalize_source_ip(raw)) == expected
+
+
+def test_source_normalization_rejects_unknown() -> None:
+    with pytest.raises(ValueError):
+        normalize_source_ip("unknown")
+
+
+def test_untrusted_peer_ignores_forwarded_header() -> None:
+    source = resolve_source_ip(
+        "198.51.100.10",
+        "203.0.113.5, 10.0.0.8",
+        trusted_proxy_cidrs=("10.0.0.0/8",),
+    )
+    assert str(source) == "198.51.100.10"
+
+
+def test_trusted_proxy_uses_forwarded_source() -> None:
+    source = resolve_source_ip(
+        "10.1.2.3",
+        "for=203.0.113.5:443, 10.1.2.3",
+        trusted_proxy_cidrs=("10.0.0.0/8",),
+    )
+    assert str(source) == "203.0.113.5"
+
+
+def test_ipv4_fingerprints_match_contract_inputs() -> None:
+    fields = derive_ip_fingerprints("203.0.113.5", "tenant-test-salt")
+    assert fields["ip_fp"] == "6cdeaf7f56c523fbc8056310c25982fa"
+    assert fields["ip_net_fp"] == "f2018a095debaa94c83d0ca99f558ffa"
+    assert fields["ip_block_fp"] == "84e3733136cd156996e6bd9e29c869b4"
+    assert fields["ip_family"] == "v4"
+
+
+def test_ipv6_fingerprints_match_contract_inputs() -> None:
+    fields = derive_ip_fingerprints("2001:db8:abcd:1234::1", "tenant-test-salt")
+    assert fields["ip_fp"] == "90ef41e60ade46bfcff2b4b5b52ce6c9"
+    assert fields["ip_net_fp"] == "b5697095026186ac1d3a4c7aa69eed26"
+    assert fields["ip_block_fp"] == "5f34769e1dec8fea3c335fbcf99038f2"
+    assert fields["ip_family"] == "v6"
+
+
+def test_event_has_closed_schema_and_zero_tokens() -> None:
+    event = build_event(
+        ts="2026-09-29T23:45:00.000Z",
+        credential="credential-path-a",
+        endpoint="/v1/inspect_call",
+        tokens_in=0,
+        tokens_out=0,
+        latency_ms=17,
+        status=200,
+        source_ip="203.0.113.5",
+        tenant_salt="tenant-test-salt",
+        cost=None,
+    )
+    expected_fields = {
+        "ts",
+        "key_fp",
+        "endpoint",
+        "tokens_in",
+        "tokens_out",
+        "latency_ms",
+        "status",
+        "ip_fp",
+        "ip_net_fp",
+        "ip_block_fp",
+        "ip_family",
+        "cost",
+    }
+    assert set(event) == expected_fields
+    assert event["tokens_in"] == 0
+    assert event["tokens_out"] == 0
+    assert event["cost"] is None
+    for name in ("key_fp", "ip_fp", "ip_net_fp", "ip_block_fp"):
+        assert re.fullmatch(r"[0-9a-f]{32}", event[name])
+
+
+def test_distinct_credentials_have_distinct_stable_fingerprints() -> None:
+    salt = "tenant-test-salt"
+    first = fingerprint_value("credential-path-a", salt)
+    repeated = fingerprint_value("credential-path-a", salt)
+    second = fingerprint_value("credential-path-b", salt)
+    assert first == repeated
+    assert first != second
