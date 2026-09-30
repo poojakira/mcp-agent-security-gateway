@@ -7,4 +7,4 @@ This compatibility file remains in place so existing resume, portfolio, and exte
 
 ## Current verified headline
 
-See the maintained evidence file for details. The current code snapshot supports the résumé claim **702 passing automated tests** with **82.76% statement coverage**. External Cerberus pilot completion is not yet a supported résumé claim.
+See the maintained evidence file for details. The current code snapshot supports the résumé claim **702 passing automated tests** with **82.76% statement coverage**. External external validation pilot completion is not yet a supported résumé claim.
