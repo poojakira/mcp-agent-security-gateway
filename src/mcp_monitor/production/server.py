@@ -19,13 +19,13 @@ from mcp_monitor.audit.log import AuditEntry, AuditLog
 from mcp_monitor.audit.wal import WriteAheadLog
 from mcp_monitor.monitor import MCPSecurityMonitor
 from mcp_monitor.production.alerting import AlertingHook
+from mcp_monitor.production.circuit_breaker import CircuitBreaker
+from mcp_monitor.production.config import Config
 from mcp_monitor.production.identity_telemetry import (
     build_event,
     iso8601_utc,
     resolve_source_ip,
 )
-from mcp_monitor.production.circuit_breaker import CircuitBreaker
-from mcp_monitor.production.config import Config
 from mcp_monitor.production.logging import get_logger
 from mcp_monitor.production.metrics import MetricsCollector
 from mcp_monitor.production.rate_limiter import RateLimiter
