@@ -222,11 +222,15 @@ class MLThreatClassifier:
         with open(path + ".sha256", "w") as f:
             f.write(integrity)
 
-    def load(self, path: str) -> bool:
-        """Load a trained model from disk WITH integrity verification.
+    def load(self, path: str, *, trusted: bool = False) -> bool:
+        """Load a trained model from disk after integrity and trust checks.
 
-        Refuses to load if the SHA-256 checksum doesn't match, preventing
-        arbitrary code execution via tampered pickle files.
+        A colocated SHA-256 file can detect accidental corruption or a mismatched
+        local file, but it does not prove provenance: an attacker able to replace
+        the pickle can usually replace the checksum too. Because pickle
+        deserialization can execute code, callers must explicitly pass
+        ``trusted=True`` only after verifying the artifact came from a trusted
+        source.
         """
         import hashlib as _hl
         import pickle
@@ -243,7 +247,9 @@ class MLThreatClassifier:
         actual_hash = _hl.sha256(data).hexdigest()
         if actual_hash != expected_hash:
             return False  # INTEGRITY FAILURE — model file tampered
-        self._pipeline = pickle.loads(data)  # nosec B301
+        if not trusted:
+            return False  # Pickle is executable serialization; provenance must be explicit.
+        self._pipeline = pickle.loads(data)  # nosec B301 -- explicit trust + checksum required
         self._trained = True
         return True
 
