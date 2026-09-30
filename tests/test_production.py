@@ -935,12 +935,14 @@ class TestProductionServer:
                     {"x-api-key": "secret"},
                     "trace",
                     "span",
+                    source_event_id="source-record-123",
                 )
             )
             assert status == 200
             assert "allowed" in result
             recovered = server._wal.recover()
             assert len(recovered) == 1
+            assert recovered[0].entry_id == "source-record-123"
             assert recovered[0].event_type == "production_request_received"
             assert recovered[0].data["path"] == "/v1/inspect_call"
         finally:
