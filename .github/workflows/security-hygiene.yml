@@ -1,0 +1,82 @@
+name: Security Hygiene
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Reject committed credentials and high-confidence secret literals
+        shell: python
+        run: |
+          import re
+          import subprocess
+          from pathlib import Path
+
+          tracked = subprocess.check_output(["git", "ls-files", "-z"]).decode().split("\0")
+          failures = []
+          allowed_env = {".env.example", ".env.sample", ".env.template"}
+          private_names = {"id_rsa", "id_ed25519", "credentials.json"}
+          private_suffixes = {".pem", ".p12", ".pfx", ".key"}
+
+          patterns = {
+              "GitHub token": re.compile(r"gh[pousr]_[A-Za-z0-9]{30,}"),
+              "OpenAI-style key": re.compile(r"sk-[A-Za-z0-9_-]{30,}"),
+              "AWS access key": re.compile(r"AKIA[0-9A-Z]{16}"),
+              "Slack token": re.compile(r"xox[baprs]-[A-Za-z0-9-]{20,}"),
+              "Stripe live key": re.compile(r"(?:sk|rk)_live_[A-Za-z0-9]{16,}"),
+              "Google API key": re.compile(r"AIza[0-9A-Za-z_-]{30,}"),
+              "Hugging Face token": re.compile(r"hf_[A-Za-z0-9]{30,}"),
+          }
+
+          text_suffixes = {
+              ".py", ".js", ".jsx", ".ts", ".tsx", ".json", ".yaml", ".yml",
+              ".toml", ".ini", ".cfg", ".conf", ".md", ".txt", ".sh", ".ps1",
+              ".html", ".css", ".xml", ".properties"
+          }
+
+          for raw in tracked:
+              if not raw:
+                  continue
+              path = Path(raw)
+              name = path.name.lower()
+              if name.startswith(".env") and name not in allowed_env:
+                  failures.append(f"{raw}: tracked environment file")
+              if name in private_names or path.suffix.lower() in private_suffixes:
+                  if ".example." not in name and ".sample." not in name:
+                      failures.append(f"{raw}: tracked credential/private-key file")
+              if name.startswith("service-account") and name.endswith(".json"):
+                  failures.append(f"{raw}: tracked service-account credential file")
+
+              if path.suffix.lower() not in text_suffixes or not path.is_file():
+                  continue
+              if path.stat().st_size > 1_000_000:
+                  continue
+              text = path.read_text(encoding="utf-8", errors="ignore")
+              for label, pattern in patterns.items():
+                  for match in pattern.finditer(text):
+                      token = match.group(0)
+                      nearby = text[max(0, match.start()-40):match.end()+40].upper()
+                      if "EXAMPLE" in token.upper() or "PLACEHOLDER" in nearby or "REDACTED" in nearby:
+                          continue
+                      failures.append(f"{raw}: possible {label}")
+                      break
+
+          if failures:
+              raise SystemExit("\n".join(sorted(set(failures))))
+          print("security hygiene verified")
