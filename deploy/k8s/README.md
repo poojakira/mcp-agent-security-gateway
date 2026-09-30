@@ -67,4 +67,4 @@ The health and readiness endpoints are intentionally unauthenticated for orchest
 
 When deploying behind an ingress or load balancer, do not trust client-supplied `X-Forwarded-For` by default. Configure `MCP_TRUSTED_PROXY_CIDRS` only for infrastructure you control and that overwrites/sanitizes forwarded source headers. The gateway otherwise uses the socket peer address.
 
-Optional Cerberus-compatible event output also requires `MCP_CERBERUS_TENANT_SALT` and `MCP_CERBERUS_OUTPUT`. Keep the tenant salt in a Kubernetes Secret and mount the output on durable storage if you enable the local queue. Raw API credentials and raw source addresses are not written to that event output.
+Optional external-validation event output also requires `MCP_IDENTITY_TELEMETRY_TENANT_SALT` and `MCP_IDENTITY_TELEMETRY_OUTPUT`. Keep the tenant salt in a Kubernetes Secret and mount the output on durable storage if you enable the local queue. Raw API credentials and raw source addresses are not written to that event output.
