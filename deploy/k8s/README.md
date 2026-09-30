@@ -10,7 +10,7 @@ The sample ConfigMap runs the service under `MCP_ENV=production`, binds on
 PVC. Replace the example `MCP_ALLOWED_SERVERS=github` with the exact server IDs
 approved for your environment.
 
-Create the API key Secret:
+Create the API credential Secret. The sample keeps the legacy single-key path; production environments may instead provide `MCP_API_KEYS` with multiple stable credentials:
 
 ```bash
 kubectl apply -f deploy/k8s/namespace.yaml
@@ -63,5 +63,8 @@ curl http://127.0.0.1:8080/v1/ready
 curl -H "X-API-Key: $MCP_API_KEY" http://127.0.0.1:8080/v1/metrics
 ```
 
-The health and readiness endpoints are intentionally unauthenticated for
-orchestration. Runtime metrics and inspection endpoints require the service key.
+The health and readiness endpoints are intentionally unauthenticated for orchestration. Runtime metrics and inspection endpoints require a configured service credential.
+
+When deploying behind an ingress or load balancer, do not trust client-supplied `X-Forwarded-For` by default. Configure `MCP_TRUSTED_PROXY_CIDRS` only for infrastructure you control and that overwrites/sanitizes forwarded source headers. The gateway otherwise uses the socket peer address.
+
+Optional Cerberus-compatible event output also requires `MCP_CERBERUS_TENANT_SALT` and `MCP_CERBERUS_OUTPUT`. Keep the tenant salt in a Kubernetes Secret and mount the output on durable storage if you enable the local queue. Raw API credentials and raw source addresses are not written to that event output.
