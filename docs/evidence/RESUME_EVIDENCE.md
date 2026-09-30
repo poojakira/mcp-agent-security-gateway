@@ -48,4 +48,4 @@ Latest verified code snapshot: `59eeac5221ab4eff3d5c5e421ccb46407de08037`.
 - Stable multi-credential authentication plus trusted-proxy-aware source attribution
 - Local HMAC-SHA256 credential/network fingerprinting without raw credential/IP export
 
-For current résumé material, the exact supported test-count claim is **"702 passing automated tests."** The repository has grown since the frozen application snapshot; current metrics must not be substituted into older submitted material retroactively. External Cerberus pilot completion must not be claimed until independent ingestion/validation evidence exists.
+For current résumé material, the exact supported test-count claim is **"702 passing automated tests."** The repository has grown since the frozen application snapshot; current metrics must not be substituted into older submitted material retroactively. External external validation pilot completion must not be claimed until independent ingestion/validation evidence exists.
