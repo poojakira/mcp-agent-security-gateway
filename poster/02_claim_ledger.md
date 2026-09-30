@@ -25,8 +25,8 @@ Classification key: VERIFIED_AT_SNAPSHOT / VERIFIED_HISTORICAL / PARTIAL / UNVER
 | 15 | ATT&CK-mapped Elastic rules present | VERIFIED_AT_SNAPSHOT | elastic_rules.toml + detection_lab; mapping describes technique relationships, not proof of attack occurrence. |
 | 16 | Multiple stable API credentials supported | VERIFIED_AT_SNAPSHOT | `Config.api_keys` combines legacy `MCP_API_KEY` and optional `MCP_API_KEYS`; protected routes compare the supplied credential against the configured set. |
 | 17 | Trusted source-address boundary implemented | VERIFIED_AT_SNAPSHOT | Socket peer is authoritative unless it belongs to `MCP_TRUSTED_PROXY_CIDRS`; only then is normalized `X-Forwarded-For` used. |
-| 18 | Privacy-preserving credential/network fingerprints | VERIFIED_AT_SNAPSHOT | `production/cerberus.py` uses HMAC-SHA256 truncated to 32 lowercase hex characters for credential, exact IP, network, and block inputs; raw credentials/IPs are not written to the event output. |
-| 19 | External Cerberus pilot completed | UNSUPPORTED / pending | Event-generation code is implemented; external ingestion-contract approval, tenant provisioning, and live baseline are separate and not yet repository-verified. |
+| 18 | Privacy-preserving credential/network fingerprints | VERIFIED_AT_SNAPSHOT | `production/identity_telemetry.py` uses HMAC-SHA256 truncated to 32 lowercase hex characters for credential, exact IP, network, and block inputs; raw credentials/IPs are not written to the event output. |
+| 19 | External external validation pilot completed | UNSUPPORTED / pending | Event-generation code is implemented; external ingestion-contract approval, tenant provisioning, and live baseline are separate and not yet repository-verified. |
 
 ## Removed / downgraded for poster
 - No production reliability, adoption, user counts, uptime, or SLO claims (none in repo; would be fabrication).
