@@ -4,35 +4,35 @@ This file is the evidence anchor for quantitative claims about this repository.
 
 ## Current verified code snapshot
 
-**Code commit:** `59eeac5221ab4eff3d5c5e421ccb46407de08037`  
-**Successful Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36648647933  
-**Successful full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36648648015  
+**Code commit:** `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`  
+**Successful Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36652602543  
+**Successful full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36652602526  
 **Verification time:** 2026-09-30 UTC (2026-09-29 America/Phoenix)
 
 The Python 3.12 CI job reports:
 
 ```text
-TOTAL                                            5324    918    83%
-Required test coverage of 77% reached. Total coverage: 82.76%
-702 passed in 115.74s
+TOTAL                                               5337    916    83%
+Required test coverage of 77% reached. Total coverage: 82.84%
+707 passed in 143.43s
 ```
 
 The Production Gate independently reports:
 
 ```text
-702 passed in 96.82s
+707 passed in 118.39s
 All checks passed!
 ```
 
 | Claim | Current verified value | Evidence boundary |
 |---|---:|---|
-| Automated tests | **702 passed** | Python 3.12 CI and Production Gate on the cited code commit; the same suite is green on Python 3.10 and 3.11 |
-| Statement coverage | **82.76%** | 5,324 statements, 918 missed on Python 3.12 |
+| Automated tests | **707 passed** | Python 3.12 CI and Production Gate on the cited code commit; the same suite is green on Python 3.10 and 3.11 |
+| Statement coverage | **82.84%** | 5,337 statements, 916 missed on Python 3.12 |
 | Prompt-injection regex patterns | **55** | `INJECTION_PATTERNS` in `src/mcp_monitor/detectors/prompt_injection.py` |
 | Elastic Security rules | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
 | Additional SIEM scenario-runner tests | **12** | `tests/test_siem_scenarios.py` |
-| identity telemetry helper coverage | **76%** | `src/mcp_monitor/production/identity_telemetry.py` in the current Python 3.12 coverage report |
+| Identity telemetry helper coverage | **81%** | `src/mcp_monitor/production/identity_telemetry.py` in the current Python 3.12 coverage report |
 | Production server coverage | **65%** | `src/mcp_monitor/production/server.py` in the current Python 3.12 coverage report |
 | Red-team simulator coverage | **99%** | `src/mcp_monitor/redteam/simulator.py` in the current Python 3.12 coverage report |
 
