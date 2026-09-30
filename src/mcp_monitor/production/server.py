@@ -141,7 +141,8 @@ class ProductionServer:
         writer: asyncio.StreamWriter,
     ) -> None:
         """Handle a single HTTP connection."""
-        peername = writer.get_extra_info("peername")
+        get_extra_info = getattr(writer, "get_extra_info", None)
+        peername = get_extra_info("peername") if callable(get_extra_info) else None
         if isinstance(peername, tuple | list) and peername:
             peer_address = str(peername[0])
         elif peername:
