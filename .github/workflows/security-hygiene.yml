@@ -80,3 +80,88 @@ jobs:
           if failures:
               raise SystemExit("\n".join(sorted(set(failures))))
           print("security hygiene verified")
+
+      - name: Reject secrets in reachable Git history
+        shell: python
+        run: |
+          import re
+          import subprocess
+          from pathlib import Path
+
+          allowed_env = {".env.example", ".env.sample", ".env.template"}
+          failures = []
+
+          names = subprocess.check_output(
+              ["git", "log", "--all", "--name-only", "--pretty=format:"],
+              text=True,
+              errors="replace",
+          ).splitlines()
+          for raw in names:
+              raw = raw.strip()
+              if not raw:
+                  continue
+              name = Path(raw).name.lower()
+              if name.startswith(".env") and name not in allowed_env:
+                  failures.append(f"{raw}: environment file exists in reachable history")
+
+          patterns = {
+              "GitHub token": re.compile(r"gh[pousr]_[A-Za-z0-9]{30,}"),
+              "GitHub fine-grained token": re.compile(r"github_pat_[A-Za-z0-9_]{30,}"),
+              "OpenAI-style key": re.compile(r"sk-[A-Za-z0-9_-]{30,}"),
+              "AWS access key": re.compile(r"AKIA[0-9A-Z]{16}"),
+              "AWS temporary access key": re.compile(r"ASIA[0-9A-Z]{16}"),
+              "Slack token": re.compile(r"xox[baprs]-[A-Za-z0-9-]{20,}"),
+              "Stripe live key": re.compile(r"(?:sk|rk)_live_[A-Za-z0-9]{16,}"),
+              "Google API key": re.compile(r"AIza[0-9A-Za-z_-]{30,}"),
+              "Hugging Face token": re.compile(r"hf_[A-Za-z0-9]{30,}"),
+              "GitLab token": re.compile(r"glpat-[A-Za-z0-9_-]{20,}"),
+              "npm token": re.compile(r"npm_[A-Za-z0-9]{30,}"),
+              "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
+          }
+          assignment = re.compile(
+              r"""(?ix)
+              \b(?:AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|OPENAI_API_KEY|
+              ANTHROPIC_API_KEY|HF_TOKEN|GITHUB_TOKEN|GOOGLE_API_KEY|
+              STRIPE_SECRET_KEY|DATABASE_URL|JWT_SECRET)
+              \s*[:=]\s*["']?([A-Za-z0-9_./+=:@-]{16,})
+              """
+          )
+          placeholders = (
+              "EXAMPLE", "PLACEHOLDER", "REDACTED", "CHANGEME",
+              "REPLACE_ME", "YOUR_", "YOUR-", "XXXXX"
+          )
+
+          history = subprocess.check_output(
+              ["git", "log", "--all", "-p", "--format=__COMMIT__%H", "--no-ext-diff"],
+              text=True,
+              errors="replace",
+          )
+          commit = "unknown"
+          for line in history.splitlines():
+              if line.startswith("__COMMIT__"):
+                  commit = line.removeprefix("__COMMIT__")[:12]
+                  continue
+              if not line.startswith(("+", "-")) or line.startswith(("+++", "---")):
+                  continue
+
+              upper = line.upper()
+              for label, pattern in patterns.items():
+                  match = pattern.search(line)
+                  if not match:
+                      continue
+                  token = match.group(0)
+                  nearby = upper[max(0, match.start()-50):match.end()+50]
+                  if any(word in token.upper() or word in nearby for word in placeholders):
+                      continue
+                  failures.append(f"{commit}: possible historical {label}")
+                  break
+
+              match = assignment.search(line)
+              if match:
+                  value = match.group(1).upper()
+                  if not any(word in value or word in upper for word in placeholders):
+                      failures.append(f"{commit}: possible historical secret assignment")
+
+          if failures:
+              raise SystemExit("\n".join(sorted(set(failures))))
+          print("reachable Git history secret scan verified")
