@@ -1,15 +1,15 @@
 # Claim Ledger — Poster 01 (mcp-agent-security-gateway)
 
-> Evidence status: The verification below applies to the cited 2026-09-27 commit. The rendered PDF has its own printed commit and date. Neither artifact asserts a fresh run on the latest `main`.
+> Evidence status: This ledger is refreshed to the latest verified code snapshot. The rendered poster PDF remains a historical artifact at its printed commit/date.
 
-Audited HEAD: `c68e200d320ce68793096598e516b4d015bc21ad`. Local env: Windows, Python 3.12.10.
+Verified code snapshot: `59eeac5221ab4eff3d5c5e421ccb46407de08037`. Authoritative evidence: successful GitHub Actions CI and Production Gate.
 
 Classification key: VERIFIED_AT_SNAPSHOT / VERIFIED_HISTORICAL / PARTIAL / UNVERIFIED / UNSUPPORTED.
 
 | # | Claim | Classification | Evidence |
 |---|---|---|---|
-| 1 | 659 automated tests pass | VERIFIED_AT_SNAPSHOT | `pytest tests -q` → "659 passed" on a clean venv (Py 3.12.10); also green in GitHub Actions on `main`. |
-| 2 | 82% statement coverage | VERIFIED_AT_SNAPSHOT | `--cov=mcp_monitor` → TOTAL 4804 stmts, 880 missed = 82%. |
+| 1 | 702 automated tests pass | VERIFIED_AT_SNAPSHOT | Production Gate: "702 passed"; Python 3.12 CI: "702 passed" with the same suite green on Python 3.10/3.11. |
+| 2 | 82.76% statement coverage | VERIFIED_AT_SNAPSHOT | Python 3.12 CI: TOTAL 5,324 statements, 918 missed; coverage.py reports 82.76%. |
 | 3 | 55 prompt-injection regex patterns | VERIFIED_AT_SNAPSHOT | `len(prompt_injection.INJECTION_PATTERNS)` == 55 (imported module). Note: file has 59 `re.compile` calls total; 4 are outside the collection — README's "55" is correct for the named list. |
 | 4 | 9 Elastic Security rules | VERIFIED_AT_SNAPSHOT | 9 `^[[rule]]` records in `detection_rules/elastic_rules.toml`. |
 | 5 | 21 core SIEM tests | VERIFIED_AT_SNAPSHOT | 21 `def test_` in `tests/test_siem.py`. |
@@ -23,6 +23,10 @@ Classification key: VERIFIED_AT_SNAPSHOT / VERIFIED_HISTORICAL / PARTIAL / UNVER
 | 13 | Enforcement identical across integration paths | UNSUPPORTED | README states stdio proxy, FastAPI control plane, and HTTP surfaces "do not provide identical enforcement behavior." Poster must state per-path differences. |
 | 14 | Measured false-positive / false-negative rate | UNVERIFIED / Not measured | No external labeled corpus benchmark for detector FP/FN in repo. State "Not measured." |
 | 15 | ATT&CK-mapped Elastic rules present | VERIFIED_AT_SNAPSHOT | elastic_rules.toml + detection_lab; mapping describes technique relationships, not proof of attack occurrence. |
+| 16 | Multiple stable API credentials supported | VERIFIED_AT_SNAPSHOT | `Config.api_keys` combines legacy `MCP_API_KEY` and optional `MCP_API_KEYS`; protected routes compare the supplied credential against the configured set. |
+| 17 | Trusted source-address boundary implemented | VERIFIED_AT_SNAPSHOT | Socket peer is authoritative unless it belongs to `MCP_TRUSTED_PROXY_CIDRS`; only then is normalized `X-Forwarded-For` used. |
+| 18 | Privacy-preserving credential/network fingerprints | VERIFIED_AT_SNAPSHOT | `production/cerberus.py` uses HMAC-SHA256 truncated to 32 lowercase hex characters for credential, exact IP, network, and block inputs; raw credentials/IPs are not written to the event output. |
+| 19 | External Cerberus pilot completed | UNSUPPORTED / pending | Event-generation code is implemented; external ingestion-contract approval, tenant provisioning, and live baseline are separate and not yet repository-verified. |
 
 ## Removed / downgraded for poster
 - No production reliability, adoption, user counts, uptime, or SLO claims (none in repo; would be fabrication).
