@@ -14,6 +14,7 @@ import tempfile
 import time
 from secrets import compare_digest
 from typing import Any
+from uuid import uuid4
 
 from mcp_monitor.audit.log import AuditEntry, AuditLog
 from mcp_monitor.audit.wal import WriteAheadLog
@@ -296,9 +297,22 @@ class ProductionServer:
                 parent_span_id=parent_span_id,
             )
 
+            source_event_id = (
+                str(uuid4())
+                if method == "POST"
+                and path in {"/v1/inspect_call", "/v1/inspect_output", "/api/scan"}
+                else None
+            )
+
             try:
                 status, response_body = await self._route(
-                    method, path, body, headers, trace_id, span.span_id
+                    method,
+                    path,
+                    body,
+                    headers,
+                    trace_id,
+                    span.span_id,
+                    source_event_id=source_event_id,
                 )
                 span.set_attribute("http.status_code", status)
                 if status >= 400:
@@ -333,7 +347,7 @@ class ProductionServer:
                         request_started_at=request_started_at,
                         latency_ms=max(0, int(round(duration * 1000))),
                         status=status,
-                        event_id=f"{trace_id}:{span.span_id}",
+                        event_id=source_event_id or f"{trace_id}:{span.span_id}",
                     )
 
             # Add trace headers to response
@@ -364,6 +378,7 @@ class ProductionServer:
         headers: dict[str, str],
         trace_id: str,
         span_id: str,
+        source_event_id: str | None = None,
     ) -> tuple[int, Any]:
         """Route a request to the appropriate handler."""
         # Health check
@@ -390,7 +405,13 @@ class ProductionServer:
             if auth_status is not None:
                 return auth_status
             effective_path = "/v1/inspect_call" if path == "/api/scan" else path
-            self._record_wal_event(effective_path, body, trace_id, span_id)
+            self._record_wal_event(
+                effective_path,
+                body,
+                trace_id,
+                span_id,
+                entry_id=source_event_id,
+            )
             if effective_path == "/v1/inspect_call":
                 return self._handle_inspect_call(body, trace_id, span_id)
             return self._handle_inspect_output(body, trace_id, span_id)
@@ -418,21 +439,32 @@ class ProductionServer:
             return 401, {"error": "Unauthorized"}
         return None
 
-    def _record_wal_event(self, path: str, body: bytes, trace_id: str, span_id: str) -> None:
+    def _record_wal_event(
+        self,
+        path: str,
+        body: bytes,
+        trace_id: str,
+        span_id: str,
+        *,
+        entry_id: str | None = None,
+    ) -> None:
         """Persist protected request metadata to WAL before processing."""
         import hashlib
 
-        entry = AuditEntry(
-            event_type="production_request_received",
-            data={
+        entry_kwargs: dict[str, Any] = {
+            "event_type": "production_request_received",
+            "data": {
                 "path": path,
                 "body_sha256": hashlib.sha256(body).hexdigest(),
                 "body_bytes": len(body),
                 "trace_id": trace_id,
                 "span_id": span_id,
             },
-            prev_hash="0" * 64,
-        )
+            "prev_hash": "0" * 64,
+        }
+        if entry_id is not None:
+            entry_kwargs["entry_id"] = entry_id
+        entry = AuditEntry(**entry_kwargs)
         entry.entry_hash = entry.compute_hash()
         self._wal.write(entry)
 
