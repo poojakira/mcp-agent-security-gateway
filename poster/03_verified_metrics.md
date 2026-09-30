@@ -5,15 +5,15 @@
 ## Current GitHub Actions verification
 
 - **Verification:** 2026-09-30 UTC / 2026-09-29 America/Phoenix
-- **Code snapshot:** `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`
-- **Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36653310929
-- **Full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36653310958
+- **Code snapshot:** `e249bde03affc6dcece172f991269cfe1c26417a`
+- **Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36655829130
+- **Full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36655829094
 
 | Metric | Value | Scope |
 |---|---:|---|
 | Tests passed | **707** | Production Gate and Python 3.12 CI; same suite green on Python 3.10/3.11 |
 | Tests failed | **0** | Cited successful runs |
-| Statement coverage | **82.84%** | 5,337 statements, 916 missed |
+| Statement coverage | **82.85%** | 5,342 statements, 916 missed |
 | INJECTION_PATTERNS entries | **55** | Runtime named collection |
 | Elastic `[[rule]]` records | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
