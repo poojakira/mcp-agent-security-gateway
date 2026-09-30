@@ -53,7 +53,7 @@ The production gateway now supports:
 - local event generation without raw credentials or raw source addresses;
 - `tokens_in = 0` and `tokens_out = 0` when token accounting is unavailable at the MCP inspection layer.
 
-The repository does **not** claim that an external external validation pilot is complete. The event objects are implemented and locally testable; external ingestion-contract approval, tenant provisioning, live baseline accumulation, and any production validation remain separate evidence.
+The static event and transport mapping is implemented and contract-checked. The repository does **not** claim that a live validation baseline, external alert-quality evaluation, or production deployment has completed.
 
 ## Historical main CI baseline
 
