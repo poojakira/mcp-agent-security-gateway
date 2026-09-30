@@ -57,9 +57,7 @@ class Config:
         self.identity_telemetry_tenant_salt: str | None = os.environ.get(
             "MCP_IDENTITY_TELEMETRY_TENANT_SALT"
         )
-        self.identity_telemetry_output: str | None = os.environ.get(
-            "MCP_IDENTITY_TELEMETRY_OUTPUT"
-        )
+        self.identity_telemetry_output: str | None = os.environ.get("MCP_IDENTITY_TELEMETRY_OUTPUT")
         # SIEM event export: when enabled, every inspected call is appended as a
         # single-line JSON (NDJSON) record to siem_output, which Filebeat tails
         # and ships to Elasticsearch in the detection-engineering lab.
