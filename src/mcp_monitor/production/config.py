@@ -101,6 +101,8 @@ class Config:
             errors.append("MCP_RATE_LIMIT_RPM must be greater than zero")
         if self.max_payload_kb <= 0:
             errors.append("MCP_MAX_PAYLOAD_KB must be greater than zero")
+        if self.webhook_url and not self.webhook_url.lower().startswith("https://"):
+            errors.append("MCP_WEBHOOK_URL must use HTTPS in production")
         if errors:
             raise ValueError("Invalid production configuration: " + "; ".join(errors))
 
