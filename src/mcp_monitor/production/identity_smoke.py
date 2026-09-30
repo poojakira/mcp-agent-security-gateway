@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 
 from mcp_monitor.production.identity_transport import (
     load_three_credential_smoke_batch,
