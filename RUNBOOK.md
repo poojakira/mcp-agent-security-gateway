@@ -115,7 +115,7 @@ curl -H "X-API-Key: $MCP_API_KEY" \
   http://127.0.0.1:8080/v1/metrics
 ```
 
-## Trusted source-address and Cerberus-compatible telemetry
+## Trusted source-address and external-validation telemetry
 
 Source attribution is explicit and fail-safe:
 
@@ -125,19 +125,19 @@ Source attribution is explicit and fail-safe:
 - IPv4-mapped IPv6 is normalized back to IPv4;
 - invalid values such as `unknown` are rejected from the fingerprint path.
 
-Optional local Cerberus-compatible event output is configured with:
+Optional local external-validation event output is configured with:
 
 ```bash
-export MCP_CERBERUS_ENABLED=true
-export MCP_CERBERUS_TENANT_SALT="<customer-held-salt>"
-export MCP_CERBERUS_OUTPUT=/var/lib/mcp/cerberus-events.ndjson
+export MCP_IDENTITY_TELEMETRY_ENABLED=true
+export MCP_IDENTITY_TELEMETRY_TENANT_SALT="<customer-held-salt>"
+export MCP_IDENTITY_TELEMETRY_OUTPUT=/var/lib/mcp/identity-telemetry.ndjson
 # Optional only when the gateway is behind infrastructure you control:
 export MCP_TRUSTED_PROXY_CIDRS="10.0.0.0/8,2001:db8:100::/48"
 ```
 
-The output contains only the closed event fields built locally: timestamp, credential fingerprint, normalized endpoint, token counters, latency, status, exact/network/block fingerprints, IP family, and optional cost. Raw credentials and raw source addresses are not written to the Cerberus event queue. Token counts are currently emitted as `0` where the MCP inspection layer cannot account for them.
+The output contains only the closed event fields built locally: timestamp, credential fingerprint, normalized endpoint, token counters, latency, status, exact/network/block fingerprints, IP family, and optional cost. Raw credentials and raw source addresses are not written to the identity telemetry event queue. Token counts are currently emitted as `0` where the MCP inspection layer cannot account for them.
 
-The repository does not claim that an external Cerberus ingestion contract or pilot has completed. Transport-envelope versioning, tenant provisioning, and live-baseline approval remain external validation steps.
+The repository does not claim that an external external ingestion contract or pilot has completed. Transport-envelope versioning, tenant provisioning, and live-baseline approval remain external validation steps.
 
 ## Readiness semantics
 
