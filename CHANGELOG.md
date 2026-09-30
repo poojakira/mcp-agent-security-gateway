@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- added a vendor-neutral three-credential live smoke sender that selects one queued event per distinct credential fingerprint, sends a single HTTPS Bearer-authenticated batch, and redacts runtime secrets from status output
 - completed the vendor-neutral live transport envelope: integer schema version `1`, client `mcp-gateway/1.0.0`, `backfill=false`, positional `event_fps`, and stable retry fingerprints derived from `"evt:" + event_id`
 - renamed external-validation telemetry code, configuration, tests, and documentation to vendor-neutral identity telemetry naming
 - refreshed authoritative verification to **707 passing tests** and **82.85% statement coverage** (5,342 statements, 916 missed) on the verified code snapshot `e249bde03affc6dcece172f991269cfe1c26417a`; full CI and Production Gate are green
