@@ -4,7 +4,7 @@
 
 ## Repository
 `github.com/poojakira/mcp-agent-security-gateway` (public, default branch `main`, primary language Python).
-Latest verified code snapshot: `59eeac5221ab4eff3d5c5e421ccb46407de08037` (successful CI and Production Gate).
+Latest verified code snapshot: `cbdf733858d186bb4d72ca57a9c10e74ee84dd65` (successful CI and Production Gate).
 
 ## Academic Project Title
 **Runtime Policy Enforcement at the AI Agent-to-Tool Boundary**
@@ -59,9 +59,9 @@ Agent/MCP client → inline stdio proxy **or** FastAPI control plane → parse/n
 Correctness/behavior validation via the repository's automated test suite with statement coverage, executed in a clean local environment. Static counts (patterns, rules, SIEM tests) verified by importing the module and counting committed rule records. Historical validation preserved from a prior main-branch CI run. No production/latency SLO is claimed.
 
 ## Current Repository Evidence
-GitHub Actions, Python 3.12, code snapshot `59eeac5221ab4eff3d5c5e421ccb46407de08037`:
-- **702 tests passed**, 0 failed.
-- **82.76% statement coverage** (5,324 statements, 918 missed).
+GitHub Actions, Python 3.12, code snapshot `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`:
+- **707 tests passed**, 0 failed.
+- **82.84% statement coverage** (5,337 statements, 916 missed).
 - The same test suite is green on Python 3.10 and 3.11.
 - **55** entries in `INJECTION_PATTERNS`.
 - **9** Elastic `[[rule]]` records.
@@ -74,7 +74,7 @@ The gateway additionally supports stable multi-credential authentication, truste
 Main CI run `35809388960`, commit `a5d39be`, dated 2026-09-23: **641 passed** and **79.54% coverage**. Keep it labeled as a historical snapshot; newer verification is listed in the current-repository evidence section above.
 
 ## Important Negative Results / Honest Findings
-- Coverage is uneven: `server/realtime.py` 36%, `siem/shipper.py` 53%, `production/server.py` 65%, and `production/identity_telemetry.py` 76%; aggregate coverage is 82.76%.
+- Coverage is uneven: `server/realtime.py` 36%, `siem/shipper.py` 53%, `production/server.py` 65%, and `production/identity_telemetry.py` 81%; aggregate coverage is 82.84%.
 - Detection is heuristic — no measured false-positive/false-negative rate on an external corpus is established by this repo.
 - Enforcement behavior is **not** identical across the stdio proxy, HTTP control plane, and Python wrapper paths.
 
