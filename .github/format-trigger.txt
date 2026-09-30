@@ -1,1 +1,1 @@
-run one-time Ruff formatting for identity transport and smoke tests
+security-hardening-format-pass-2026-09-30
