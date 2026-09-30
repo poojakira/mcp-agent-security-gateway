@@ -4,7 +4,7 @@
 
 - completed the vendor-neutral live transport envelope: integer schema version `1`, client `mcp-gateway/1.0.0`, `backfill=false`, positional `event_fps`, and stable retry fingerprints derived from `"evt:" + event_id`
 - renamed external-validation telemetry code, configuration, tests, and documentation to vendor-neutral identity telemetry naming
-- refreshed authoritative verification to **702 passing tests** and **82.76% statement coverage** (5,324 statements, 918 missed) on the verified code snapshot `59eeac5221ab4eff3d5c5e421ccb46407de08037`; full CI and Production Gate are green
+- refreshed authoritative verification to **707 passing tests** and **82.84% statement coverage** (5,337 statements, 916 missed) on the verified code snapshot `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`; full CI and Production Gate are green
 - added stable multi-credential authentication through `MCP_API_KEYS` while retaining legacy `MCP_API_KEY`
 - added trusted source-address capture: socket peer by default, with `X-Forwarded-For` accepted only from explicitly configured trusted proxy CIDRs
 - added IPv4/IPv6 canonicalization, including IPv4-mapped IPv6 normalization
