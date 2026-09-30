@@ -2,14 +2,14 @@
 
 > Evidence status: This ledger is refreshed to the latest verified code snapshot. The rendered poster PDF remains a historical artifact at its printed commit/date.
 
-Verified code snapshot: `59eeac5221ab4eff3d5c5e421ccb46407de08037`. Authoritative evidence: successful GitHub Actions CI and Production Gate.
+Verified code snapshot: `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`. Authoritative evidence: successful GitHub Actions CI and Production Gate.
 
 Classification key: VERIFIED_AT_SNAPSHOT / VERIFIED_HISTORICAL / PARTIAL / UNVERIFIED / UNSUPPORTED.
 
 | # | Claim | Classification | Evidence |
 |---|---|---|---|
-| 1 | 702 automated tests pass | VERIFIED_AT_SNAPSHOT | Production Gate: "702 passed"; Python 3.12 CI: "702 passed" with the same suite green on Python 3.10/3.11. |
-| 2 | 82.76% statement coverage | VERIFIED_AT_SNAPSHOT | Python 3.12 CI: TOTAL 5,324 statements, 918 missed; coverage.py reports 82.76%. |
+| 1 | 707 automated tests pass | VERIFIED_AT_SNAPSHOT | Production Gate: "707 passed"; Python 3.12 CI: "707 passed" with the same suite green on Python 3.10/3.11. |
+| 2 | 82.84% statement coverage | VERIFIED_AT_SNAPSHOT | Python 3.12 CI: TOTAL 5,337 statements, 916 missed; coverage.py reports 82.84%. |
 | 3 | 55 prompt-injection regex patterns | VERIFIED_AT_SNAPSHOT | `len(prompt_injection.INJECTION_PATTERNS)` == 55 (imported module). Note: file has 59 `re.compile` calls total; 4 are outside the collection — README's "55" is correct for the named list. |
 | 4 | 9 Elastic Security rules | VERIFIED_AT_SNAPSHOT | 9 `^[[rule]]` records in `detection_rules/elastic_rules.toml`. |
 | 5 | 21 core SIEM tests | VERIFIED_AT_SNAPSHOT | 21 `def test_` in `tests/test_siem.py`. |
