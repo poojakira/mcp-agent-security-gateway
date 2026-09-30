@@ -121,7 +121,6 @@ def test_distinct_credentials_have_distinct_stable_fingerprints() -> None:
     assert first != second
 
 
-
 def test_event_fingerprint_matches_confirmed_formula() -> None:
     actual = event_fingerprint("trace-abc:span-123", "tenant-test-salt")
     assert actual == "8ca91c1f7778f80f1e5c3ec0ab170428"
