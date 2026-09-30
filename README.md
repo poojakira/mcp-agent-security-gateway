@@ -190,10 +190,10 @@ MIT — see [LICENSE](LICENSE).
 
 ## Verification checkpoint — 2026-09-30
 
-- **Snapshot commit:** `fe00f82a07a0e6e8d62799f637a88bd7eb496732`
-- **Status:** PARTIALLY VERIFIED
-- **Evidence:** Security Hygiene and Documentation Integrity passed on the current main revision. CI and the Production Gate were still pending at the verification snapshot. A prior Ruff-format failure was repaired by the repository formatter workflow.
-- This checkpoint is intentionally date-bounded. It does not claim zero vulnerabilities or universal production readiness.
+- **Checked snapshot:** `2801e7b80735e5d7392ad82b9ad867c060f2e013`
+- **Status:** VERIFIED GREEN
+- **Evidence:** CI, Production Gate, Security Hygiene, and Documentation Integrity completed successfully for the cited checked snapshot.
+- This record is immutable and date-bounded. Later `main` commits may be newer; consult GitHub Actions for the latest run state. It does not claim zero vulnerabilities or universal production readiness.
 
 
 ## Secret handling
