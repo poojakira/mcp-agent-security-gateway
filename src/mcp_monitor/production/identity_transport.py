@@ -84,7 +84,9 @@ def build_three_credential_smoke_batch(records: list[dict[str, Any]]) -> dict[st
             if len(events) == 3:
                 return build_envelope(events, event_fps)
 
-    raise ValueError("smoke test requires queued events from three distinct credential paths")
+    raise ValueError(
+        "smoke test requires queued events from three distinct credential paths"
+    )
 
 
 def load_three_credential_smoke_batch(
