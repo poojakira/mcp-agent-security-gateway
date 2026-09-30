@@ -118,7 +118,9 @@ def post_envelope(
     )
 
     try:
-        with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
+        # Endpoint is rejected above unless it is HTTPS; suppress Bandit's generic
+        # urlopen scheme warning for this constrained transport call.
+        with urllib.request.urlopen(request, timeout=timeout_seconds) as response:  # nosec B310
             raw = response.read(_MAX_RESPONSE_BYTES)
             return TransportResult(
                 status=int(response.status),
