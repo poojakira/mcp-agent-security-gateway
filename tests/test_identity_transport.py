@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import json
+import os
 from unittest.mock import patch
 
 import pytest
 
+from mcp_monitor.production import identity_smoke
 from mcp_monitor.production.identity_transport import (
+    TransportResult,
     build_three_credential_smoke_batch,
     post_envelope,
     redact_sensitive,
@@ -129,3 +132,81 @@ def test_redact_sensitive_removes_secret_values() -> None:
     assert "secret-token" not in redacted
     assert "secret-salt" not in redacted
     assert redacted == "token=<redacted> salt=<redacted>"
+
+
+
+def test_smoke_cli_reports_missing_runtime_configuration(capsys) -> None:
+    with patch.dict(os.environ, {}, clear=True):
+        assert identity_smoke.main() == 2
+
+    output = json.loads(capsys.readouterr().out)
+    assert output["ok"] is False
+    assert set(output["missing"]) == {
+        "MCP_IDENTITY_TELEMETRY_ENDPOINT",
+        "MCP_IDENTITY_TELEMETRY_BEARER_TOKEN",
+        "MCP_IDENTITY_TELEMETRY_TENANT_SALT",
+        "MCP_IDENTITY_TELEMETRY_OUTPUT",
+    }
+
+
+def test_smoke_cli_prints_redacted_success_output(capsys) -> None:
+    env = {
+        "MCP_IDENTITY_TELEMETRY_ENDPOINT": "https://example.invalid/v1/events",
+        "MCP_IDENTITY_TELEMETRY_BEARER_TOKEN": "runtime-secret-token",
+        "MCP_IDENTITY_TELEMETRY_TENANT_SALT": "runtime-secret-salt",
+        "MCP_IDENTITY_TELEMETRY_OUTPUT": "/tmp/identity-telemetry.ndjson",
+    }
+    envelope = {
+        "schema_version": 1,
+        "client": "mcp-gateway/1.0.0",
+        "backfill": False,
+        "events": [{"key_fp": "a" * 32}],
+        "event_fps": ["1" * 32],
+    }
+    response = '{"accepted":3,"note":"runtime-secret-token runtime-secret-salt"}'
+
+    with (
+        patch.dict(os.environ, env, clear=True),
+        patch.object(identity_smoke, "load_three_credential_smoke_batch", return_value=envelope),
+        patch.object(
+            identity_smoke,
+            "post_envelope",
+            return_value=TransportResult(status=202, body=response),
+        ),
+    ):
+        assert identity_smoke.main() == 0
+
+    raw_output = capsys.readouterr().out
+    assert "runtime-secret-token" not in raw_output
+    assert "runtime-secret-salt" not in raw_output
+    output = json.loads(raw_output)
+    assert output["ok"] is True
+    assert output["http_status"] == 202
+    assert output["response"]["accepted"] == 3
+    assert output["response"]["note"] == "<redacted> <redacted>"
+
+
+def test_smoke_cli_redacts_exception_text(capsys) -> None:
+    env = {
+        "MCP_IDENTITY_TELEMETRY_ENDPOINT": "https://example.invalid/v1/events",
+        "MCP_IDENTITY_TELEMETRY_BEARER_TOKEN": "runtime-secret-token",
+        "MCP_IDENTITY_TELEMETRY_TENANT_SALT": "runtime-secret-salt",
+        "MCP_IDENTITY_TELEMETRY_OUTPUT": "/tmp/identity-telemetry.ndjson",
+    }
+
+    with (
+        patch.dict(os.environ, env, clear=True),
+        patch.object(
+            identity_smoke,
+            "load_three_credential_smoke_batch",
+            side_effect=ValueError("runtime-secret-token runtime-secret-salt"),
+        ),
+    ):
+        assert identity_smoke.main() == 1
+
+    raw_output = capsys.readouterr().out
+    assert "runtime-secret-token" not in raw_output
+    assert "runtime-secret-salt" not in raw_output
+    output = json.loads(raw_output)
+    assert output["ok"] is False
+    assert output["error"] == "<redacted> <redacted>"
