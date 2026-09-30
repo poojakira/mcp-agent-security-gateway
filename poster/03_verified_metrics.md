@@ -5,15 +5,15 @@
 ## Current GitHub Actions verification
 
 - **Verification:** 2026-09-30 UTC / 2026-09-29 America/Phoenix
-- **Code snapshot:** `59eeac5221ab4eff3d5c5e421ccb46407de08037`
-- **Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36648647933
-- **Full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36648648015
+- **Code snapshot:** `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`
+- **Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36652602543
+- **Full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36652602526
 
 | Metric | Value | Scope |
 |---|---:|---|
-| Tests passed | **702** | Production Gate and Python 3.12 CI; same suite green on Python 3.10/3.11 |
+| Tests passed | **707** | Production Gate and Python 3.12 CI; same suite green on Python 3.10/3.11 |
 | Tests failed | **0** | Cited successful runs |
-| Statement coverage | **82.76%** | 5,324 statements, 918 missed |
+| Statement coverage | **82.84%** | 5,337 statements, 916 missed |
 | INJECTION_PATTERNS entries | **55** | Runtime named collection |
 | Elastic `[[rule]]` records | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
@@ -28,7 +28,7 @@
 | `redteam/simulator.py` | 99% |
 | `protocol/jsonrpc.py` | 99% |
 | `siem/correlation.py` | 94% |
-| `production/identity_telemetry.py` | 76% |
+| `production/identity_telemetry.py` | 81% |
 | `proxy/stdio_proxy.py` | 70% |
 | `production/server.py` | 65% |
 | `siem/shipper.py` | 53% |
