@@ -7,6 +7,9 @@ Or:  python -m mcp_monitor.server.realtime
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import hmac
+import os
 import random
 import time
 from pathlib import Path
@@ -14,8 +17,8 @@ from typing import Any
 
 try:
     import uvicorn
-    from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-    from fastapi.responses import HTMLResponse
+    from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+    from fastapi.responses import HTMLResponse, JSONResponse
 except ImportError as _err:
     raise ImportError("pip install fastapi uvicorn[standard]") from _err
 
@@ -36,6 +39,69 @@ from mcp_monitor.layers.proxy import ProxyAction
 app = FastAPI(title="MCP Security Gateway — Real-Time Monitor")
 
 DASHBOARD_PATH = Path(__file__).parent / "dashboard.html"
+_REALTIME_ENV = os.environ.get("MCP_REALTIME_ENV", "development").strip().lower()
+_REALTIME_API_KEY = os.environ.get("MCP_REALTIME_API_KEY", "")
+_REALTIME_MAX_BODY_BYTES = int(os.environ.get("MCP_REALTIME_MAX_BODY_BYTES", str(128 * 1024)))
+_REALTIME_RATE_LIMIT_RPM = int(os.environ.get("MCP_REALTIME_RATE_LIMIT_RPM", "120"))
+_REALTIME_MAX_WS_CONNECTIONS = int(os.environ.get("MCP_REALTIME_MAX_WS_CONNECTIONS", "32"))
+_realtime_rate_windows: dict[str, list[float]] = {}
+if _REALTIME_ENV == "production" and len(_REALTIME_API_KEY) < 32:
+    raise RuntimeError("MCP_REALTIME_API_KEY must be at least 32 characters in production")
+if _REALTIME_MAX_BODY_BYTES < 1024 or _REALTIME_MAX_BODY_BYTES > 1024 * 1024:
+    raise RuntimeError("MCP_REALTIME_MAX_BODY_BYTES must be between 1 KiB and 1 MiB")
+if _REALTIME_RATE_LIMIT_RPM < 1 or _REALTIME_RATE_LIMIT_RPM > 10000:
+    raise RuntimeError("MCP_REALTIME_RATE_LIMIT_RPM must be between 1 and 10000")
+if _REALTIME_MAX_WS_CONNECTIONS < 1 or _REALTIME_MAX_WS_CONNECTIONS > 1024:
+    raise RuntimeError("MCP_REALTIME_MAX_WS_CONNECTIONS must be between 1 and 1024")
+
+
+def _realtime_auth_required() -> bool:
+    return _REALTIME_ENV == "production" or bool(_REALTIME_API_KEY)
+
+
+def _consume_realtime_rate(identity: str) -> bool:
+    now = time.time()
+    cutoff = now - 60.0
+    bucket = _realtime_rate_windows.setdefault(identity, [])
+    bucket[:] = [ts for ts in bucket if ts > cutoff]
+    if len(bucket) >= _REALTIME_RATE_LIMIT_RPM:
+        return False
+    bucket.append(now)
+    return True
+
+
+async def _require_realtime_api_key(request: Request) -> None:
+    if not _realtime_auth_required():
+        return
+    if len(_REALTIME_API_KEY) < 32:
+        raise HTTPException(status_code=503, detail="Realtime API authentication is not configured")
+    supplied = request.headers.get("X-API-Key", "")
+    if not supplied or not hmac.compare_digest(supplied, _REALTIME_API_KEY):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    peer = request.client.host if request.client else "unknown"
+    identity = hashlib.sha256((supplied + "\0" + peer).encode("utf-8")).hexdigest()[:32]
+    if not _consume_realtime_rate(identity):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded", headers={"Retry-After": "60"})
+
+
+@app.middleware("http")
+async def _realtime_security_boundary(request: Request, call_next):
+    if request.method in {"POST", "PUT", "PATCH"}:
+        declared = request.headers.get("content-length")
+        if declared:
+            try:
+                if int(declared) > _REALTIME_MAX_BODY_BYTES:
+                    return JSONResponse(status_code=413, content={"detail": "Request body too large"})
+            except ValueError:
+                return JSONResponse(status_code=400, content={"detail": "Invalid Content-Length"})
+        body = await request.body()
+        if len(body) > _REALTIME_MAX_BODY_BYTES:
+            return JSONResponse(status_code=413, content={"detail": "Request body too large"})
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    return response
 
 # ---------------------------------------------------------------------------
 # Defense system initialization
@@ -841,6 +907,18 @@ async def dashboard() -> HTMLResponse:
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket) -> None:
     """WebSocket endpoint for event streaming."""
+    if _realtime_auth_required():
+        supplied = websocket.headers.get("X-API-Key", "")
+        if (
+            len(_REALTIME_API_KEY) < 32
+            or not supplied
+            or not hmac.compare_digest(supplied, _REALTIME_API_KEY)
+        ):
+            await websocket.close(code=1008, reason="Unauthorized")
+            return
+    if len(manager.active) >= _REALTIME_MAX_WS_CONNECTIONS:
+        await websocket.close(code=1013, reason="Server busy")
+        return
     await manager.connect(websocket)
     try:
         # Send the current operational state immediately. The UI can then show
@@ -856,6 +934,9 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
         while True:
             # Keep connection alive, accept any messages from client
             data = await websocket.receive_text()
+            if len(data.encode("utf-8")) > 64:
+                await websocket.close(code=1009, reason="Message too large")
+                return
             if data == "stats":
                 await websocket.send_json({"type": "stats", **_stats_snapshot()})
     except WebSocketDisconnect:
@@ -865,19 +946,22 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
 
 
 @app.get("/api/stats")
-async def api_stats() -> dict[str, Any]:
+async def api_stats(_auth: None = Depends(_require_realtime_api_key)) -> dict[str, Any]:
     """Return source-aware operational statistics for the dashboard and agents."""
     return _stats_snapshot()
 
 
 @app.get("/api/threats")
-async def api_threats() -> list[dict[str, Any]]:
+async def api_threats(_auth: None = Depends(_require_realtime_api_key)) -> list[dict[str, Any]]:
     """Return recent threat events."""
     return recent_threats[:50]
 
 
 @app.post("/api/scan")
-async def api_scan(tool_call: dict[str, Any]) -> dict[str, Any]:
+async def api_scan(
+    tool_call: dict[str, Any],
+    _auth: None = Depends(_require_realtime_api_key),
+) -> dict[str, Any]:
     """Scan a real tool call through the 5-layer defense, stream it live, return verdict.
 
     This is the production ingestion point: any MCP client/agent posts its tool
