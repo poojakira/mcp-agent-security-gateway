@@ -98,6 +98,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         continue-on-error: true
         with:
+          persist-credentials: false
           repository: poojakira/attack-v19-core
           path: attack-v19-core
           token: ${{ secrets.ATTACK_CORE_TOKEN }}
@@ -242,6 +243,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         continue-on-error: true
         with:
+          persist-credentials: false
           repository: poojakira/attack-v19-core
           path: attack-v19-core
           token: ${{ secrets.ATTACK_CORE_TOKEN }}
