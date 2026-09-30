@@ -88,6 +88,7 @@ Enforcement depends on the integration path: the Python wrapper raises `ToolBloc
 - Stable multi-credential authentication (`MCP_API_KEYS`) with legacy single-key compatibility
 - Trusted source-address capture: socket peer by default; `X-Forwarded-For` accepted only from configured trusted proxy CIDRs
 - Privacy-preserving credential/network telemetry with local HMAC-SHA256 fingerprints for exact IP, /24-or-/64 network, and /16-or-/48 block
+- Vendor-neutral three-credential smoke sender that batches one queued event per distinct credential path and redacts runtime secrets from status output
 
 ## Recent verified additions
 
