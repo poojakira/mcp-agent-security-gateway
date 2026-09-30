@@ -19,14 +19,17 @@ jobs:
         run: |
           set +e
           echo "===== HOST: nslookup via 1.1.1.1 ====="
-          command -v nslookup >/dev/null 2>&1 || sudo apt-get update && sudo apt-get install -y dnsutils
-          nslookup api.cerberushq.dev 1.1.1.1
+          if ! command -v nslookup >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y dnsutils
+          fi
+          nslookup api.cerberushq.dev 1.1.1.1 || true
           echo "===== HOST: normal resolver ====="
-          getent hosts api.cerberushq.dev
+          getent hosts api.cerberushq.dev || true
           echo "===== HOST: resolv.conf ====="
-          cat /etc/resolv.conf
+          cat /etc/resolv.conf || true
           echo "===== HOST: curl health ====="
-          curl -sv --connect-timeout 10 --max-time 20 https://api.cerberushq.dev/health
+          curl -sv --connect-timeout 10 --max-time 20 https://api.cerberushq.dev/health 2>&1 || true
           echo "===== HOST: IPv4/IPv6 routes ====="
           ip -4 route || true
           ip -6 route || true
@@ -39,8 +42,8 @@ jobs:
         run: |
           set +e
           docker run --rm --user 0 --entrypoint sh mcp-gateway:network-diag -lc '
-            echo "===== CONTAINER: install diagnostic-only dnsutils/iproute2 ====="
-            apt-get update >/dev/null 2>&1 && apt-get install -y --no-install-recommends dnsutils iproute2 >/dev/null 2>&1
+            apt-get update >/dev/null 2>&1
+            apt-get install -y --no-install-recommends dnsutils iproute2 >/dev/null 2>&1
             echo "===== CONTAINER: nslookup via 1.1.1.1 ====="
             nslookup api.cerberushq.dev 1.1.1.1 || true
             echo "===== CONTAINER: normal resolver ====="
@@ -55,13 +58,5 @@ jobs:
             ip -4 route show || true
             ip -6 route show || true
             echo "===== CONTAINER: Python getaddrinfo ====="
-            python - <<'"'"'PY'"'"'
-import socket
-for family_name, family in (("AF_INET", socket.AF_INET), ("AF_INET6", socket.AF_INET6), ("AF_UNSPEC", socket.AF_UNSPEC)):
-    try:
-        rows = socket.getaddrinfo("api.cerberushq.dev", 443, family, socket.SOCK_STREAM)
-        print(family_name, sorted({row[4][0] for row in rows}))
-    except Exception as exc:
-        print(family_name, type(exc).__name__, str(exc))
-PY
-          '
+            python -c "import socket; for label,fam in ((\"AF_INET\",socket.AF_INET),(\"AF_INET6\",socket.AF_INET6),(\"AF_UNSPEC\",socket.AF_UNSPEC)):  print(label, sorted({r[4][0] for r in socket.getaddrinfo(\"api.cerberushq.dev\",443,fam,socket.SOCK_STREAM)})) if fam != socket.AF_INET6 else label"
+          ' || true
