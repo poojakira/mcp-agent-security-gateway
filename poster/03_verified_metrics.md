@@ -1,51 +1,25 @@
-# Verified Metrics — Poster 01
+# Verified Metrics - Poster 01
 
-> Evidence status: This Markdown companion is refreshed to the latest verified code snapshot. The rendered poster PDF remains a historical artifact at its printed commit and date.
+> Current verified code snapshot: `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`  
+> Successful CI: https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36783059917
 
-## Current GitHub Actions verification
-
-- **Verification:** 2026-09-30 UTC / 2026-09-29 America/Phoenix
-- **Code snapshot:** `e249bde03affc6dcece172f991269cfe1c26417a`
-- **Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36655829130
-- **Full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36655829094
-
-| Metric | Value | Scope |
+| Metric | Current value | Scope |
 |---|---:|---|
-| Tests passed | **707** | Production Gate and Python 3.12 CI; same suite green on Python 3.10/3.11 |
-| Tests failed | **0** | Cited successful runs |
-| Statement coverage | **82.85%** | 5,342 statements, 916 missed |
-| INJECTION_PATTERNS entries | **55** | Runtime named collection |
-| Elastic `[[rule]]` records | **9** | `detection_rules/elastic_rules.toml` |
+| Tests passed | **718** | Python 3.12 CI; Python 3.10/3.11 also green |
+| Tests failed | **0** | Cited CI run |
+| Statement coverage | **82.46%** | 5,524 statements, 969 missed |
+| Prompt-injection collection entries | **55** | Named runtime collection |
+| Elastic rule records | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
 | SIEM scenario tests | **12** | `tests/test_siem_scenarios.py` |
 
-### Current coverage is uneven
+## Verification gates
 
-| Module | Coverage |
-|---|---:|
-| `siem/ecs_formatter.py` | 100% |
-| `production/metrics.py` / `rate_limiter.py` | 100% |
-| `redteam/simulator.py` | 99% |
-| `protocol/jsonrpc.py` | 99% |
-| `siem/correlation.py` | 94% |
-| `production/identity_telemetry.py` | 81% |
-| `proxy/stdio_proxy.py` | 70% |
-| `production/server.py` | 65% |
-| `siem/shipper.py` | 53% |
-| `server/realtime.py` | 36% |
+The cited current-main CI completed lint/format, type checking, Bandit, pip-audit, CodeQL, security scanning, Windows control-plane validation, Python 3.10/3.11/3.12 tests, SBOM work, and Docker build validation successfully.
 
-## New credential/network telemetry evidence
+## Not established
 
-The verified code snapshot includes stable multi-credential authentication, trusted-proxy-aware source selection, IPv4/IPv6 canonicalization, and local HMAC-SHA256 fingerprints for credential, exact address, network, and block inputs. Raw credentials and raw source addresses are not written to the event output.
-
-This is implementation evidence only. It is **not** evidence that an external validation pilot has completed.
-
-## Historical validation snapshot
-
-Main CI run `35809388960`, commit `a5d39be`, 2026-09-23: **641 passed**, **79.54% coverage**. This remains historical evidence only.
-
-## Not measured by this repository
-
-- Detector false-positive / false-negative rates on an external population.
-- Production uptime or deployment SLOs.
-- Independent external validation alert quality or live-baseline results.
+- External population-level false-positive / false-negative rates.
+- Production latency, throughput, uptime, or reliability SLOs.
+- A live SOC deployment.
+- Universal enforcement semantics outside traffic routed through the implemented integration paths.

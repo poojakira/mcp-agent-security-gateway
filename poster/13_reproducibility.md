@@ -1,13 +1,13 @@
-# Reproduce the Work — Poster 01
-
-> Evidence status: This Markdown companion reflects the latest verified code snapshot. The rendered poster PDF remains tied to its own printed historical commit/date.
+# Reproduce the Work - Poster 01
 
 **Repository:** `github.com/poojakira/mcp-agent-security-gateway`  
-**Verified code snapshot:** `e249bde03affc6dcece172f991269cfe1c26417a`
+**Verified code snapshot:** `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`  
+**GitHub Actions CI:** `36783059917`
 
 ```powershell
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
 cd mcp-agent-security-gateway
+git checkout 8427f9ecafd3438a86775a7ceaf809f4ee051b5b
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev,server]"
@@ -15,19 +15,17 @@ $env:PYTHONPATH="src"
 python -m pytest tests -q --cov=mcp_monitor --cov-report=term
 ```
 
-**Expected at the verified code snapshot:** `707 passed`; total statement coverage **82.85%** (5,342 statements, 916 missed).
+Expected at the cited snapshot:
 
-Static counts:
+- **718 passed**
+- **82.46% statement coverage**
+- 5,524 statements / 969 missed
 
-```powershell
-$env:PYTHONPATH="src"
-python -c "from mcp_monitor.detectors import prompt_injection as p; print(len(p.INJECTION_PATTERNS))"   # 55
-# 9 = count of [[rule]] in detection_rules/elastic_rules.toml
-# 21 = def test_ in tests/test_siem.py
-# 12 = test_* functions in tests/test_siem_scenarios.py
-```
+Static evidence:
 
-Credential/network telemetry can be reproduced with the tests in `tests/test_identity_telemetry.py`, which cover HMAC fingerprint vectors, IPv4/IPv6 canonicalization, trusted-proxy behavior, closed event fields, zero-token semantics, and stable/distinct credential fingerprints.
+- prompt-injection collection: **55**
+- Elastic `[[rule]]` records: **9**
+- core SIEM tests: **21**
+- SIEM scenario tests: **12**
 
-**Evidence artifacts:** `VERIFIED_METRICS.md`, `evidence/mcp_replay_evidence.json`, `detection_rules/elastic_rules.toml`.  
-**Authoritative CI:** GitHub Actions remains the authoritative environment for published test/coverage claims.
+GitHub Actions is the authoritative environment for the published test and coverage values.
