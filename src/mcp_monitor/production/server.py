@@ -23,6 +23,7 @@ from mcp_monitor.production.circuit_breaker import CircuitBreaker
 from mcp_monitor.production.config import Config
 from mcp_monitor.production.identity_telemetry import (
     build_event,
+    build_single_event_envelope,
     iso8601_utc,
     resolve_source_ip,
 )
@@ -332,6 +333,7 @@ class ProductionServer:
                         request_started_at=request_started_at,
                         latency_ms=max(0, int(round(duration * 1000))),
                         status=status,
+                        event_id=f"{trace_id}:{span.span_id}",
                     )
 
             # Add trace headers to response
@@ -444,6 +446,7 @@ class ProductionServer:
         request_started_at: float,
         latency_ms: int,
         status: int,
+        event_id: str,
     ) -> None:
         """Append one privacy-preserving identity telemetry event to the local delivery queue.
 
@@ -478,10 +481,15 @@ class ProductionServer:
                 tenant_salt=self.config.identity_telemetry_tenant_salt,
                 cost=None,
             )
+            envelope = build_single_event_envelope(
+                event=event,
+                event_id=event_id,
+                tenant_salt=self.config.identity_telemetry_tenant_salt,
+            )
             output_path = self.config.identity_telemetry_output
             os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
             with open(output_path, "a", encoding="utf-8") as fh:
-                fh.write(json.dumps(event, separators=(",", ":")) + "\n")
+                fh.write(json.dumps(envelope, separators=(",", ":")) + "\n")
         except Exception as exc:
             # Telemetry is observation-only and must not break MCP inspection.
             # Invalid/untrusted source values are dropped before fingerprinting.
