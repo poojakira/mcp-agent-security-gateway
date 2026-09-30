@@ -133,8 +133,8 @@ This pass re-checked the current production server, configuration, alerting, egr
 
 | ID | Severity | Finding | Status |
 |---|---|---|---|
-| MCP-2026-01 | High | Alert webhook configuration permits plain HTTP. Security alerts can contain sensitive finding context and should not be sent over plaintext transport. | Open |
-| MCP-2026-02 | High | Alert-delivery failure logging includes the complete webhook URL. Slack/PagerDuty-style webhook URLs often contain bearer-like secret material in the URL path. | Open |
+| MCP-2026-01 | High | Alert delivery now requires HTTPS, with plain HTTP permitted only for loopback development hosts. | Fixed |
+| MCP-2026-02 | High | Alert-delivery failures now log only the exception type and parsed webhook hostname; the full secret-bearing webhook URL is not logged. | Fixed |
 | MCP-2026-03 | Info | Production mode fails closed when anonymous access, shadow mode, missing API keys, missing WAL/audit storage, or missing server allowlist are detected. | Verified |
 | MCP-2026-04 | Info | Inspection/metrics authentication, payload caps, circuit breakers, rate limiting, WAL/audit persistence, SIEM export and critical-finding alert hooks already exist. | Verified |
 
