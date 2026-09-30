@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- refreshed authoritative verification to **702 passing tests** and **82.76% statement coverage** (5,324 statements, 918 missed) on the verified code snapshot `59eeac5221ab4eff3d5c5e421ccb46407de08037`; full CI and Production Gate are green
+- added stable multi-credential authentication through `MCP_API_KEYS` while retaining legacy `MCP_API_KEY`
+- added trusted source-address capture: socket peer by default, with `X-Forwarded-For` accepted only from explicitly configured trusted proxy CIDRs
+- added IPv4/IPv6 canonicalization, including IPv4-mapped IPv6 normalization
+- added privacy-preserving credential/network telemetry helpers using locally computed HMAC-SHA256 fingerprints for credential, exact address, network, and block values
+- added optional local Cerberus-compatible event output with zero token counts where MCP-layer token accounting is unavailable; external pilot/ingestion approval is not claimed
+- updated README, runbooks, deployment docs, threat model, evidence files, and poster Markdown companions to distinguish current verified evidence from historical snapshots
+
 - added detection engineering lab (`src/mcp_monitor/siem/`): ECS (Elastic Common Schema) formatter, in-memory correlation engine with 6 multi-event attack rules, and log shippers (Elasticsearch bulk API, NDJSON file, stdout)
 - added 6 Atomic Red Team style attack simulation scenarios (`mcp_monitor.siem.attack_simulations`)
 - added 9 Elastic Security detection rules mapped to MITRE ATT&CK (`detection_rules/elastic_rules.toml`)
