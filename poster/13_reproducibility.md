@@ -3,7 +3,7 @@
 > Evidence status: This Markdown companion reflects the latest verified code snapshot. The rendered poster PDF remains tied to its own printed historical commit/date.
 
 **Repository:** `github.com/poojakira/mcp-agent-security-gateway`  
-**Verified code snapshot:** `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`
+**Verified code snapshot:** `e249bde03affc6dcece172f991269cfe1c26417a`
 
 ```powershell
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
@@ -15,7 +15,7 @@ $env:PYTHONPATH="src"
 python -m pytest tests -q --cov=mcp_monitor --cov-report=term
 ```
 
-**Expected at the verified code snapshot:** `707 passed`; total statement coverage **82.84%** (5,337 statements, 916 missed).
+**Expected at the verified code snapshot:** `707 passed`; total statement coverage **82.85%** (5,342 statements, 916 missed).
 
 Static counts:
 
