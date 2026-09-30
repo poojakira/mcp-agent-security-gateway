@@ -5,8 +5,8 @@ This file is the evidence anchor for quantitative claims about this repository.
 ## Current verified code snapshot
 
 **Code commit:** `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`  
-**Successful Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36652602543  
-**Successful full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36652602526  
+**Successful Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36653310929  
+**Successful full CI (documentation-only verification head with identical runtime code):** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36653310958  
 **Verification time:** 2026-09-30 UTC (2026-09-29 America/Phoenix)
 
 The Python 3.12 CI job reports:
