@@ -27,7 +27,7 @@ python -c "from mcp_monitor.detectors import prompt_injection as p; print(len(p.
 # 12 = test_* functions in tests/test_siem_scenarios.py
 ```
 
-Credential/network telemetry can be reproduced with the tests in `tests/test_cerberus.py`, which cover HMAC fingerprint vectors, IPv4/IPv6 canonicalization, trusted-proxy behavior, closed event fields, zero-token semantics, and stable/distinct credential fingerprints.
+Credential/network telemetry can be reproduced with the tests in `tests/test_identity_telemetry.py`, which cover HMAC fingerprint vectors, IPv4/IPv6 canonicalization, trusted-proxy behavior, closed event fields, zero-token semantics, and stable/distinct credential fingerprints.
 
 **Evidence artifacts:** `VERIFIED_METRICS.md`, `evidence/mcp_replay_evidence.json`, `detection_rules/elastic_rules.toml`.  
 **Authoritative CI:** GitHub Actions remains the authoritative environment for published test/coverage claims.
