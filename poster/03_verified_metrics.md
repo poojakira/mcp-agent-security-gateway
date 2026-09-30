@@ -17,7 +17,7 @@
 | INJECTION_PATTERNS entries | **55** | Runtime named collection |
 | Elastic `[[rule]]` records | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
-| SIEM scenario tests | **7** | `tests/test_siem_scenarios.py` |
+| SIEM scenario tests | **12** | `tests/test_siem_scenarios.py` |
 
 ### Current coverage is uneven
 
