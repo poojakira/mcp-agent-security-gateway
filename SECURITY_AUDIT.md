@@ -123,3 +123,21 @@ The current verified code snapshot is `e249bde03affc6dcece172f991269cfe1c26417a`
 | `.github/workflows/ci.yml` | Pinned all action tags to commit SHAs |
 | `SECURITY_AUDIT.md` | This file (new) |
 | `evidence_policy.json` | Evidence manifest (new) |
+
+
+---
+
+## 2026-09-29 Deep Re-audit
+
+This pass re-checked the current production server, configuration, alerting, egress/network behavior, secrets, container, CI and deployment surfaces.
+
+| ID | Severity | Finding | Status |
+|---|---|---|---|
+| MCP-2026-01 | High | Alert webhook configuration permits plain HTTP. Security alerts can contain sensitive finding context and should not be sent over plaintext transport. | Open |
+| MCP-2026-02 | High | Alert-delivery failure logging includes the complete webhook URL. Slack/PagerDuty-style webhook URLs often contain bearer-like secret material in the URL path. | Open |
+| MCP-2026-03 | Info | Production mode fails closed when anonymous access, shadow mode, missing API keys, missing WAL/audit storage, or missing server allowlist are detected. | Verified |
+| MCP-2026-04 | Info | Inspection/metrics authentication, payload caps, circuit breakers, rate limiting, WAL/audit persistence, SIEM export and critical-finding alert hooks already exist. | Verified |
+
+### Remediation plan
+
+Require HTTPS for configured alert webhooks and never log the full webhook URL. After remediation, run all Python/production/security/container workflows and update this section with the resulting workflow evidence.
