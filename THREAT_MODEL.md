@@ -100,16 +100,40 @@ This document describes the threat model for the MCP Agent Security Gateway. It 
 - Write-ahead logging with request-body hashes
 - Tamper-evident verification (chain integrity checks)
 
-### 7. API Key Compromise
+### 7. API Credential Compromise
 
-**Threat**: Attacker obtains the gateway API key and submits unauthorized inspection requests.
+**Threat**: Attacker obtains one configured gateway credential and submits unauthorized inspection requests.
 
 **Mitigations**:
-- API key required on protected endpoints by default
+- API credential required on protected endpoints by default
+- Legacy single-key and stable multi-key configurations are supported; compromised credentials can be rotated independently of code
 - Anonymous mode requires explicit opt-in
 - Rate limiting bounds abuse potential
+- Privacy-preserving telemetry fingerprints the credential locally instead of exporting the raw value
 
-### 8. Tool Schema Drift
+### 8. Source-Address Spoofing Behind Proxies
+
+**Threat**: A client supplies a forged forwarded-source header so identity/network telemetry attributes requests to an attacker-selected address.
+
+**Mitigations**:
+- Socket peer address is authoritative by default
+- `X-Forwarded-For` is consulted only when the socket peer belongs to an explicitly configured `MCP_TRUSTED_PROXY_CIDRS` network
+- Forwarded values are normalized to a bare IP before fingerprinting
+- Invalid/opaque values such as `unknown` are rejected
+- IPv4-mapped IPv6 is normalized back to IPv4 before family/network/block derivation
+
+### 9. Credential/Network Telemetry Privacy
+
+**Threat**: External validation telemetry leaks raw API credentials or raw source addresses.
+
+**Mitigations**:
+- HMAC-SHA256 fingerprinting occurs locally under a customer-held tenant salt
+- Only the first 32 lowercase hexadecimal characters are emitted
+- Exact address, network, and block values are fingerprinted separately
+- Raw credentials and raw IP addresses are not written to the event output
+- External transport/pilot completion is not assumed by the local implementation
+
+### 10. Tool Schema Drift
 
 **Threat**: MCP server silently changes tool definitions to expand capabilities or alter parameters.
 
@@ -129,7 +153,7 @@ This document describes the threat model for the MCP Agent Security Gateway. It 
 | Audit logger | Unavailable | Audit gap | Inspection continues, gap logged |
 | Downstream MCP server | Crash | Connection error | Error propagates to caller |
 | Rate limiter | Exhausted | Requests rejected | Operational endpoints exempt |
-| Configuration | Missing API key | Auth bypass risk | Protected requests rejected (401) |
+| Configuration | Missing API credentials | Auth bypass risk | Protected requests rejected; production config fails validation when no valid credential set is configured |
 
 ---
 
@@ -141,6 +165,8 @@ This document describes the threat model for the MCP Agent Security Gateway. It 
 4. **Detection is heuristic**: False positives and false negatives are possible.
 5. **Enforcement is external**: The integrating runtime must honor returned decisions.
 6. **Single-process trust**: The gateway trusts its own process memory and configuration.
+7. **Trusted-edge dependency**: Correct forwarded-source attribution depends on operator-controlled infrastructure actually overwriting/sanitizing forwarded headers.
+8. **Telemetry validation boundary**: Local event generation does not prove external ingestion correctness, live-baseline quality, or alert efficacy.
 
 ---
 
