@@ -177,3 +177,13 @@ Heuristic detectors can be evaded; the fixed red-team catalog is a regression su
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+<!-- repo-verification:start -->
+## Verification update — 2026-09-30
+
+- **Scope:** Account-wide `poojakira` repository pass covering source/configuration, CI/release workflows, security-hygiene gates, dependency/SAST controls, and documentation consistency.
+- **Remediation:** Repaired the Ruff formatting failure, reran the repository gates, and kept security checks blocking.
+- **Verification state:** CI, Production Gate, Security Hygiene, Documentation Integrity, and the formatting repair workflow completed successfully after the fix.
+- **Security note:** Intentional attack payloads and red-team fixtures were preserved; they were not treated as live secrets or executable production behavior.
+- **Evidence boundary:** This update records repository and GitHub Actions evidence observed during the pass. It is not a claim of independent penetration testing, production deployment, or zero residual risk.
+<!-- repo-verification:end -->
