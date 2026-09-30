@@ -32,7 +32,7 @@ All checks passed!
 | Elastic Security rules | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
 | Additional SIEM scenario-runner tests | **12** | `tests/test_siem_scenarios.py` |
-| Cerberus telemetry helper coverage | **76%** | `src/mcp_monitor/production/cerberus.py` in the current Python 3.12 coverage report |
+| identity telemetry helper coverage | **76%** | `src/mcp_monitor/production/identity_telemetry.py` in the current Python 3.12 coverage report |
 | Production server coverage | **65%** | `src/mcp_monitor/production/server.py` in the current Python 3.12 coverage report |
 | Red-team simulator coverage | **99%** | `src/mcp_monitor/redteam/simulator.py` in the current Python 3.12 coverage report |
 
@@ -53,7 +53,7 @@ The production gateway now supports:
 - local event generation without raw credentials or raw source addresses;
 - `tokens_in = 0` and `tokens_out = 0` when token accounting is unavailable at the MCP inspection layer.
 
-The repository does **not** claim that an external Cerberus pilot is complete. The event objects are implemented and locally testable; external ingestion-contract approval, tenant provisioning, live baseline accumulation, and any production validation remain separate evidence.
+The repository does **not** claim that an external external validation pilot is complete. The event objects are implemented and locally testable; external ingestion-contract approval, tenant provisioning, live baseline accumulation, and any production validation remain separate evidence.
 
 ## Historical main CI baseline
 
