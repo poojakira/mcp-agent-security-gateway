@@ -134,7 +134,6 @@ def test_redact_sensitive_removes_secret_values() -> None:
     assert redacted == "token=<redacted> salt=<redacted>"
 
 
-
 def test_smoke_cli_reports_missing_runtime_configuration(capsys) -> None:
     with patch.dict(os.environ, {}, clear=True):
         assert identity_smoke.main() == 2
