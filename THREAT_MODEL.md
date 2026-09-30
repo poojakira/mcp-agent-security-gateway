@@ -131,7 +131,7 @@ This document describes the threat model for the MCP Agent Security Gateway. It 
 - Only the first 32 lowercase hexadecimal characters are emitted
 - Exact address, network, and block values are fingerprinted separately
 - Raw credentials and raw IP addresses are not written to the event output
-- External transport/pilot completion is not assumed by the local implementation
+- Static transport mapping is implemented; live baseline and external alert-quality results are not assumed by the local implementation
 
 ### 10. Tool Schema Drift
 
