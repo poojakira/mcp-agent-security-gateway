@@ -46,6 +46,18 @@ class TestMLClassifier:
         p = clf.classify({"arguments": {"to": "x@y.com"}})
         assert 0.0 <= p.confidence <= 1.0
 
+    def test_pickle_load_requires_explicit_trust(self, clf, tmp_path):
+        model_path = tmp_path / "classifier.pkl"
+        clf.save(str(model_path))
+
+        untrusted = MLThreatClassifier()
+        assert not untrusted.load(str(model_path))
+        assert not untrusted.is_trained
+
+        trusted = MLThreatClassifier()
+        assert trusted.load(str(model_path), trusted=True)
+        assert trusted.is_trained
+
 
 # --- Rate Limiter ---
 class TestRateLimiter:
