@@ -44,7 +44,9 @@ Production mode validates security-critical settings at startup.
 
 ```bash
 export MCP_ENV=production
+# Configure either one legacy key or a stable multi-key set.
 export MCP_API_KEY="$(openssl rand -hex 32)"
+# export MCP_API_KEYS="<stable-key-a>,<stable-key-b>,<stable-key-c>"
 export MCP_ALLOWED_SERVERS="github,filesystem"
 export MCP_ALLOW_ANONYMOUS=false
 export MCP_WAL_PATH=/var/lib/mcp/wal.jsonl
@@ -56,7 +58,7 @@ export MCP_LISTEN_PORT=8080
 Production startup fails when:
 
 - anonymous access is enabled;
-- the API key is missing or shorter than 32 characters;
+- no API credential is configured, or any configured credential is shorter than 32 characters;
 - WAL or audit paths are not configured;
 - the approved-server set is empty;
 - rate/payload limits are invalid.
@@ -67,7 +69,7 @@ Copy the example environment and replace its values:
 
 ```bash
 cp .env.example .env
-# edit .env with a random MCP_API_KEY and the exact MCP_ALLOWED_SERVERS set
+# edit .env with MCP_API_KEY or MCP_API_KEYS and the exact MCP_ALLOWED_SERVERS set
 docker compose config >/dev/null
 docker compose up -d --build
 ```
@@ -97,7 +99,7 @@ curl http://127.0.0.1:8080/v1/health
 curl http://127.0.0.1:8080/v1/ready
 ```
 
-Inspection and metrics require `X-API-Key`.
+Inspection and metrics require `X-API-Key`. The supplied value may match the legacy `MCP_API_KEY` or any stable credential configured in `MCP_API_KEYS`.
 
 ```bash
 curl -X POST http://127.0.0.1:8080/v1/inspect_call \
@@ -112,6 +114,30 @@ curl -X POST http://127.0.0.1:8080/v1/inspect_call \
 curl -H "X-API-Key: $MCP_API_KEY" \
   http://127.0.0.1:8080/v1/metrics
 ```
+
+## Trusted source-address and Cerberus-compatible telemetry
+
+Source attribution is explicit and fail-safe:
+
+- the socket peer address is authoritative by default;
+- `X-Forwarded-For` is accepted only when the socket peer belongs to a configured `MCP_TRUSTED_PROXY_CIDRS` network;
+- the trusted forwarded value is normalized before fingerprinting;
+- IPv4-mapped IPv6 is normalized back to IPv4;
+- invalid values such as `unknown` are rejected from the fingerprint path.
+
+Optional local Cerberus-compatible event output is configured with:
+
+```bash
+export MCP_CERBERUS_ENABLED=true
+export MCP_CERBERUS_TENANT_SALT="<customer-held-salt>"
+export MCP_CERBERUS_OUTPUT=/var/lib/mcp/cerberus-events.ndjson
+# Optional only when the gateway is behind infrastructure you control:
+export MCP_TRUSTED_PROXY_CIDRS="10.0.0.0/8,2001:db8:100::/48"
+```
+
+The output contains only the closed event fields built locally: timestamp, credential fingerprint, normalized endpoint, token counters, latency, status, exact/network/block fingerprints, IP family, and optional cost. Raw credentials and raw source addresses are not written to the Cerberus event queue. Token counts are currently emitted as `0` where the MCP inspection layer cannot account for them.
+
+The repository does not claim that an external Cerberus ingestion contract or pilot has completed. Transport-envelope versioning, tenant provisioning, and live-baseline approval remain external validation steps.
 
 ## Readiness semantics
 
@@ -179,11 +205,11 @@ is deployed.
 
 ## Load testing
 
-The Locust harness requires the service key so it measures the real protected
+The Locust harness requires a configured service credential so it measures the real protected
 inspection path rather than 401 responses.
 
 ```bash
-export MCP_API_KEY="<same service key used by the target>"
+export MCP_API_KEY="<same configured credential used by the target>"
 locust -f locustfile.py --host=http://127.0.0.1:8080 \
   --users 500 --spawn-rate 50
 ```
