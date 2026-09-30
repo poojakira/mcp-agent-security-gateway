@@ -48,13 +48,9 @@ app = FastAPI(title="MCP Security Gateway — Real-Time Monitor")
 DASHBOARD_PATH = Path(__file__).parent / "dashboard.html"
 _REALTIME_ENV = os.environ.get("MCP_REALTIME_ENV", "development").strip().lower()
 _REALTIME_API_KEY = os.environ.get("MCP_REALTIME_API_KEY", "")
-_REALTIME_MAX_BODY_BYTES = int(
-    os.environ.get("MCP_REALTIME_MAX_BODY_BYTES", str(128 * 1024))
-)
+_REALTIME_MAX_BODY_BYTES = int(os.environ.get("MCP_REALTIME_MAX_BODY_BYTES", str(128 * 1024)))
 _REALTIME_RATE_LIMIT_RPM = int(os.environ.get("MCP_REALTIME_RATE_LIMIT_RPM", "120"))
-_REALTIME_MAX_WS_CONNECTIONS = int(
-    os.environ.get("MCP_REALTIME_MAX_WS_CONNECTIONS", "32")
-)
+_REALTIME_MAX_WS_CONNECTIONS = int(os.environ.get("MCP_REALTIME_MAX_WS_CONNECTIONS", "32"))
 _realtime_rate_windows: dict[str, list[float]] = {}
 if _REALTIME_ENV == "production" and len(_REALTIME_API_KEY) < 32:
     raise RuntimeError("MCP_REALTIME_API_KEY must be at least 32 characters in production")
@@ -129,6 +125,7 @@ async def _realtime_security_boundary(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "no-referrer"
     return response
+
 
 # ---------------------------------------------------------------------------
 # Defense system initialization
