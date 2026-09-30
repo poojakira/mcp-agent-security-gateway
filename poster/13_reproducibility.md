@@ -24,7 +24,7 @@ $env:PYTHONPATH="src"
 python -c "from mcp_monitor.detectors import prompt_injection as p; print(len(p.INJECTION_PATTERNS))"   # 55
 # 9 = count of [[rule]] in detection_rules/elastic_rules.toml
 # 21 = def test_ in tests/test_siem.py
-# 7 = def test_ in tests/test_siem_scenarios.py
+# 12 = test_* functions in tests/test_siem_scenarios.py
 ```
 
 Credential/network telemetry can be reproduced with the tests in `tests/test_cerberus.py`, which cover HMAC fingerprint vectors, IPv4/IPv6 canonicalization, trusted-proxy behavior, closed event fields, zero-token semantics, and stable/distinct credential fingerprints.
