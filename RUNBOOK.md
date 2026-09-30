@@ -143,7 +143,7 @@ Each NDJSON line is one immutable live transport envelope:
 - `events`: event array
 - `event_fps`: positional array with exactly one 32-character lowercase-hex fingerprint per event
 
-The gateway generates a stable logical event ID from the request trace/span context when the queued record is created. The event fingerprint is computed locally as `HMAC-SHA256(key=tenant_salt, message=UTF-8("evt:" + event_id)).hexdigest()[:32]`. The internal event ID is not transmitted.
+The gateway generates one immutable source-record ID for each protected request, persists that same ID as the WAL entry ID, and uses it to derive the queued transport fingerprint. The event fingerprint is computed locally as `HMAC-SHA256(key=tenant_salt, message=UTF-8("evt:" + event_id)).hexdigest()[:32]`. The internal event ID is not transmitted.
 
 Raw credentials and raw source addresses are not written to the identity telemetry queue. Token counts are emitted as `0` where MCP-layer token accounting is unavailable. Once queued, the event and its fingerprint are immutable: after an ambiguous transport timeout, retry the exact stored envelope rather than regenerating an ID or changing behavioral fields.
 
