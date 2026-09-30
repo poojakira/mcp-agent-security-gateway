@@ -54,9 +54,7 @@ def _load_queue_records(path: str | os.PathLike[str]) -> list[dict[str, Any]]:
     return records
 
 
-def build_three_credential_smoke_batch(
-    records: list[dict[str, Any]],
-) -> dict[str, Any]:
+def build_three_credential_smoke_batch(records: list[dict[str, Any]]) -> dict[str, Any]:
     """Select one queued event from each of three distinct credential paths."""
     events: list[dict[str, Any]] = []
     event_fps: list[str] = []
@@ -86,9 +84,7 @@ def build_three_credential_smoke_batch(
             if len(events) == 3:
                 return build_envelope(events, event_fps)
 
-    raise ValueError(
-        "smoke test requires queued events from three distinct credential paths"
-    )
+    raise ValueError("smoke test requires queued events from three distinct credential paths")
 
 
 def load_three_credential_smoke_batch(
