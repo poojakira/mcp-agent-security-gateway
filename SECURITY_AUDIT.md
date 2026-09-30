@@ -15,7 +15,7 @@
 | MEDIUM | CI workflow uses mutable action tags (`@v4`, `@v5`, `@v3`, `@v6`) — susceptible to tag-moving supply-chain attacks | Yes — all actions pinned to commit SHAs |
 | LOW | No `subprocess` calls with `shell=True` found — no fix needed | N/A |
 | LOW | No hardcoded secrets found in source (test fixtures use the placeholder value `"secret"` for `MCP_API_KEY` — not a real credential) | N/A |
-| INFO | No unauthenticated public HTTP endpoints that accept arbitrary input in the core layers — the FastAPI server (`production/server.py`) is an optional extra, not started by default | No fix needed |
+| INFO | Protected production inspection/metrics endpoints require API credentials; health/readiness remain intentionally unauthenticated for orchestration | No fix needed |
 
 ---
 
@@ -95,13 +95,24 @@ No fix required.
 
 ---
 
-### FINDING-006 (INFO): No unauthenticated endpoints in default execution path
+### FINDING-006 (INFO): Production authentication boundary
 
-The FastAPI production server (`src/mcp_monitor/production/server.py`) is an **optional** extra
-(`pip install -e ".[server]"`). It is not started by `run_dashboard.py` or the test suite by
-default. Review authentication on that server separately before exposing it to untrusted networks.
+The stdlib production HTTP server (`src/mcp_monitor/production/server.py`) protects inspection and metrics endpoints with `X-API-Key`. Health/readiness remain intentionally unauthenticated for orchestration. Current configuration supports either the legacy `MCP_API_KEY` or a stable multi-key set through `MCP_API_KEYS`.
 
 ---
+
+## 2026-09-29 Follow-up Verification
+
+The current verified code snapshot is `59eeac5221ab4eff3d5c5e421ccb46407de08037`.
+
+- **702 tests passed** in the successful Production Gate and Python 3.12 CI run.
+- **82.76% statement coverage** (5,324 statements, 918 missed).
+- The same test suite is green on Python 3.10 and Python 3.11.
+- Ruff/formatting, Pyright, security scan, CodeQL, Windows control-plane checks, and Docker build are green.
+- Stable multi-credential authentication is implemented.
+- Source attribution defaults to the socket peer and only accepts `X-Forwarded-For` from explicitly trusted proxy CIDRs.
+- Credential and IP-derived telemetry uses local HMAC-SHA256 fingerprints; raw credentials and raw source addresses are excluded from the event output.
+- External Cerberus ingestion/pilot completion is **not** part of this audit evidence.
 
 ## Files Changed in This Branch
 
