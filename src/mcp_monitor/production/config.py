@@ -84,9 +84,7 @@ class Config:
         elif any(len(key) < 32 for key in self.api_keys):
             errors.append("All configured MCP API credentials must contain at least 32 characters")
         if self.cerberus_enabled and not self.cerberus_tenant_salt:
-            errors.append(
-                "MCP_CERBERUS_TENANT_SALT is required when Cerberus telemetry is enabled"
-            )
+            errors.append("MCP_CERBERUS_TENANT_SALT is required when Cerberus telemetry is enabled")
         if self.cerberus_enabled and not self.cerberus_output:
             errors.append("MCP_CERBERUS_OUTPUT is required when Cerberus telemetry is enabled")
         if not self.wal_path:
