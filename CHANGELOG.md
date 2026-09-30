@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- renamed external-validation telemetry code, configuration, tests, and documentation to vendor-neutral identity telemetry naming
 - refreshed authoritative verification to **702 passing tests** and **82.76% statement coverage** (5,324 statements, 918 missed) on the verified code snapshot `59eeac5221ab4eff3d5c5e421ccb46407de08037`; full CI and Production Gate are green
 - added stable multi-credential authentication through `MCP_API_KEYS` while retaining legacy `MCP_API_KEY`
 - added trusted source-address capture: socket peer by default, with `X-Forwarded-For` accepted only from explicitly configured trusted proxy CIDRs
