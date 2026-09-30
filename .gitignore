@@ -48,3 +48,29 @@ id_rsa
 id_ed25519
 credentials.json
 service-account*.json
+
+
+# Cloud and local credential stores
+.aws/
+.azure/
+.config/gcloud/
+.kube/config
+.docker/config.json
+.netrc
+.npmrc
+.pypirc
+.envrc
+.direnv/
+.secrets/
+
+# Terraform local state and secret-bearing variable files
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+*.auto.tfvars
+
+# Additional private-key containers
+*.jks
+*.keystore
+*.pkcs12
