@@ -7,8 +7,11 @@ import re
 import pytest
 
 from mcp_monitor.production.identity_telemetry import (
+    build_envelope,
     build_event,
+    build_single_event_envelope,
     derive_ip_fingerprints,
+    event_fingerprint,
     fingerprint_value,
     normalize_source_ip,
     resolve_source_ip,
@@ -116,3 +119,61 @@ def test_distinct_credentials_have_distinct_stable_fingerprints() -> None:
     second = fingerprint_value("credential-path-b", salt)
     assert first == repeated
     assert first != second
+
+
+
+def test_event_fingerprint_matches_confirmed_formula() -> None:
+    actual = event_fingerprint("trace-abc:span-123", "tenant-test-salt")
+    assert actual == "8ca91c1f7778f80f1e5c3ec0ab170428"
+
+
+def test_event_fingerprint_is_stable_for_retry() -> None:
+    salt = "tenant-test-salt"
+    event_id = "stable-logical-request-id"
+    assert event_fingerprint(event_id, salt) == event_fingerprint(event_id, salt)
+    assert event_fingerprint(event_id, salt) != event_fingerprint("different-request-id", salt)
+
+
+def test_envelope_uses_confirmed_live_contract() -> None:
+    event = build_event(
+        ts="2026-09-29T23:45:00.000Z",
+        credential="credential-path-a",
+        endpoint="/v1/inspect_call",
+        tokens_in=0,
+        tokens_out=0,
+        latency_ms=17,
+        status=200,
+        source_ip="203.0.113.5",
+        tenant_salt="tenant-test-salt",
+        cost=None,
+    )
+    fp = event_fingerprint("event-001", "tenant-test-salt")
+    envelope = build_envelope([event], [fp])
+
+    assert envelope["schema_version"] == 1
+    assert isinstance(envelope["schema_version"], int)
+    assert envelope["client"] == "mcp-gateway/1.0.0"
+    assert envelope["backfill"] is False
+    assert envelope["events"] == [event]
+    assert envelope["event_fps"] == [fp]
+    assert re.fullmatch(r"[0-9a-f]{32}", envelope["event_fps"][0])
+
+
+def test_envelope_rejects_non_positional_or_invalid_event_fps() -> None:
+    event = {"ts": "2026-09-29T23:45:00.000Z"}
+    with pytest.raises(ValueError, match="length"):
+        build_envelope([event], [])
+    with pytest.raises(ValueError, match="32 lowercase hex"):
+        build_envelope([event], ["ABC"])
+
+
+def test_single_event_envelope_does_not_expose_event_id() -> None:
+    event = {"ts": "2026-09-29T23:45:00.000Z"}
+    envelope = build_single_event_envelope(
+        event=event,
+        event_id="gateway-record-123",
+        tenant_salt="tenant-test-salt",
+    )
+    assert envelope["events"] == [event]
+    assert "event_id" not in envelope
+    assert len(envelope["event_fps"]) == 1
