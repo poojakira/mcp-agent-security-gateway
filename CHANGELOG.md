@@ -7,7 +7,7 @@
 - added trusted source-address capture: socket peer by default, with `X-Forwarded-For` accepted only from explicitly configured trusted proxy CIDRs
 - added IPv4/IPv6 canonicalization, including IPv4-mapped IPv6 normalization
 - added privacy-preserving credential/network telemetry helpers using locally computed HMAC-SHA256 fingerprints for credential, exact address, network, and block values
-- added optional local Cerberus-compatible event output with zero token counts where MCP-layer token accounting is unavailable; external pilot/ingestion approval is not claimed
+- added optional local external-validation event output with zero token counts where MCP-layer token accounting is unavailable; external pilot/ingestion approval is not claimed
 - updated README, runbooks, deployment docs, threat model, evidence files, and poster Markdown companions to distinguish current verified evidence from historical snapshots
 
 - added detection engineering lab (`src/mcp_monitor/siem/`): ECS (Elastic Common Schema) formatter, in-memory correlation engine with 6 multi-event attack rules, and log shippers (Elasticsearch bulk API, NDJSON file, stdout)
