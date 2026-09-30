@@ -15,8 +15,8 @@
 > Inspect and enforce AI-agent MCP/JSON-RPC tool calls at the agent-to-tool boundary before they execute.
 
 [![CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-702%20passing-brightgreen)](VERIFIED_METRICS.md)
-[![Coverage](https://img.shields.io/badge/coverage-82.76%25-brightgreen)](VERIFIED_METRICS.md)
+[![Tests](https://img.shields.io/badge/tests-707%20passing-brightgreen)](VERIFIED_METRICS.md)
+[![Coverage](https://img.shields.io/badge/coverage-82.84%25-brightgreen)](VERIFIED_METRICS.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
@@ -29,12 +29,12 @@ Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
 
 ## Verified Snapshot
 
-Verified against code snapshot `59eeac5221ab4eff3d5c5e421ccb46407de08037` on Python 3.12; subsequent commits through the current documentation head are documentation-only. Evidence: [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
+Verified against code snapshot `cbdf733858d186bb4d72ca57a9c10e74ee84dd65` on Python 3.12; subsequent commits through the current documentation head are documentation-only. Evidence: [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
 
 | Metric | Current verified result |
 |---|---:|
-| Tests | 702 passing (Python 3.12; same suite green on 3.10/3.11/3.12) |
-| Statement coverage | 82.76% (5,324 statements; 918 missed) |
+| Tests | 707 passing (Python 3.12; same suite green on 3.10/3.11/3.12) |
+| Statement coverage | 82.84% (5,337 statements; 916 missed) |
 | Prompt-injection patterns | 55 (`INJECTION_PATTERNS`) |
 | Elastic Security rules | 9 |
 | Core SIEM tests | 21 |
@@ -95,7 +95,7 @@ Enforcement depends on the integration path: the Python wrapper raises `ToolBloc
 
 `src/mcp_monitor/production/identity_telemetry.py` adds a locally computed telemetry surface for external behavioral-validation workflows without exporting raw API credentials or raw source addresses. The gateway supports multiple stable credentials, canonicalizes IPv4/IPv6 source addresses (including IPv4-mapped IPv6), derives exact/network/block inputs, and fingerprints them with `HMAC-SHA256(key=tenant_salt, message=UTF-8(value)).hexdigest()[:32]`. Forwarded source headers are only trusted when the socket peer belongs to an explicitly configured trusted proxy CIDR; otherwise the socket peer is authoritative. Current event objects set `tokens_in = 0` and `tokens_out = 0` where token accounting is unavailable. Live transport records use an integer schema version of `1`, client identifier `mcp-gateway/1.0.0`, `backfill: false`, an `events` array, and a positional `event_fps` array. Each event fingerprint is computed locally as HMAC-SHA256 over `"evt:" + event_id`, truncated to 32 lowercase hexadecimal characters. The internal event ID is not transmitted. Queued envelopes are immutable and retries resend the same stored envelope/fingerprint.
 
-The current implementation is covered by the repository-wide CI snapshot below: **702 tests passed** with **82.76% statement coverage** on Python 3.12, with the same test suite green on Python 3.10 and 3.11.
+The current implementation is covered by the repository-wide CI snapshot below: **707 tests passed** with **82.84% statement coverage** on Python 3.12, with the same test suite green on Python 3.10 and 3.11.
 
 These follow the same discipline as the rest of the repo: separate detection from enforcement, attach scope to every metric, and label anything synthetic or unverified. Subsection-specific measurements are scoped to those modules; the repository-wide test/coverage snapshot above already includes the current Python test suite.
 
@@ -151,11 +151,11 @@ bandit -r src -ll
 pip-audit
 ```
 
-Current verified code snapshot (`59eeac5221ab4eff3d5c5e421ccb46407de08037`): **702 passing, 82.76% statement coverage** on Python 3.12; the same suite is green on Python 3.10 and 3.11. GitHub Actions is the authoritative environment for published test/coverage claims.
+Current verified code snapshot (`cbdf733858d186bb4d72ca57a9c10e74ee84dd65`): **707 passing, 82.84% statement coverage** on Python 3.12; the same suite is green on Python 3.10 and 3.11. GitHub Actions is the authoritative environment for published test/coverage claims.
 
 ## CI/CD
 
-GitHub Actions runs Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, SBOM generation, Docker build validation, and the Python 3.10/3.11/3.12 test matrix plus a Windows control-plane job. These gates passed on the verified code snapshot `59eeac5221ab4eff3d5c5e421ccb46407de08037`; later documentation-only commits do not change the tested runtime code.
+GitHub Actions runs Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, SBOM generation, Docker build validation, and the Python 3.10/3.11/3.12 test matrix plus a Windows control-plane job. These gates passed on the verified code snapshot `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`; later documentation-only commits do not change the tested runtime code.
 
 ## Security & Documentation
 
