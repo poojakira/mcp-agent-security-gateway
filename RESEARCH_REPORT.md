@@ -4,7 +4,7 @@
 **Date:** July 10, 2026  
 **Classification:** Honest, Skeptical Technical Assessment  
 
-**Current-architecture note:** This report originated before several later enforcement and host-monitoring additions. Where older criticism conflicts with current `main`, the text below has been reconciled to the current repository while preserving limitations and historical metrics.
+**Current-architecture note:** This report originated before several later enforcement, host-monitoring, and credential/network-telemetry additions. Where older criticism conflicts with current `main`, the text below has been reconciled to the current repository while preserving limitations and historical metrics. The latest verified code snapshot is `59eeac5221ab4eff3d5c5e421ccb46407de08037`: 702 tests passed with 82.76% statement coverage; the same suite is green on Python 3.10/3.11/3.12.
 **Repository:** github.com/poojakira/mcp-agent-security-gateway
 
 ---
@@ -62,7 +62,7 @@ changes behavior.
 | 5 | Provide tamper-evident audit trail | YES | Hash chain with optional HMAC; integrity guarantees depend on key protection and storage trust |
 | 6 | Detect behavioral drift between versions | YES | New-field detection works; same-field value changes harder |
 | 7 | Enforce declarative security policies | YES | Invariant system is well-designed |
-| 8 | Test suite | HISTORICAL CI VERIFIED | `VERIFIED_METRICS.md` records 641 passing tests and 79.54% statement coverage for the earlier `a5d39be` CI snapshot; the current local repair is reported separately. |
+| 8 | Test suite | CURRENT CI VERIFIED | `VERIFIED_METRICS.md` records 702 passing tests and 82.76% statement coverage for code snapshot `59eeac5221ab4eff3d5c5e421ccb46407de08037`; 641 / 79.54% remains a labeled historical snapshot. |
 | 9 | No mandatory base runtime dependencies | YES | `dependencies = []`; optional ML/server/ATT&CK/dev features add third-party packages |
 | 10 | Cross-platform validation | PARTIAL | Current CI verifies Linux Python 3.10/3.11/3.12 plus a Windows control-plane job; macOS is not part of the current verified matrix |
 
