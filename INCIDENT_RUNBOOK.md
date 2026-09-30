@@ -84,6 +84,7 @@ When an incident is detected:
   curl -s http://gateway:8080/v1/ready | jq .
 
   # Runtime metrics (includes error counters)
+  # Use any currently configured service credential.
   curl -s -H "X-API-Key: $MCP_API_KEY" http://gateway:8080/v1/metrics
   ```
 - [ ] **Check logs** for immediate root cause:
@@ -243,6 +244,19 @@ mcp-gateway            # restart the server
 ```
 
 ---
+
+### 7. Credential or Source-Attribution Anomaly
+
+**Symptoms:** Unexpected per-credential behavior, mismatched source/network fingerprints, or evidence that forwarded-source headers may have bypassed the intended trust boundary.
+
+**Immediate mitigation:**
+- rotate the affected credential in the secrets/configuration source;
+- verify `MCP_TRUSTED_PROXY_CIDRS` contains only operator-controlled proxy/load-balancer networks;
+- confirm the trusted edge overwrites or sanitizes client-supplied `X-Forwarded-For`;
+- preserve the local fingerprinted telemetry output and gateway audit/WAL evidence;
+- compare the socket peer and forwarded-source behavior with the canonicalization tests before changing attribution logic.
+
+Do not log or transmit raw credentials merely to debug fingerprint mismatches. Reproduce locally using sanitized/test credentials and documentation-reserved IP ranges.
 
 ## Rollback Procedures
 
