@@ -40,3 +40,11 @@ Password reset and SQL tenant isolation unless an end-user account database is i
 - **Status:** PARTIALLY VERIFIED
 - **Evidence:** Security Hygiene and Documentation Integrity passed on the current main revision. CI and the Production Gate were still pending at the verification snapshot. A prior Ruff-format failure was repaired by the repository formatter workflow.
 - This checkpoint is intentionally date-bounded. It does not claim zero vulnerabilities or universal production readiness.
+
+<!-- hardening-followup-20260930:start -->
+## Follow-up hardening — 2026-09-30
+
+- The earlier source-review items for alert transport, realtime authentication, production shadow-mode safety, and telemetry handling are now resolved or source-verified: alert delivery requires HTTPS outside loopback development, realtime API access is authenticated, production configuration rejects shadow mode, and identity telemetry uses derived fingerprints rather than raw API credentials/source addresses.
+- GitHub Actions hardening was strengthened on `main`: read/build checkouts no longer persist credentials, the obsolete one-time write-enabled formatter workflow was removed, and `scripts/workflow_security_scan.py` now blocks mutable third-party action refs, dangerous workflow triggers, persisted checkout credentials, and pipe-to-shell workflow execution.
+- Remaining items such as sustained load/slow-client testing, actual external alert delivery, ingress/TLS policy, and executing a health-gated production rollback are deployment/runtime verification tasks rather than unpatched repository defects.
+<!-- hardening-followup-20260930:end -->
