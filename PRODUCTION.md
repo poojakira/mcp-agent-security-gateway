@@ -18,6 +18,9 @@ A release is promotable only when tests, lint/type checks, SAST, dependency audi
 - Production defaults must fail safely when required identity, credentials, artifacts, or dependencies are missing.
 - Health/readiness behavior must represent real dependency state where the repository exposes a service.
 - Logs and machine-readable outputs must support incident/debug reconstruction without leaking secrets.
+- Protected endpoints may use one legacy API credential or a stable multi-credential set; all configured credentials must meet the minimum length requirement.
+- Source identity must default to the socket peer. Forwarded source headers may only be used behind explicitly trusted infrastructure.
+- Privacy-preserving external-validation telemetry must fingerprint credentials and source/network values locally; raw credentials and raw source addresses must not be exported.
 - Dependency and security findings at the repository's blocking threshold must stop promotion.
 - Public metrics and benchmark claims must identify their dataset, environment, and scope.
 - Deployment images/artifacts must be versioned and immutable at promotion time.
@@ -25,7 +28,7 @@ A release is promotable only when tests, lint/type checks, SAST, dependency audi
 
 ## Evidence boundary
 
-"Production-oriented" describes the engineering and release contract of this repository. It does **not** mean that an external enterprise deployment, penetration test, certification, uptime history, or scale target has occurred unless a separate committed artifact proves it.
+"Production-oriented" describes the engineering and release contract of this repository. It does **not** mean that an external enterprise deployment, penetration test, certification, uptime history, scale target, or external Cerberus validation has occurred unless separate evidence proves it.
 
 ## Change management
 
