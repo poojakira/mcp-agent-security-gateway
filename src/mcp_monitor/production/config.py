@@ -47,17 +47,13 @@ class Config:
         self.trusted_proxy_cidrs: tuple[str, ...] = self._parse_csv(
             os.environ.get("MCP_TRUSTED_PROXY_CIDRS", "")
         )
-        self.cerberus_enabled: bool = os.environ.get("MCP_CERBERUS_ENABLED", "false").lower() in (
+        self.identity_telemetry_enabled: bool = os.environ.get("MCP_IDENTITY_TELEMETRY_ENABLED", "false").lower() in (
             "true",
             "1",
             "yes",
         )
-        self.cerberus_tenant_salt: str | None = os.environ.get("MCP_CERBERUS_TENANT_SALT")
-        self.cerberus_output: str | None = os.environ.get("MCP_CERBERUS_OUTPUT")
-        self.cerberus_schema_version: str = os.environ.get("MCP_CERBERUS_SCHEMA_VERSION", "1")
-        self.cerberus_client: str = os.environ.get(
-            "MCP_CERBERUS_CLIENT", "mcp-agent-security-gateway"
-        )
+        self.identity_telemetry_tenant_salt: str | None = os.environ.get("MCP_IDENTITY_TELEMETRY_TENANT_SALT")
+        self.identity_telemetry_output: str | None = os.environ.get("MCP_IDENTITY_TELEMETRY_OUTPUT")
         # SIEM event export: when enabled, every inspected call is appended as a
         # single-line JSON (NDJSON) record to siem_output, which Filebeat tails
         # and ships to Elasticsearch in the detection-engineering lab.
@@ -83,10 +79,10 @@ class Config:
             errors.append("MCP_API_KEY or MCP_API_KEYS must configure at least one credential")
         elif any(len(key) < 32 for key in self.api_keys):
             errors.append("All configured MCP API credentials must contain at least 32 characters")
-        if self.cerberus_enabled and not self.cerberus_tenant_salt:
-            errors.append("MCP_CERBERUS_TENANT_SALT is required when Cerberus telemetry is enabled")
-        if self.cerberus_enabled and not self.cerberus_output:
-            errors.append("MCP_CERBERUS_OUTPUT is required when Cerberus telemetry is enabled")
+        if self.identity_telemetry_enabled and not self.identity_telemetry_tenant_salt:
+            errors.append("MCP_IDENTITY_TELEMETRY_TENANT_SALT is required when identity telemetry is enabled")
+        if self.identity_telemetry_enabled and not self.identity_telemetry_output:
+            errors.append("MCP_IDENTITY_TELEMETRY_OUTPUT is required when identity telemetry is enabled")
         if not self.wal_path:
             errors.append("MCP_WAL_PATH must point to durable storage")
         if not self.audit_path:
