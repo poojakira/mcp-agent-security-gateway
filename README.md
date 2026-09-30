@@ -15,8 +15,8 @@
 > Inspect and enforce AI-agent MCP/JSON-RPC tool calls at the agent-to-tool boundary before they execute.
 
 [![CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-659%20passing-brightgreen)](VERIFIED_METRICS.md)
-[![Coverage](https://img.shields.io/badge/coverage-82%25-brightgreen)](VERIFIED_METRICS.md)
+[![Tests](https://img.shields.io/badge/tests-702%20passing-brightgreen)](VERIFIED_METRICS.md)
+[![Coverage](https://img.shields.io/badge/coverage-82.76%25-brightgreen)](VERIFIED_METRICS.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
@@ -33,8 +33,8 @@ Reproduced on current `main` (Python 3.12); also green in GitHub Actions. Eviden
 
 | Metric | Current verified result |
 |---|---:|
-| Tests | 659 passing |
-| Statement coverage | 82% |
+| Tests | 702 passing (Python 3.12; same suite green on 3.10/3.11/3.12) |
+| Statement coverage | 82.76% (5,324 statements; 918 missed) |
 | Prompt-injection patterns | 55 (`INJECTION_PATTERNS`) |
 | Elastic Security rules | 9 |
 | Core SIEM tests | 21 |
@@ -85,8 +85,17 @@ Enforcement depends on the integration path: the Python wrapper raises `ToolBloc
 - Rate limiting, tracing, metrics, circuit breaker (fail-closed), shadow mode
 - ECS-formatted security events plus a local Elastic detection lab (9 rules)
 - Docker and Kubernetes deployment templates
+- Stable multi-credential authentication (`MCP_API_KEYS`) with legacy single-key compatibility
+- Trusted source-address capture: socket peer by default; `X-Forwarded-For` accepted only from configured trusted proxy CIDRs
+- Privacy-preserving credential/network telemetry with local HMAC-SHA256 fingerprints for exact IP, /24-or-/64 network, and /16-or-/48 block
 
 ## Recent verified additions
+
+### Privacy-preserving credential/network telemetry
+
+`src/mcp_monitor/production/cerberus.py` adds a locally computed telemetry surface for external behavioral-validation workflows without exporting raw API credentials or raw source addresses. The gateway supports multiple stable credentials, canonicalizes IPv4/IPv6 source addresses (including IPv4-mapped IPv6), derives exact/network/block inputs, and fingerprints them with `HMAC-SHA256(key=tenant_salt, message=UTF-8(value)).hexdigest()[:32]`. Forwarded source headers are only trusted when the socket peer belongs to an explicitly configured trusted proxy CIDR; otherwise the socket peer is authoritative. Current event objects set `tokens_in = 0` and `tokens_out = 0` where token accounting is unavailable. Transport-envelope schema/version details remain external-integration configuration and are not claimed as independently validated by this repository.
+
+The current implementation is covered by the repository-wide CI snapshot below: **702 tests passed** with **82.76% statement coverage** on Python 3.12, with the same test suite green on Python 3.10 and 3.11.
 
 These follow the same discipline as the rest of the repo: separate detection from enforcement, attach scope to every metric, and label anything synthetic or unverified. They are additive modules with their own verified test counts and do not change the repository-wide test/coverage snapshot above.
 
@@ -130,7 +139,7 @@ Run the local FastAPI control plane (default `127.0.0.1:8000`):
 python run_realtime.py
 ```
 
-Production API (port 8080) requires `X-API-Key` on inspection/metrics endpoints; `/v1/health` and `/v1/ready` are open for orchestration. See [RUNBOOK.md](RUNBOOK.md).
+Production API (port 8080) requires `X-API-Key` on inspection/metrics endpoints; one legacy key (`MCP_API_KEY`) or multiple stable credentials (`MCP_API_KEYS`) may be configured. `/v1/health` and `/v1/ready` are open for orchestration. See [RUNBOOK.md](RUNBOOK.md).
 
 ## Testing
 
@@ -142,7 +151,7 @@ bandit -r src -ll
 pip-audit
 ```
 
-Current verified: **659 passing, 82% statement coverage**. GitHub Actions is the authoritative environment for published test/coverage claims.
+Current verified code snapshot (`59eeac5221ab4eff3d5c5e421ccb46407de08037`): **702 passing, 82.76% statement coverage** on Python 3.12; the same suite is green on Python 3.10 and 3.11. GitHub Actions is the authoritative environment for published test/coverage claims.
 
 ## CI/CD
 
