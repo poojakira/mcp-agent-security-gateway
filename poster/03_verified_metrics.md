@@ -1,40 +1,51 @@
 # Verified Metrics — Poster 01
 
-> Evidence status: The verification below applies to the cited 2026-09-27 commit. The rendered PDF has its own printed commit and date. Neither artifact asserts a fresh run on the latest `main`.
+> Evidence status: This Markdown companion is refreshed to the latest verified code snapshot. The rendered poster PDF remains a historical artifact at its printed commit and date.
 
-## Current local verification (independent re-run for this poster)
-- **Date:** 2026-09-27
-- **Environment:** Windows, CPython 3.12.10, fresh `venv`, `pip install -e ".[dev,server]"`, `PYTHONPATH=src`
-- **Repo HEAD:** `c68e200d320ce68793096598e516b4d015bc21ad`
-- **Command:** `python -m pytest tests -q --cov=mcp_monitor --cov-report=term`
+## Current GitHub Actions verification
+
+- **Verification:** 2026-09-30 UTC / 2026-09-29 America/Phoenix
+- **Code snapshot:** `59eeac5221ab4eff3d5c5e421ccb46407de08037`
+- **Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36648647933
+- **Full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36648648015
 
 | Metric | Value | Scope |
 |---|---:|---|
-| Tests passed | 659 | Current checkout, local Py 3.12.10; also green in GitHub Actions on `main` |
-| Tests failed | 0 | Current checkout |
-| Wall time | ~161 s | Single run, this machine |
-| Statement coverage (aggregate) | 82% | 4804 statements, 880 missed |
-| INJECTION_PATTERNS entries | 55 | Runtime `len()` of the named collection |
-| Elastic `[[rule]]` records | 9 | `detection_rules/elastic_rules.toml` |
-| Core SIEM tests | 21 | `tests/test_siem.py` |
-| SIEM scenario tests | 7 | `tests/test_siem_scenarios.py` |
+| Tests passed | **702** | Production Gate and Python 3.12 CI; same suite green on Python 3.10/3.11 |
+| Tests failed | **0** | Cited successful runs |
+| Statement coverage | **82.76%** | 5,324 statements, 918 missed |
+| INJECTION_PATTERNS entries | **55** | Runtime named collection |
+| Elastic `[[rule]]` records | **9** | `detection_rules/elastic_rules.toml` |
+| Core SIEM tests | **21** | `tests/test_siem.py` |
+| SIEM scenario tests | **7** | `tests/test_siem_scenarios.py` |
 
-### Coverage is uneven (honest breakdown, from same run)
+### Current coverage is uneven
+
 | Module | Coverage |
 |---|---:|
 | `siem/ecs_formatter.py` | 100% |
 | `production/metrics.py` / `rate_limiter.py` | 100% |
 | `redteam/simulator.py` | 99% |
 | `protocol/jsonrpc.py` | 99% |
-| `siem/correlation.py` | 93% |
+| `siem/correlation.py` | 94% |
+| `production/cerberus.py` | 76% |
 | `proxy/stdio_proxy.py` | 70% |
-| `production/server.py` | 66% |
+| `production/server.py` | 65% |
 | `siem/shipper.py` | 53% |
 | `server/realtime.py` | 36% |
 
-## Historical validation snapshot (NOT current checkout)
-Main CI run `35809388960`, commit `a5d39be`, 2026-09-23: **641 passed**, **79.54% coverage**; gates: Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, Grype, SBOM, Docker build, Python 3.10/3.11/3.12.
+## New credential/network telemetry evidence
+
+The verified code snapshot includes stable multi-credential authentication, trusted-proxy-aware source selection, IPv4/IPv6 canonicalization, and local HMAC-SHA256 fingerprints for credential, exact address, network, and block inputs. Raw credentials and raw source addresses are not written to the event output.
+
+This is implementation evidence only. It is **not** evidence that an external Cerberus validation pilot has completed.
+
+## Historical validation snapshot
+
+Main CI run `35809388960`, commit `a5d39be`, 2026-09-23: **641 passed**, **79.54% coverage**. This remains historical evidence only.
 
 ## Not measured by this repository
-- Detector false-positive / false-negative / precision / recall / F1 on an external corpus.
-- Production latency, throughput, p95/p99, uptime, or any deployment SLO.
+
+- Detector false-positive / false-negative rates on an external population.
+- Production uptime or deployment SLOs.
+- Independent external Cerberus alert quality or live-baseline results.
