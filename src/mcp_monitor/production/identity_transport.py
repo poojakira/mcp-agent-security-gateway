@@ -47,9 +47,7 @@ def _load_queue_records(path: str | os.PathLike[str]) -> list[dict[str, Any]]:
                 f"invalid JSON in identity telemetry queue at line {line_number}"
             ) from exc
         if not isinstance(value, dict):
-            raise ValueError(
-                f"identity telemetry queue line {line_number} must be a JSON object"
-            )
+            raise ValueError(f"identity telemetry queue line {line_number} must be a JSON object")
         records.append(value)
     return records
 
@@ -84,9 +82,7 @@ def build_three_credential_smoke_batch(records: list[dict[str, Any]]) -> dict[st
             if len(events) == 3:
                 return build_envelope(events, event_fps)
 
-    raise ValueError(
-        "smoke test requires queued events from three distinct credential paths"
-    )
+    raise ValueError("smoke test requires queued events from three distinct credential paths")
 
 
 def load_three_credential_smoke_batch(
