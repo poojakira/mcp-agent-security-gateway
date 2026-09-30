@@ -112,7 +112,7 @@ The current verified code snapshot is `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`
 - Stable multi-credential authentication is implemented.
 - Source attribution defaults to the socket peer and only accepts `X-Forwarded-For` from explicitly trusted proxy CIDRs.
 - Credential and IP-derived telemetry uses local HMAC-SHA256 fingerprints; raw credentials and raw source addresses are excluded from the event output.
-- External external ingestion/pilot completion is **not** part of this audit evidence.
+- External ingestion/pilot completion is **not** part of this audit evidence.
 
 ## Files Changed in This Branch
 
