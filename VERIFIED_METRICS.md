@@ -31,7 +31,7 @@ All checks passed!
 | Prompt-injection regex patterns | **55** | `INJECTION_PATTERNS` in `src/mcp_monitor/detectors/prompt_injection.py` |
 | Elastic Security rules | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
-| Additional SIEM scenario-runner tests | **7** | `tests/test_siem_scenarios.py` |
+| Additional SIEM scenario-runner tests | **12** | `tests/test_siem_scenarios.py` |
 | Cerberus telemetry helper coverage | **76%** | `src/mcp_monitor/production/cerberus.py` in the current Python 3.12 coverage report |
 | Production server coverage | **65%** | `src/mcp_monitor/production/server.py` in the current Python 3.12 coverage report |
 | Red-team simulator coverage | **99%** | `src/mcp_monitor/redteam/simulator.py` in the current Python 3.12 coverage report |
@@ -68,7 +68,7 @@ The repository does **not** claim that an external Cerberus pilot is complete. T
 | Prompt-injection regex patterns | **55** |
 | Elastic Security rules | **9** |
 | Core SIEM tests | **21** |
-| Additional SIEM scenario-runner tests | **7** |
+| Additional SIEM scenario-runner tests | **12** |
 
 These values remain historical evidence and must not be presented as the current repository state.
 
