@@ -1,7 +1,7 @@
 <!-- security-systems-poster -->
 ## Research Poster
 
-**Security Systems / 01 ΓÇö Runtime Policy Enforcement at the AI Agent-to-Tool Boundary**
+**Security Systems / 01 — Runtime Policy Enforcement at the AI Agent-to-Tool Boundary**
 
 [![Research poster](poster/poster.png)](poster/poster_36x48.pdf)
 
@@ -23,7 +23,7 @@ Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
 
 ## Overview
 
-`mcp-agent-security-gateway` sits between an AI agent (MCP client) and downstream MCP servers and inspects each `tools/call` request over JSON-RPC before it executes, returning an allow/block decision. It applies prompt-injection, PII/exfiltration, capability/shadow-server, and process/egress-policy checks, and records tamper-evident audit and telemetry. It exists because an agent that can call tools, assume roles, and load artifacts is making privileged decisions on infrastructure, and nothing in the base MCP protocol inspects those calls. Enforcement applies only to traffic routed through a supported integration path ΓÇö this is a production-oriented research prototype, not a network firewall or a deployed SOC.
+`mcp-agent-security-gateway` sits between an AI agent (MCP client) and downstream MCP servers and inspects each `tools/call` request over JSON-RPC before it executes, returning an allow/block decision. It applies prompt-injection, PII/exfiltration, capability/shadow-server, and process/egress-policy checks, and records tamper-evident audit and telemetry. It exists because an agent that can call tools, assume roles, and load artifacts is making privileged decisions on infrastructure, and nothing in the base MCP protocol inspects those calls. Enforcement applies only to traffic routed through a supported integration path — this is a production-oriented research prototype, not a network firewall or a deployed SOC.
 
 **Data-protection scope:** PII and exfiltration checks apply to supported, routed tool-call paths. They are signals and scoped policy controls, not complete data-loss prevention.
 
@@ -41,7 +41,7 @@ Verified against code snapshot `59eeac5221ab4eff3d5c5e421ccb46407de08037` on Pyt
 
 ## Security Problem
 
-MCP gives agents a standardized way to invoke external tools that can read data, send messages, reach networks, or execute operations. That creates a trust boundary between model-generated requests and systems that can act. The gateway addresses whether a caller can apply explicit validation, authorization, detection, audit, and policy controls before selected tool calls reach a downstream server ΓÇö covering prompt-injection content in arguments, unexpected server/capability use, sensitive-data leakage, process-execution intent, and disallowed egress destinations.
+MCP gives agents a standardized way to invoke external tools that can read data, send messages, reach networks, or execute operations. That creates a trust boundary between model-generated requests and systems that can act. The gateway addresses whether a caller can apply explicit validation, authorization, detection, audit, and policy controls before selected tool calls reach a downstream server — covering prompt-injection content in arguments, unexpected server/capability use, sensitive-data leakage, process-execution intent, and disallowed egress destinations.
 
 ## Threat Model & Scope
 
@@ -159,9 +159,9 @@ GitHub Actions runs Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, SBOM genera
 
 ## Security & Documentation
 
-- [SECURITY.md](SECURITY.md) ┬╖ [THREAT_MODEL.md](THREAT_MODEL.md) ┬╖ [SECURITY_AUDIT.md](SECURITY_AUDIT.md)
-- [RUNBOOK.md](RUNBOOK.md) ┬╖ [INCIDENT_RUNBOOK.md](INCIDENT_RUNBOOK.md) ┬╖ [PRODUCTION.md](PRODUCTION.md)
-- [VERIFIED_METRICS.md](VERIFIED_METRICS.md) ┬╖ [RESEARCH_REPORT.md](RESEARCH_REPORT.md)
+- [SECURITY.md](SECURITY.md) · [THREAT_MODEL.md](THREAT_MODEL.md) · [SECURITY_AUDIT.md](SECURITY_AUDIT.md)
+- [RUNBOOK.md](RUNBOOK.md) · [INCIDENT_RUNBOOK.md](INCIDENT_RUNBOOK.md) · [PRODUCTION.md](PRODUCTION.md)
+- [VERIFIED_METRICS.md](VERIFIED_METRICS.md) · [RESEARCH_REPORT.md](RESEARCH_REPORT.md)
 - Detection lab: [detection_lab/README.md](detection_lab/README.md)
 - Performance baselines: [docs/PERFORMANCE_BASELINE.md](docs/PERFORMANCE_BASELINE.md)
 
@@ -171,8 +171,8 @@ Heuristic detectors can be evaded; the fixed red-team catalog is a regression su
 
 ## Project Status
 
-**Production-oriented research prototype.** Functional, tested, and CI-validated, with fail-closed auth and tamper-evident audit ΓÇö but not proven at production scale or in a live SOC deployment.
+**Production-oriented research prototype.** Functional, tested, and CI-validated, with fail-closed auth and tamper-evident audit — but not proven at production scale or in a live SOC deployment.
 
 ## License
 
-MIT ΓÇö see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
