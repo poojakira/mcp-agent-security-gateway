@@ -38,7 +38,7 @@
 
 The verified code snapshot includes stable multi-credential authentication, trusted-proxy-aware source selection, IPv4/IPv6 canonicalization, and local HMAC-SHA256 fingerprints for credential, exact address, network, and block inputs. Raw credentials and raw source addresses are not written to the event output.
 
-This is implementation evidence only. It is **not** evidence that an external external validation pilot has completed.
+This is implementation evidence only. It is **not** evidence that an external validation pilot has completed.
 
 ## Historical validation snapshot
 
@@ -48,4 +48,4 @@ Main CI run `35809388960`, commit `a5d39be`, 2026-09-23: **641 passed**, **79.54
 
 - Detector false-positive / false-negative rates on an external population.
 - Production uptime or deployment SLOs.
-- Independent external external validation alert quality or live-baseline results.
+- Independent external validation alert quality or live-baseline results.
