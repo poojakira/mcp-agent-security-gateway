@@ -1,10 +1,10 @@
 # Research Brief — Poster 01
 
-> Evidence status: The verification below applies to the cited 2026-09-27 commit. The rendered PDF has its own printed commit and date. Neither artifact asserts a fresh run on the latest `main`.
+> Evidence status: The Markdown companion below is refreshed to the latest verified code snapshot. The rendered poster PDF keeps its own printed historical commit/date and must not be read as proof of newer metrics.
 
 ## Repository
 `github.com/poojakira/mcp-agent-security-gateway` (public, default branch `main`, primary language Python).
-Audited at HEAD commit `c68e200d320ce68793096598e516b4d015bc21ad`.
+Latest verified code snapshot: `59eeac5221ab4eff3d5c5e421ccb46407de08037` (successful CI and Production Gate).
 
 ## Academic Project Title
 **Runtime Policy Enforcement at the AI Agent-to-Tool Boundary**
@@ -58,19 +58,23 @@ Agent/MCP client → inline stdio proxy **or** FastAPI control plane → parse/n
 ## Evaluation Method
 Correctness/behavior validation via the repository's automated test suite with statement coverage, executed in a clean local environment. Static counts (patterns, rules, SIEM tests) verified by importing the module and counting committed rule records. Historical validation preserved from a prior main-branch CI run. No production/latency SLO is claimed.
 
-## Evidence at Poster Snapshot (local, this audit)
-Environment: Windows, Python 3.12.10, fresh venv, `pip install -e ".[dev,server]"`, `PYTHONPATH=src`.
-- **659 tests passed** (`pytest tests -q --cov=mcp_monitor`), 0 failed; also green in GitHub Actions on `main`.
-- **82% statement coverage** (TOTAL 4804 statements, 880 missed) — consistent with the repo's README/VERIFIED_METRICS.
-- **55** entries in `INJECTION_PATTERNS` (verified by importing the detector module).
-- **9** Elastic `[[rule]]` records in `detection_rules/elastic_rules.toml`.
-- **21** `test_*` functions in `tests/test_siem.py`; **7** in `tests/test_siem_scenarios.py`.
+## Current Repository Evidence
+GitHub Actions, Python 3.12, code snapshot `59eeac5221ab4eff3d5c5e421ccb46407de08037`:
+- **702 tests passed**, 0 failed.
+- **82.76% statement coverage** (5,324 statements, 918 missed).
+- The same test suite is green on Python 3.10 and 3.11.
+- **55** entries in `INJECTION_PATTERNS`.
+- **9** Elastic `[[rule]]` records.
+- **21** core SIEM tests plus **7** SIEM scenario-runner tests.
+- CI also passed Ruff/formatting, Pyright, security scan, CodeQL, Windows control-plane checks, and Docker build.
+
+The gateway additionally supports stable multi-credential authentication, trusted source-address selection, IPv4/IPv6 canonicalization, and locally generated HMAC-SHA256 credential/network fingerprints without exporting raw credentials or raw source addresses. External Cerberus pilot completion is **not** claimed.
 
 ## Historical Evidence (validation snapshot — not current checkout)
 Main CI run `35809388960`, commit `a5d39be`, dated 2026-09-23: **641 passed**, **79.54% coverage**, plus Ruff/Pyright/Bandit/pip-audit/CodeQL/Trivy/Grype/SBOM/Docker gates on Python 3.10/3.11/3.12. Label explicitly as a historical snapshot; these gates have not re-run against the current commit.
 
 ## Important Negative Results / Honest Findings
-- Coverage is uneven: `server/realtime.py` 36%, `redteam/simulator.py` 0%, `siem/shipper.py` 53%, `production/server.py` 66%. The 79% aggregate hides low-coverage runtime paths.
+- Coverage is uneven: `server/realtime.py` 36%, `siem/shipper.py` 53%, `production/server.py` 65%, and `production/cerberus.py` 76%; aggregate coverage is 82.76%.
 - Detection is heuristic — no measured false-positive/false-negative rate on an external corpus is established by this repo.
 - Enforcement behavior is **not** identical across the stdio proxy, HTTP control plane, and Python wrapper paths.
 
@@ -82,10 +86,10 @@ A reproducible, test-backed reference implementation of an inspection+authorizat
 2. Pattern/heuristic detection cannot guarantee identification of all attacks; no external FP/FN rate measured.
 3. Enforcement is external — the integrating runtime must honor decisions; semantics differ per path.
 4. Local test success is not operational reliability; no production deployment evidence.
-5. Aggregate coverage masks low-coverage runtime modules (realtime server, red-team simulator).
+5. Aggregate coverage masks lower-coverage runtime modules such as the realtime server, SIEM shipper, production server, and new credential/network telemetry helper.
 
 ## Future Work
-Larger external adversarial corpus with measured FP/FN; unify enforcement semantics across paths; raise coverage on runtime server modules; validate telemetry against a real MCP ecosystem; independent reproducibility study; performance benchmarking published as environment-scoped baselines (not SLOs).
+Larger external adversarial corpus with measured FP/FN; unify enforcement semantics across paths; raise coverage on lower-coverage runtime modules; complete external credential-behavior telemetry contract/pilot validation; validate against a real MCP ecosystem; independent reproducibility study; performance benchmarking published as environment-scoped baselines (not SLOs).
 
 ## Reproducibility
 ```
