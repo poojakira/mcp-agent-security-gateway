@@ -28,7 +28,7 @@ A release is promotable only when tests, lint/type checks, SAST, dependency audi
 
 ## Evidence boundary
 
-"Production-oriented" describes the engineering and release contract of this repository. It does **not** mean that an external enterprise deployment, penetration test, certification, uptime history, scale target, or external Cerberus validation has occurred unless separate evidence proves it.
+"Production-oriented" describes the engineering and release contract of this repository. It does **not** mean that an external enterprise deployment, penetration test, certification, uptime history, scale target, or external external validation has occurred unless separate evidence proves it.
 
 ## Change management
 
