@@ -155,7 +155,7 @@ Current verified code snapshot (`cbdf733858d186bb4d72ca57a9c10e74ee84dd65`): **7
 
 ## CI/CD
 
-GitHub Actions runs Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, SBOM generation, Docker build validation, and the Python 3.10/3.11/3.12 test matrix plus a Windows control-plane job. These gates passed on the verified code snapshot `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`; later documentation-only commits do not change the tested runtime code.
+GitHub Actions runs Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, SBOM generation, Docker build validation, and the Python 3.10/3.11/3.12 test matrix plus a Windows control-plane job. A later documentation-only verification head containing the same runtime code as `cbdf733858d186bb4d72ca57a9c10e74ee84dd65` completed the full CI and Production Gate successfully.
 
 ## Security & Documentation
 
