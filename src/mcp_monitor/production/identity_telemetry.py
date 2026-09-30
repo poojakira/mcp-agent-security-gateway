@@ -16,6 +16,8 @@ from datetime import datetime, timezone
 from typing import Any
 
 _MAX_INT32 = 2_147_483_647
+_SCHEMA_VERSION = 1
+_CLIENT_ID = "mcp-gateway/1.0.0"
 
 
 def fingerprint_value(value: str, tenant_salt: str | bytes) -> str:
@@ -200,21 +202,50 @@ def build_event(
     }
 
 
+def event_fingerprint(event_id: str, tenant_salt: str | bytes) -> str:
+    """Fingerprint one stable logical event ID for transport idempotency."""
+    if not event_id:
+        raise ValueError("event_id must not be empty")
+    return fingerprint_value(f"evt:{event_id}", tenant_salt)
+
+
+def _validate_event_fp(value: str) -> None:
+    if len(value) != 32 or any(ch not in "0123456789abcdef" for ch in value):
+        raise ValueError("event_fps entries must be exactly 32 lowercase hex characters")
+
+
 def build_envelope(
     events: list[dict[str, Any]],
-    *,
-    schema_version: str,
-    client: str,
-    backfill: bool = False,
+    event_fps: list[str],
 ) -> dict[str, Any]:
-    """Build the external-validation transport envelope."""
-    if not schema_version:
-        raise ValueError("schema_version must not be empty")
-    if not client:
-        raise ValueError("client must not be empty")
+    """Build the confirmed live transport envelope.
+
+    event_fps is positional with events. A queued envelope is immutable:
+    retries must resend the same stored envelope rather than recomputing an ID
+    or changing event contents under an existing fingerprint.
+    """
+    if not events:
+        raise ValueError("events must not be empty")
+    if len(events) != len(event_fps):
+        raise ValueError("event_fps length must equal events length")
+    for value in event_fps:
+        _validate_event_fp(value)
+
     return {
-        "schema_version": schema_version,
-        "client": client,
-        "backfill": bool(backfill),
+        "schema_version": _SCHEMA_VERSION,
+        "client": _CLIENT_ID,
+        "backfill": False,
         "events": events,
+        "event_fps": event_fps,
     }
+
+
+def build_single_event_envelope(
+    *,
+    event: dict[str, Any],
+    event_id: str,
+    tenant_salt: str | bytes,
+) -> dict[str, Any]:
+    """Build one immutable queued transport envelope for a logical request."""
+    fp = event_fingerprint(event_id, tenant_salt)
+    return build_envelope([event], [fp])
