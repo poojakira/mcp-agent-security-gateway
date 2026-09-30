@@ -4,30 +4,30 @@ This file is the evidence anchor for quantitative claims about this repository.
 
 ## Current verified code snapshot
 
-**Code commit:** `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`  
-**Successful Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36653310929  
-**Successful full CI (documentation-only verification head with identical runtime code):** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36653310958  
+**Code commit:** `e249bde03affc6dcece172f991269cfe1c26417a`  
+**Successful Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36655829130  
+**Successful full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36655829094  
 **Verification time:** 2026-09-30 UTC (2026-09-29 America/Phoenix)
 
 The Python 3.12 CI job reports:
 
 ```text
-TOTAL                                               5337    916    83%
-Required test coverage of 77% reached. Total coverage: 82.84%
-707 passed in 143.43s
+TOTAL                                               5342    916    83%
+Required test coverage of 77% reached. Total coverage: 82.85%
+707 passed in 141.56s
 ```
 
 The Production Gate independently reports:
 
 ```text
-707 passed in 118.39s
+707 passed in 79.52s
 All checks passed!
 ```
 
 | Claim | Current verified value | Evidence boundary |
 |---|---:|---|
 | Automated tests | **707 passed** | Python 3.12 CI and Production Gate on the cited code commit; the same suite is green on Python 3.10 and 3.11 |
-| Statement coverage | **82.84%** | 5,337 statements, 916 missed on Python 3.12 |
+| Statement coverage | **82.85%** | 5,342 statements, 916 missed on Python 3.12 |
 | Prompt-injection regex patterns | **55** | `INJECTION_PATTERNS` in `src/mcp_monitor/detectors/prompt_injection.py` |
 | Elastic Security rules | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
