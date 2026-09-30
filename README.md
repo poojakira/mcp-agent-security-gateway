@@ -29,7 +29,7 @@ Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
 
 ## Verified Snapshot
 
-Reproduced on current `main` (Python 3.12); also green in GitHub Actions. Evidence: [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
+Verified against code snapshot `59eeac5221ab4eff3d5c5e421ccb46407de08037` on Python 3.12; subsequent commits through the current documentation head are documentation-only. Evidence: [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
 
 | Metric | Current verified result |
 |---|---:|
@@ -97,7 +97,7 @@ Enforcement depends on the integration path: the Python wrapper raises `ToolBloc
 
 The current implementation is covered by the repository-wide CI snapshot below: **702 tests passed** with **82.76% statement coverage** on Python 3.12, with the same test suite green on Python 3.10 and 3.11.
 
-These follow the same discipline as the rest of the repo: separate detection from enforcement, attach scope to every metric, and label anything synthetic or unverified. They are additive modules with their own verified test counts and do not change the repository-wide test/coverage snapshot above.
+These follow the same discipline as the rest of the repo: separate detection from enforcement, attach scope to every metric, and label anything synthetic or unverified. Subsection-specific measurements are scoped to those modules; the repository-wide test/coverage snapshot above already includes the current Python test suite.
 
 ### Policy-as-code PDP (enforcement)
 
@@ -155,7 +155,7 @@ Current verified code snapshot (`59eeac5221ab4eff3d5c5e421ccb46407de08037`): **7
 
 ## CI/CD
 
-GitHub Actions runs Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, SBOM generation, Docker build validation, and the Python 3.10/3.11/3.12 test matrix plus a Windows control-plane job. These gates pass on the current `main` commit.
+GitHub Actions runs Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, SBOM generation, Docker build validation, and the Python 3.10/3.11/3.12 test matrix plus a Windows control-plane job. These gates passed on the verified code snapshot `59eeac5221ab4eff3d5c5e421ccb46407de08037`; later documentation-only commits do not change the tested runtime code.
 
 ## Security & Documentation
 
