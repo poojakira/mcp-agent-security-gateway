@@ -19,7 +19,7 @@ from mcp_monitor.audit.log import AuditEntry, AuditLog
 from mcp_monitor.audit.wal import WriteAheadLog
 from mcp_monitor.monitor import MCPSecurityMonitor
 from mcp_monitor.production.alerting import AlertingHook
-from mcp_monitor.production.cerberus import build_event, iso8601_utc, resolve_source_ip
+from mcp_monitor.production.identity_telemetry import build_event, iso8601_utc, resolve_source_ip
 from mcp_monitor.production.circuit_breaker import CircuitBreaker
 from mcp_monitor.production.config import Config
 from mcp_monitor.production.logging import get_logger
@@ -313,14 +313,14 @@ class ProductionServer:
                 self._shutdown.request_finished()
 
             if (
-                self.config.cerberus_enabled
+                self.config.identity_telemetry_enabled
                 and method == "POST"
                 and path in {"/v1/inspect_call", "/v1/inspect_output", "/api/scan"}
             ):
                 credential = self._match_api_key(headers)
                 if credential is not None:
                     endpoint = "/v1/inspect_call" if path == "/api/scan" else path
-                    self._write_cerberus_event(
+                    self._write_identity_telemetry_event(
                         endpoint=endpoint,
                         credential=credential,
                         headers=headers,
@@ -430,7 +430,7 @@ class ProductionServer:
         entry.entry_hash = entry.compute_hash()
         self._wal.write(entry)
 
-    def _write_cerberus_event(
+    def _write_identity_telemetry_event(
         self,
         *,
         endpoint: str,
@@ -441,17 +441,17 @@ class ProductionServer:
         latency_ms: int,
         status: int,
     ) -> None:
-        """Append one privacy-preserving Cerberus event to the local delivery queue.
+        """Append one privacy-preserving identity telemetry event to the local delivery queue.
 
         The request path never sends raw credentials or raw addresses to
-        Cerberus. Source selection happens locally, forwarded addresses are used
+        external validation. Source selection happens locally, forwarded addresses are used
         only behind explicitly trusted proxy CIDRs, and only fingerprinted event
         fields are written to the queue.
         """
         if (
-            not self.config.cerberus_enabled
-            or not self.config.cerberus_tenant_salt
-            or not self.config.cerberus_output
+            not self.config.identity_telemetry_enabled
+            or not self.config.identity_telemetry_tenant_salt
+            or not self.config.identity_telemetry_output
             or not peer_address
         ):
             return
@@ -471,17 +471,17 @@ class ProductionServer:
                 latency_ms=latency_ms,
                 status=status,
                 source_ip=source_ip,
-                tenant_salt=self.config.cerberus_tenant_salt,
+                tenant_salt=self.config.identity_telemetry_tenant_salt,
                 cost=None,
             )
-            output_path = self.config.cerberus_output
+            output_path = self.config.identity_telemetry_output
             os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
             with open(output_path, "a", encoding="utf-8") as fh:
                 fh.write(json.dumps(event, separators=(",", ":")) + "\n")
         except Exception as exc:
             # Telemetry is observation-only and must not break MCP inspection.
             # Invalid/untrusted source values are dropped before fingerprinting.
-            self._logger.error(f"Cerberus telemetry event dropped: {exc}")
+            self._logger.error(f"Identity telemetry event dropped: {exc}")
 
     def _handle_health(self) -> tuple[int, dict[str, Any]]:
         """GET /v1/health - Health check endpoint."""
