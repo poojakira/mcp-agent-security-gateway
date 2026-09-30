@@ -1,9 +1,9 @@
 # Reproduce the Work — Poster 01
 
-> Evidence status: The verification below applies to the cited 2026-09-27 commit. The rendered PDF has its own printed commit and date. Neither artifact asserts a fresh run on the latest `main`.
+> Evidence status: This Markdown companion reflects the latest verified code snapshot. The rendered poster PDF remains tied to its own printed historical commit/date.
 
-**Repository:** `github.com/poojakira/mcp-agent-security-gateway`
-**Environment (this verification):** Windows, CPython 3.12.10, fresh venv. HEAD `c68e200d320ce68793096598e516b4d015bc21ad`.
+**Repository:** `github.com/poojakira/mcp-agent-security-gateway`  
+**Verified code snapshot:** `59eeac5221ab4eff3d5c5e421ccb46407de08037`
 
 ```powershell
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
@@ -15,15 +15,19 @@ $env:PYTHONPATH="src"
 python -m pytest tests -q --cov=mcp_monitor --cov-report=term
 ```
 
-**Expected (observed 2026-09-27):** `659 passed`, TOTAL coverage `82%` (4804 stmts, 880 missed).
+**Expected at the verified code snapshot:** `702 passed`; total statement coverage **82.76%** (5,324 statements, 918 missed).
 
 Static counts:
+
 ```powershell
 $env:PYTHONPATH="src"
 python -c "from mcp_monitor.detectors import prompt_injection as p; print(len(p.INJECTION_PATTERNS))"   # 55
-# 9 = count of ^[[rule]] in detection_rules/elastic_rules.toml
-# 21 = def test_ in tests/test_siem.py ; 7 = def test_ in tests/test_siem_scenarios.py
+# 9 = count of [[rule]] in detection_rules/elastic_rules.toml
+# 21 = def test_ in tests/test_siem.py
+# 7 = def test_ in tests/test_siem_scenarios.py
 ```
 
-**Evidence artifacts in repo:** `VERIFIED_METRICS.md`, `evidence/mcp_replay_evidence.json`, `detection_rules/elastic_rules.toml`.
-**Authoritative CI:** GitHub Actions is the repo's authoritative environment for published test/coverage claims.
+Credential/network telemetry can be reproduced with the tests in `tests/test_cerberus.py`, which cover HMAC fingerprint vectors, IPv4/IPv6 canonicalization, trusted-proxy behavior, closed event fields, zero-token semantics, and stable/distinct credential fingerprints.
+
+**Evidence artifacts:** `VERIFIED_METRICS.md`, `evidence/mcp_replay_evidence.json`, `detection_rules/elastic_rules.toml`.  
+**Authoritative CI:** GitHub Actions remains the authoritative environment for published test/coverage claims.
