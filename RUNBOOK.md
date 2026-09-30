@@ -135,9 +135,19 @@ export MCP_IDENTITY_TELEMETRY_OUTPUT=/var/lib/mcp/identity-telemetry.ndjson
 export MCP_TRUSTED_PROXY_CIDRS="10.0.0.0/8,2001:db8:100::/48"
 ```
 
-The output contains only the closed event fields built locally: timestamp, credential fingerprint, normalized endpoint, token counters, latency, status, exact/network/block fingerprints, IP family, and optional cost. Raw credentials and raw source addresses are not written to the identity telemetry event queue. Token counts are currently emitted as `0` where the MCP inspection layer cannot account for them.
+Each NDJSON line is one immutable live transport envelope:
 
-The repository does not claim that an external external ingestion contract or pilot has completed. Transport-envelope versioning, tenant provisioning, and live-baseline approval remain external validation steps.
+- `schema_version`: integer `1`
+- `client`: `mcp-gateway/1.0.0`
+- `backfill`: `false`
+- `events`: event array
+- `event_fps`: positional array with exactly one 32-character lowercase-hex fingerprint per event
+
+The gateway generates a stable logical event ID from the request trace/span context when the queued record is created. The event fingerprint is computed locally as `HMAC-SHA256(key=tenant_salt, message=UTF-8("evt:" + event_id)).hexdigest()[:32]`. The internal event ID is not transmitted.
+
+Raw credentials and raw source addresses are not written to the identity telemetry queue. Token counts are emitted as `0` where MCP-layer token accounting is unavailable. Once queued, the event and its fingerprint are immutable: after an ambiguous transport timeout, retry the exact stored envelope rather than regenerating an ID or changing behavioral fields.
+
+The static field/envelope mapping is complete. A live external baseline is still a separate operational step and is not claimed as completed by this repository.
 
 ## Readiness semantics
 
