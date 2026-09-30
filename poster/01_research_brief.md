@@ -68,7 +68,7 @@ GitHub Actions, Python 3.12, code snapshot `cbdf733858d186bb4d72ca57a9c10e74ee84
 - **21** core SIEM tests plus **12** SIEM scenario-runner tests.
 - CI also passed Ruff/formatting, Pyright, security scan, CodeQL, Windows control-plane checks, and Docker build.
 
-The gateway additionally supports stable multi-credential authentication, trusted source-address selection, IPv4/IPv6 canonicalization, and locally generated HMAC-SHA256 credential/network fingerprints without exporting raw credentials or raw source addresses. External external validation pilot completion is **not** claimed.
+The gateway additionally supports stable multi-credential authentication, trusted source-address selection, IPv4/IPv6 canonicalization, and locally generated HMAC-SHA256 credential/network fingerprints without exporting raw credentials or raw source addresses. External validation pilot completion is **not** claimed.
 
 ## Historical Evidence (validation snapshot — not current checkout)
 Main CI run `35809388960`, commit `a5d39be`, dated 2026-09-23: **641 passed** and **79.54% coverage**. Keep it labeled as a historical snapshot; newer verification is listed in the current-repository evidence section above.
