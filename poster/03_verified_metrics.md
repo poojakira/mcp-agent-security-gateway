@@ -6,8 +6,8 @@
 
 - **Verification:** 2026-09-30 UTC / 2026-09-29 America/Phoenix
 - **Code snapshot:** `cbdf733858d186bb4d72ca57a9c10e74ee84dd65`
-- **Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36652602543
-- **Full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36652602526
+- **Production Gate:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36653310929
+- **Full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36653310958
 
 | Metric | Value | Scope |
 |---|---:|---|
