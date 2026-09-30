@@ -194,3 +194,12 @@ MIT — see [LICENSE](LICENSE).
 - **Status:** PARTIALLY VERIFIED
 - **Evidence:** Security Hygiene and Documentation Integrity passed on the current main revision. CI and the Production Gate were still pending at the verification snapshot. A prior Ruff-format failure was repaired by the repository formatter workflow.
 - This checkpoint is intentionally date-bounded. It does not claim zero vulnerabilities or universal production readiness.
+
+
+## Secret handling
+
+Keep runtime credentials outside Git. If this repository provides an `.env.example` or `.env.sample`, copy it to a local `.env` or `.env.local` and fill in values locally; the real environment file must remain untracked.
+
+Do not commit AWS access keys or session credentials, API tokens, service-account JSON, private keys, package-manager credentials, Terraform state, or secret-bearing `tfvars`. CI/deployment credentials belong in GitHub Actions secrets or the deployment provider's secret manager. AWS account IDs are identifiers; AWS access-key IDs, secret access keys, and session tokens are credentials.
+
+If a real credential is ever exposed, revoke or rotate it at the provider first, then remove it from the working tree and reachable Git history. The Security Hygiene workflow checks the current tree and reachable history for common credential formats without printing matched secret values.
