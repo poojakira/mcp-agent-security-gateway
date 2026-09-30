@@ -68,13 +68,13 @@ GitHub Actions, Python 3.12, code snapshot `59eeac5221ab4eff3d5c5e421ccb46407de0
 - **21** core SIEM tests plus **12** SIEM scenario-runner tests.
 - CI also passed Ruff/formatting, Pyright, security scan, CodeQL, Windows control-plane checks, and Docker build.
 
-The gateway additionally supports stable multi-credential authentication, trusted source-address selection, IPv4/IPv6 canonicalization, and locally generated HMAC-SHA256 credential/network fingerprints without exporting raw credentials or raw source addresses. External Cerberus pilot completion is **not** claimed.
+The gateway additionally supports stable multi-credential authentication, trusted source-address selection, IPv4/IPv6 canonicalization, and locally generated HMAC-SHA256 credential/network fingerprints without exporting raw credentials or raw source addresses. External external validation pilot completion is **not** claimed.
 
 ## Historical Evidence (validation snapshot — not current checkout)
 Main CI run `35809388960`, commit `a5d39be`, dated 2026-09-23: **641 passed** and **79.54% coverage**. Keep it labeled as a historical snapshot; newer verification is listed in the current-repository evidence section above.
 
 ## Important Negative Results / Honest Findings
-- Coverage is uneven: `server/realtime.py` 36%, `siem/shipper.py` 53%, `production/server.py` 65%, and `production/cerberus.py` 76%; aggregate coverage is 82.76%.
+- Coverage is uneven: `server/realtime.py` 36%, `siem/shipper.py` 53%, `production/server.py` 65%, and `production/identity_telemetry.py` 76%; aggregate coverage is 82.76%.
 - Detection is heuristic — no measured false-positive/false-negative rate on an external corpus is established by this repo.
 - Enforcement behavior is **not** identical across the stdio proxy, HTTP control plane, and Python wrapper paths.
 
