@@ -13,7 +13,7 @@ Classification key: VERIFIED_AT_SNAPSHOT / VERIFIED_HISTORICAL / PARTIAL / UNVER
 | 3 | 55 prompt-injection regex patterns | VERIFIED_AT_SNAPSHOT | `len(prompt_injection.INJECTION_PATTERNS)` == 55 (imported module). Note: file has 59 `re.compile` calls total; 4 are outside the collection — README's "55" is correct for the named list. |
 | 4 | 9 Elastic Security rules | VERIFIED_AT_SNAPSHOT | 9 `^[[rule]]` records in `detection_rules/elastic_rules.toml`. |
 | 5 | 21 core SIEM tests | VERIFIED_AT_SNAPSHOT | 21 `def test_` in `tests/test_siem.py`. |
-| 6 | 7 SIEM scenario tests | VERIFIED_AT_SNAPSHOT | 7 `def test_` in `tests/test_siem_scenarios.py`. |
+| 6 | 12 SIEM scenario tests | VERIFIED_AT_SNAPSHOT | 12 `test_*` functions in `tests/test_siem_scenarios.py`. |
 | 7 | Inline MCP stdio proxy exists; rejects malformed/duplicate-key JSON | VERIFIED_AT_SNAPSHOT | `src/mcp_monitor/proxy/stdio_proxy.py` present (233 stmts); README behavior; tests cover proxy paths. |
 | 8 | JSON-RPC parsing/validation | VERIFIED_AT_SNAPSHOT | `src/mcp_monitor/protocol/jsonrpc.py` present, 99% covered. |
 | 9 | Hash-chained audit log + WAL | VERIFIED_AT_SNAPSHOT | `src/mcp_monitor/audit/log.py`, `audit/wal.py` present; THREAT_MODEL cites SHA-256 chaining. (Chaining scheme reviewed in source; cryptographic strength not independently audited.) |
