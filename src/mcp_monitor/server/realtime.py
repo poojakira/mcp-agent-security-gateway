@@ -7,7 +7,6 @@ Or:  python -m mcp_monitor.server.realtime
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import hmac
 import os
 import random
@@ -52,7 +51,6 @@ _REALTIME_MAX_BODY_BYTES = int(os.environ.get("MCP_REALTIME_MAX_BODY_BYTES", str
 _REALTIME_RATE_LIMIT_RPM = int(os.environ.get("MCP_REALTIME_RATE_LIMIT_RPM", "120"))
 _REALTIME_MAX_WS_CONNECTIONS = int(os.environ.get("MCP_REALTIME_MAX_WS_CONNECTIONS", "32"))
 _realtime_rate_windows: dict[str, list[float]] = {}
-_REALTIME_RATE_KEY_SECRET = os.urandom(32)
 if _REALTIME_ENV == "production" and len(_REALTIME_API_KEY) < 32:
     raise RuntimeError("MCP_REALTIME_API_KEY must be at least 32 characters in production")
 if _REALTIME_MAX_BODY_BYTES < 1024 or _REALTIME_MAX_BODY_BYTES > 1024 * 1024:
@@ -89,9 +87,9 @@ async def _require_realtime_api_key(request: Request) -> None:
     supplied = request.headers.get("X-API-Key", "")
     if not supplied or not hmac.compare_digest(supplied, _REALTIME_API_KEY):
         raise HTTPException(status_code=401, detail="Unauthorized")
-    peer = request.client.host if request.client else "unknown"
-    material = (supplied + "\0" + peer).encode("utf-8")
-    identity = hmac.new(_REALTIME_RATE_KEY_SECRET, material, hashlib.sha256).hexdigest()[:32]
+    # The API key has already been authenticated. Keep credential material out
+    # of limiter identifiers and bucket the authenticated client by transport peer.
+    identity = request.client.host if request.client else "unknown"
     if not _consume_realtime_rate(identity):
         raise HTTPException(
             status_code=429,
