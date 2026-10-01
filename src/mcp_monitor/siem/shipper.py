@@ -50,7 +50,7 @@ class LogShipper(ABC):
     @abstractmethod
     def _ship_batch(self, events: list[dict[str, Any]]) -> bool:
         """Ship a batch of ECS events. Returns True on success."""
-        ...
+        raise NotImplementedError
 
     def ship(self, event: ECSEvent) -> None:
         """Buffer an event for shipping."""

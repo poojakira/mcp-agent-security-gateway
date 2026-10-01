@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import ipaddress
+import math
 from collections.abc import Iterable
 from datetime import datetime, timezone
 from typing import Any
@@ -185,7 +186,7 @@ def build_event(
     if cost is not None:
         if isinstance(cost, bool) or not isinstance(cost, int | float):
             raise TypeError("cost must be a non-negative number or null")
-        if cost < 0 or cost != cost or cost in (float("inf"), float("-inf")):
+        if cost < 0 or not math.isfinite(float(cost)):
             raise ValueError("cost must be finite and non-negative")
 
     ip_fields = derive_ip_fingerprints(source_ip, tenant_salt)
