@@ -12,29 +12,34 @@ jobs:
     timeout-minutes: 20
     env:
       MCP_IDENTITY_TELEMETRY_ENDPOINT: https://api.cerberushq.dev/v1/events
-      MCP_IDENTITY_TELEMETRY_BEARER_TOKEN: ${{ secrets.CERBERUS_PILOT_TOKEN }}
-      MCP_IDENTITY_TELEMETRY_TENANT_SALT: ${{ secrets.CERBERUS_PILOT_SALT }}
+      MCP_IDENTITY_TELEMETRY_BEARER_TOKEN: "${{ secrets.CERBERUS_PILOT_TOKEN }}"
+      MCP_IDENTITY_TELEMETRY_TENANT_SALT: "${{ secrets.CERBERUS_PILOT_SALT }}"
+      PYTHONPATH: "${{ github.workspace }}/src"
+
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check out audited commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
 
-      - name: Validate required pilot secrets
+      - name: Execute guarded first Cerberus pilot batch
         shell: bash
         run: |
           set -euo pipefail
+
           test -n "$MCP_IDENTITY_TELEMETRY_BEARER_TOKEN"
           test -n "$MCP_IDENTITY_TELEMETRY_TENANT_SALT"
           echo "::add-mask::$MCP_IDENTITY_TELEMETRY_BEARER_TOKEN"
           echo "::add-mask::$MCP_IDENTITY_TELEMETRY_TENANT_SALT"
 
-      - name: Build production image
-        run: docker build -t mcp-gateway:cerberus-pilot .
+          RUNTIME_DIR="$(mktemp -d)"
+          chmod 700 "$RUNTIME_DIR"
+          cleanup() {
+            docker rm -f mcp-pilot >/dev/null 2>&1 || true
+            rm -rf "$RUNTIME_DIR"
+          }
+          trap cleanup EXIT
 
-      - name: Generate exactly three credential-path events
-        shell: bash
-        run: |
-          set -euo pipefail
           KEY_A="$(openssl rand -hex 32)"
           KEY_B="$(openssl rand -hex 32)"
           KEY_C="$(openssl rand -hex 32)"
@@ -42,68 +47,322 @@ jobs:
           echo "::add-mask::$KEY_B"
           echo "::add-mask::$KEY_C"
 
-          docker run -d --name mcp-pilot             -p 127.0.0.1:8080:8080             -e MCP_ENV=production             -e MCP_LISTEN_HOST=0.0.0.0             -e MCP_LISTEN_PORT=8080             -e MCP_API_KEYS="$KEY_A,$KEY_B,$KEY_C"             -e MCP_ALLOWED_SERVERS=github,filesystem             -e MCP_ALLOW_ANONYMOUS=false             -e MCP_WAL_PATH=/tmp/gateway.wal             -e MCP_AUDIT_PATH=/tmp/gateway.audit             -e MCP_IDENTITY_TELEMETRY_ENABLED=true             -e MCP_IDENTITY_TELEMETRY_TENANT_SALT="$MCP_IDENTITY_TELEMETRY_TENANT_SALT"             -e MCP_IDENTITY_TELEMETRY_OUTPUT=/tmp/identity-telemetry.ndjson             mcp-gateway:cerberus-pilot
+          docker build -t mcp-gateway:cerberus-pilot .
 
-          trap 'docker rm -f mcp-pilot >/dev/null 2>&1 || true' EXIT
+          docker run -d --name mcp-pilot \
+            -p 127.0.0.1:8080:8080 \
+            -e MCP_ENV=production \
+            -e MCP_LISTEN_HOST=0.0.0.0 \
+            -e MCP_LISTEN_PORT=8080 \
+            -e MCP_API_KEYS="$KEY_A,$KEY_B,$KEY_C" \
+            -e MCP_ALLOWED_SERVERS=github,filesystem \
+            -e MCP_ALLOW_ANONYMOUS=false \
+            -e MCP_WAL_PATH=/var/lib/mcp/wal.jsonl \
+            -e MCP_AUDIT_PATH=/var/lib/mcp/audit.jsonl \
+            -e MCP_IDENTITY_TELEMETRY_ENABLED=true \
+            -e MCP_IDENTITY_TELEMETRY_TENANT_SALT="$MCP_IDENTITY_TELEMETRY_TENANT_SALT" \
+            -e MCP_IDENTITY_TELEMETRY_OUTPUT=/var/lib/mcp/identity-telemetry.ndjson \
+            mcp-gateway:cerberus-pilot >/dev/null
 
+          ready=false
           for _ in $(seq 1 30); do
-            curl -fsS http://127.0.0.1:8080/v1/ready >/dev/null && break
+            if curl -fsS http://127.0.0.1:8080/v1/ready >/dev/null; then
+              ready=true
+              break
+            fi
             sleep 1
           done
+          if [ "$ready" != true ]; then
+            echo "gateway_ready=false"
+            exit 1
+          fi
+          echo "gateway_ready=true"
 
-          curl -fsS -X POST http://127.0.0.1:8080/v1/inspect_call             -H "X-API-Key: $KEY_A" -H "Content-Type: application/json"             --data '{"name":"read_file","server_id":"github","arguments":{"path":"README.md"}}' >/dev/null
+          request_status() {
+            local key="$1"
+            local route="$2"
+            local body="$3"
+            curl -sS \
+              -o /dev/null \
+              -w '%{http_code}' \
+              -X POST "http://127.0.0.1:8080$route" \
+              -H "X-API-Key: $key" \
+              -H "Content-Type: application/json" \
+              --data "$body"
+          }
 
-          curl -fsS -X POST http://127.0.0.1:8080/v1/inspect_output             -H "X-API-Key: $KEY_B" -H "Content-Type: application/json"             --data '{"tool_name":"read_file","output":{"content":"pilot-smoke-ok"}}' >/dev/null
+          STATUS_A="$(request_status "$KEY_A" /v1/inspect_call '{"name":"read_file","server_id":"github","arguments":{"path":"README.md"}}')"
+          STATUS_B="$(request_status "$KEY_B" /v1/inspect_output '{"tool_name":"read_file","output":{"content":"pilot-smoke-ok"}}')"
+          STATUS_C="$(request_status "$KEY_C" /v1/inspect_call '{"name":"list_directory","server_id":"filesystem","arguments":{"path":"."}}')"
 
-          curl -fsS -X POST http://127.0.0.1:8080/v1/inspect_call             -H "X-API-Key: $KEY_C" -H "Content-Type: application/json"             --data '{"name":"list_directory","server_id":"filesystem","arguments":{"path":"."}}' >/dev/null
+          printf 'gateway_validation_request_statuses=%s,%s,%s\n' "$STATUS_A" "$STATUS_B" "$STATUS_C"
 
-          docker cp mcp-pilot:/tmp/identity-telemetry.ndjson /tmp/identity-telemetry.ndjson
-          count="$(wc -l < /tmp/identity-telemetry.ndjson)"
-          distinct="$(python - <<'PY'
-import json
-rows=[json.loads(x) for x in open('/tmp/identity-telemetry.ndjson') if x.strip()]
-print(len({e['key_fp'] for r in rows for e in r['events']}))
-PY
-)"
-          echo "gateway_queued_events=$count"
-          echo "gateway_distinct_credential_paths=$distinct"
-          test "$count" -eq 3
-          test "$distinct" -eq 3
+          GATEWAY_REJECTIONS=0
+          for code in "$STATUS_A" "$STATUS_B" "$STATUS_C"; do
+            case "$code" in
+              2??) ;;
+              *) GATEWAY_REJECTIONS=$((GATEWAY_REJECTIONS + 1)) ;;
+            esac
+          done
+          if [ "$GATEWAY_REJECTIONS" -ne 0 ]; then
+            echo "gateway_rejections=$GATEWAY_REJECTIONS"
+            echo "cerberus_ingest_skipped=true"
+            exit 1
+          fi
 
-      - name: Send one three-event pilot batch
-        shell: bash
-        env:
-          MCP_IDENTITY_TELEMETRY_OUTPUT: /tmp/identity-telemetry.ndjson
-        run: |
-          set -euo pipefail
-          python -m mcp_monitor.production.identity_smoke | tee /tmp/cerberus-smoke.json
+          docker cp mcp-pilot:/var/lib/mcp/identity-telemetry.ndjson "$RUNTIME_DIR/identity-telemetry.ndjson"
 
-      - name: Capture gateway-side counters
-        shell: bash
-        run: |
-          set -euo pipefail
-          logs="$(docker logs mcp-pilot 2>&1 || true)"
-          drops="$(printf '%s' "$logs" | grep -c 'Identity telemetry event dropped' || true)"
-          rejects="$(printf '%s' "$logs" | grep -ci 'reject' || true)"
-          echo "gateway_drops=$drops"
-          echo "gateway_rejections=$rejects"
+          QUEUE_PATH="$RUNTIME_DIR/identity-telemetry.ndjson" \
+          KEY_A="$KEY_A" KEY_B="$KEY_B" KEY_C="$KEY_C" \
+          python - <<'PY'
+          import ipaddress
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          path = Path(os.environ["QUEUE_PATH"])
+          raw = path.read_text(encoding="utf-8")
+          credentials = [os.environ["KEY_A"], os.environ["KEY_B"], os.environ["KEY_C"]]
+          if any(secret and secret in raw for secret in credentials):
+              raise SystemExit("queue validation failed: raw credential detected")
+
+          records = [json.loads(line) for line in raw.splitlines() if line.strip()]
+          if not records:
+              raise SystemExit("queue validation failed: queue is empty")
+
+          expected_event_fields = {
+              "ts", "key_fp", "endpoint", "tokens_in", "tokens_out",
+              "latency_ms", "status", "ip_fp", "ip_net_fp", "ip_block_fp",
+              "ip_family", "cost",
+          }
+          hex32 = re.compile(r"^[0-9a-f]{32}$")
+          events = []
+          event_fps = []
+          raw_ip_found = False
+
+          def walk(value):
+              global raw_ip_found
+              if isinstance(value, dict):
+                  for child in value.values():
+                      walk(child)
+              elif isinstance(value, list):
+                  for child in value:
+                      walk(child)
+              elif isinstance(value, str):
+                  try:
+                      ipaddress.ip_address(value)
+                  except ValueError:
+                      return
+                  raw_ip_found = True
+
+          for record in records:
+              if set(record) != {"schema_version", "client", "backfill", "events", "event_fps"}:
+                  raise SystemExit("queue validation failed: unexpected envelope fields")
+              if record["schema_version"] != 1 or isinstance(record["schema_version"], bool):
+                  raise SystemExit("queue validation failed: schema_version")
+              if record["client"] != "mcp-gateway/1.0.0":
+                  raise SystemExit("queue validation failed: client")
+              if record["backfill"] is not False:
+                  raise SystemExit("queue validation failed: backfill")
+              if len(record["events"]) != len(record["event_fps"]):
+                  raise SystemExit("queue validation failed: event_fps length")
+              for event in record["events"]:
+                  if set(event) != expected_event_fields:
+                      raise SystemExit("queue validation failed: unexpected event fields")
+                  if not hex32.fullmatch(event["key_fp"]):
+                      raise SystemExit("queue validation failed: key_fp format")
+                  for field in ("ip_fp", "ip_net_fp", "ip_block_fp"):
+                      if not hex32.fullmatch(event[field]):
+                          raise SystemExit(f"queue validation failed: {field} format")
+                  events.append(event)
+              for fp in record["event_fps"]:
+                  if not isinstance(fp, str) or not hex32.fullmatch(fp):
+                      raise SystemExit("queue validation failed: event_fp format")
+                  event_fps.append(fp)
+              walk(record)
+
+          if len(events) != 3:
+              raise SystemExit(f"queue validation failed: expected 3 events, got {len(events)}")
+          if len({event["key_fp"] for event in events}) != 3:
+              raise SystemExit("queue validation failed: expected 3 distinct key_fp values")
+          if len(event_fps) != len(events):
+              raise SystemExit("queue validation failed: event_fps count")
+          if raw_ip_found:
+              raise SystemExit("queue validation failed: raw source IP detected")
+
+          print("queue_event_count=3")
+          print("queue_distinct_key_fp_count=3")
+          print("queue_raw_credentials_present=false")
+          print("queue_raw_source_ips_present=false")
+          print("queue_event_fps_count=3")
+          print("queue_event_fp_format_valid=true")
+          print("queue_schema_version=1")
+          print("queue_client=mcp-gateway/1.0.0")
+          print("queue_backfill=false")
+          PY
+
+          export MCP_IDENTITY_TELEMETRY_OUTPUT="$RUNTIME_DIR/identity-telemetry.ndjson"
+
+          set +e
+          SMOKE_RAW="$(python -m mcp_monitor.production.identity_smoke)"
+          SMOKE_RC=$?
+          set -e
+
+          SMOKE_RAW="$SMOKE_RAW" \
+          KEY_A="$KEY_A" KEY_B="$KEY_B" KEY_C="$KEY_C" \
+          python - <<'PY'
+          import json
+          import os
+          import re
+
+          raw = os.environ.get("SMOKE_RAW", "")
+          known = [
+              os.environ.get("MCP_IDENTITY_TELEMETRY_BEARER_TOKEN", ""),
+              os.environ.get("MCP_IDENTITY_TELEMETRY_TENANT_SALT", ""),
+              os.environ.get("KEY_A", ""),
+              os.environ.get("KEY_B", ""),
+              os.environ.get("KEY_C", ""),
+          ]
+          for value in known:
+              if value:
+                  raw = raw.replace(value, "<redacted>")
+
+          sensitive_key = re.compile(
+              r"(token|secret|salt|authorization|password|api[_-]?key|credential)",
+              re.IGNORECASE,
+          )
+
+          try:
+              data = json.loads(raw)
+          except json.JSONDecodeError:
+              print("cerberus_ingest_result=" + json.dumps({"unparsed": raw}))
+              raise SystemExit(0)
+
+          def scrub(value):
+              if isinstance(value, dict):
+                  return {
+                      key: ("<redacted>" if sensitive_key.search(str(key)) else scrub(child))
+                      for key, child in value.items()
+                  }
+              if isinstance(value, list):
+                  return [scrub(child) for child in value]
+              return value
+
+          response = data.get("response")
+          accepted = None
+          if isinstance(response, dict):
+              for key in ("accepted", "accepted_count"):
+                  value = response.get(key)
+                  if isinstance(value, int) and not isinstance(value, bool):
+                      accepted = value
+                      break
+
+          print("cerberus_ingest_http=" + str(data.get("http_status", "no_http_response")))
+          print("cerberus_ingest_accepted_count=" + (str(accepted) if accepted is not None else "unknown"))
+          print("cerberus_ingest_all_three_accepted=" + ("true" if accepted == 3 else "false"))
+          print("cerberus_ingest_result=" + json.dumps(scrub(data), separators=(",", ":"), ensure_ascii=False))
+          PY
+
+          LOGS="$(docker logs mcp-pilot 2>&1 || true)"
+          GATEWAY_DROPS="$(printf '%s' "$LOGS" | grep -c 'Identity telemetry event dropped' || true)"
+          echo "gateway_rejections=$GATEWAY_REJECTIONS"
+          echo "gateway_drops=$GATEWAY_DROPS"
           echo "gateway_retries=0"
 
-      - name: Query Cerberus verify and status
-        shell: bash
-        run: |
-          set -euo pipefail
-          for ep in verify status; do
-            code="$(curl -sS --connect-timeout 10 --max-time 30               -H "Authorization: Bearer $MCP_IDENTITY_TELEMETRY_BEARER_TOKEN"               -H "Accept: application/json"               -o "/tmp/$ep.body" -w '%{http_code}'               "https://api.cerberushq.dev/v1/$ep")"
-            echo "cerberus_${ep}_http=$code"
-            python - "$ep" <<'PY'
-import os, pathlib, sys
-ep=sys.argv[1]
-text=pathlib.Path(f"/tmp/{ep}.body").read_text(errors="replace")
-for key in ("MCP_IDENTITY_TELEMETRY_BEARER_TOKEN","MCP_IDENTITY_TELEMETRY_TENANT_SALT"):
-    v=os.environ.get(key,"")
-    if v:
-        text=text.replace(v,"<redacted>")
-print(f"cerberus_{ep}_body={text}")
-PY
-          done
+          query_endpoint() {
+            local ep="$1"
+            local body_file="$RUNTIME_DIR/$ep.body"
+            local code
+            local curl_rc
+
+            set +e
+            code="$(curl -sS --connect-timeout 10 --max-time 30 \
+              -H "Authorization: Bearer $MCP_IDENTITY_TELEMETRY_BEARER_TOKEN" \
+              -H "Accept: application/json" \
+              -o "$body_file" -w '%{http_code}' \
+              "https://api.cerberushq.dev/v1/$ep")"
+            curl_rc=$?
+            set -e
+
+            EP="$ep" CODE="$code" CURL_RC="$curl_rc" BODY_FILE="$body_file" \
+            KEY_A="$KEY_A" KEY_B="$KEY_B" KEY_C="$KEY_C" \
+            python - <<'PY'
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          ep = os.environ["EP"]
+          code = os.environ.get("CODE", "") or "000"
+          curl_rc = os.environ.get("CURL_RC", "")
+          body_path = Path(os.environ["BODY_FILE"])
+          raw = body_path.read_text(encoding="utf-8", errors="replace") if body_path.exists() else ""
+
+          known = [
+              os.environ.get("MCP_IDENTITY_TELEMETRY_BEARER_TOKEN", ""),
+              os.environ.get("MCP_IDENTITY_TELEMETRY_TENANT_SALT", ""),
+              os.environ.get("KEY_A", ""),
+              os.environ.get("KEY_B", ""),
+              os.environ.get("KEY_C", ""),
+          ]
+          for value in known:
+              if value:
+                  raw = raw.replace(value, "<redacted>")
+
+          sensitive_key = re.compile(
+              r"(token|secret|salt|authorization|password|api[_-]?key|credential)",
+              re.IGNORECASE,
+          )
+
+          try:
+              body = json.loads(raw) if raw else None
+          except json.JSONDecodeError:
+              body = raw
+
+          def scrub(value):
+              if isinstance(value, dict):
+                  return {
+                      key: ("<redacted>" if sensitive_key.search(str(key)) else scrub(child))
+                      for key, child in value.items()
+                  }
+              if isinstance(value, list):
+                  return [scrub(child) for child in value]
+              return value
+
+          print(f"cerberus_{ep}_http={code}")
+          print(f"cerberus_{ep}_curl_exit={curl_rc}")
+          print(
+              f"cerberus_{ep}_body="
+              + json.dumps(scrub(body), separators=(",", ":"), ensure_ascii=False)
+          )
+          PY
+          }
+
+          query_endpoint verify
+          query_endpoint status
+
+          if [ "$SMOKE_RC" -ne 0 ]; then
+            exit "$SMOKE_RC"
+          fi
+
+          SMOKE_RAW="$SMOKE_RAW" python - <<'PY'
+          import json
+          import os
+
+          data = json.loads(os.environ["SMOKE_RAW"])
+          status = data.get("http_status")
+          response = data.get("response")
+          accepted = None
+          if isinstance(response, dict):
+              for key in ("accepted", "accepted_count"):
+                  value = response.get(key)
+                  if isinstance(value, int) and not isinstance(value, bool):
+                      accepted = value
+                      break
+
+          if not isinstance(status, int) or not (200 <= status < 300):
+              raise SystemExit("first Cerberus batch was not a 2xx response")
+          if accepted != 3:
+              raise SystemExit("first Cerberus batch did not explicitly confirm accepted_count=3")
+          PY
