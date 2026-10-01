@@ -89,57 +89,94 @@ jobs:
           print("immutable_envelope_preserved=true")
           PY
 
-          post_once() {
-            local out="$1"
-            curl -sS --connect-timeout 10 --max-time 30               -H "Authorization: Bearer $CERBERUS_TOKEN"               -H "Content-Type: application/json"               -H "Accept: application/json"               -o "$out" -w '%{http_code}'               --data-binary "@$RUNTIME_DIR/envelope.json"               "$CERBERUS_ENDPOINT"
-          }
-
-          FIRST_HTTP="$(post_once "$RUNTIME_DIR/first.json")"
-          SECOND_HTTP="$(post_once "$RUNTIME_DIR/second.json")"
-
-          STATUS_HTTP="$(curl -sS --connect-timeout 10 --max-time 30             -H "Authorization: Bearer $CERBERUS_TOKEN"             -H "Accept: application/json"             -o "$RUNTIME_DIR/status.json" -w '%{http_code}'             https://api.cerberushq.dev/v1/status)"
-
-          FIRST_HTTP="$FIRST_HTTP" SECOND_HTTP="$SECOND_HTTP" STATUS_HTTP="$STATUS_HTTP"           FIRST="$RUNTIME_DIR/first.json" SECOND="$RUNTIME_DIR/second.json" STATUS="$RUNTIME_DIR/status.json"           python - <<'PY'
-          import json, os, re
+          ENVELOPE_PATH="$RUNTIME_DIR/envelope.json" \
+          FIRST_PATH="$RUNTIME_DIR/first.json" \
+          SECOND_PATH="$RUNTIME_DIR/second.json" \
+          STATUS_PATH="$RUNTIME_DIR/status.json" \
+          python - <<'PY'
+          import json
+          import os
+          import re
+          import urllib.error
+          import urllib.request
           from pathlib import Path
+
+          endpoint = os.environ["CERBERUS_ENDPOINT"]
+          token = os.environ["CERBERUS_TOKEN"]
+          envelope_path = Path(os.environ["ENVELOPE_PATH"])
+          raw = envelope_path.read_bytes()
+
+          # Validate the exact bytes before any network call.
+          parsed = json.loads(raw.decode("utf-8"))
+          if len(parsed.get("events", [])) != 3 or len(parsed.get("event_fps", [])) != 3:
+              raise SystemExit("immutable envelope does not contain exactly three events/fingerprints")
+          print("immutable_envelope_json_valid=true")
+          print("immutable_envelope_bytes=" + str(len(raw)))
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+
+          opener = urllib.request.build_opener(NoRedirect())
+
+          def send(method, url, body=None):
+              req = urllib.request.Request(
+                  url,
+                  data=body,
+                  method=method,
+                  headers={
+                      "Authorization": f"Bearer {token}",
+                      "Accept": "application/json",
+                      **({"Content-Type": "application/json"} if body is not None else {}),
+                  },
+              )
+              try:
+                  with opener.open(req, timeout=30) as resp:
+                      return int(resp.status), resp.read(65536).decode("utf-8", errors="replace")
+              except urllib.error.HTTPError as exc:
+                  return int(exc.code), exc.read(65536).decode("utf-8", errors="replace")
+
+          first_http, first_raw = send("POST", endpoint, raw)
+          second_http, second_raw = send("POST", endpoint, raw)
+          status_http, status_raw = send("GET", "https://api.cerberushq.dev/v1/status")
+
+          Path(os.environ["FIRST_PATH"]).write_text(first_raw, encoding="utf-8")
+          Path(os.environ["SECOND_PATH"]).write_text(second_raw, encoding="utf-8")
+          Path(os.environ["STATUS_PATH"]).write_text(status_raw, encoding="utf-8")
 
           sensitive = re.compile(r"(token|secret|salt|authorization|password|api[_-]?key|credential)", re.I)
 
-          def load(path):
-              raw = Path(path).read_text(encoding="utf-8", errors="replace")
+          def parse(value):
               try:
-                  return json.loads(raw)
+                  return json.loads(value) if value else None
               except json.JSONDecodeError:
-                  return {"unparsed": raw[:2000]}
+                  return {"unparsed": value[:2000]}
 
           def scrub(v):
               if isinstance(v, dict):
-                  return {k: ("<redacted>" if sensitive.search(str(k)) else scrub(x)) for k,x in v.items()}
+                  return {k: ("<redacted>" if sensitive.search(str(k)) else scrub(x)) for k, x in v.items()}
               if isinstance(v, list):
                   return [scrub(x) for x in v]
               return v
 
-          first = load(os.environ["FIRST"])
-          second = load(os.environ["SECOND"])
-          status = load(os.environ["STATUS"])
+          first = parse(first_raw)
+          second = parse(second_raw)
+          status = parse(status_raw)
 
-          print("first_http=" + os.environ["FIRST_HTTP"])
+          print("first_http=" + str(first_http))
           print("first_body=" + json.dumps(scrub(first), separators=(",", ":")))
-          print("retry_http=" + os.environ["SECOND_HTTP"])
+          print("retry_http=" + str(second_http))
           print("retry_body=" + json.dumps(scrub(second), separators=(",", ":")))
-          print("status_http=" + os.environ["STATUS_HTTP"])
+          print("status_http=" + str(status_http))
           print("status_body=" + json.dumps(scrub(status), separators=(",", ":")))
 
-          if os.environ["FIRST_HTTP"] != "202":
+          if first_http != 202:
               raise SystemExit("first submission was not HTTP 202")
-          if os.environ["SECOND_HTTP"] != "202":
+          if second_http != 202:
               raise SystemExit("retry was not HTTP 202")
-
           if not isinstance(first, dict) or first.get("stored") != 3:
               raise SystemExit("first submission did not store exactly 3 events")
-          if not isinstance(second, dict):
-              raise SystemExit("retry response was not JSON object")
-          if second.get("stored") != 0 or second.get("deduplicated") != 3:
+          if not isinstance(second, dict) or second.get("stored") != 0 or second.get("deduplicated") != 3:
               raise SystemExit("retry did not deduplicate exactly 3 events with zero new stores")
 
           print("idempotency_verified=true")
