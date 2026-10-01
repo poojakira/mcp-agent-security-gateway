@@ -2,6 +2,11 @@ name: Cerberus Pilot Smoke
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/cerberus-pilot-smoke.yml"
 
 permissions:
   contents: read
@@ -12,8 +17,6 @@ jobs:
     timeout-minutes: 20
     env:
       MCP_IDENTITY_TELEMETRY_ENDPOINT: https://api.cerberushq.dev/v1/events
-      MCP_IDENTITY_TELEMETRY_BEARER_TOKEN: "${{ secrets.CERBERUS_PILOT_TOKEN }}"
-      MCP_IDENTITY_TELEMETRY_TENANT_SALT: "${{ secrets.CERBERUS_PILOT_SALT }}"
       PYTHONPATH: "${{ github.workspace }}/src"
 
     steps:
@@ -22,15 +25,40 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Execute guarded first Cerberus pilot batch
+      - name: Build audited production image
         shell: bash
         run: |
           set -euo pipefail
+          docker build -t mcp-gateway:cerberus-pilot .
 
-          test -n "$MCP_IDENTITY_TELEMETRY_BEARER_TOKEN"
-          test -n "$MCP_IDENTITY_TELEMETRY_TENANT_SALT"
-          echo "::add-mask::$MCP_IDENTITY_TELEMETRY_BEARER_TOKEN"
-          echo "::add-mask::$MCP_IDENTITY_TELEMETRY_TENANT_SALT"
+      - name: Execute guarded first Cerberus pilot batch
+        shell: bash
+        env:
+          MCP_IDENTITY_TELEMETRY_BEARER_TOKEN: "${{ secrets.CERBERUS_PILOT_TOKEN }}"
+          MCP_IDENTITY_TELEMETRY_TENANT_SALT: "${{ secrets.CERBERUS_PILOT_SALT }}"
+        run: |
+          set -euo pipefail
+
+          missing=0
+          if [ -n "$MCP_IDENTITY_TELEMETRY_BEARER_TOKEN" ]; then
+            echo "cerberus_pilot_token_configured=true"
+            echo "::add-mask::$MCP_IDENTITY_TELEMETRY_BEARER_TOKEN"
+          else
+            echo "cerberus_pilot_token_configured=false"
+            missing=1
+          fi
+          if [ -n "$MCP_IDENTITY_TELEMETRY_TENANT_SALT" ]; then
+            echo "cerberus_pilot_salt_configured=true"
+            echo "::add-mask::$MCP_IDENTITY_TELEMETRY_TENANT_SALT"
+          else
+            echo "cerberus_pilot_salt_configured=false"
+            missing=1
+          fi
+          if [ "$missing" -ne 0 ]; then
+            echo "cerberus_pilot_preflight=blocked_missing_repository_secret"
+            exit 1
+          fi
+          echo "cerberus_pilot_preflight=ready"
 
           RUNTIME_DIR="$(mktemp -d)"
           chmod 700 "$RUNTIME_DIR"
@@ -46,8 +74,6 @@ jobs:
           echo "::add-mask::$KEY_A"
           echo "::add-mask::$KEY_B"
           echo "::add-mask::$KEY_C"
-
-          docker build -t mcp-gateway:cerberus-pilot .
 
           docker run -d --name mcp-pilot \
             -p 127.0.0.1:8080:8080 \
