@@ -102,7 +102,7 @@ jobs:
           from pathlib import Path
 
           endpoint = os.environ["CERBERUS_ENDPOINT"]
-          token = os.environ["CERBERUS_TOKEN"]
+          token = os.environ["CERBERUS_TOKEN"].strip()
           envelope_path = Path(os.environ["ENVELOPE_PATH"])
           raw = envelope_path.read_bytes()
 
