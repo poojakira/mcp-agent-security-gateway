@@ -1,0 +1,109 @@
+name: Cerberus Pilot Smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pilot-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      MCP_IDENTITY_TELEMETRY_ENDPOINT: https://api.cerberushq.dev/v1/events
+      MCP_IDENTITY_TELEMETRY_BEARER_TOKEN: ${{ secrets.CERBERUS_PILOT_TOKEN }}
+      MCP_IDENTITY_TELEMETRY_TENANT_SALT: ${{ secrets.CERBERUS_PILOT_SALT }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Validate required pilot secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$MCP_IDENTITY_TELEMETRY_BEARER_TOKEN"
+          test -n "$MCP_IDENTITY_TELEMETRY_TENANT_SALT"
+          echo "::add-mask::$MCP_IDENTITY_TELEMETRY_BEARER_TOKEN"
+          echo "::add-mask::$MCP_IDENTITY_TELEMETRY_TENANT_SALT"
+
+      - name: Build production image
+        run: docker build -t mcp-gateway:cerberus-pilot .
+
+      - name: Generate exactly three credential-path events
+        shell: bash
+        run: |
+          set -euo pipefail
+          KEY_A="$(openssl rand -hex 32)"
+          KEY_B="$(openssl rand -hex 32)"
+          KEY_C="$(openssl rand -hex 32)"
+          echo "::add-mask::$KEY_A"
+          echo "::add-mask::$KEY_B"
+          echo "::add-mask::$KEY_C"
+
+          docker run -d --name mcp-pilot             -p 127.0.0.1:8080:8080             -e MCP_ENV=production             -e MCP_LISTEN_HOST=0.0.0.0             -e MCP_LISTEN_PORT=8080             -e MCP_API_KEYS="$KEY_A,$KEY_B,$KEY_C"             -e MCP_ALLOWED_SERVERS=github,filesystem             -e MCP_ALLOW_ANONYMOUS=false             -e MCP_WAL_PATH=/tmp/gateway.wal             -e MCP_AUDIT_PATH=/tmp/gateway.audit             -e MCP_IDENTITY_TELEMETRY_ENABLED=true             -e MCP_IDENTITY_TELEMETRY_TENANT_SALT="$MCP_IDENTITY_TELEMETRY_TENANT_SALT"             -e MCP_IDENTITY_TELEMETRY_OUTPUT=/tmp/identity-telemetry.ndjson             mcp-gateway:cerberus-pilot
+
+          trap 'docker rm -f mcp-pilot >/dev/null 2>&1 || true' EXIT
+
+          for _ in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8080/v1/ready >/dev/null && break
+            sleep 1
+          done
+
+          curl -fsS -X POST http://127.0.0.1:8080/v1/inspect_call             -H "X-API-Key: $KEY_A" -H "Content-Type: application/json"             --data '{"name":"read_file","server_id":"github","arguments":{"path":"README.md"}}' >/dev/null
+
+          curl -fsS -X POST http://127.0.0.1:8080/v1/inspect_output             -H "X-API-Key: $KEY_B" -H "Content-Type: application/json"             --data '{"tool_name":"read_file","output":{"content":"pilot-smoke-ok"}}' >/dev/null
+
+          curl -fsS -X POST http://127.0.0.1:8080/v1/inspect_call             -H "X-API-Key: $KEY_C" -H "Content-Type: application/json"             --data '{"name":"list_directory","server_id":"filesystem","arguments":{"path":"."}}' >/dev/null
+
+          docker cp mcp-pilot:/tmp/identity-telemetry.ndjson /tmp/identity-telemetry.ndjson
+          count="$(wc -l < /tmp/identity-telemetry.ndjson)"
+          distinct="$(python - <<'PY'
+import json
+rows=[json.loads(x) for x in open('/tmp/identity-telemetry.ndjson') if x.strip()]
+print(len({e['key_fp'] for r in rows for e in r['events']}))
+PY
+)"
+          echo "gateway_queued_events=$count"
+          echo "gateway_distinct_credential_paths=$distinct"
+          test "$count" -eq 3
+          test "$distinct" -eq 3
+
+      - name: Send one three-event pilot batch
+        shell: bash
+        env:
+          MCP_IDENTITY_TELEMETRY_OUTPUT: /tmp/identity-telemetry.ndjson
+        run: |
+          set -euo pipefail
+          python -m mcp_monitor.production.identity_smoke | tee /tmp/cerberus-smoke.json
+
+      - name: Capture gateway-side counters
+        shell: bash
+        run: |
+          set -euo pipefail
+          logs="$(docker logs mcp-pilot 2>&1 || true)"
+          drops="$(printf '%s' "$logs" | grep -c 'Identity telemetry event dropped' || true)"
+          rejects="$(printf '%s' "$logs" | grep -ci 'reject' || true)"
+          echo "gateway_drops=$drops"
+          echo "gateway_rejections=$rejects"
+          echo "gateway_retries=0"
+
+      - name: Query Cerberus verify and status
+        shell: bash
+        run: |
+          set -euo pipefail
+          for ep in verify status; do
+            code="$(curl -sS --connect-timeout 10 --max-time 30               -H "Authorization: Bearer $MCP_IDENTITY_TELEMETRY_BEARER_TOKEN"               -H "Accept: application/json"               -o "/tmp/$ep.body" -w '%{http_code}'               "https://api.cerberushq.dev/v1/$ep")"
+            echo "cerberus_${ep}_http=$code"
+            python - "$ep" <<'PY'
+import os, pathlib, sys
+ep=sys.argv[1]
+text=pathlib.Path(f"/tmp/{ep}.body").read_text(errors="replace")
+for key in ("MCP_IDENTITY_TELEMETRY_BEARER_TOKEN","MCP_IDENTITY_TELEMETRY_TENANT_SALT"):
+    v=os.environ.get(key,"")
+    if v:
+        text=text.replace(v,"<redacted>")
+print(f"cerberus_{ep}_body={text}")
+PY
+          done
