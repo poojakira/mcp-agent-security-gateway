@@ -16,16 +16,17 @@ def engine():
 class TestSequenceDetection:
     def test_read_then_exfil_detected(self, engine):
         """Core: reading secrets then sending email = exfiltration."""
+        fake_token = "test-token-" + ("x" * 24)
         engine.record_call(
             "secrets.read",
             "vault",
             {"key": "api_token"},
-            output={"value": "sk-live-ABCDEFGHIJKLMNOP1234"},
+            output={"value": fake_token},
         )
         alerts = engine.record_call(
             "email.send",
             "postmark",
-            {"to": "user@x.com", "body": "Token: sk-live-ABCDEFGHIJKLMNOP1234"},
+            {"to": "user@x.com", "body": f"Token: {fake_token}"},
         )
         assert len(alerts) >= 1
         assert any(a.rule_name == "read_then_exfil" for a in alerts)
@@ -53,8 +54,9 @@ class TestSequenceDetection:
 
 class TestDataFlow:
     def test_detect_data_flow_between_tools(self, engine):
-        source = {"api_key": "sk-prod-SECRET12345678"}
-        target = {"body": "Here is the key: sk-prod-SECRET12345678"}
+        fake_token = "test-token-" + ("y" * 24)
+        source = {"api_key": fake_token}
+        target = {"body": f"Here is the key: {fake_token}"}
         flows = engine.detect_data_flow(source, target)
         assert len(flows) > 0
 

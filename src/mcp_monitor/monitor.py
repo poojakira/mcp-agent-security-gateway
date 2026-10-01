@@ -91,6 +91,7 @@ class MCPSecurityMonitor:
         risk_scores: list[int] = []
         detector_errors: list[str] = []
         decision = Decision.ALLOW
+        allowed = False
         is_shadow = False
 
         # 1. Prompt injection
@@ -207,6 +208,7 @@ class MCPSecurityMonitor:
         risk_scores: list[int] = []
         detector_errors: list[str] = []
         decision = Decision.ALLOW
+        allowed = False
 
         # Exfiltration check
         try:
