@@ -173,7 +173,7 @@ MCP_IDENTITY_TELEMETRY_BEARER_TOKEN="<runtime-secret>"
 docker compose --profile identity-telemetry up -d --build
 ```
 
-The queue and shipper cursor live on the `mcp-state` volume. Do not delete or reset the cursor during normal baseline operation. A cursor reset can cause previously delivered immutable envelopes to be resent; the receiver should deduplicate them by `event_fps`, but resetting it is not a normal operational action.
+The shipper is a queue worker and does not expose an HTTP health endpoint; Compose disables the image-level HTTP health check for that service. The queue and shipper cursor live on the `mcp-state` volume. Do not delete or reset the cursor during normal baseline operation. A cursor reset can cause previously delivered immutable envelopes to be resent; the receiver should deduplicate them by `event_fps`, but resetting it is not a normal operational action.
 
 No synthetic requests are required for baseline accumulation. Only normal protected gateway requests should build behavioral history.
 

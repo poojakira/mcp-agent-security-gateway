@@ -30,7 +30,7 @@ LLM agents can turn untrusted natural-language context into structured tool call
 4. Return allow/block decisions using path-specific enforcement semantics.
 5. Record hash-chained audit evidence and SIEM-oriented telemetry.
 
-## Current Verified Evidence
+## Verified Evidence at Cited Snapshot
 
 GitHub Actions CI on Python 3.12 at `8427f9ecafd3438a86775a7ceaf809f4ee051b5b` reports:
 

@@ -54,6 +54,9 @@ services:
     depends_on:
       mcp-monitor:
         condition: service_healthy
+    # The shipper is a queue worker and does not expose the gateway HTTP health endpoint.
+    healthcheck:
+      disable: true
     restart: unless-stopped
 
 volumes:
