@@ -64,7 +64,7 @@ changes behavior.
 | 7 | Enforce declarative security policies | YES | Invariant system is well-designed |
 | 8 | Test suite | VERIFIED SNAPSHOT | `VERIFIED_METRICS.md` records 718 passing tests and 82.46% statement coverage for code snapshot `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`; later commits are evaluated by their own CI, while 707 / 82.85% and 641 / 79.54% remain labeled historical snapshots. |
 | 9 | No mandatory base runtime dependencies | YES | `dependencies = []`; optional ML/server/ATT&CK/dev features add third-party packages |
-| 10 | Cross-platform validation | PARTIAL | Current CI verifies Linux Python 3.10/3.11/3.12 plus a Windows control-plane job; macOS is not part of the current verified matrix |
+| 10 | Cross-platform validation | PARTIAL | The repository CI matrix verifies Linux Python 3.10/3.11/3.12 plus a Windows control-plane job; macOS is not part of that verified matrix |
 
 ---
 
