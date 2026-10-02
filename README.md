@@ -31,7 +31,7 @@ Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
 
 Verified against code snapshot `8427f9ecafd3438a86775a7ceaf809f4ee051b5b` on Python 3.12; this remains a dated quantified snapshot, while later commits must be judged by their own CI. Evidence: [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
 
-| Metric | Current verified result |
+| Metric | Verified snapshot value |
 |---|---:|
 | Tests | 718 passing (Python 3.12; same suite green on 3.10/3.11/3.12) |
 | Statement coverage | 82.46% (5,524 statements; 969 missed) |
@@ -98,7 +98,7 @@ Enforcement depends on the integration path: the Python wrapper raises `ToolBloc
 
 The cited quantified implementation snapshot reports **718 tests passed** with **82.46% statement coverage** on Python 3.12, with the same test suite green on Python 3.10 and 3.11.
 
-These follow the same discipline as the rest of the repo: separate detection from enforcement, attach scope to every metric, and label anything synthetic or unverified. Subsection-specific measurements are scoped to those modules; the repository-wide test/coverage snapshot above already includes the current Python test suite.
+These follow the same discipline as the rest of the repo: separate detection from enforcement, attach scope to every metric, and label anything synthetic or unverified. Subsection-specific measurements are scoped to those modules; the repository-wide test/coverage snapshot above applies to the Python suite at the cited commit.
 
 ### Policy-as-code PDP (enforcement)
 

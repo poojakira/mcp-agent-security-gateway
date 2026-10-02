@@ -32,7 +32,7 @@ LLM agents can turn untrusted natural-language context into structured tool call
 
 ## Verified Evidence at Cited Snapshot
 
-GitHub Actions CI on Python 3.12 at `8427f9ecafd3438a86775a7ceaf809f4ee051b5b` reports:
+GitHub Actions CI on Python 3.12 at the poster snapshot `8427f9ecafd3438a86775a7ceaf809f4ee051b5b` reports:
 
 - **718 tests passed**, 0 failed.
 - **82.46% statement coverage** - 5,524 statements, 969 missed.
