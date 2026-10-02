@@ -147,7 +147,35 @@ The gateway generates one immutable source-record ID for each protected request,
 
 Raw credentials and raw source addresses are not written to the identity telemetry queue. Token counts are emitted as `0` where MCP-layer token accounting is unavailable. Once queued, the event and its fingerprint are immutable: after an ambiguous transport timeout, retry the exact stored envelope rather than regenerating an ID or changing behavioral fields.
 
-The static field/envelope mapping is complete. A live external baseline is still a separate operational step and is not claimed as completed by this repository.
+The static field/envelope mapping is complete. Controlled smoke/idempotency events are validation evidence only and must not be treated as behavioral-baseline history.
+
+### Persistent baseline operation
+
+Baseline mode has two invariants:
+
+- configure one fixed three-credential set in `MCP_API_KEYS` and preserve it across gateway restarts;
+- preserve the same tenant HMAC salt for the entire baseline window.
+
+Do not regenerate credentials between baseline requests. Because `key_fp` is a deterministic HMAC of the incoming credential under the tenant salt, changing a credential intentionally creates a new identity.
+
+The production request path appends immutable envelopes to the local NDJSON queue. Continuous HTTPS delivery is performed by the separate durable shipper. The shipper stores a byte-offset checkpoint on the same persistent volume and advances it only after a successful 2xx response. On failure or an ambiguous interruption, it retries the same queued envelope; the existing `event_fps` values preserve receiver-side idempotency.
+
+For Docker Compose, configure the runtime-only values in `.env` and start the telemetry profile:
+
+```bash
+MCP_API_KEY=
+MCP_API_KEYS="<stable-key-a>,<stable-key-b>,<stable-key-c>"
+MCP_IDENTITY_TELEMETRY_ENABLED=true
+MCP_IDENTITY_TELEMETRY_TENANT_SALT="<customer-held-stable-salt>"
+MCP_IDENTITY_TELEMETRY_ENDPOINT="<https-ingest-endpoint>"
+MCP_IDENTITY_TELEMETRY_BEARER_TOKEN="<runtime-secret>"
+
+docker compose --profile identity-telemetry up -d --build
+```
+
+The queue and shipper cursor live on the `mcp-state` volume. Do not delete or reset the cursor during normal baseline operation. A cursor reset can cause previously delivered immutable envelopes to be resent; the receiver should deduplicate them by `event_fps`, but resetting it is not a normal operational action.
+
+No synthetic requests are required for baseline accumulation. Only normal protected gateway requests should build behavioral history.
 
 ### First three-credential smoke batch
 

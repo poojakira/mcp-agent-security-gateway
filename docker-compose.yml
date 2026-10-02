@@ -15,12 +15,17 @@ services:
       MCP_CIRCUIT_BREAKER_THRESHOLD: 5
       MCP_CIRCUIT_BREAKER_TIMEOUT: 30
       MCP_LOG_LEVEL: INFO
-      MCP_API_KEY: ${MCP_API_KEY:?set MCP_API_KEY to a random value of at least 32 characters}
+      MCP_API_KEY: ${MCP_API_KEY:-}
+      MCP_API_KEYS: ${MCP_API_KEYS:-}
       MCP_ALLOWED_SERVERS: ${MCP_ALLOWED_SERVERS:?set MCP_ALLOWED_SERVERS to approved comma-separated server IDs}
       MCP_MAX_PAYLOAD_KB: 512
       MCP_WAL_PATH: /var/lib/mcp/wal.jsonl
       MCP_AUDIT_PATH: /var/lib/mcp/audit.jsonl
       MCP_ALLOW_ANONYMOUS: "false"
+      MCP_TRUSTED_PROXY_CIDRS: ${MCP_TRUSTED_PROXY_CIDRS:-}
+      MCP_IDENTITY_TELEMETRY_ENABLED: ${MCP_IDENTITY_TELEMETRY_ENABLED:-false}
+      MCP_IDENTITY_TELEMETRY_TENANT_SALT: ${MCP_IDENTITY_TELEMETRY_TENANT_SALT:-}
+      MCP_IDENTITY_TELEMETRY_OUTPUT: /var/lib/mcp/identity-telemetry.ndjson
     volumes:
       - mcp-state:/var/lib/mcp
     healthcheck:
@@ -29,6 +34,26 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    restart: unless-stopped
+
+  mcp-identity-shipper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python", "-m", "mcp_monitor.production.identity_shipper"]
+    profiles: ["identity-telemetry"]
+    environment:
+      MCP_IDENTITY_TELEMETRY_ENDPOINT: ${MCP_IDENTITY_TELEMETRY_ENDPOINT:-}
+      MCP_IDENTITY_TELEMETRY_BEARER_TOKEN: ${MCP_IDENTITY_TELEMETRY_BEARER_TOKEN:-}
+      MCP_IDENTITY_TELEMETRY_OUTPUT: /var/lib/mcp/identity-telemetry.ndjson
+      MCP_IDENTITY_TELEMETRY_CURSOR: /var/lib/mcp/identity-telemetry.cursor
+      MCP_IDENTITY_TELEMETRY_POLL_SECONDS: ${MCP_IDENTITY_TELEMETRY_POLL_SECONDS:-2}
+      MCP_IDENTITY_TELEMETRY_MAX_BACKOFF_SECONDS: ${MCP_IDENTITY_TELEMETRY_MAX_BACKOFF_SECONDS:-60}
+    volumes:
+      - mcp-state:/var/lib/mcp
+    depends_on:
+      mcp-monitor:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
