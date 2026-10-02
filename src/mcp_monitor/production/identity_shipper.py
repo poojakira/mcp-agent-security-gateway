@@ -118,9 +118,7 @@ def deliver_available(
             envelope=envelope,
         )
         if not 200 <= result.status < 300:
-            raise RuntimeError(
-                f"identity telemetry endpoint returned HTTP {result.status}"
-            )
+            raise RuntimeError(f"identity telemetry endpoint returned HTTP {result.status}")
 
         _write_cursor(cursor_path, next_offset)
         offset = next_offset
