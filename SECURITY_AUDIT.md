@@ -103,10 +103,10 @@ The stdlib production HTTP server (`src/mcp_monitor/production/server.py`) prote
 
 ## 2026-09-29 Follow-up Verification
 
-The current verified code snapshot is `e249bde03affc6dcece172f991269cfe1c26417a`.
+The current verified code snapshot is `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`.
 
-- **707 tests passed** in the successful Production Gate and Python 3.12 CI run.
-- **82.85% statement coverage** (5,342 statements, 916 missed).
+- **718 tests passed** in the cited successful full CI run.
+- **82.46% statement coverage** (5,524 statements, 969 missed).
 - The same test suite is green on Python 3.10 and Python 3.11.
 - Ruff/formatting, Pyright, security scan, CodeQL, Windows control-plane checks, and Docker build are green.
 - Stable multi-credential authentication is implemented.

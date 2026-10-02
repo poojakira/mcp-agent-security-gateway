@@ -7,4 +7,4 @@ This compatibility file remains in place so existing resume, portfolio, and exte
 
 ## Current verified headline
 
-See the maintained evidence file for details. The current code snapshot supports the résumé claim **707 passing automated tests** with **82.85% statement coverage**. External validation pilot completion is not yet a supported résumé claim.
+See the maintained evidence file for details. The current verified evidence supports **718 passing automated tests** with **82.46% statement coverage** on the cited verification snapshot. The earlier 707/82.85% result remains historical evidence. External validation pilot completion is not yet a supported résumé claim.
