@@ -15,11 +15,11 @@ Total coverage: 82.46%
 
 The Python 3.10 and 3.11 test jobs also completed successfully.
 
-| Claim | Current verified value | Evidence boundary |
+| Claim | Verified snapshot value | Evidence boundary |
 |---|---:|---|
 | Automated tests | **718 passed** | Cited CI snapshot |
 | Statement coverage | **82.46%** | Python 3.12 CI |
-| Prompt-injection collection entries | **55** | Current named collection |
+| Prompt-injection collection entries | **55** | Named collection at cited snapshot |
 | Elastic rule records | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
 | SIEM scenario tests | **12** | `tests/test_siem_scenarios.py` |
