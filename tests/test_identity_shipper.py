@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from mcp_monitor.production.identity_shipper import deliver_available
 from mcp_monitor.production.identity_transport import TransportResult
 
@@ -53,18 +55,20 @@ def test_failed_delivery_does_not_advance_cursor(tmp_path: Path) -> None:
     cursor = tmp_path / "queue.cursor"
     _write_queue(queue, _envelope("1" * 32))
 
-    with patch(
-        "mcp_monitor.production.identity_shipper.post_envelope",
-        return_value=TransportResult(status=503, body='{"error":"unavailable"}'),
+    with (
+        patch(
+            "mcp_monitor.production.identity_shipper.post_envelope",
+            return_value=TransportResult(status=503, body='{"error":"unavailable"}'),
+        ),
+        pytest.raises(RuntimeError, match="HTTP 503"),
     ):
-        delivered = deliver_available(
+        deliver_available(
             queue_path=queue,
             cursor_path=cursor,
             endpoint="https://example.invalid/v1/events",
             bearer_token="runtime-secret",
         )
 
-    assert delivered == 0
     assert not cursor.exists()
 
 
@@ -85,12 +89,13 @@ def test_retry_resends_same_immutable_envelope(tmp_path: Path) -> None:
         return responses.pop(0)
 
     with patch("mcp_monitor.production.identity_shipper.post_envelope", side_effect=fake_post):
-        first = deliver_available(
-            queue_path=queue,
-            cursor_path=cursor,
-            endpoint="https://example.invalid/v1/events",
-            bearer_token="runtime-secret",
-        )
+        with pytest.raises(RuntimeError, match="HTTP 500"):
+            deliver_available(
+                queue_path=queue,
+                cursor_path=cursor,
+                endpoint="https://example.invalid/v1/events",
+                bearer_token="runtime-secret",
+            )
         second = deliver_available(
             queue_path=queue,
             cursor_path=cursor,
@@ -98,7 +103,6 @@ def test_retry_resends_same_immutable_envelope(tmp_path: Path) -> None:
             bearer_token="runtime-secret",
         )
 
-    assert first == 0
     assert second == 1
     assert captured == [record, record]
     assert int(cursor.read_text(encoding="utf-8").strip()) == queue.stat().st_size
