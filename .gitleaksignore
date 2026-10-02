@@ -1,0 +1,6 @@
+# Fingerprint-scoped historical triage only. Do not add broad path or rule exclusions.
+44b4da288e1fb68317b22805a29b0d411ec2fc72:README.md:curl-auth-header:594
+a039fd568dff92e0549a9a4b5fbac82271d178d4:tests/test_advanced_correlation.py:generic-api-key:29
+a039fd568dff92e0549a9a4b5fbac82271d178d4:tests/test_advanced_correlation.py:generic-api-key:59
+a039fd568dff92e0549a9a4b5fbac82271d178d4:tests/test_advanced_correlation.py:generic-api-key:60
+a8ba4c4b582ace77bbfb14fd64b561b0d460e214:README.md:curl-auth-header:655
