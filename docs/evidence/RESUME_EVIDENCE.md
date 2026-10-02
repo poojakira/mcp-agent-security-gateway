@@ -38,10 +38,10 @@ The resume rounds 78.41% to **78%**.
 
 The current evidence anchor is [../../VERIFIED_METRICS.md](../../VERIFIED_METRICS.md).
 
-Latest verified code snapshot: `e249bde03affc6dcece172f991269cfe1c26417a`.
+Latest verified code snapshot: `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`.
 
-- **707 passing tests**
-- **82.85% statement coverage** (5,342 statements, 916 missed)
+- **718 passing tests**
+- **82.46% statement coverage** (5,524 statements, 969 missed)
 - **55 prompt-injection patterns**
 - **9 Elastic Security rules**
 - **21 core SIEM tests**
