@@ -1,9 +1,9 @@
 # Verified Metrics - Poster 01
 
-> Current verified code snapshot: `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`  
+> Verified code snapshot: `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`
 > Successful CI: https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36783059917
 
-| Metric | Current value | Scope |
+| Metric | Snapshot value | Scope |
 |---|---:|---|
 | Tests passed | **718** | Python 3.12 CI; Python 3.10/3.11 also green |
 | Tests failed | **0** | Cited CI run |
@@ -15,7 +15,7 @@
 
 ## Verification gates
 
-The cited current-main CI completed lint/format, type checking, Bandit, pip-audit, CodeQL, security scanning, Windows control-plane validation, Python 3.10/3.11/3.12 tests, SBOM work, and Docker build validation successfully.
+The cited CI completed lint/format, type checking, Bandit, pip-audit, CodeQL, security scanning, Windows control-plane validation, Python 3.10/3.11/3.12 tests, SBOM work, and Docker build validation successfully.
 
 ## Not established
 

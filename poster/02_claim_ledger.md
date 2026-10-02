@@ -1,6 +1,6 @@
 # Claim Ledger - Poster 01
 
-> Verified code snapshot: `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`. Current-main CI evidence: run `36783059917`, 2026-09-30.
+> Verified code snapshot: `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`. Cited CI evidence: run `36783059917`, 2026-09-30.
 
 Classification key: VERIFIED_AT_SNAPSHOT / PARTIAL / UNVERIFIED / UNSUPPORTED.
 

@@ -4,7 +4,7 @@
 **Date:** July 10, 2026  
 **Classification:** Honest, Skeptical Technical Assessment  
 
-**Current-architecture note:** This report originated before several later enforcement, host-monitoring, and credential/network-telemetry additions. Where older criticism conflicts with current `main`, the text below has been reconciled to the current repository while preserving limitations and historical metrics. The latest verified evidence snapshot is `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`: 718 tests passed with 82.46% statement coverage; the same suite is green on Python 3.10/3.11/3.12.
+**Current-architecture note:** This report originated before several later enforcement, host-monitoring, and credential/network-telemetry additions. Where older criticism conflicts with current `main`, the text below has been reconciled to the current repository while preserving limitations and historical metrics. The latest quantified evidence snapshot recorded in this report is `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`: 718 tests passed with 82.46% statement coverage; the same suite is green on Python 3.10/3.11/3.12.
 **Repository:** github.com/poojakira/mcp-agent-security-gateway
 
 ---

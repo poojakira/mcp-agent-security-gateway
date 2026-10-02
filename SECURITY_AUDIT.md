@@ -103,7 +103,7 @@ The stdlib production HTTP server (`src/mcp_monitor/production/server.py`) prote
 
 ## 2026-09-29 Follow-up Verification
 
-The current verified code snapshot is `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`.
+The cited verified code snapshot is `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`.
 
 - **718 tests passed** in the cited successful full CI run.
 - **82.46% statement coverage** (5,524 statements, 969 missed).

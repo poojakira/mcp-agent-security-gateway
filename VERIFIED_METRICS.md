@@ -1,6 +1,6 @@
 # Verified Metrics
 
-## Current verified code snapshot
+## Latest quantified verified code snapshot
 
 **Code commit:** `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`  
 **Successful full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36783059917
@@ -17,7 +17,7 @@ The Python 3.10 and 3.11 test jobs also completed successfully.
 
 | Claim | Current verified value | Evidence boundary |
 |---|---:|---|
-| Automated tests | **718 passed** | Current-main CI |
+| Automated tests | **718 passed** | Cited CI snapshot |
 | Statement coverage | **82.46%** | Python 3.12 CI |
 | Prompt-injection collection entries | **55** | Current named collection |
 | Elastic rule records | **9** | `detection_rules/elastic_rules.toml` |
