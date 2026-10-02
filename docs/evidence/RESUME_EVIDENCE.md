@@ -48,4 +48,4 @@ Latest verified code snapshot: `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`.
 - Stable multi-credential authentication plus trusted-proxy-aware source attribution
 - Local HMAC-SHA256 credential/network fingerprinting without raw credential/IP export
 
-For current résumé material, the exact supported test-count claim is **"707 passing automated tests."** The repository has grown since the frozen application snapshot; current metrics must not be substituted into older submitted material retroactively. External validation pilot completion must not be claimed until independent ingestion/validation evidence exists.
+For current résumé material, the exact supported test-count claim is **"718 passing automated tests."** The repository has grown since the frozen application snapshot; current metrics must not be substituted into older submitted material retroactively. External validation pilot completion must not be claimed until independent ingestion/validation evidence exists.
