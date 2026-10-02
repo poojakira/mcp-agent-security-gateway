@@ -1,4 +1,7 @@
-# Fingerprint-scoped historical triage only. Do not add broad path or rule exclusions.
+# Exact historical findings reviewed during the 2026-10-01 production-hardening audit.
+# These fingerprints are limited to verified test/example/dependency fixtures.
+# mlsec-dashboards also includes the explicitly revoked legacy local dashboard key.
+# New findings, new commits, or changed lines are not suppressed.
 44b4da288e1fb68317b22805a29b0d411ec2fc72:README.md:curl-auth-header:594
 a039fd568dff92e0549a9a4b5fbac82271d178d4:tests/test_advanced_correlation.py:generic-api-key:29
 a039fd568dff92e0549a9a4b5fbac82271d178d4:tests/test_advanced_correlation.py:generic-api-key:59
