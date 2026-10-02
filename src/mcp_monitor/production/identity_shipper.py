@@ -43,8 +43,20 @@ def _write_cursor(path: str | os.PathLike[str], offset: int) -> None:
     cursor_path = Path(path)
     cursor_path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path = cursor_path.with_name(cursor_path.name + ".tmp")
-    tmp_path.write_text(str(offset) + "\n", encoding="utf-8")
+    with tmp_path.open("w", encoding="utf-8") as fh:
+        fh.write(str(offset) + "\n")
+        fh.flush()
+        os.fsync(fh.fileno())
     os.replace(tmp_path, cursor_path)
+    # Persist the rename itself on POSIX filesystems. Opening directories for
+    # fsync is not portable to Windows, where os.replace already provides the
+    # atomic replacement used by this worker.
+    if os.name != "nt":
+        dir_fd = os.open(cursor_path.parent, os.O_RDONLY)
+        try:
+            os.fsync(dir_fd)
+        finally:
+            os.close(dir_fd)
 
 
 def _read_next_envelope(
@@ -106,7 +118,9 @@ def deliver_available(
             envelope=envelope,
         )
         if not 200 <= result.status < 300:
-            break
+            raise RuntimeError(
+                f"identity telemetry endpoint returned HTTP {result.status}"
+            )
 
         _write_cursor(cursor_path, next_offset)
         offset = next_offset
