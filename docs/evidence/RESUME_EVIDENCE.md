@@ -38,7 +38,7 @@ The resume rounds 78.41% to **78%**.
 
 The current evidence anchor is [../../VERIFIED_METRICS.md](../../VERIFIED_METRICS.md).
 
-Latest verified code snapshot: `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`.
+Current repository revision: `2c7d0b83fccb6621da653b43f469bfcbeafc114a`.
 
 - **718 passing tests**
 - **82.46% statement coverage** (5,524 statements, 969 missed)
@@ -48,4 +48,4 @@ Latest verified code snapshot: `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`.
 - Stable multi-credential authentication plus trusted-proxy-aware source attribution
 - Local HMAC-SHA256 credential/network fingerprinting without raw credential/IP export
 
-For current résumé material, the exact supported test-count claim is **"718 passing automated tests."** The repository has grown since the frozen application snapshot; current metrics must not be substituted into older submitted material retroactively. External validation pilot completion must not be claimed until independent ingestion/validation evidence exists.
+For current résumé material, the exact supported test-count claim is **"718 passing automated tests."** The repository has grown since the frozen application snapshot; current metrics must not be substituted into older submitted material retroactively. External pilot transport and idempotent retry behavior have been independently validated, but the persistent baseline has not yet accumulated enough normal live traffic to support detector-effectiveness or completed-pilot claims.
