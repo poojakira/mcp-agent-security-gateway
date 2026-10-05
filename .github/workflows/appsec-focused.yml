@@ -43,3 +43,8 @@ jobs:
           PYTHONPATH: src
         run: |
           pytest -q             tests/test_http_framing.py             tests/test_protocol_hardening.py             tests/test_policy_enforcement.py             tests/test_production.py             --tb=short
+
+      - name: Validate recruiter demo invariants
+        env:
+          PYTHONPATH: src
+        run: python scripts/recruiter_demo.py --check
