@@ -1,13 +1,13 @@
 # Claim Ledger - Poster 01
 
-> Verified code snapshot: `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`. Cited CI evidence: run `36783059917`, 2026-09-30.
+> Verified code snapshot: `008775c8878cc70c50247baa223da3256e093316`. Cited CI evidence: run `37184196303`, 2026-09-30.
 
 Classification key: VERIFIED_AT_SNAPSHOT / PARTIAL / UNVERIFIED / UNSUPPORTED.
 
 | # | Claim | Classification | Evidence |
 |---|---|---|---|
-| 1 | 718 automated tests pass | VERIFIED_AT_SNAPSHOT | Python 3.12 CI job in run `36783059917`; Python 3.10/3.11 jobs also succeeded. |
-| 2 | 82.46% statement coverage | VERIFIED_AT_SNAPSHOT | Python 3.12 CI: 5,524 statements, 969 missed. |
+| 1 | 723 automated tests pass | VERIFIED_AT_SNAPSHOT | Python 3.12 CI job in run `37184196303`; Python 3.10/3.11 jobs also succeeded. |
+| 2 | 81.91% statement coverage | VERIFIED_AT_SNAPSHOT | Python 3.12 CI: 5,644 statements, 1,021 missed. |
 | 3 | 55 prompt-injection patterns in the named runtime collection | VERIFIED_AT_SNAPSHOT | Detector collection and regression suite at the cited snapshot. |
 | 4 | 9 Elastic Security rule records | VERIFIED_AT_SNAPSHOT | `detection_rules/elastic_rules.toml`. |
 | 5 | 21 core SIEM tests + 12 SIEM scenario tests | VERIFIED_AT_SNAPSHOT | `tests/test_siem.py` and `tests/test_siem_scenarios.py`. |
