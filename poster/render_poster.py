@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import html
+import os
 import re
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -228,9 +230,15 @@ def main() -> int:
       <footer>Generated from poster/01_research_brief.md and poster/03_verified_metrics.md. Rendered artifacts must not be edited independently of source evidence.</footer>
     </main></body></html>"""
 
-    browser = next((p for p in BROWSERS if p.exists()), None)
+    browser_env = os.environ.get("POSTER_BROWSER")
+    browser = Path(browser_env) if browser_env else None
+    if browser is None:
+        system_candidates = [shutil.which(name) for name in ("google-chrome", "chromium", "chromium-browser", "microsoft-edge")]
+        browser = next((Path(p) for p in system_candidates if p and Path(p).exists()), None)
+    if browser is None:
+        browser = next((p for p in BROWSERS if p.exists()), None)
     if not browser:
-        raise SystemExit("Edge or Chrome not found")
+        raise SystemExit("Edge, Chrome, or Chromium not found")
 
     with tempfile.TemporaryDirectory(prefix="poster-render-") as td:
         td_path=Path(td)
