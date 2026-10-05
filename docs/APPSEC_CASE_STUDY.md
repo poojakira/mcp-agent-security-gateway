@@ -47,6 +47,8 @@ The review asks:
 
 The current repository evidence records **723 passing tests at 81.91% statement coverage**, with the same suite green across Python 3.10-3.12. The repository also records **9 Elastic Security rules** and **21 core SIEM tests**. Those values are repository verification evidence, not claims of customer deployment or universal detector efficacy.
 
+A dedicated focused application-security regression run (`37369244496`) also passed **116 selected tests in 4.54s** on Python 3.12, covering the HTTP-framing, protocol-hardening, policy-enforcement, and production-route test files.
+
 Focused tests relevant to this review include:
 
 - `tests/test_http_framing.py`: rejects duplicate Content-Length, Transfer-Encoding, absolute-form request targets, oversized header lines, and unsupported methods.
