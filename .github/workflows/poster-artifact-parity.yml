@@ -47,19 +47,31 @@ jobs:
           PR_BRANCH: ${{ github.head_ref }}
         run: |
           set -euo pipefail
+
+          # Use the PNG as the deterministic content fingerprint. Chromium PDFs
+          # contain volatile metadata, so a PDF-only delta must not create loops.
+          local_png="$(git hash-object poster/poster.png)"
+          remote_png="$(gh api "repos/$GITHUB_REPOSITORY/contents/poster/poster.png?ref=$PR_BRANCH" --jq .sha)"
+          if [ "$local_png" = "$remote_png" ]; then
+            echo "Rendered poster content already matches committed artifacts."
+            exit 0
+          fi
+
           sync_file() {
             path="$1"
             [ -f "$path" ] || return 0
-            local_blob="$(git hash-object "$path")"
             remote_blob="$(gh api "repos/$GITHUB_REPOSITORY/contents/$path?ref=$PR_BRANCH" --jq .sha)"
-            if [ "$local_blob" = "$remote_blob" ]; then
-              echo "$path already matches."
-              return 0
-            fi
             base64 -w0 "$path" > /tmp/poster-artifact.b64
-            jq -n               --arg message "build: regenerate poster artifact"               --rawfile content /tmp/poster-artifact.b64               --arg sha "$remote_blob"               --arg branch "$PR_BRANCH"               '{message: $message, content: $content, sha: $sha, branch: $branch}'               > /tmp/poster-request.json
+            jq -n \
+              --arg message "build: regenerate poster artifact" \
+              --rawfile content /tmp/poster-artifact.b64 \
+              --arg sha "$remote_blob" \
+              --arg branch "$PR_BRANCH" \
+              '{message: $message, content: $content, sha: $sha, branch: $branch}' \
+              > /tmp/poster-request.json
             gh api --method PUT "repos/$GITHUB_REPOSITORY/contents/$path" --input /tmp/poster-request.json >/dev/null
           }
+
           sync_file poster/poster.png
           sync_file poster/poster_36x48.pdf
           if [ -f MCP_Gateway_Poster.pdf ]; then sync_file MCP_Gateway_Poster.pdf; fi
