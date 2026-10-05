@@ -7,4 +7,4 @@ This compatibility file remains in place so existing resume, portfolio, and exte
 
 ## Latest quantified verified headline
 
-See the maintained evidence file for details. The latest quantified verification snapshot supports **718 passing automated tests** with **82.46% statement coverage** at the cited commit. The earlier 707/82.85% result remains historical evidence. External validation pilot completion is not yet a supported résumé claim.
+See the maintained evidence file for details. The latest quantified verification snapshot supports **723 passing automated tests** with **81.91% statement coverage** at the cited commit. The earlier 707/82.85% result remains historical evidence. External validation pilot completion is not yet a supported résumé claim.
