@@ -3,7 +3,7 @@
 **Target:** MCP Agent Security Gateway  
 **Authorization:** Maintainer-owned repository and test environment  
 **Method:** Source-informed adversarial regression testing in GitHub Actions  
-**Status:** Assessment workflow created; record the final run result below after CI completes.
+**Status:** VERIFIED PASS
 
 ## Scope
 
@@ -22,7 +22,7 @@ tests/test_production.py
 
 ## Result
 
-Pending the dedicated GitHub Actions run on this assessment branch.
+**116 selected security regression tests passed** on Python 3.12 in GitHub Actions run `37362782508` (`MCP control-plane security assessment`) on 2026-10-05. The workflow completed successfully in 5.87 seconds of pytest execution.
 
 ## Claim boundary
 
