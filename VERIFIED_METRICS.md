@@ -2,23 +2,23 @@
 
 ## Latest quantified verified code snapshot
 
-**Code commit:** `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`  
-**Successful full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36783059917
+**Code commit:** `008775c8878cc70c50247baa223da3256e093316`  
+**Successful full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303
 
 Python 3.12 CI reports:
 
 ```text
-718 passed
-TOTAL 5524 statements, 969 missed
-Total coverage: 82.46%
+723 passed
+TOTAL 5644 statements, 1021 missed
+Total coverage: 81.91%
 ```
 
 The Python 3.10 and 3.11 test jobs also completed successfully.
 
 | Claim | Verified snapshot value | Evidence boundary |
 |---|---:|---|
-| Automated tests | **718 passed** | Cited CI snapshot |
-| Statement coverage | **82.46%** | Python 3.12 CI |
+| Automated tests | **723 passed** | Cited CI snapshot |
+| Statement coverage | **81.91%** | Python 3.12 CI |
 | Prompt-injection collection entries | **55** | Named collection at cited snapshot |
 | Elastic rule records | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
@@ -33,7 +33,7 @@ These measurements are repository/test evidence. They do not establish productio
 ## Reproduce
 
 ```powershell
-git checkout 8427f9ecafd3438a86775a7ceaf809f4ee051b5b
+git checkout 008775c8878cc70c50247baa223da3256e093316
 python -m pip install -e ".[dev,server]"
 $env:PYTHONPATH="src"
 python -m pytest tests -q --cov=mcp_monitor --cov-report=term
