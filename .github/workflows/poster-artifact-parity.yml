@@ -1,3 +1,4 @@
+# Generated poster artifacts must match committed evidence sources.
 name: Poster Artifact Parity
 
 on:
