@@ -26,6 +26,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Render poster from committed evidence
         shell: bash
@@ -36,20 +37,27 @@ jobs:
           test -n "$POSTER_BROWSER"
           python poster/render_poster.py
 
-      - name: Commit regenerated poster artifacts
+      - name: Sync regenerated poster artifacts to PR branch
         if: github.event_name == 'pull_request'
         shell: bash
         env:
+          GH_TOKEN: ${{ github.token }}
           PR_BRANCH: ${{ github.head_ref }}
         run: |
           set -euo pipefail
-          git add poster/poster.png poster/poster_36x48.pdf
-          if [ -f MCP_Gateway_Poster.pdf ]; then git add MCP_Gateway_Poster.pdf; fi
-          if git diff --cached --quiet; then
-            echo "Poster artifacts already match committed evidence."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "build: regenerate poster artifacts"
-          git push origin "HEAD:$PR_BRANCH"
+          sync_file() {
+            path="$1"
+            [ -f "$path" ] || return 0
+            local_blob="$(git hash-object "$path")"
+            remote_blob="$(gh api "repos/$GITHUB_REPOSITORY/contents/$path?ref=$PR_BRANCH" --jq .sha)"
+            if [ "$local_blob" = "$remote_blob" ]; then
+              echo "$path already matches."
+              return 0
+            fi
+            base64 -w0 "$path" > /tmp/poster-artifact.b64
+            jq -n               --arg message "build: regenerate poster artifact"               --rawfile content /tmp/poster-artifact.b64               --arg sha "$remote_blob"               --arg branch "$PR_BRANCH"               '{message: $message, content: $content, sha: $sha, branch: $branch}'               > /tmp/poster-request.json
+            gh api --method PUT "repos/$GITHUB_REPOSITORY/contents/$path" --input /tmp/poster-request.json >/dev/null
+          }
+          sync_file poster/poster.png
+          sync_file poster/poster_36x48.pdf
+          if [ -f MCP_Gateway_Poster.pdf ]; then sync_file MCP_Gateway_Poster.pdf; fi
