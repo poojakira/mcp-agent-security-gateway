@@ -15,8 +15,8 @@
 > Inspect and enforce AI-agent MCP/JSON-RPC tool calls at the agent-to-tool boundary before they execute.
 
 [![CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-718%20at%20verified%20snapshot-brightgreen)](VERIFIED_METRICS.md)
-[![Coverage](https://img.shields.io/badge/coverage-82.46%25%20snapshot-brightgreen)](VERIFIED_METRICS.md)
+[![Tests](https://img.shields.io/badge/tests-723%20at%20verified%20snapshot-brightgreen)](VERIFIED_METRICS.md)
+[![Coverage](https://img.shields.io/badge/coverage-81.91%25%20snapshot-brightgreen)](VERIFIED_METRICS.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
@@ -33,8 +33,8 @@ Verified against code snapshot `8427f9ecafd3438a86775a7ceaf809f4ee051b5b` on Pyt
 
 | Metric | Verified snapshot value |
 |---|---:|
-| Tests | 718 passing (Python 3.12; same suite green on 3.10/3.11/3.12) |
-| Statement coverage | 82.46% (5,524 statements; 969 missed) |
+| Tests | 723 passing (Python 3.12; same suite green on 3.10/3.11/3.12) |
+| Statement coverage | 81.91% (5,644 statements; 1,021 missed) |
 | Prompt-injection patterns | 55 (`INJECTION_PATTERNS`) |
 | Elastic Security rules | 9 |
 | Core SIEM tests | 21 |
