@@ -162,6 +162,7 @@ GitHub Actions runs Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, SBOM genera
 
 - [SECURITY.md](SECURITY.md) · [THREAT_MODEL.md](THREAT_MODEL.md) · [SECURITY_AUDIT.md](SECURITY_AUDIT.md)
 - [RUNBOOK.md](RUNBOOK.md) · [INCIDENT_RUNBOOK.md](INCIDENT_RUNBOOK.md) · [PRODUCTION.md](PRODUCTION.md)
+- [Application Security Review Case Study](docs/APPSEC_SECURITY_REVIEW_CASE_STUDY.md) · [Authorized AppSec Assessment — 2026-10-05](docs/APPSEC_ASSESSMENT_2026-10-05.md)
 - [VERIFIED_METRICS.md](VERIFIED_METRICS.md) · [RESEARCH_REPORT.md](RESEARCH_REPORT.md)
 - Detection lab: [detection_lab/README.md](detection_lab/README.md)
 - Performance baselines: [docs/PERFORMANCE_BASELINE.md](docs/PERFORMANCE_BASELINE.md)
