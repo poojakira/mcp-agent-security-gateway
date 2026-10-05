@@ -4,7 +4,7 @@
 **Date:** July 10, 2026  
 **Classification:** Honest, Skeptical Technical Assessment  
 
-**Current-architecture note:** This report originated before several later enforcement, host-monitoring, and credential/network-telemetry additions. Where older criticism conflicts with current `main`, the text below has been reconciled to the current repository while preserving limitations and historical metrics. The latest quantified evidence snapshot recorded in this report is `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`: 718 tests passed with 82.46% statement coverage; the same suite is green on Python 3.10/3.11/3.12.
+**Current-architecture note:** This report originated before several later enforcement, host-monitoring, and credential/network-telemetry additions. Where older criticism conflicts with current `main`, the text below has been reconciled to the current repository while preserving limitations and historical metrics. The current quantified evidence anchor is `008775c8878cc70c50247baa223da3256e093316`: 723 tests passed with 81.91% statement coverage; the same suite is green on Python 3.10/3.11/3.12. The earlier 718 / 82.46% snapshot remains historical evidence.
 **Repository:** github.com/poojakira/mcp-agent-security-gateway
 
 ---
@@ -62,7 +62,7 @@ changes behavior.
 | 5 | Provide tamper-evident audit trail | YES | Hash chain with optional HMAC; integrity guarantees depend on key protection and storage trust |
 | 6 | Detect behavioral drift between versions | YES | New-field detection works; same-field value changes harder |
 | 7 | Enforce declarative security policies | YES | Invariant system is well-designed |
-| 8 | Test suite | VERIFIED SNAPSHOT | `VERIFIED_METRICS.md` records 718 passing tests and 82.46% statement coverage for code snapshot `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`; later commits are evaluated by their own CI, while 707 / 82.85% and 641 / 79.54% remain labeled historical snapshots. |
+| 8 | Test suite | VERIFIED SNAPSHOT | `VERIFIED_METRICS.md` records 723 passing tests and 81.91% statement coverage for code snapshot `008775c8878cc70c50247baa223da3256e093316`; 718 / 82.46%, 707 / 82.85%, and 641 / 79.54% remain labeled historical snapshots. |
 | 9 | No mandatory base runtime dependencies | YES | `dependencies = []`; optional ML/server/ATT&CK/dev features add third-party packages |
 | 10 | Cross-platform validation | PARTIAL | The repository CI matrix verifies Linux Python 3.10/3.11/3.12 plus a Windows control-plane job; macOS is not part of that verified matrix |
 
