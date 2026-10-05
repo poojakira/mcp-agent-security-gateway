@@ -1,0 +1,55 @@
+name: Poster Artifact Parity
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "poster/01_research_brief.md"
+      - "poster/02_claim_ledger.md"
+      - "poster/03_verified_metrics.md"
+      - "poster/13_reproducibility.md"
+      - "poster/render_poster.py"
+      - ".github/workflows/poster-artifact-parity.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Render poster from committed evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check PyMuPDF
+          export POSTER_BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "$POSTER_BROWSER"
+          python poster/render_poster.py
+
+      - name: Commit regenerated poster artifacts
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          PR_BRANCH: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          git add poster/poster.png poster/poster_36x48.pdf
+          if [ -f MCP_Gateway_Poster.pdf ]; then git add MCP_Gateway_Poster.pdf; fi
+          if git diff --cached --quiet; then
+            echo "Poster artifacts already match committed evidence."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "build: regenerate poster artifacts"
+          git push origin "HEAD:$PR_BRANCH"
