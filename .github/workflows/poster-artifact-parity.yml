@@ -1,0 +1,77 @@
+# Generated poster artifacts must match committed evidence sources.
+# Workflow-file maintenance is intentionally excluded from render triggers.
+# Final generated artifacts are validated on the PR head before merge.
+name: Poster Artifact Parity
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "poster/01_research_brief.md"
+      - "poster/02_claim_ledger.md"
+      - "poster/03_verified_metrics.md"
+      - "poster/13_reproducibility.md"
+      - "poster/render_poster.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Render poster from committed evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check PyMuPDF
+          export POSTER_BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "$POSTER_BROWSER"
+          python poster/render_poster.py
+
+      - name: Sync regenerated poster artifacts to PR branch
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_BRANCH: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+
+          # Use the PNG as the deterministic content fingerprint. Chromium PDFs
+          # contain volatile metadata, so a PDF-only delta must not create loops.
+          local_png="$(git hash-object poster/poster.png)"
+          remote_png="$(gh api "repos/$GITHUB_REPOSITORY/contents/poster/poster.png?ref=$PR_BRANCH" --jq .sha)"
+          if [ "$local_png" = "$remote_png" ]; then
+            echo "Rendered poster content already matches committed artifacts."
+            exit 0
+          fi
+
+          sync_file() {
+            path="$1"
+            [ -f "$path" ] || return 0
+            remote_blob="$(gh api "repos/$GITHUB_REPOSITORY/contents/$path?ref=$PR_BRANCH" --jq .sha)"
+            base64 -w0 "$path" > /tmp/poster-artifact.b64
+            jq -n \
+              --arg message "build: regenerate poster artifact" \
+              --rawfile content /tmp/poster-artifact.b64 \
+              --arg sha "$remote_blob" \
+              --arg branch "$PR_BRANCH" \
+              '{message: $message, content: $content, sha: $sha, branch: $branch}' \
+              > /tmp/poster-request.json
+            gh api --method PUT "repos/$GITHUB_REPOSITORY/contents/$path" --input /tmp/poster-request.json >/dev/null
+          }
+
+          sync_file poster/poster.png
+          sync_file poster/poster_36x48.pdf
+          if [ -f MCP_Gateway_Poster.pdf ]; then sync_file MCP_Gateway_Poster.pdf; fi

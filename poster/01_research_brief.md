@@ -1,6 +1,6 @@
 # Research Brief - Poster 01
 
-> Evidence status: Refreshed against code snapshot `8427f9ecafd3438a86775a7ceaf809f4ee051b5b` and successful GitHub Actions CI run `36783059917` on 2026-09-30. The quantitative claims below are tied to that code snapshot. Do not generalize benchmark or test results beyond their stated scope.
+> Evidence status: Refreshed against code snapshot `008775c8878cc70c50247baa223da3256e093316` and successful GitHub Actions CI run `37184196303` on 2026-09-30. The quantitative claims below are tied to that code snapshot. Do not generalize benchmark or test results beyond their stated scope.
 
 ## Repository
 
@@ -32,10 +32,10 @@ LLM agents can turn untrusted natural-language context into structured tool call
 
 ## Verified Evidence at Cited Snapshot
 
-GitHub Actions CI on Python 3.12 at the poster snapshot `8427f9ecafd3438a86775a7ceaf809f4ee051b5b` reports:
+GitHub Actions CI on Python 3.12 at the poster snapshot `008775c8878cc70c50247baa223da3256e093316` reports:
 
-- **718 tests passed**, 0 failed.
-- **82.46% statement coverage** - 5,524 statements, 969 missed.
+- **723 tests passed**, 0 failed.
+- **81.91% statement coverage** - 5,644 statements, 1,021 missed.
 - The Python 3.10 and 3.11 test jobs also completed successfully.
 - Ruff/format, Pyright, Bandit, pip-audit, CodeQL, Windows control-plane validation, container build, Trivy/Grype/SBOM jobs completed successfully.
 - **55** entries remain in the named prompt-injection pattern collection.
@@ -67,7 +67,7 @@ Expected at the cited snapshot: **718 passed**, **82.46%** statement coverage.
 
 ## Evidence Sources
 
-- GitHub Actions CI run `36783059917`
+- GitHub Actions CI run `37184196303`
 - `VERIFIED_METRICS.md`
 - `evidence/mcp_replay_evidence.json`
 - `detection_rules/elastic_rules.toml`

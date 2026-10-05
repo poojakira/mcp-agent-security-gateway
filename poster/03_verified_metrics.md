@@ -1,13 +1,13 @@
 # Verified Metrics - Poster 01
 
-> Verified code snapshot: `8427f9ecafd3438a86775a7ceaf809f4ee051b5b`
-> Successful CI: https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/36783059917
+> Verified code snapshot: `008775c8878cc70c50247baa223da3256e093316`
+> Successful CI: https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303
 
 | Metric | Snapshot value | Scope |
 |---|---:|---|
-| Tests passed | **718** | Python 3.12 CI; Python 3.10/3.11 also green |
+| Tests passed | **723** | Python 3.12 CI; Python 3.10/3.11 also green |
 | Tests failed | **0** | Cited CI run |
-| Statement coverage | **82.46%** | 5,524 statements, 969 missed |
+| Statement coverage | **81.91%** | 5,644 statements, 1,021 missed |
 | Prompt-injection collection entries | **55** | Named runtime collection |
 | Elastic rule records | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
