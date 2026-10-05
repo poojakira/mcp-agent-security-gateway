@@ -31,6 +31,20 @@ No external production target, customer environment, or third-party system was s
 
 ## Evidence
 
+A dedicated, read-only **Focused AppSec Regression** run completed successfully on GitHub Actions:
+
+- Workflow run: `37369244496`
+- Tested PR head: `df28f426b95dddb60aac11b1e6c7bccd3aa4948e`
+- Python: 3.12
+- Result: **116 passed in 4.54s**
+- Selected files:
+  - `tests/test_http_framing.py`
+  - `tests/test_protocol_hardening.py`
+  - `tests/test_policy_enforcement.py`
+  - `tests/test_production.py`
+
+This focused count is separate from the repository-wide **723-test / 81.91% coverage** snapshot. It supports only the selected application-security regression boundary and is not a penetration-test coverage metric.
+
 See `docs/APPSEC_CASE_STUDY.md` for the recruiter-facing case study and direct references to the relevant code/tests.
 
 ## Claim boundary
