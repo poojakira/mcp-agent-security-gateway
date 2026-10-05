@@ -1,5 +1,6 @@
 # Generated poster artifacts must match committed evidence sources.
 # Workflow-file maintenance is intentionally excluded from render triggers.
+# Final generated artifacts are validated on the PR head before merge.
 name: Poster Artifact Parity
 
 on:
