@@ -29,7 +29,7 @@ Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
 
 ## Verified Snapshot
 
-Verified against code snapshot `8427f9ecafd3438a86775a7ceaf809f4ee051b5b` on Python 3.12; this remains a dated quantified snapshot, while later commits must be judged by their own CI. Evidence: [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
+Verified against code snapshot `008775c8878cc70c50247baa223da3256e093316` on Python 3.12 (CI run `37184196303`). Evidence: [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
 
 | Metric | Verified snapshot value |
 |---|---:|
