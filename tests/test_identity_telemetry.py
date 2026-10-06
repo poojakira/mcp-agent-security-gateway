@@ -32,9 +32,9 @@ def test_fingerprint_matches_cerberus_hex_salt_contract() -> None:
 
 
 def test_64_character_non_hex_salt_uses_utf8_fallback() -> None:
-    salt = "00" * 15 + " " + "11" * 16 + " "
+    salt = "00" * 15 + " " + "11" * 15 + " " + "22"
     actual = fingerprint_value("credential-path-a", salt)
-    expected = "4d7c6c191d34188a7a5ed7f2a53d07f6"
+    expected = "57e3c1f466a575ec5cf06c8e4a9d4b98"
     assert actual == expected
 
 
