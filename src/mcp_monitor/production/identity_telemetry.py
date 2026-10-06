@@ -21,13 +21,35 @@ _SCHEMA_VERSION = 1
 _CLIENT_ID = "mcp-gateway/1.0.0"
 
 
+def _tenant_salt_key(tenant_salt: str | bytes) -> bytes:
+    """Normalize tenant salt bytes to the Cerberus fingerprint contract.
+
+    Cerberus supplies its production tenant salt as 64 hexadecimal characters
+    representing 32 random bytes. Decode that canonical form before HMAC so the
+    gateway produces the same fingerprints as the Cerberus SDK/preflight.
+    Non-hex development/test salts retain the historical UTF-8 behavior.
+    """
+    if isinstance(tenant_salt, bytes):
+        key = tenant_salt
+    else:
+        value = tenant_salt.strip()
+        if len(value) == 64:
+            try:
+                key = bytes.fromhex(value)
+            except ValueError:
+                key = value.encode("utf-8")
+        else:
+            key = value.encode("utf-8")
+    if not key:
+        raise ValueError("tenant_salt must not be empty")
+    return key
+
+
 def fingerprint_value(value: str, tenant_salt: str | bytes) -> str:
     """Return the first 32 lowercase hex characters of HMAC-SHA256(value)."""
     if not value:
         raise ValueError("fingerprint input must not be empty")
-    key = tenant_salt.encode("utf-8") if isinstance(tenant_salt, str) else tenant_salt
-    if not key:
-        raise ValueError("tenant_salt must not be empty")
+    key = _tenant_salt_key(tenant_salt)
     return hmac.new(key, value.encode("utf-8"), hashlib.sha256).hexdigest()[:32]
 
 
