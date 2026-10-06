@@ -24,6 +24,20 @@ def test_fingerprint_matches_contract_vector() -> None:
     assert actual == expected
 
 
+def test_fingerprint_matches_cerberus_hex_salt_contract() -> None:
+    salt_hex = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+    actual = fingerprint_value("credential-path-a", salt_hex)
+    expected = "3e0cca38db644fa55c487360cf2827b1"
+    assert actual == expected
+
+
+def test_64_character_non_hex_salt_uses_utf8_fallback() -> None:
+    salt = "00" * 15 + " " + "11" * 15 + " " + "22"
+    actual = fingerprint_value("credential-path-a", salt)
+    expected = "57e3c1f466a575ec5cf06c8e4a9d4b98"
+    assert actual == expected
+
+
 def test_source_normalization() -> None:
     cases = (
         ("203.0.113.5", "203.0.113.5"),
