@@ -33,11 +33,8 @@ def _tenant_salt_key(tenant_salt: str | bytes) -> bytes:
         key = tenant_salt
     else:
         value = tenant_salt.strip()
-        if len(value) == 64:
-            try:
-                key = bytes.fromhex(value)
-            except ValueError:
-                key = value.encode("utf-8")
+        if len(value) == 64 and all(ch in "0123456789abcdefABCDEF" for ch in value):
+            key = bytes.fromhex(value)
         else:
             key = value.encode("utf-8")
     if not key:
