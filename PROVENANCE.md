@@ -44,7 +44,7 @@ That fact must not be conflated with project inception. The maintainer records t
 
 The correct interpretation is:
 
-> The project began development in October 2025, entered the current public GitHub history in July 2026, and continued to be expanded, hardened, tested, and documented through September 2026.
+> The maintainer records project development as beginning in October 2025; the project entered the current public GitHub history in July 2026 and continued to be expanded, hardened, tested, and documented through September 2026.
 
 Current test counts, coverage, rules, fixtures, features, CI controls, and other quantified claims remain tied to their own later verification snapshots. They should not be projected backward to the beginning of the project period unless a dated historical artifact supports that exact metric.
 
