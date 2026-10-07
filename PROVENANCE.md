@@ -1,12 +1,25 @@
-# Repository Provenance Audit
+# Project History and Repository Provenance
 
-## Decision
+## Timeline distinction
 
-**Earliest defensible year for this repository/project lineage: 2026**
+This document deliberately separates **project development history** from **public GitHub repository history**.
 
-**Earliest reachable commit on `main`:** 2026-07-10  
-**Commit:** [`ef0d7ceb42fb`](https://github.com/poojakira/mcp-agent-security-gateway/commit/ef0d7ceb42fb3b886a65e986166862b0b43d8fcf)  
-**Commit message:** `Initial commit`
+- **Maintainer-recorded original project development:** Oct. 2025 - Sep. 2026
+- **First reachable public GitHub commit on `main`:** 2026-07-10
+- **First public commit:** `ef0d7ceb42fb3b886a65e986166862b0b43d8fcf`
+- **Maintainer:** Pooja Kiran ([@poojakira](https://github.com/poojakira))
+
+The first public GitHub commit records when the project entered the current public repository. It is **not, by itself, proof of when the underlying project work began**.
+
+The earlier development period above is the maintainer's recorded project history. Work before the first public commit was performed outside the current public Git history and was later imported, consolidated, expanded, hardened, tested, or documented in this repository.
+
+## Evidence status
+
+Git directly proves the repository history from the first reachable public commit forward. It does not independently prove or disprove earlier local, private, academic, or otherwise pre-public development.
+
+Where available, earlier chronology should be strengthened with independently timestamped artifacts such as cloud-drive version history, email attachments or correspondence, university/LMS records, private-repository history, preserved source archives, dated reports, diagrams, screenshots, notebooks, or test outputs.
+
+No such artifact should be modified, recreated, or backdated merely to support a chronology claim.
 
 ## Evidence standard
 
@@ -25,7 +38,15 @@ Git history is preserved as historical evidence. It is not rewritten or backdate
 
 ## Provenance conclusion
 
-The evidence reviewed supports **2026** as the earliest defensible year for this repository. Earlier dates may exist in referenced research, source datasets, publications, standards, or unrelated/precursor academic work, but no direct evidence reviewed here justifies rewriting this repository's Git history to an earlier year.
+The directly verifiable conclusion from the current Git repository is that its **public GitHub history begins in 2026-07**.
+
+That fact must not be conflated with project inception. The maintainer records the original development period as **Oct. 2025 - Sep. 2026**.
+
+The correct interpretation is:
+
+> The maintainer records project development as beginning in October 2025; the project entered the current public GitHub history in July 2026 and continued to be expanded, hardened, tested, and documented through September 2026.
+
+Current test counts, coverage, rules, fixtures, features, CI controls, and other quantified claims remain tied to their own later verification snapshots. They should not be projected backward to the beginning of the project period unless a dated historical artifact supports that exact metric.
 
 ## Audit scope
 
@@ -40,6 +61,22 @@ Evidence considered in this pass included:
 
 **Audit date:** 2026-09-21
 
+
+
+## Clarification — 2026-10-07
+
+An earlier version of this audit used wording such as **"earliest defensible year for this repository/project lineage: 2026."** That phrasing was too broad because it merged two different questions:
+
+1. When does the current public Git repository history begin?
+2. When did the underlying project work begin?
+
+The corrected interpretation is:
+
+- **Public Git repository history:** directly verifiable from 2026-07-10.
+- **Maintainer-recorded project development:** Oct. 2025 - Sep. 2026.
+- **Independent pre-Git verification:** should be cited when preserved external artifacts are available and inspected.
+
+This clarification preserves the genuine Git history. It does not backdate commits, rewrite timestamps, or claim that today's implementation and metrics existed unchanged during the earlier project period.
 
 ## Expanded proof matrix
 
