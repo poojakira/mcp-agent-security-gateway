@@ -25,7 +25,7 @@ Portfolio: [Pooja Kiran Security Engineering Portfolio](https://poojakira.github
 
 ## Overview
 
-`mcp-agent-security-gateway` sits between an AI agent (MCP client) and downstream MCP servers and inspects each `tools/call` request over JSON-RPC before it executes, returning an allow/block decision. It applies prompt-injection, PII/exfiltration, capability/shadow-server, and process/egress-policy checks, and records tamper-evident audit and telemetry. It exists because an agent that can call tools, assume roles, and load artifacts is making privileged decisions on infrastructure, and nothing in the base MCP protocol inspects those calls. Enforcement applies only to traffic routed through a supported integration path — this is a production-oriented research prototype, not a network firewall or a deployed SOC.
+`mcp-agent-security-gateway` sits between an AI agent (MCP client) and downstream MCP servers and inspects each `tools/call` request over JSON-RPC before it executes, returning an allow/block decision. It applies prompt-injection, PII/exfiltration, capability/shadow-server, and process/egress-policy checks, and records tamper-evident audit and telemetry. It exists because an agent that can call tools, assume roles, and load artifacts is making privileged decisions on infrastructure, and nothing in the base MCP protocol inspects those calls. Enforcement applies only to traffic routed through a supported integration path. This is an engineering research prototype with tested enforcement paths, not a network firewall, customer deployment, or deployed SOC.
 
 **Data-protection scope:** PII and exfiltration checks apply to supported, routed tool-call paths. They are signals and scoped policy controls, not complete data-loss prevention.
 
@@ -174,7 +174,7 @@ Heuristic detectors can be evaded; the fixed red-team catalog is a regression su
 
 ## Project Status
 
-**Production-oriented research prototype.** Functional, tested, and CI-validated, with fail-closed auth and tamper-evident audit — but not proven at production scale or in a live SOC deployment.
+**Engineering research prototype.** Functional, tested, and CI-validated, with fail-closed auth and tamper-evident audit. It has not been proven at production scale or in a live SOC deployment.
 
 ## License
 
