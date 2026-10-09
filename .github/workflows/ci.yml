@@ -298,7 +298,7 @@ jobs:
     name: Docker Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: ${{ github.repository_owner == 'poojakira' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.repository_owner == 'poojakira' && (github.event_name == 'push' || github.event_name == 'pull_request') }}
     needs: [lint-and-typecheck, test]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -318,3 +318,22 @@ jobs:
           tags: local/test:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Smoke test final runtime image (no external pilot traffic)
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --name mcp-ci-smoke \
+            -e MCP_API_KEY=local-ci-only-test-value \
+            local/test:${{ github.sha }}
+          trap 'docker rm -f mcp-ci-smoke >/dev/null 2>&1 || true' EXIT
+          for attempt in $(seq 1 30); do
+            if docker exec mcp-ci-smoke python -c 'import urllib.request; print(urllib.request.urlopen("http://127.0.0.1:8080/v1/health", timeout=2).status)' >/dev/null 2>&1; then
+              echo "Final runtime image responded to /v1/health"
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs mcp-ci-smoke || true
+          echo "Final image failed readiness smoke test" >&2
+          exit 1
