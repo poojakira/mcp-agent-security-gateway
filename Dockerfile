@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
 COPY tests ./tests
+# This source-only measurement helper is imported by a builder-stage regression test.
+# It is intentionally not copied into the runtime stage.
+COPY scripts/measure_incident_response.py ./scripts/measure_incident_response.py
 COPY detection_rules ./detection_rules
 COPY Dockerfile docker-compose.yml locustfile.py ./
 COPY deploy ./deploy
