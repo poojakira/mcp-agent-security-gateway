@@ -224,3 +224,8 @@ See [60-second recruiter demo](docs/RECRUITER_DEMO_60S.md).
 ## Recruiting evidence audit (2026-10-09)
 
 See [the bounded recruiting evidence audit](docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md) for current dated verification, test-scope limitations and unsupported impact claims.
+
+
+## Verification status — October 9, 2026
+
+See [evidence and limitations](docs/VERIFICATION_STATUS_2026-10-09.md). Passing CI at a dated commit or a preview deployment does not certify all source, security controls or operational claims.
