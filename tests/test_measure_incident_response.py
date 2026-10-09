@@ -53,5 +53,5 @@ def test_unpaired_scenarios_rejected(tmp_path):
     p = fixture(tmp_path)
     data = p.read_text().splitlines()
     p.write_text("\n".join(data[:-1]) + "\n")
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="matching scenario"):
         measure(p)
