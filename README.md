@@ -176,6 +176,12 @@ Heuristic detectors can be evaded; the fixed red-team catalog is a regression su
 
 **Engineering research prototype.** Functional, tested, and CI-validated, with fail-closed auth and tamper-evident audit. It has not been proven at production scale or in a live SOC deployment.
 
+### External pilot integration validation — 2026-10-09
+
+**Integration validated; detector effectiveness not evaluated.** Three persistent identities and authenticated MCP telemetry transport were checked, and Cerberus independently confirmed correct identity attribution for the initial validation events. The current single-host/NAT environment does not satisfy the multi-source-per-identity condition of Cerberus's production fan-out detector. Validation events must not be misrepresented as normal behavioral-baseline history.
+
+See the [dated Cerberus integration-validation closure](docs/evidence/CERBERUS_INTEGRATION_VALIDATION_CLOSURE_2026-10-09.md) for the evidence ledger, receiver-confirmation boundary, outstanding classification correction, limitations, and formal closeout decision.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
