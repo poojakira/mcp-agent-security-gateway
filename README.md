@@ -220,3 +220,7 @@ If a real credential is ever exposed, revoke or rotate it at the provider first,
 ## Recruiter demo
 
 See [60-second recruiter demo](docs/RECRUITER_DEMO_60S.md).
+
+## Recruiting evidence audit (2026-10-09)
+
+See [the bounded recruiting evidence audit](docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md) for current dated verification, test-scope limitations and unsupported impact claims.
