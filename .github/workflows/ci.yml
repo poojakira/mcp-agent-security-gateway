@@ -328,16 +328,18 @@ jobs:
           set -euo pipefail
           docker run -d --network none --name mcp-ci-smoke \
             -e MCP_API_KEY=local-ci-only-test-value \
+            -e MCP_WAL_PATH=/var/lib/mcp/ci-wal.jsonl \
+            -e MCP_AUDIT_PATH=/var/lib/mcp/ci-audit.jsonl \
             local/test:${{ github.sha }}
           trap 'docker rm -f mcp-ci-smoke >/dev/null 2>&1 || true' EXIT
           for attempt in $(seq 1 30); do
-            if docker exec mcp-ci-smoke python -c 'import urllib.request; print(urllib.request.urlopen("http://127.0.0.1:8080/v1/health", timeout=2).status)' >/dev/null 2>&1; then
-              echo "Final runtime image responded to /v1/health"
+            if docker exec mcp-ci-smoke python -c 'import urllib.request; print(urllib.request.urlopen("http://127.0.0.1:8080/v1/ready", timeout=2).status)' >/dev/null 2>&1; then
+              echo "Final runtime image ready after ${attempt} attempt(s)"
               exit 0
             fi
             sleep 2
           done
           docker logs mcp-ci-smoke || true
-          echo "Final image failed readiness smoke test" >&2
+          echo "Final image failed readiness smoke test after ${attempt} attempts" >&2
           exit 1
 
