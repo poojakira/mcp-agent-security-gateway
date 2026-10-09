@@ -3,11 +3,18 @@
 from __future__ import annotations
 
 import csv
+import importlib.util
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 
-from scripts.measure_incident_response import measure
+_path = Path(__file__).resolve().parents[1] / "scripts" / "measure_incident_response.py"
+_spec = importlib.util.spec_from_file_location("measure_incident_response", _path)
+assert _spec is not None and _spec.loader is not None
+_module = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_module)
+measure = _module.measure
 
 
 def fixture(tmp_path, *, synthetic=False):
