@@ -52,6 +52,6 @@ def test_synthetic_rejected_for_operational_claims(tmp_path):
 def test_unpaired_scenarios_rejected(tmp_path):
     p = fixture(tmp_path)
     data = p.read_text().splitlines()
-    p.write_text("\\n".join(data[:-1]) + "\\n")
+    p.write_text("\n".join(data[:-1]) + "\n")
     with pytest.raises(ValueError):
         measure(p)
