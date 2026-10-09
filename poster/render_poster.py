@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import html
@@ -23,10 +22,12 @@ BROWSERS = [
     Path(r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"),
 ]
 
+
 def clean_inline(text: str) -> str:
     text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
     text = text.replace("**", "").replace("__", "").replace(chr(96), "")
     return text.strip()
+
 
 def parse_sections(md: str) -> dict[str, list[str]]:
     sections: dict[str, list[str]] = {"_lead": []}
@@ -53,17 +54,20 @@ def parse_sections(md: str) -> dict[str, list[str]]:
             sections.setdefault(current, []).append(line.strip())
     return sections
 
+
 def extract_title(sections: dict[str, list[str]], fallback: str) -> str:
     for key in ("Academic Project Title", "Project Title", "Title"):
         if sections.get(key):
             return clean_inline(" ".join(sections[key]))
     return fallback
 
+
 def extract_subtitle(sections: dict[str, list[str]]) -> str:
     for key in ("Technical Subtitle", "Subtitle"):
         if sections.get(key):
             return clean_inline(" ".join(sections[key]))
     return ""
+
 
 def block_html(lines: list[str]) -> str:
     parts: list[str] = []
@@ -73,10 +77,18 @@ def block_html(lines: list[str]) -> str:
     def flush():
         nonlocal bullets, ordered
         if bullets:
-            parts.append("<ul>" + "".join(f"<li>{html.escape(clean_inline(x))}</li>" for x in bullets) + "</ul>")
+            parts.append(
+                "<ul>"
+                + "".join(f"<li>{html.escape(clean_inline(x))}</li>" for x in bullets)
+                + "</ul>"
+            )
             bullets = []
         if ordered:
-            parts.append("<ol>" + "".join(f"<li>{html.escape(clean_inline(x))}</li>" for x in ordered) + "</ol>")
+            parts.append(
+                "<ol>"
+                + "".join(f"<li>{html.escape(clean_inline(x))}</li>" for x in ordered)
+                + "</ol>"
+            )
             ordered = []
 
     for raw in lines:
@@ -96,13 +108,17 @@ def block_html(lines: list[str]) -> str:
     flush()
     return "".join(parts)
 
+
 def parse_metrics(md: str) -> list[tuple[str, str, str]]:
-    rows=[]
+    rows = []
     for line in md.splitlines():
         if not line.startswith("|") or "---" in line or "Metric" in line:
             continue
-        cells=[clean_inline(c) for c in line.strip().strip("|").split("|")]
-        if cells and (cells[0].lower() in {"item", "series"} or (len(cells) > 1 and cells[1].lower() == "value")):
+        cells = [clean_inline(c) for c in line.strip().strip("|").split("|")]
+        if cells and (
+            cells[0].lower() in {"item", "series"}
+            or (len(cells) > 1 and cells[1].lower() == "value")
+        ):
             continue
         if len(cells) >= 3:
             rows.append((cells[0], cells[1], cells[2]))
@@ -110,11 +126,13 @@ def parse_metrics(md: str) -> list[tuple[str, str, str]]:
             rows.append((cells[0], cells[1], "Verified poster evidence"))
     return rows
 
+
 def pick_section(sections: dict[str, list[str]], *names: str) -> list[str]:
     for name in names:
         if sections.get(name):
             return sections[name]
     return []
+
 
 def main() -> int:
     brief = BRIEF.read_text(encoding="utf-8")
@@ -144,7 +162,7 @@ def main() -> int:
     metric_cards = "".join(
         f"<div class='metric'><div class='mval'>{html.escape(value)}</div>"
         f"<div class='mname'>{html.escape(name)}</div><div class='mscope'>{html.escape(scope)}</div></div>"
-        for name,value,scope in metrics[:8]
+        for name, value, scope in metrics[:8]
     )
 
     css = """
@@ -198,7 +216,7 @@ def main() -> int:
     }
     """
 
-    def sec(title_: str, lines: list[str], cls: str="") -> str:
+    def sec(title_: str, lines: list[str], cls: str = "") -> str:
         if not lines:
             return ""
         return f"<section class='{cls}'><h2>{html.escape(title_)}</h2>{block_html(lines)}</section>"
@@ -233,7 +251,10 @@ def main() -> int:
     browser_env = os.environ.get("POSTER_BROWSER")
     browser = Path(browser_env) if browser_env else None
     if browser is None:
-        system_candidates = [shutil.which(name) for name in ("google-chrome", "chromium", "chromium-browser", "microsoft-edge")]
+        system_candidates = [
+            shutil.which(name)
+            for name in ("google-chrome", "chromium", "chromium-browser", "microsoft-edge")
+        ]
         browser = next((Path(p) for p in system_candidates if p and Path(p).exists()), None)
     if browser is None:
         browser = next((p for p in BROWSERS if p.exists()), None)
@@ -241,25 +262,37 @@ def main() -> int:
         raise SystemExit("Edge, Chrome, or Chromium not found")
 
     with tempfile.TemporaryDirectory(prefix="poster-render-") as td:
-        td_path=Path(td)
-        html_path=td_path/"poster.html"
-        html_path.write_text(body,encoding="utf-8")
-        url=html_path.resolve().as_uri()
-        profile=td_path/"profile"
-        subprocess.run([
-            str(browser),"--headless=new","--disable-gpu","--hide-scrollbars",
-            f"--user-data-dir={profile}",
-            f"--print-to-pdf={OUT_PDF}",
-            "--no-pdf-header-footer",
-            url,
-        ],check=True)
-        subprocess.run([
-            str(browser),"--headless=new","--disable-gpu","--hide-scrollbars",
-            f"--user-data-dir={profile}",
-            "--window-size=1800,2400",
-            f"--screenshot={OUT_PNG}",
-            url,
-        ],check=True)
+        td_path = Path(td)
+        html_path = td_path / "poster.html"
+        html_path.write_text(body, encoding="utf-8")
+        url = html_path.resolve().as_uri()
+        profile = td_path / "profile"
+        subprocess.run(
+            [
+                str(browser),
+                "--headless=new",
+                "--disable-gpu",
+                "--hide-scrollbars",
+                f"--user-data-dir={profile}",
+                f"--print-to-pdf={OUT_PDF}",
+                "--no-pdf-header-footer",
+                url,
+            ],
+            check=True,
+        )
+        subprocess.run(
+            [
+                str(browser),
+                "--headless=new",
+                "--disable-gpu",
+                "--hide-scrollbars",
+                f"--user-data-dir={profile}",
+                "--window-size=1800,2400",
+                f"--screenshot={OUT_PNG}",
+                url,
+            ],
+            check=True,
+        )
 
     if ROOT.name == "mcp-agent-security-gateway":
         (ROOT / "MCP_Gateway_Poster.pdf").write_bytes(OUT_PDF.read_bytes())
@@ -267,6 +300,7 @@ def main() -> int:
     print(f"rendered {OUT_PDF}")
     print(f"rendered {OUT_PNG}")
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

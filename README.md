@@ -158,7 +158,7 @@ Latest cited quantified verification snapshot (`008775c8878cc70c50247baa223da325
 
 ## CI/CD
 
-GitHub Actions runs Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, SBOM generation, Docker build validation, and the Python 3.10/3.11/3.12 test matrix plus a Windows control-plane job. Later documentation-only verification heads containing the same runtime code as the cited test snapshot completed the full CI and Production Gate successfully.
+GitHub Actions runs Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, SBOM generation, Docker build validation, and the Python 3.10/3.11/3.12 test matrix plus a Windows control-plane job. Historical successful runs do not establish that the current head passes every job. The October 9 ordinary Docker failures occurred before application build execution: Docker Hub returned HTTP 429 for the Python base image, and the PR build timed out pulling BuildKit. See [Docker build validation](docs/DOCKER_BUILD.md) for the mitigation and validation boundary.
 
 ## Security & Documentation
 
