@@ -1,5 +1,6 @@
 # MCP Security Gateway Monitor - Container Build
-FROM python:3.11-slim AS builder
+ARG PYTHON_BASE_IMAGE=python:3.11-slim
+FROM ${PYTHON_BASE_IMAGE} AS builder
 
 WORKDIR /app
 
@@ -23,7 +24,7 @@ RUN pytest tests/ -v
 
 RUN pip wheel --wheel-dir=/wheels --no-deps .
 
-FROM python:3.11-slim AS runtime
+FROM ${PYTHON_BASE_IMAGE} AS runtime
 
 WORKDIR /app
 

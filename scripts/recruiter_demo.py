@@ -61,21 +61,25 @@ def run_demo(*, quiet: bool = False) -> dict:
         )
         chain_ok, broken_at = audit.verify_chain()
 
-        ecs = ECSFormatter(shadow_mode=False).format_decision(
-            call_id=block_entry.entry_id,
-            trace_id="recruiter-demo-trace",
-            tool_name=blocked_call["name"],
-            server_id=blocked_call["server_id"],
-            agent_id="demo-agent",
-            session_id="demo-session",
-            allowed=blocked.allowed,
-            enforcement_action="block",
-            blocked_by_layer=5,
-            layer_name="network_egress",
-            risk_score=90,
-            findings=[blocked.reason_code.value],
-            latency_ms=0.0,
-        ).to_dict()
+        ecs = (
+            ECSFormatter(shadow_mode=False)
+            .format_decision(
+                call_id=block_entry.entry_id,
+                trace_id="recruiter-demo-trace",
+                tool_name=blocked_call["name"],
+                server_id=blocked_call["server_id"],
+                agent_id="demo-agent",
+                session_id="demo-session",
+                allowed=blocked.allowed,
+                enforcement_action="block",
+                blocked_by_layer=5,
+                layer_name="network_egress",
+                risk_score=90,
+                findings=[blocked.reason_code.value],
+                latency_ms=0.0,
+            )
+            .to_dict()
+        )
 
         result = {
             "allowed_call": {
