@@ -626,7 +626,7 @@ class PromptInjectionDetector:
                 from mcp_monitor.defense10.ml_classifier import MLThreatClassifier
 
                 classifier = MLThreatClassifier(threshold=0.7)
-                classifier.train()
+                classifier.train(evaluate_cv=False)
                 # Only publish the classifier after a successful train(). Assigning
                 # before train() would leak an untrained instance if train() raised,
                 # and callers would then hit the ML dependency error at classify()

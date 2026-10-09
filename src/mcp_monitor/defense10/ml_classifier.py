@@ -93,6 +93,8 @@ class MLThreatClassifier:
         self,
         malicious: list[str] | None = None,
         benign: list[str] | None = None,
+        *,
+        evaluate_cv: bool = True,
     ) -> dict[str, Any]:
         """Train the classifier. Returns training metrics."""
         import numpy as np
@@ -163,13 +165,16 @@ class MLThreatClassifier:
         self._pipeline.fit(X, y)
         self._trained = True
 
-        # 5-fold stratified cross-validation
-        try:
-            skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-            scores = cross_val_score(self._pipeline, X, y, cv=skf, scoring="accuracy")
-            cv_mean = float(np.mean(scores))
-        except Exception:
-            cv_mean = float("nan")
+        # Evaluate cross-validation only for explicit training/evaluation jobs.
+        # The online detector must not run a five-fold benchmark on first request.
+        cv_mean = float("nan")
+        if evaluate_cv:
+            try:
+                skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+                scores = cross_val_score(self._pipeline, X, y, cv=skf, scoring="accuracy")
+                cv_mean = float(np.mean(scores))
+            except Exception:
+                cv_mean = float("nan")
 
         if self._model_path:
             self.save(self._model_path)

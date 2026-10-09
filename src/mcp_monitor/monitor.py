@@ -93,6 +93,7 @@ class MCPSecurityMonitor:
         decision = Decision.ALLOW
         allowed = False
         is_shadow = False
+        injected = False
 
         # 1. Prompt injection
         try:
@@ -149,7 +150,7 @@ class MCPSecurityMonitor:
         # Determine final decision
         if decision == Decision.ALLOW:
             # Check if any detector found a threat
-            if risk_score >= 50 or is_shadow:
+            if injected or risk_score >= 50 or is_shadow:
                 decision = Decision.BLOCK
                 allowed = False
             else:
