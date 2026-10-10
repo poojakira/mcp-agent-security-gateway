@@ -63,7 +63,7 @@ $env:PYTHONPATH="src"
 python -m pytest tests -q --cov=mcp_monitor --cov-report=term
 ```
 
-Expected at the cited snapshot: **718 passed**, **82.46%** statement coverage.
+Expected at the cited snapshot: **723 passed**, **81.91%** statement coverage.
 
 ## Evidence Sources
 
