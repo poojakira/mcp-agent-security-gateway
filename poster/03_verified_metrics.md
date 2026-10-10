@@ -9,6 +9,7 @@
 | Tests failed | **0** | Cited CI run |
 | Statement coverage | **81.91%** | 5,644 statements, 1,021 missed |
 | Prompt-injection collection entries | **55** | Named runtime collection |
+| Current merged detector (PR #123) | **69** | Current main at c30075d; separate from the 55-entry historical snapshot, 15/15 development attacks, 3/15 benign flags |
 | Elastic rule records | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
 | SIEM scenario tests | **12** | `tests/test_siem_scenarios.py` |
