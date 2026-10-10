@@ -229,3 +229,12 @@ See [the bounded recruiting evidence audit](docs/RECRUITER_EVIDENCE_AUDIT_2026-1
 ## Verification status — October 9, 2026
 
 See [evidence and limitations](docs/VERIFICATION_STATUS_2026-10-09.md). Passing CI at a dated commit or a preview deployment does not certify all source, security controls or operational claims.
+
+## October 2026 detector update (separate from the cited historical CI snapshot)
+
+Commit `c30075da1dc1d3fa7b843bb76be8e842fbfa6ae3` merged the detector-only changes from PR #123. The named runtime prompt-injection signature list now has **69 entries (55 historical plus 14 added)**. The focused local regression run passed **77 tests**. On 15 *development* attack examples, the updated regex-only detector flagged **15/15**, while it also flagged **3/15** benign examples. This is a test-set result, **not** independently held-out recall, population-level precision, or a customer-deployment efficacy percentage.
+
+A separate five-case synthetic policy-enforcement check denied 5/5 disallowed calls against a deliberately pass-through comparator, **not** a measured reduction in incidents or unauthorized execution attempts in the field. A comparison of the earlier 12-signature and 55-signature detectors on 15 familiar positive fixtures found **0 percentage-point recall difference**, because both detected all 15. The 14 additional signatures have not been independently validated against unseen data. The IAM Guard's five-case synthetic check detected 5/5 deliberately vulnerable cases, but also produced a finding on one nominally benign read policy (AIG007); it is **not** evidence of general IAM recall or precision.
+
+The Cerberus pilot, persistent identities, baseline, deployment and transport configuration are not involved in these measurements. Do not combine the 69-entry runtime detector with the older 55-entry verified snapshot, and do not combine the original 81.91% code coverage figure with the later 752-test Docker run.
+
