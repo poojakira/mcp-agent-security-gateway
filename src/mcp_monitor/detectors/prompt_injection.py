@@ -604,6 +604,111 @@ _BIDI_RE = re.compile(
 )
 
 
+# Additional explicit authority-spoofing and instruction-replacement signals.
+# This list is additive; benign quoting still needs a context-aware evaluation.
+_EXPERIMENTAL_AUTHORITY_PATTERNS = [
+    (
+        "obsolete_prior_text",
+        re.compile(
+            "(?:text|instructions?|guidance) (?:above|earlier|before) (?:is|are) obsolete",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "override_safety",
+        re.compile(
+            "(?:ignore|disable|suspend|override) (?:any |all |the )?(?:previous |prior )?(?:safety|security) (?:controls|checks|rules|filters)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "privileged_tool_output",
+        re.compile(
+            "(?:tool|retrieved|document|file) (?:response|output|content|page) (?:has|holds|claims) (?:administrator|admin|system|developer) priority",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "revoke_guardrails",
+        re.compile(
+            "(?:previous|earlier|existing) (?:guardrails|controls|restrictions) (?:revoked|are revoked|have been revoked)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "approval_spoofing",
+        re.compile(
+            "(?:pretend|assume|claim) (?:the )?(?:user|administrator|owner) (?:has )?(?:approved|authorized|granted) (?:unrestricted|full|unlimited)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "sandbox_escape_authority",
+        re.compile(
+            "(?:document|file|page) grants (?:you )?permission to (?:use|access|read|write) .{0,50}(?:outside the sandbox|restricted directory|private files)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "exfiltrate_confidential",
+        re.compile(
+            "(?:forward|send|upload|exfiltrate) (?:confidential|private|secret|internal) .{0,80}(?:remote|external|url|endpoint|server)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "secret_environment_exfil",
+        re.compile(
+            "(?:token|secret|credentials?|api key) in (?:the )?environment variables? .{0,80}(?:paste|send|upload|share)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "rule_override_above",
+        re.compile(
+            "override (?:every|all|the) (?:rules?|instructions?) (?:written |listed |stated )?above",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "set_aside_prior",
+        re.compile(
+            "set aside (?:any |all )?(?:prior|earlier|previous) (?:guidance|instructions|directions)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "revoke_developer",
+        re.compile(
+            "(?:system|developer) (?:messages?|rules|instructions) (?:no longer apply|are obsolete|have been revoked)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "authority_promotion",
+        re.compile(
+            "(?:adopt|treat) .{0,75} (?:as the )?(?:new developer message|highest authority|higher priority than system)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "guardrails_expired",
+        re.compile(
+            "(?:previous|earlier) (?:guardrails|rules|controls) (?:have been revoked|are obsolete)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "override_previous_directions",
+        re.compile(
+            "(?:disregard|override) (?:earlier|previous|every) (?:directions|rules|controls)",
+            re.IGNORECASE,
+        ),
+    ),
+]
+INJECTION_PATTERNS.extend(_EXPERIMENTAL_AUTHORITY_PATTERNS)
+
+
 class PromptInjectionDetector:
     """Detects prompt injection attempts in MCP tool call arguments.
 
