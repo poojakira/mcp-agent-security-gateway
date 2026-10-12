@@ -1,6 +1,6 @@
-# Historical Verification Evidence — September 30, 2026
+# Historical Verification Evidence — October 4, 2026
 
-This page preserves the former `VERIFIED_METRICS.md` record verbatim below. It is dated historical evidence, **not** the latest verified test/coverage report. For the latest results, see [current verification](../../VERIFIED_METRICS.md).
+This page preserves the former `VERIFIED_METRICS.md` record verbatim below. The cited commit `008775c8878cc70c50247baa223da3256e093316` and CI run `37184196303` are from **October 4, 2026 UTC**, not September 30. It is dated historical evidence, **not** the latest verified test/coverage report. For the latest results, see [current verification](../../VERIFIED_METRICS.md).
 
 ---
 

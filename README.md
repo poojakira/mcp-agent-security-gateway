@@ -23,7 +23,7 @@ The **October 12, 2026 local Windows** full-suite run at published main `b6d7122
 
 ## Dated historical evidence
 
-The September 30 snapshot (**723 passed**, **81.91% statement coverage**, **55 named signatures**) is preserved, with its original commit and CI run, in [Historical Verification Evidence](docs/archive/HISTORICAL_EVIDENCE.md). The linked research poster also presents dated evidence rather than verification of the current main commit.
+The October 4, 2026 snapshot (**723 passed**, **81.91% statement coverage**, **55 named signatures**) is preserved, with its original commit and CI run, in [Historical Verification Evidence](docs/archive/HISTORICAL_EVIDENCE.md). The linked research poster also presents dated evidence rather than verification of the current main commit.
 
 ## Security Problem
 
@@ -138,7 +138,7 @@ bandit -r src -ll
 pip-audit
 ```
 
-Current full-suite metrics are **782 passing tests and 81.47% statement coverage on Windows (October 12)**, and **782 passing tests and 81.93% in hosted Linux CI (October 10)**. See [current, environment-scoped evidence](VERIFIED_METRICS.md). The September 30 [historical snapshot](docs/archive/HISTORICAL_EVIDENCE.md) remains dated.
+Current full-suite metrics are **782 passing tests and 81.47% statement coverage on Windows (October 12)**, and **782 passing tests and 81.93% in hosted Linux CI (October 10)**. See [current, environment-scoped evidence](VERIFIED_METRICS.md). The October 4, 2026 [historical snapshot](docs/archive/HISTORICAL_EVIDENCE.md) remains dated.
 
 ## CI/CD
 

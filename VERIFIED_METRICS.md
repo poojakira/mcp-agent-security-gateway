@@ -13,13 +13,13 @@
 
 ## Reproduce local Windows evidence
 
-With Python development dependencies and `pytest-cov` available at the cited checkout:
+With Python development dependencies and `pytest-cov` available at the cited checkout. Select Python 3.12 explicitly; use **Python 3.12.10** when exact patch-level reproduction is required:
 
 ```powershell
 $env:PYTHONPATH = (Join-Path (Get-Location) 'src')
 $env:PYTHONDONTWRITEBYTECODE = '1'
 $env:PYTEST_DISABLE_PLUGIN_AUTOLOAD = '1'
-py -m pytest tests -q -p pytest_cov -p no:cacheprovider --override-ini addopts='' --cov=mcp_monitor --cov-report=term --disable-warnings
+py -3.12 -m pytest tests -q -p pytest_cov -p no:cacheprovider --override-ini addopts='' --cov=mcp_monitor --cov-report=term --disable-warnings
 ```
 
 ## Historical evidence
