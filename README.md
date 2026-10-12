@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-782%20Oct%202026%20CI-brightgreen)](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38012954359)
-[![Coverage](https://img.shields.io/badge/coverage-81.93%25%20same%20run-brightgreen)](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38012954359)
+[![Coverage](https://img.shields.io/badge/coverage-81.47%25%20Windows%20Oct%2012-brightgreen)](VERIFIED_METRICS.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
@@ -17,21 +17,13 @@ Portfolio: [Pooja Kiran Security Engineering Portfolio](https://poojakira.github
 
 **Data-protection scope:** PII and exfiltration checks apply to supported, routed tool-call paths. They are signals and scoped policy controls, not complete data-loss prevention.
 
-## Latest inspected hosted CI (October 10, 2026 UTC)
+## Current verified evidence (October 2026)
 
-[Python 3.12 CI run 38012954359](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38012954359) passed **782 tests** with **81.93% statement coverage**. The **69 named runtime detector signatures** are a *separate code-inventory result*, not a held-out detection-performance evaluation. The record proves neither live traffic prevention effectiveness nor production throughput.
+The **October 12, 2026 local Windows** full-suite run at published main `b6d7122` passed **782 tests** at **81.47% Python statement coverage** (5,657 statements; 1,048 missed). [October 10 hosted Linux Python 3.12 CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38012954359) separately passed **782 tests** at **81.93%** (5,657 statements; 1,022 missed). The 26-statement difference is concentrated in Linux/POSIX-specific execution paths; these are distinct environments and run dates, not interchangeable measurements. See [current verified metrics](VERIFIED_METRICS.md). The **69 named detector signatures** are a code-inventory count, not a held-out measure of effectiveness or production traffic prevention.
 
-## Historical Verified Snapshot (poster evidence)
+## Dated historical evidence
 
-Verified against code snapshot `008775c8878cc70c50247baa223da3256e093316` on Python 3.12 (CI run `37184196303`). Evidence: [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
-
-| Metric | Verified snapshot value |
-|---|---:|
-| Tests | 723 passing (Python 3.12; same suite green on 3.10/3.11/3.12) |
-| Statement coverage | 81.91% (5,644 statements; 1,021 missed) |
-| Prompt-injection patterns | 55 (`INJECTION_PATTERNS`) |
-| Elastic Security rules | 9 |
-| Core SIEM tests | 21 |
+The September 30 snapshot (**723 passed**, **81.91% statement coverage**, **55 named signatures**) is preserved, with its original commit and CI run, in [Historical Verification Evidence](docs/archive/HISTORICAL_EVIDENCE.md). The linked research poster also presents dated evidence rather than verification of the current main commit.
 
 ## Security Problem
 
@@ -71,7 +63,7 @@ Enforcement depends on the integration path: the Python wrapper raises `ToolBloc
 
 - Inline MCP stdio proxy for selected `tools/call` requests
 - JSON-RPC 2.0 parsing and request validation
-- Prompt-injection-oriented argument inspection with normalization (55 patterns)
+- Prompt-injection-oriented argument inspection with normalization (69 named current signatures; heuristic and evadable)
 - Server-registry and capability (shadow-server) checks
 - PII/sensitive-data and exfiltration signals
 - Application-level process-execution and egress-policy decisions
@@ -90,7 +82,7 @@ Enforcement depends on the integration path: the Python wrapper raises `ToolBloc
 
 `src/mcp_monitor/production/identity_telemetry.py` adds a locally computed telemetry surface for external behavioral-validation workflows without exporting raw API credentials or raw source addresses. The gateway supports multiple stable credentials, canonicalizes IPv4/IPv6 source addresses (including IPv4-mapped IPv6), derives exact/network/block inputs, and fingerprints them with `HMAC-SHA256(key=tenant_salt, message=UTF-8(value)).hexdigest()[:32]`. Forwarded source headers are only trusted when the socket peer belongs to an explicitly configured trusted proxy CIDR; otherwise the socket peer is authoritative. Current event objects set `tokens_in = 0` and `tokens_out = 0` where token accounting is unavailable. Live transport records use an integer schema version of `1`, client identifier `mcp-gateway/1.0.0`, `backfill: false`, an `events` array, and a positional `event_fps` array. Each event fingerprint is computed locally as HMAC-SHA256 over `"evt:" + event_id`, truncated to 32 lowercase hexadecimal characters. The internal event ID is not transmitted. Queued envelopes are immutable and retries resend the same stored envelope/fingerprint.
 
-The latest cited quantified implementation snapshot reports **723 tests passed** with **81.91% statement coverage** on Python 3.12, with the same test suite green on Python 3.10 and 3.11.
+Current full-suite verification reports **782 passed, 81.47% Windows coverage** (October 12) and **782 passed, 81.93% hosted Linux coverage** (October 10). See [current metrics](VERIFIED_METRICS.md); [prior evidence](docs/archive/HISTORICAL_EVIDENCE.md) is archived.
 
 These follow the same discipline as the rest of the repo: separate detection from enforcement, attach scope to every metric, and label anything synthetic or unverified. Subsection-specific measurements are scoped to those modules; the repository-wide test/coverage snapshot above applies to the Python suite at the cited commit.
 
@@ -146,7 +138,7 @@ bandit -r src -ll
 pip-audit
 ```
 
-Latest cited quantified verification snapshot (`008775c8878cc70c50247baa223da3256e093316`, CI run `37184196303`): **723 passing, 81.91% statement coverage** on Python 3.12; the same suite is green on Python 3.10 and 3.11. GitHub Actions is the authoritative environment for published test/coverage claims.
+Current full-suite metrics are **782 passing tests and 81.47% statement coverage on Windows (October 12)**, and **782 passing tests and 81.93% in hosted Linux CI (October 10)**. See [current, environment-scoped evidence](VERIFIED_METRICS.md). The September 30 [historical snapshot](docs/archive/HISTORICAL_EVIDENCE.md) remains dated.
 
 ## CI/CD
 
@@ -156,7 +148,7 @@ GitHub Actions runs Ruff, Pyright, Bandit, pip-audit, CodeQL, Trivy, SBOM genera
 
 - [SECURITY.md](SECURITY.md) · [THREAT_MODEL.md](THREAT_MODEL.md) · [SECURITY_AUDIT.md](SECURITY_AUDIT.md)
 - [RUNBOOK.md](RUNBOOK.md) · [INCIDENT_RUNBOOK.md](INCIDENT_RUNBOOK.md) · [PRODUCTION.md](PRODUCTION.md)
-- [VERIFIED_METRICS.md](VERIFIED_METRICS.md) · [RESEARCH_REPORT.md](RESEARCH_REPORT.md)
+- [Current metrics](VERIFIED_METRICS.md) · [Historical evidence archive](docs/archive/HISTORICAL_EVIDENCE.md) · [RESEARCH_REPORT.md](RESEARCH_REPORT.md)
 - Detection lab: [detection_lab/README.md](detection_lab/README.md)
 - Performance baselines: [docs/PERFORMANCE_BASELINE.md](docs/PERFORMANCE_BASELINE.md)
 
