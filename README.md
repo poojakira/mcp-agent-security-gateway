@@ -1,22 +1,10 @@
-<!-- security-systems-poster -->
-## Research Poster
-
-**Security Systems / 01 — Runtime Policy Enforcement at the AI Agent-to-Tool Boundary**
-
-[![Research poster](poster/poster.png)](poster/poster_36x48.pdf)
-
-> Technical research poster (36 x 48 in). Click the image for the print-resolution **[PDF](poster/poster_36x48.pdf)**.
-> Poster measurements are dated snapshots at their printed commits. Use the repository evidence files for newer results; do not read the poster as a verification of the latest `main`.
-> Every metric on it is evidence-backed; historical/projected numbers are labeled and separated from current results.
-<!-- security-systems-poster -->
-
 # MCP Agent Security Gateway
 
 > Inspect and enforce AI-agent MCP/JSON-RPC tool calls at the agent-to-tool boundary before they execute.
 
 [![CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-723%20at%20verified%20snapshot-brightgreen)](VERIFIED_METRICS.md)
-[![Coverage](https://img.shields.io/badge/coverage-81.91%25%20snapshot-brightgreen)](VERIFIED_METRICS.md)
+[![Tests](https://img.shields.io/badge/tests-782%20Oct%202026%20CI-brightgreen)](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38012954359)
+[![Coverage](https://img.shields.io/badge/coverage-81.93%25%20same%20run-brightgreen)](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38012954359)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
@@ -29,7 +17,11 @@ Portfolio: [Pooja Kiran Security Engineering Portfolio](https://poojakira.github
 
 **Data-protection scope:** PII and exfiltration checks apply to supported, routed tool-call paths. They are signals and scoped policy controls, not complete data-loss prevention.
 
-## Verified Snapshot
+## Latest inspected hosted CI (October 10, 2026 UTC)
+
+[Python 3.12 CI run 38012954359](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38012954359) passed **782 tests** with **81.93% statement coverage**. The **69 named runtime detector signatures** are a *separate code-inventory result*, not a held-out detection-performance evaluation. The record proves neither live traffic prevention effectiveness nor production throughput.
+
+## Historical Verified Snapshot (poster evidence)
 
 Verified against code snapshot `008775c8878cc70c50247baa223da3256e093316` on Python 3.12 (CI run `37184196303`). Evidence: [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
 
@@ -179,6 +171,19 @@ Heuristic detectors can be evaded; the fixed red-team catalog is a regression su
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+<!-- security-systems-poster -->
+## Research Poster
+
+**Security Systems / 01 — Runtime Policy Enforcement at the AI Agent-to-Tool Boundary**
+
+[![Research poster](poster/poster.png)](poster/poster_36x48.pdf)
+
+> Technical research poster (36 x 48 in). Click the image for the print-resolution **[PDF](poster/poster_36x48.pdf)**.
+> Poster measurements are dated snapshots at their printed commits. Use the repository evidence files for newer results; do not read the poster as a verification of the latest `main`.
+> Every metric on it is evidence-backed; historical/projected numbers are labeled and separated from current results.
+<!-- security-systems-poster -->
+
 
 <!-- repo-verification:start -->
 ## Verification update — 2026-09-30
