@@ -1,0 +1,52 @@
+{
+  "repository": "mcp-agent-security-gateway",
+  "title": "Runtime Policy Enforcement at the AI Agent-to-Tool Boundary",
+  "subtitle": "Design and Validation of an Inline MCP/JSON-RPC Security Gateway",
+  "license": "MIT",
+  "source_commit": "a00d23c69e5e56aac12d09e57b790cfb92b47062",
+  "test_commit": "008775c8878cc70c50247baa223da3256e093316",
+  "ci_run": 37184196303,
+  "ci_date": "2026-10-04",
+  "cards": [
+    {
+      "value": "723",
+      "label": "tests passed in cited CI"
+    },
+    {
+      "value": "81.91%",
+      "label": "statement coverage, same CI job"
+    },
+    {
+      "value": "55",
+      "label": "pattern entries at historical test snapshot"
+    },
+    {
+      "value": "9",
+      "label": "Elastic rule records, source inventory"
+    }
+  ],
+  "contribution": "MCP policy and inspection components return decisions and hash-chained audit evidence across supported integration paths; callers and transports have distinct enforcement responsibilities.",
+  "methods": [
+    "Parse and validate JSON-RPC, including duplicate-key and malformed-input rejection.",
+    "Normalize potentially obfuscated content before inspection.",
+    "Evaluate server trust, capabilities, and content/policy signals.",
+    "Return allow/block decisions using path-specific enforcement semantics.",
+    "Record hash-chained audit evidence and SIEM-oriented telemetry."
+  ],
+  "evidence": [
+    "Cited Python 3.12 CI: 723 passed, 81.91% statement coverage (5,644 statements, 1,021 missed); Python 3.10/3.11 jobs also succeeded.",
+    "The historical detector collection has 55 entries. A later dated inventory at c30075da1dc1d3fa7b843bb76be8e842fbfa6ae3 has 69 entries; these are inventory counts, not accuracy rates.",
+    "Cited job and source inventory: 21 core SIEM test functions and 7 scenario test functions, plus 9 Elastic rule records.",
+    "Reported development-set result for the later detector: 15/15 attack samples flagged and 3/15 benign flags. Not independently rerun here; not population precision/recall."
+  ],
+  "limitations": [
+    "PolicyEngine provides tool/server and egress policies; stdio inspection applies detector/rate checks, not one universal five-stage gate.",
+    "HTTP inspection callers must honor returned decisions. Controls apply only to traffic through the implemented integration paths.",
+    "No production deployment, universal prevention, detector effectiveness or external pilot result is established."
+  ],
+  "reproduction": [
+    "git checkout 008775c8878cc70c50247baa223da3256e093316",
+    "Install the documented development extras and run python -m pytest tests/ -q using the cited Linux CI configuration.",
+    "A different platform or dependency set may produce different counts/coverage. This poster is not a promise about the latest main."
+  ]
+}

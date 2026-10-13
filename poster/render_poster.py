@@ -1,306 +1,221 @@
+"""Render the reviewed claim manifest without browser, network or live services.
+
+PDF is the canonical visual; PNG is rasterized from its sole page. Evidence
+dates/commits are printed, and reported benchmarks stay separate from CI tests.
+"""
+
 from __future__ import annotations
 
 import html
-import os
-import re
+import json
 import shutil
-import subprocess
-import tempfile
+import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-POSTER = Path(__file__).resolve().parent
-BRIEF = POSTER / "01_research_brief.md"
-METRICS = POSTER / "03_verified_metrics.md"
-OUT_PDF = POSTER / "poster_36x48.pdf"
-OUT_PNG = POSTER / "poster.png"
+import fitz
+import reportlab
+from reportlab.lib import colors
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Paragraph
 
-BROWSERS = [
-    Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"),
-    Path(r"C:\Program Files\Microsoft\Edge\Application\msedge.exe"),
-    Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe"),
-    Path(r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"),
-]
-
-
-def clean_inline(text: str) -> str:
-    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
-    text = text.replace("**", "").replace("__", "").replace(chr(96), "")
-    return text.strip()
+WIDTH, HEIGHT = 2592, 3456  # 36 x 48 inches
+MARGIN, GAP = 150, 70
+INK = colors.HexColor("#122c40")
+PAPER = colors.HexColor("#f4f1e9")
+ACCENT = colors.HexColor("#a34f28")
 
 
-def parse_sections(md: str) -> dict[str, list[str]]:
-    sections: dict[str, list[str]] = {"_lead": []}
-    current = "_lead"
-    in_code = False
-    for raw in md.splitlines():
-        line = raw.rstrip()
-        if line.strip().startswith(chr(96) * 3):
-            in_code = not in_code
-            continue
-        if in_code:
-            continue
-        m = re.match(r"^#{2,3}\s+(.+)$", line)
-        if m:
-            current = clean_inline(m.group(1))
-            sections.setdefault(current, [])
-            continue
-        if line.startswith("# "):
-            continue
-        if line.startswith(">"):
-            sections.setdefault("Evidence Status", []).append(clean_inline(line.lstrip("> ")))
-            continue
-        if line.strip():
-            sections.setdefault(current, []).append(line.strip())
-    return sections
-
-
-def extract_title(sections: dict[str, list[str]], fallback: str) -> str:
-    for key in ("Academic Project Title", "Project Title", "Title"):
-        if sections.get(key):
-            return clean_inline(" ".join(sections[key]))
-    return fallback
-
-
-def extract_subtitle(sections: dict[str, list[str]]) -> str:
-    for key in ("Technical Subtitle", "Subtitle"):
-        if sections.get(key):
-            return clean_inline(" ".join(sections[key]))
-    return ""
-
-
-def block_html(lines: list[str]) -> str:
-    parts: list[str] = []
-    bullets: list[str] = []
-    ordered: list[str] = []
-
-    def flush():
-        nonlocal bullets, ordered
-        if bullets:
-            parts.append(
-                "<ul>"
-                + "".join(f"<li>{html.escape(clean_inline(x))}</li>" for x in bullets)
-                + "</ul>"
-            )
-            bullets = []
-        if ordered:
-            parts.append(
-                "<ol>"
-                + "".join(f"<li>{html.escape(clean_inline(x))}</li>" for x in ordered)
-                + "</ol>"
-            )
-            ordered = []
-
-    for raw in lines:
-        if raw.startswith("- "):
-            if ordered:
-                flush()
-            bullets.append(raw[2:])
-        elif re.match(r"^\d+\.\s+", raw):
-            if bullets:
-                flush()
-            ordered.append(re.sub(r"^\d+\.\s+", "", raw))
-        else:
-            flush()
-            text = clean_inline(raw)
-            if text:
-                parts.append(f"<p>{html.escape(text)}</p>")
-    flush()
-    return "".join(parts)
-
-
-def parse_metrics(md: str) -> list[tuple[str, str, str]]:
-    rows = []
-    for line in md.splitlines():
-        if not line.startswith("|") or "---" in line or "Metric" in line:
-            continue
-        cells = [clean_inline(c) for c in line.strip().strip("|").split("|")]
-        if cells and (
-            cells[0].lower() in {"item", "series"}
-            or (len(cells) > 1 and cells[1].lower() == "value")
-        ):
-            continue
-        if len(cells) >= 3:
-            rows.append((cells[0], cells[1], cells[2]))
-        elif len(cells) == 2:
-            rows.append((cells[0], cells[1], "Verified poster evidence"))
-    return rows
-
-
-def pick_section(sections: dict[str, list[str]], *names: str) -> list[str]:
-    for name in names:
-        if sections.get(name):
-            return sections[name]
-    return []
-
-
-def main() -> int:
-    brief = BRIEF.read_text(encoding="utf-8")
-    metrics_md = METRICS.read_text(encoding="utf-8") if METRICS.exists() else ""
-    sections = parse_sections(brief)
-    metrics = parse_metrics(metrics_md)
-
-    repo_lines = pick_section(sections, "Repository")
-    repo = clean_inline(" ".join(repo_lines)) if repo_lines else ROOT.name
-    title = extract_title(sections, ROOT.name)
-    subtitle = extract_subtitle(sections)
-    contribution = pick_section(sections, "One-Sentence Contribution", "Contribution")
-    method = pick_section(sections, "Method")
-    problem = pick_section(sections, "Problem and Threat Model", "Problem", "Threat Model")
-    evidence = pick_section(
-        sections,
-        "Current Verified Evidence",
-        "Verified Evidence",
-        "Evidence at Poster Snapshot + Claim Ledger",
-        "Evidence",
-    )
-    boundaries = pick_section(sections, "Honest Boundaries", "Boundaries", "Limitations")
-    repro = pick_section(sections, "Reproducibility")
-    sources = pick_section(sections, "Evidence Sources", "References")
-    status = pick_section(sections, "Evidence Status")
-
-    metric_cards = "".join(
-        f"<div class='metric'><div class='mval'>{html.escape(value)}</div>"
-        f"<div class='mname'>{html.escape(name)}</div><div class='mscope'>{html.escape(scope)}</div></div>"
-        for name, value, scope in metrics[:8]
+def paragraph(text: str, size: float, *, bold: bool = False, light: bool = False):
+    return Paragraph(
+        html.escape(text),
+        ParagraphStyle(
+            "poster",
+            fontName="EvidenceBold" if bold else "Evidence",
+            fontSize=size,
+            leading=size * 1.32,
+            textColor=colors.white if light else INK,
+            splitLongWords=True,
+            spaceAfter=0,
+        ),
     )
 
-    css = """
-    @page { size: 36in 48in; margin: 0; }
-    * { box-sizing: border-box; }
-    html, body { margin:0; padding:0; background:#f4f7fb; font-family: Arial, Helvetica, sans-serif; color:#111827; }
-    body { width:1800px; height:2400px; overflow:hidden; }
-    .page { width:1800px; height:2400px; padding:78px 86px 64px; background:#f4f7fb; display:flex; flex-direction:column; }
-    header { background:#0b1f33; color:white; padding:54px 64px 48px; border-radius:28px; }
-    .repo { font-size:23px; letter-spacing:1.4px; text-transform:uppercase; opacity:.78; margin-bottom:14px; }
-    h1 { font-size:66px; line-height:1.05; margin:0 0 16px; font-weight:800; }
-    .subtitle { font-size:31px; line-height:1.25; color:#d9e8f5; margin:0; }
-    .status { margin-top:20px; font-size:18px; color:#b9d3e7; }
-    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin:28px 0; }
-    .metric { background:white; border:2px solid #d8e1ea; border-radius:22px; padding:24px 25px; min-height:150px; box-shadow:0 4px 16px rgba(11,31,51,.05); }
-    .mval { font-size:42px; font-weight:800; color:#0b5f8a; line-height:1; margin-bottom:8px; }
-    .mname { font-size:19px; font-weight:700; line-height:1.15; }
-    .mscope { font-size:15px; line-height:1.25; color:#556575; margin-top:7px; }
-    .columns { display:grid; grid-template-columns:1fr 1fr 1fr; gap:26px; flex:1; min-height:0; }
-    .col { display:flex; flex-direction:column; gap:22px; min-height:0; }
-    section { background:white; border:2px solid #d8e1ea; border-radius:22px; padding:28px 30px 25px; }
-    h2 { margin:0 0 14px; font-size:29px; color:#0b5f8a; line-height:1.1; }
-    p, li { font-size:18px; line-height:1.38; margin:0 0 10px; }
-    ul, ol { margin:0; padding-left:28px; }
-    li { margin-bottom:8px; }
-    .evidence p, .evidence li { font-size:17px; }
-    footer { font-size:14px; color:#657789; margin-top:24px; text-align:center; }
-    @media print {
-      html, body { width:36in; height:48in; background:#f4f7fb; }
-      body { overflow:hidden; }
-      .page { width:36in; height:48in; padding:1.56in 1.72in 1.28in; }
-      header { padding:1.08in 1.28in .96in; border-radius:.56in; }
-      .repo { font-size:.46in; margin-bottom:.28in; }
-      h1 { font-size:1.32in; margin-bottom:.32in; }
-      .subtitle { font-size:.62in; }
-      .status { margin-top:.4in; font-size:.36in; }
-      .metrics { gap:.4in; margin:.56in 0; }
-      .metric { border-width:.04in; border-radius:.44in; padding:.48in .5in; min-height:3in; }
-      .mval { font-size:.84in; margin-bottom:.16in; }
-      .mname { font-size:.38in; }
-      .mscope { font-size:.3in; margin-top:.14in; }
-      .columns { gap:.52in; }
-      .col { gap:.44in; }
-      section { border-width:.04in; border-radius:.44in; padding:.56in .6in .5in; }
-      h2 { margin-bottom:.28in; font-size:.58in; }
-      p, li { font-size:.36in; margin-bottom:.2in; }
-      ul, ol { padding-left:.56in; }
-      li { margin-bottom:.16in; }
-      .evidence p, .evidence li { font-size:.34in; }
-      footer { font-size:.28in; margin-top:.48in; }
+
+def measure_blocks(blocks, width, size):
+    height = 0
+    for _title, items in blocks:
+        height += 80
+        for text in items:
+            height += paragraph(text, size).wrap(width - 70, HEIGHT)[1] + 24
+        height += 40
+    return height
+
+
+def draw_blocks(c, blocks, x, y, width, size):
+    for title, items in blocks:
+        c.setFillColor(ACCENT)
+        c.rect(x, y - 4, 50, 4, fill=1, stroke=0)
+        p = paragraph(title.upper(), 34, bold=True)
+        _, h = p.wrap(width, HEIGHT)
+        p.drawOn(c, x, y - 30 - h)
+        y -= 80
+        for text in items:
+            p = paragraph(text, size)
+            _, h = p.wrap(width - 70, HEIGHT)
+            p.drawOn(c, x + 35, y - h)
+            c.setFillColor(ACCENT)
+            c.circle(x + 10, y - size * 0.55, 5, fill=1, stroke=0)
+            y -= h + 24
+        y -= 40
+    return y
+
+
+def main():
+    root = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).resolve().parents[1]).resolve()
+    poster = root / "poster"
+    data = json.loads((poster / "verified_claims.json").read_text(encoding="utf-8"))
+    required = {
+        "repository",
+        "title",
+        "subtitle",
+        "source_commit",
+        "test_commit",
+        "ci_run",
+        "ci_date",
+        "cards",
+        "contribution",
+        "methods",
+        "evidence",
+        "limitations",
+        "reproduction",
     }
-    """
+    if not required <= data.keys():
+        raise ValueError("incomplete reviewed claim manifest")
+    if len(data["cards"]) != 4:
+        raise ValueError("exactly four scoped headline cards required")
+    for key in ["source_commit", "test_commit"]:
+        if len(data[key]) != 40 or any(c not in "0123456789abcdef" for c in data[key]):
+            raise ValueError("full immutable commit anchor required")
+    fonts = Path(reportlab.__file__).resolve().parent / "fonts"
+    pdfmetrics.registerFont(TTFont("Evidence", str(fonts / "Vera.ttf")))
+    pdfmetrics.registerFont(TTFont("EvidenceBold", str(fonts / "VeraBd.ttf")))
 
-    def sec(title_: str, lines: list[str], cls: str = "") -> str:
-        if not lines:
-            return ""
-        return f"<section class='{cls}'><h2>{html.escape(title_)}</h2>{block_html(lines)}</section>"
+    pdf = poster / "poster_36x48.pdf"
+    png = poster / "poster.png"
+    c = canvas.Canvas(str(pdf), pagesize=(WIDTH, HEIGHT), invariant=1, pageCompression=1)
+    c.setTitle(data["title"])
+    c.setAuthor("Pooja Kiran")
+    c.setSubject("Dated repository evidence; scoped tests and reported measurements")
+    c.setFillColor(PAPER)
+    c.rect(0, 0, WIDTH, HEIGHT, fill=1, stroke=0)
+    c.setFillColor(INK)
+    c.rect(0, HEIGHT - 680, WIDTH, 680, fill=1, stroke=0)
+    c.setFillColor(colors.HexColor("#d7c4ad"))
+    c.setFont("EvidenceBold", 28)
+    c.drawString(MARGIN, HEIGHT - 95, "POOJA KIRAN  |  SECURITY ENGINEERING")
+    title_size = 82
+    while title_size >= 58:
+        title = paragraph(data["title"], title_size, bold=True, light=True)
+        _, title_height = title.wrap(WIDTH - 2 * MARGIN, HEIGHT)
+        if title_height <= 180:
+            break
+        title_size -= 2
+    else:
+        raise ValueError("title exceeds reviewed layout")
+    title.drawOn(c, MARGIN, HEIGHT - 150 - title_height)
+    subtitle = paragraph(data["subtitle"], 32, light=True)
+    _, h = subtitle.wrap(WIDTH - 2 * MARGIN, HEIGHT)
+    if h > 90:
+        raise ValueError("subtitle overlaps provenance")
+    subtitle.drawOn(c, MARGIN, HEIGHT - 180 - title_height - h)
+    c.setFont("Evidence", 25)
+    for y, text in [
+        (HEIGHT - 470, "Source inventory: " + data["source_commit"]),
+        (HEIGHT - 520, "Test snapshot: " + data["test_commit"]),
+        (
+            HEIGHT - 570,
+            "CI run "
+            + str(data["ci_run"])
+            + " | initiated "
+            + data["ci_date"]
+            + " UTC | "
+            + data["license"],
+        ),
+        (HEIGHT - 620, "https://github.com/poojakira/" + data["repository"]),
+    ]:
+        c.drawString(MARGIN, y, text)
 
-    body = f"""<!doctype html><html><head><meta charset="utf-8"><style>{css}</style></head><body>
-    <main class="page">
-      <header>
-        <div class="repo">{html.escape(repo)}</div>
-        <h1>{html.escape(title)}</h1>
-        <p class="subtitle">{html.escape(subtitle)}</p>
-        <div class="status">{html.escape(clean_inline(" ".join(status)))}</div>
-      </header>
-      <div class="metrics">{metric_cards}</div>
-      <div class="columns">
-        <div class="col">
-          {sec("Contribution", contribution)}
-          {sec("Problem & Threat Model", problem)}
-          {sec("Method", method)}
-        </div>
-        <div class="col">
-          {sec("Current Verified Evidence", evidence, "evidence")}
-          {sec("Reproducibility", repro)}
-        </div>
-        <div class="col">
-          {sec("Honest Boundaries", boundaries)}
-          {sec("Evidence Sources & References", sources)}
-        </div>
-      </div>
-      <footer>Generated from poster/01_research_brief.md and poster/03_verified_metrics.md. Rendered artifacts must not be edited independently of source evidence.</footer>
-    </main></body></html>"""
+    card_width = (WIDTH - 2 * MARGIN - 3 * 35) / 4
+    for i, card in enumerate(data["cards"]):
+        x = MARGIN + i * (card_width + 35)
+        c.setFillColor(colors.white)
+        c.roundRect(x, HEIGHT - 1000, card_width, 260, 20, fill=1, stroke=0)
+        value = paragraph(str(card["value"]), 70, bold=True)
+        _, h = value.wrap(card_width - 65, HEIGHT)
+        value.drawOn(c, x + 30, HEIGHT - 790 - h)
+        label = paragraph(card["label"], 27)
+        _, h = label.wrap(card_width - 65, HEIGHT)
+        if h > 100:
+            raise ValueError("headline scope label does not fit")
+        label.drawOn(c, x + 30, HEIGHT - 895 - h)
 
-    browser_env = os.environ.get("POSTER_BROWSER")
-    browser = Path(browser_env) if browser_env else None
-    if browser is None:
-        system_candidates = [
-            shutil.which(name)
-            for name in ("google-chrome", "chromium", "chromium-browser", "microsoft-edge")
-        ]
-        browser = next((Path(p) for p in system_candidates if p and Path(p).exists()), None)
-    if browser is None:
-        browser = next((p for p in BROWSERS if p.exists()), None)
-    if not browser:
-        raise SystemExit("Edge, Chrome, or Chromium not found")
-
-    with tempfile.TemporaryDirectory(prefix="poster-render-") as td:
-        td_path = Path(td)
-        html_path = td_path / "poster.html"
-        html_path.write_text(body, encoding="utf-8")
-        url = html_path.resolve().as_uri()
-        profile = td_path / "profile"
-        subprocess.run(
-            [
-                str(browser),
-                "--headless=new",
-                "--disable-gpu",
-                "--hide-scrollbars",
-                f"--user-data-dir={profile}",
-                f"--print-to-pdf={OUT_PDF}",
-                "--no-pdf-header-footer",
-                url,
-            ],
-            check=True,
+    columns = [
+        [
+            ("Contribution", [data["contribution"]]),
+            (
+                "Implemented method",
+                [str(i + 1) + ". " + t for i, t in enumerate(data["methods"])],
+            ),
+            ("Limitations and evidence boundary", data["limitations"]),
+        ],
+        [("Scoped evidence", data["evidence"]), ("Reproduction", data["reproduction"])],
+    ]
+    width = (WIDTH - 2 * MARGIN - GAP) / 2
+    top, bottom = HEIGHT - 1090, 230
+    size = 45
+    while size >= 31:
+        if max(measure_blocks(b, width, size) for b in columns) <= top - bottom:
+            break
+        size -= 1
+    else:
+        raise ValueError("reviewed claims overflow: shorten copy, do not clip or omit claims")
+    for i, blocks in enumerate(columns):
+        end = draw_blocks(c, blocks, MARGIN + i * (width + GAP), top, width, size)
+        if end < bottom:
+            raise ValueError("poster content clipped")
+    c.setFillColor(INK)
+    c.rect(MARGIN, 170, WIDTH - 2 * MARGIN, 3, fill=1, stroke=0)
+    footer = paragraph(
+        "Dated tests and committed fixtures do not establish universal detection, "
+        "production deployment or an SLO.",
+        28,
+    )
+    _, h = footer.wrap(WIDTH - 2 * MARGIN, HEIGHT)
+    footer.drawOn(c, MARGIN, 120 - h)
+    c.showPage()
+    c.save()
+    with fitz.open(pdf) as document:
+        if len(document) != 1:
+            raise ValueError("poster must be one page")
+        document[0].get_pixmap(matrix=fitz.Matrix(1800 / WIDTH, 1800 / WIDTH), alpha=False).save(
+            png
         )
-        subprocess.run(
-            [
-                str(browser),
-                "--headless=new",
-                "--disable-gpu",
-                "--hide-scrollbars",
-                f"--user-data-dir={profile}",
-                "--window-size=1800,2400",
-                f"--screenshot={OUT_PNG}",
-                url,
-            ],
-            check=True,
+    if data["repository"] == "mcp-agent-security-gateway":
+        shutil.copyfile(pdf, root / "MCP_Gateway_Poster.pdf")
+    print(
+        json.dumps(
+            {
+                "repository": data["repository"],
+                "pages": 1,
+                "body_font_pt": size,
+                "pdf_bytes": pdf.stat().st_size,
+                "png_bytes": png.stat().st_size,
+            }
         )
-
-    if ROOT.name == "mcp-agent-security-gateway":
-        (ROOT / "MCP_Gateway_Poster.pdf").write_bytes(OUT_PDF.read_bytes())
-
-    print(f"rendered {OUT_PDF}")
-    print(f"rendered {OUT_PNG}")
-    return 0
+    )
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()
