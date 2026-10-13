@@ -124,10 +124,41 @@ workspace's process tracing, so leak detection is **unverified**. The dedicated
 PR workflow now includes the parser suite; hosted results must be checked at the
 updated PR head.
 
-These checks do not establish full Python/Rust parity or resistance to every
+At this parser checkpoint, the checks did not establish full Python/Rust parity
+or resistance to every
 resource-exhaustion attack. Numeric conversion retains `std::stod` range behavior;
 out-of-range numbers fail closed. Total line size/node count and quadratic
-duplicate-key comparisons remain unbounded. The 64-container limit intentionally
+duplicate-key comparisons remained unbounded; the follow-up below adds bounds.
+The 64-container limit intentionally
 rejects inputs that the previous parser accepted. The sample detector remains
 a small substring detector, not the full Python gateway detector. No pilot or
 persistent deployment validation is implied.
+
+## Parser resource-boundary follow-up, October 13, 2026 UTC
+
+Additional standalone fixtures showed records above 1 MiB and documents above
+65,536 values still returned ALLOW. The proposed follow-up limits a JSON message
+to **1 MiB** and its complete parsed tree to **65,536 values**, in addition to
+the 64-container depth limit. The driver retains at most the message cap while
+discarding an oversized record through its newline, emits a BLOCK response and
+continues inspecting the next record. The direct header API also checks the
+untrimmed input size. Decoded duplicate keys are tracked in a hash set rather
+than comparing every key with all prior ordered pairs; ordered value storage
+and existing duplicate rejection remain intact.
+
+All **10 parser unittest methods**, **2 serializer methods**, and **11 original
+C++ assertions** passed locally. New cases exercise each exact limit and one
+above it, oversized-line recovery, a 10,000-key valid object and a late escaped
+duplicate. These limits intentionally reject larger messages that the previous
+implementation accepted. They bound retained input and parsed values, not every
+wall-clock or memory cost: draining an oversized stream still requires input,
+and hostile filesystem/process behavior and full Python/Rust parity are outside
+this standalone test scope. No general availability or production-readiness
+claim is established.
+
+Independent review reran all 12 methods and 11 assertions, plus additional EOF,
+CRLF, whitespace, recovery and direct-header byte-boundary cases. Seven updated
+address/undefined-behavior sanitizer probes passed without diagnostics with leak
+detection disabled for the previously observed tracing limitation. Hash-set
+lookup is average-case, not a guaranteed worst-case linear-time bound. The
+driver counts physical record bytes excluding LF; CR is included in that cap.

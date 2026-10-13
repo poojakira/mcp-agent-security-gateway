@@ -30,9 +30,13 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace mcp {
+
+inline constexpr size_t kMaxMessageBytes = 1024 * 1024;
+inline constexpr size_t kMaxJsonValues = 65536;
 
 enum class Decision { Allow, Block, Indeterminate };
 
@@ -80,6 +84,7 @@ public:
     explicit JsonParser(const std::string& s) : s_(s) {}
 
     JsonValue parse() {
+        if (s_.size() > kMaxMessageBytes) throw JsonParseError("JSON message exceeds 1 MiB");
         validate_utf8();
         skip_ws();
         JsonValue v = parse_value(0);
@@ -91,6 +96,7 @@ public:
 private:
     const std::string& s_;
     size_t i_ = 0;
+    size_t values_ = 0;
 
     void validate_utf8() const {
         for (size_t pos = 0; pos < s_.size();) {
@@ -163,6 +169,8 @@ private:
     }
 
     JsonValue parse_value(size_t depth) {
+        if (values_ >= kMaxJsonValues) throw JsonParseError("JSON exceeds 65536 values");
+        ++values_;
         skip_ws();
         char c = peek();
         switch (c) {
@@ -181,6 +189,7 @@ private:
 
     JsonValue parse_object(size_t depth) {
         JsonValue v; v.type = JsonValue::Type::Object;
+        std::unordered_set<std::string> keys;
         ++i_;  // consume '{'
         skip_ws();
         if (peek() == '}') { ++i_; return v; }
@@ -193,9 +202,7 @@ private:
             ++i_;
             JsonValue val = parse_value(depth);
             if (val.duplicate_key) v.duplicate_key = true;
-            for (const auto& kv : v.object) {
-                if (kv.first == key) { v.duplicate_key = true; break; }
-            }
+            if (!keys.insert(key).second) v.duplicate_key = true;
             v.object.emplace_back(std::move(key), std::move(val));
             skip_ws();
             char n = peek();

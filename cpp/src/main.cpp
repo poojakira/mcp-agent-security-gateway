@@ -12,6 +12,21 @@
 
 using namespace mcp;
 
+// Consume an oversized record through its newline without retaining its bytes,
+// so a subsequent record can still be inspected within the same process.
+static bool read_bounded_line(std::istream& input, std::string& line, bool& oversized) {
+    line.clear();
+    oversized = false;
+    bool received = false;
+    for (int next; (next = input.get()) != std::char_traits<char>::eof();) {
+        received = true;
+        if (next == '\n') return true;
+        if (line.size() < kMaxMessageBytes) line.push_back(static_cast<char>(next));
+        else oversized = true;
+    }
+    return received;
+}
+
 int main() {
     std::vector<std::string> needles = {"ignore previous", "disregard instructions",
                                         "system prompt"};
@@ -27,14 +42,17 @@ int main() {
     };
 
     std::string line;
-    while (std::getline(std::cin, line)) {
+    bool oversized;
+    while (read_bounded_line(std::cin, line, oversized)) {
         // trim
         size_t a = line.find_first_not_of(" \t\r\n");
-        if (a == std::string::npos) continue;
-        size_t b = line.find_last_not_of(" \t\r\n");
-        std::string trimmed = line.substr(a, b - a + 1);
-
-        InspectionResult r = inspect_message(trimmed, detector);
+        if (!oversized && a == std::string::npos) continue;
+        InspectionResult r;
+        if (oversized) r = block("JSON message exceeds 1 MiB", "malformed_jsonrpc");
+        else {
+            size_t b = line.find_last_not_of(" \t\r\n");
+            r = inspect_message(line.substr(a, b - a + 1), detector);
+        }
         const char* d = r.decision == Decision::Allow
                             ? "allow"
                             : (r.decision == Decision::Block ? "block" : "indeterminate");

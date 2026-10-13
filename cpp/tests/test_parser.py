@@ -69,6 +69,32 @@ class ParserTests(unittest.TestCase):
                 self.assertEqual(json.loads(lines[0])["decision"], expected)
                 self.assertEqual(json.loads(lines[1])["decision"], "allow")
 
+    def test_message_byte_boundary_and_oversized_line_recovery(self):
+        prefix = b'{"method":"initialize","params":"'
+        suffix = b'"}'
+        cap = 1024 * 1024
+        for size, expected in [(cap, "allow"), (cap + 1, "block")]:
+            raw = prefix + b'x' * (size - len(prefix) - len(suffix)) + suffix
+            result = subprocess.run([str(self.binary)], input=raw + b'\n{"method":"initialize"}\n',
+                                    capture_output=True, check=True, timeout=5)
+            lines = result.stdout.splitlines()
+            self.assertEqual(len(lines), 2)
+            self.assertEqual(json.loads(lines[0])["decision"], expected)
+            self.assertEqual(json.loads(lines[1])["decision"], "allow")
+
+    def test_total_value_boundary(self):
+        # Root object, method string, params array and N null values.
+        for count, expected in [(65533, "allow"), (65534, "block")]:
+            raw = b'{"method":"initialize","params":[' + b','.join([b'null'] * count) + b']}'
+            self.assertEqual(self.response(raw)["decision"], expected)
+
+    def test_large_unique_object_and_late_decoded_duplicate(self):
+        fields = [f'"k{i}":0'.encode() for i in range(10000)]
+        prefix = b'{"method":"initialize","params":{'
+        self.assertEqual(self.response(prefix + b','.join(fields) + b'}}')["decision"], "allow")
+        raw = prefix + b','.join(fields) + br',"\u006b9999":1}}'
+        self.assertEqual(self.response(raw)["decision"], "block")
+
 
 if __name__ == "__main__":
     unittest.main()
