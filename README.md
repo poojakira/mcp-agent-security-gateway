@@ -6,7 +6,7 @@
 
 [![CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-782%20Oct%202026%20CI-brightgreen)](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38012954359)
-[![Coverage](https://img.shields.io/badge/coverage-81.47%25%20Windows%20Oct%2012-brightgreen)](VERIFIED_METRICS.md)
+[![Coverage](https://img.shields.io/badge/coverage-81.93%25%20Oct%202026%20CI-brightgreen)](VERIFIED_METRICS.md)
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 
 Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
@@ -21,7 +21,7 @@ Portfolio: [Pooja Kiran Security Engineering Portfolio](https://poojakira.github
 
 ## Current verified evidence (October 2026)
 
-The **October 12, 2026 local Windows** full-suite run at published main `b6d7122` passed **782 tests** at **81.47% Python statement coverage** (5,657 statements; 1,048 missed). [October 10 hosted Linux Python 3.12 CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38012954359) separately passed **782 tests** at **81.93%** (5,657 statements; 1,022 missed). The 26-statement difference is concentrated in Linux/POSIX-specific execution paths; these are distinct environments and run dates, not interchangeable measurements. See [current verified metrics](VERIFIED_METRICS.md). The **69 named detector signatures** are a code-inventory count, not a held-out measure of effectiveness or production traffic prevention.
+[October 13, 2026 hosted Linux Python 3.12 CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803) at commit `c75c52db` passed **782 tests** at **81.93% Python statement coverage** (5,657 statements; 1,022 missed). See [current verified metrics](VERIFIED_METRICS.md). The **69 named detector signatures** are a code-inventory count, not a held-out measure of effectiveness or production traffic prevention.
 
 ## Dated historical evidence
 
@@ -84,7 +84,7 @@ Enforcement depends on the integration path: the Python wrapper raises `ToolBloc
 
 `src/mcp_monitor/production/identity_telemetry.py` adds a locally computed telemetry surface for external behavioral-validation workflows without exporting raw API credentials or raw source addresses. The gateway supports multiple stable credentials, canonicalizes IPv4/IPv6 source addresses (including IPv4-mapped IPv6), derives exact/network/block inputs, and fingerprints them with `HMAC-SHA256(key=tenant_salt, message=UTF-8(value)).hexdigest()[:32]`. Forwarded source headers are only trusted when the socket peer belongs to an explicitly configured trusted proxy CIDR; otherwise the socket peer is authoritative. Current event objects set `tokens_in = 0` and `tokens_out = 0` where token accounting is unavailable. Live transport records use an integer schema version of `1`, client identifier `mcp-gateway/1.0.0`, `backfill: false`, an `events` array, and a positional `event_fps` array. Each event fingerprint is computed locally as HMAC-SHA256 over `"evt:" + event_id`, truncated to 32 lowercase hexadecimal characters. The internal event ID is not transmitted. Queued envelopes are immutable and retries resend the same stored envelope/fingerprint.
 
-Current full-suite verification reports **782 passed, 81.47% Windows coverage** (October 12) and **782 passed, 81.93% hosted Linux coverage** (October 10). See [current metrics](VERIFIED_METRICS.md); [prior evidence](docs/archive/HISTORICAL_EVIDENCE.md) is archived.
+Current full-suite verification reports **782 passed, 81.93% hosted Linux coverage** (October 13, 2026 CI run [38462601803](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803)). See [current metrics](VERIFIED_METRICS.md); [prior evidence](docs/archive/HISTORICAL_EVIDENCE.md) is archived.
 
 These follow the same discipline as the rest of the repo: separate detection from enforcement, attach scope to every metric, and label anything synthetic or unverified. Subsection-specific measurements are scoped to those modules; the repository-wide test/coverage snapshot above applies to the Python suite at the cited commit.
 
@@ -140,7 +140,7 @@ bandit -r src -ll
 pip-audit
 ```
 
-Current full-suite metrics are **782 passing tests and 81.47% statement coverage on Windows (October 12)**, and **782 passing tests and 81.93% in hosted Linux CI (October 10)**. See [current, environment-scoped evidence](VERIFIED_METRICS.md). The October 4, 2026 [historical snapshot](docs/archive/HISTORICAL_EVIDENCE.md) remains dated.
+Current full-suite metrics are **782 passing tests and 81.93% statement coverage** on hosted Linux CI (October 13, 2026, run [38462601803](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803), commit `c75c52db`). See [current, environment-scoped evidence](VERIFIED_METRICS.md). The October 4, 2026 [historical snapshot](docs/archive/HISTORICAL_EVIDENCE.md) remains dated.
 
 ## CI/CD
 
@@ -236,3 +236,4 @@ Commit `c30075da1dc1d3fa7b843bb76be8e842fbfa6ae3` merged the detector-only chang
 A separate five-case synthetic policy-enforcement check denied 5/5 disallowed calls against a deliberately pass-through comparator, **not** a measured reduction in incidents or unauthorized execution attempts in the field. A comparison of the earlier 12-signature and 55-signature detectors on 15 familiar positive fixtures found **0 percentage-point recall difference**, because both detected all 15. The 14 additional signatures have not been independently validated against unseen data. The IAM Guard's five-case synthetic check detected 5/5 deliberately vulnerable cases, but also produced a finding on one nominally benign read policy (AIG007); it is **not** evidence of general IAM recall or precision.
 
 The Cerberus pilot, persistent identities, baseline, deployment and transport configuration are not involved in these measurements. Do not combine the 69-entry runtime detector with the older 55-entry verified snapshot, and do not combine the original 81.91% code coverage figure with the later 752-test Docker run.
+
