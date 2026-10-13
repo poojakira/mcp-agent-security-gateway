@@ -1,21 +1,28 @@
-MIT License
+PROPRIETARY SOFTWARE LICENSE — ALL RIGHTS RESERVED
 
-Copyright (c) 2026 Pooja Kiran
+Copyright (c) 2026 Pooja Kiran. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+IMPORTANT: READ THIS LICENSE BEFORE COPYING, USING, MODIFYING, OR DISTRIBUTING ANY MATERIAL IN THIS REPOSITORY.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. OWNERSHIP AND SCOPE
+The original source code, executable code, scripts, configuration, documentation, designs, text, and other original materials in this repository for which Pooja Kiran owns the copyright ("Protected Material") are proprietary and protected by applicable intellectual-property law. Public availability of the repository does not make the Protected Material open source or place it in the public domain.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. NO LICENSE GRANTED
+Unless Pooja Kiran has given express prior written permission, no copyright or patent license is granted to reproduce, copy, download for independent reuse, modify, translate, adapt, create derivative works of, redistribute, republish, mirror, relicense, sublicense, sell, commercially exploit, deploy, execute, or incorporate the Protected Material into another project, product, dataset, or service. The same restriction applies to extracting code for model training or fine-tuning, subject to applicable law.
+
+3. PLATFORM AND LEGAL EXCEPTIONS
+This notice does not prohibit activities that GitHub's applicable Terms of Service authorize, including viewing and forking public repositories within GitHub's service, or incidental technical copies necessary for authorized access. It does not restrict acts that applicable law permits notwithstanding a license restriction. Visibility, GitHub forking, and access to this repository do not confer a separate license to reuse, distribute, or modify the Protected Material.
+
+4. WRITTEN AUTHORIZATION
+To request any permission not granted above, contact poojakiranbhardwaj@gmail.com. Permission is effective only to the extent expressly stated in a written authorization from the applicable rights holder. Silence or lack of enforcement is not permission.
+
+5. THIRD-PARTY MATERIAL AND PRIOR RIGHTS
+This license covers only rights owned or validly controlled by Pooja Kiran. Third-party dependencies, credited third-party material, data, fonts, libraries, and independently owned contributions remain subject to their own licenses and rights. Any licenses validly granted for earlier versions or particular portions of the repository remain effective according to their terms; this notice does not retroactively withdraw them.
+
+6. NO WARRANTIES
+To the maximum extent permitted by law, the Protected Material is provided "AS IS", without warranties of any kind, express or implied. Pooja Kiran disclaims liability for damages arising from use of the Protected Material to the maximum extent permitted by applicable law.
+
+7. NO IMPLIED WAIVER
+Nothing in this notice transfers ownership, grants trademark rights, or waives any rights or remedies otherwise available under applicable law.
+
+This repository is SOURCE-VISIBLE, NOT OPEN SOURCE. Permission to inspect does not mean permission to reuse.
