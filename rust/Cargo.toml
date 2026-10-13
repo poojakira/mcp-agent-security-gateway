@@ -9,7 +9,7 @@ name = "mcp-stdio-proxy"
 version = "0.1.0"
 edition = "2021"
 description = "Rust port of the fail-closed JSON-RPC inspection core of the MCP stdio proxy"
-license = "MIT"
+license-file = "LICENSE"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
