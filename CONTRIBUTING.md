@@ -1,6 +1,8 @@
+> **READ [LICENSE](LICENSE) BEFORE COPYING OR CHANGING ANYTHING.** This is an owner-maintained, proprietary repository. **Unsolicited code/documentation contributions are not accepted.** The development instructions below apply **only to people who have received prior written authorization** from Pooja Kiran. Public viewing/forking under GitHub's Terms, applicable law, third-party rights, and prior valid licenses remain unaffected. Any accepted external work requires an agreed written copyright license or assignment; a PR alone does not transfer ownership. For permission contact poojakiranbhardwaj@gmail.com.
+
 # Contributing to mcp-agent-security-gateway
 
-We welcome contributions to the `mcp-agent-security-gateway` project. Please keep reviews and discussions technical, respectful, and focused on the repository.
+Only specifically invited contributors may propose changes under prior written terms. Technical guidance follows.
 
 ## How to Contribute
 
