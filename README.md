@@ -1,3 +1,5 @@
+> **READ THIS LICENSE BEFORE USING THIS REPOSITORY.** Owner-controlled new releases are subject to the [proprietary All Rights Reserved LICENSE](LICENSE): copying, modification, and redistribution require written authorization except where law or GitHub's Terms allow. Previously granted MIT rights remain valid for versions covered by that license; see the [historical license](docs/license-history/LICENSE-BEFORE-2026-10-13.txt). Third-party rights remain unaffected.
+
 # MCP Agent Security Gateway
 
 > Inspect and enforce AI-agent MCP/JSON-RPC tool calls at the agent-to-tool boundary before they execute.
@@ -5,7 +7,7 @@
 [![CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/poojakira/mcp-agent-security-gateway/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-782%20Oct%202026%20CI-brightgreen)](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38012954359)
 [![Coverage](https://img.shields.io/badge/coverage-81.47%25%20Windows%20Oct%2012-brightgreen)](VERIFIED_METRICS.md)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 
 Maintainer: Pooja Kiran ([@poojakira](https://github.com/poojakira)).
 
@@ -162,7 +164,7 @@ Heuristic detectors can be evaded; the fixed red-team catalog is a regression su
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Proprietary / All Rights Reserved. See [LICENSE](LICENSE); previous MIT terms are [archived](docs/license-history/LICENSE-BEFORE-2026-10-13.txt).
 
 <!-- security-systems-poster -->
 ## Research Poster
