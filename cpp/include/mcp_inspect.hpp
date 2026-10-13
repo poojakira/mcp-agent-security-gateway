@@ -54,6 +54,7 @@ struct JsonValue {
     enum class Type { Null, Bool, Number, String, Array, Object } type = Type::Null;
     bool boolean = false;
     double number = 0.0;
+    std::string number_text;  // preserve parsed numeric spelling for detector input
     std::string str;
     std::vector<JsonValue> array;
     // Object stored as ordered pairs so we can detect duplicate keys.
@@ -79,8 +80,9 @@ public:
     explicit JsonParser(const std::string& s) : s_(s) {}
 
     JsonValue parse() {
+        validate_utf8();
         skip_ws();
-        JsonValue v = parse_value();
+        JsonValue v = parse_value(0);
         skip_ws();
         if (i_ != s_.size()) throw JsonParseError("trailing characters");
         return v;
@@ -89,6 +91,63 @@ public:
 private:
     const std::string& s_;
     size_t i_ = 0;
+
+    void validate_utf8() const {
+        for (size_t pos = 0; pos < s_.size();) {
+            unsigned char first = static_cast<unsigned char>(s_[pos++]);
+            if (first < 0x80) continue;
+            unsigned int code;
+            unsigned int minimum;
+            size_t remaining;
+            if (first >= 0xc2 && first <= 0xdf) {
+                code = first & 0x1f; minimum = 0x80; remaining = 1;
+            } else if (first >= 0xe0 && first <= 0xef) {
+                code = first & 0x0f; minimum = 0x800; remaining = 2;
+            } else if (first >= 0xf0 && first <= 0xf4) {
+                code = first & 0x07; minimum = 0x10000; remaining = 3;
+            } else throw JsonParseError("invalid UTF-8");
+            if (remaining > s_.size() - pos) throw JsonParseError("truncated UTF-8");
+            while (remaining--) {
+                unsigned char next = static_cast<unsigned char>(s_[pos++]);
+                if ((next & 0xc0) != 0x80) throw JsonParseError("invalid UTF-8 continuation");
+                code = (code << 6) | (next & 0x3f);
+            }
+            if (code < minimum || code > 0x10ffff || (code >= 0xd800 && code <= 0xdfff))
+                throw JsonParseError("invalid UTF-8 scalar");
+        }
+    }
+
+    unsigned int hex_quad() {
+        if (s_.size() - i_ < 4) throw JsonParseError("truncated Unicode escape");
+        unsigned int code = 0;
+        for (int k = 0; k < 4; ++k) {
+            char c = s_[i_++];
+            unsigned int digit;
+            if (c >= '0' && c <= '9') digit = c - '0';
+            else if (c >= 'a' && c <= 'f') digit = c - 'a' + 10;
+            else if (c >= 'A' && c <= 'F') digit = c - 'A' + 10;
+            else throw JsonParseError("invalid Unicode escape");
+            code = (code << 4) | digit;
+        }
+        return code;
+    }
+
+    static void append_utf8(std::string& out, unsigned int code) {
+        if (code <= 0x7f) out.push_back(static_cast<char>(code));
+        else if (code <= 0x7ff) {
+            out.push_back(static_cast<char>(0xc0 | (code >> 6)));
+            out.push_back(static_cast<char>(0x80 | (code & 0x3f)));
+        } else if (code <= 0xffff) {
+            out.push_back(static_cast<char>(0xe0 | (code >> 12)));
+            out.push_back(static_cast<char>(0x80 | ((code >> 6) & 0x3f)));
+            out.push_back(static_cast<char>(0x80 | (code & 0x3f)));
+        } else {
+            out.push_back(static_cast<char>(0xf0 | (code >> 18)));
+            out.push_back(static_cast<char>(0x80 | ((code >> 12) & 0x3f)));
+            out.push_back(static_cast<char>(0x80 | ((code >> 6) & 0x3f)));
+            out.push_back(static_cast<char>(0x80 | (code & 0x3f)));
+        }
+    }
 
     void skip_ws() {
         while (i_ < s_.size()) {
@@ -103,12 +162,13 @@ private:
         return s_[i_];
     }
 
-    JsonValue parse_value() {
+    JsonValue parse_value(size_t depth) {
         skip_ws();
         char c = peek();
         switch (c) {
-            case '{': return parse_object();
-            case '[': return parse_array();
+            case '{': case '[':
+                if (depth >= 64) throw JsonParseError("JSON nesting exceeds 64 containers");
+                return c == '{' ? parse_object(depth + 1) : parse_array(depth + 1);
             case '"': {
                 JsonValue v; v.type = JsonValue::Type::String; v.str = parse_string();
                 return v;
@@ -119,7 +179,7 @@ private:
         }
     }
 
-    JsonValue parse_object() {
+    JsonValue parse_object(size_t depth) {
         JsonValue v; v.type = JsonValue::Type::Object;
         ++i_;  // consume '{'
         skip_ws();
@@ -131,7 +191,7 @@ private:
             skip_ws();
             if (peek() != ':') throw JsonParseError("expected ':'");
             ++i_;
-            JsonValue val = parse_value();
+            JsonValue val = parse_value(depth);
             if (val.duplicate_key) v.duplicate_key = true;
             for (const auto& kv : v.object) {
                 if (kv.first == key) { v.duplicate_key = true; break; }
@@ -146,13 +206,13 @@ private:
         return v;
     }
 
-    JsonValue parse_array() {
+    JsonValue parse_array(size_t depth) {
         JsonValue v; v.type = JsonValue::Type::Array;
         ++i_;  // consume '['
         skip_ws();
         if (peek() == ']') { ++i_; return v; }
         while (true) {
-            JsonValue el = parse_value();
+            JsonValue el = parse_value(depth);
             if (el.duplicate_key) v.duplicate_key = true;
             v.array.push_back(std::move(el));
             skip_ws();
@@ -184,16 +244,24 @@ private:
                     case 'b': out.push_back('\b'); break;
                     case 'f': out.push_back('\f'); break;
                     case 'u': {
-                        if (i_ + 4 > s_.size()) throw JsonParseError("bad \\u");
-                        // Keep the raw escape text; adequate for inspection.
-                        out += "\\u";
-                        out += s_.substr(i_, 4);
-                        i_ += 4;
+                        unsigned int code = hex_quad();
+                        if (code >= 0xd800 && code <= 0xdbff) {
+                            if (s_.size() - i_ < 6 || s_[i_] != '\\' || s_[i_ + 1] != 'u')
+                                throw JsonParseError("missing low surrogate");
+                            i_ += 2;
+                            unsigned int low = hex_quad();
+                            if (low < 0xdc00 || low > 0xdfff) throw JsonParseError("invalid low surrogate");
+                            code = 0x10000 + ((code - 0xd800) << 10) + low - 0xdc00;
+                        } else if (code >= 0xdc00 && code <= 0xdfff)
+                            throw JsonParseError("unpaired low surrogate");
+                        append_utf8(out, code);
                         break;
                     }
                     default: throw JsonParseError("invalid escape");
                 }
             } else {
+                if (static_cast<unsigned char>(c) < 0x20)
+                    throw JsonParseError("unescaped string control");
                 out.push_back(c);
             }
         }
@@ -216,15 +284,24 @@ private:
     JsonValue parse_number() {
         size_t start = i_;
         if (peek() == '-') ++i_;
-        bool any = false;
-        while (i_ < s_.size() && ((s_[i_] >= '0' && s_[i_] <= '9') || s_[i_] == '.' ||
-                                  s_[i_] == 'e' || s_[i_] == 'E' || s_[i_] == '+' ||
-                                  s_[i_] == '-')) {
-            ++i_; any = true;
+        auto digit = [this]() { return i_ < s_.size() && s_[i_] >= '0' && s_[i_] <= '9'; };
+        if (!digit()) throw JsonParseError("invalid number");
+        if (s_[i_] == '0') ++i_;
+        else while (digit()) ++i_;
+        if (i_ < s_.size() && s_[i_] == '.') {
+            ++i_;
+            if (!digit()) throw JsonParseError("missing fractional digits");
+            while (digit()) ++i_;
         }
-        if (!any) throw JsonParseError("invalid number");
+        if (i_ < s_.size() && (s_[i_] == 'e' || s_[i_] == 'E')) {
+            ++i_;
+            if (i_ < s_.size() && (s_[i_] == '+' || s_[i_] == '-')) ++i_;
+            if (!digit()) throw JsonParseError("missing exponent digits");
+            while (digit()) ++i_;
+        }
         JsonValue v; v.type = JsonValue::Type::Number;
-        v.number = std::stod(s_.substr(start, i_ - start));
+        v.number_text = s_.substr(start, i_ - start);
+        v.number = std::stod(v.number_text);
         return v;
     }
 };
@@ -272,6 +349,7 @@ inline std::string dump(const JsonValue& v) {
         case JsonValue::Type::Null:   return "null";
         case JsonValue::Type::Bool:   return v.boolean ? "true" : "false";
         case JsonValue::Type::Number: {
+            if (!v.number_text.empty()) return v.number_text;
             std::string s = std::to_string(v.number);
             return s;
         }

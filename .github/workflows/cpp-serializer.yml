@@ -1,4 +1,4 @@
-name: Auxiliary C++ Serializer
+name: Auxiliary C++ Inspection
 
 on:
   pull_request:
@@ -23,3 +23,5 @@ jobs:
           /tmp/test-inspect
       - name: Check NDJSON response serialization
         run: python3 cpp/tests/test_serializer.py
+      - name: Check parser security boundaries
+        run: python3 cpp/tests/test_parser.py

@@ -8,7 +8,8 @@ rejection path.
 
 ## STATUS: VERIFIED via containerized toolchain
 
-The host has no local C++ toolchain, so the code was compiled and tested inside
+At the original verification checkpoint, the host had no local C++ toolchain,
+so the code was compiled and tested inside
 the official `gcc:13` Docker image:
 
 ```
@@ -90,8 +91,43 @@ standalone checks with `python3 cpp/tests/test_serializer.py`; its only compiler
 requirement is g++. The dedicated PR workflow runs these checks without accessing
 credentials, Python gateway workloads, telemetry or the external pilot.
 
-This is an auxiliary serializer fix. The existing parser retains raw `\uXXXX`
+At the initial serializer checkpoint, the parser retained raw `\uXXXX`
 escape text rather than decoding Unicode; number grammar, Unicode parsing,
-parser-depth limits and broader Python/Rust parity remain separate review work.
+parser-depth limits and broader Python/Rust parity remained separate review work.
 No gateway deployment or Cerberus pilot capability is established by these tests.
 The older Docker/CMake results above remain historical evidence.
+
+## Parser remediation verification, October 13, 2026 UTC
+
+Standalone reproductions found that escaped `tools/call` method names bypassed
+tool inspection, escaped injection text evaded the sample detector, and escaped
+duplicate keys were not recognized as duplicates. Invalid number grammar,
+unescaped controls and malformed Unicode/UTF-8 were accepted. These paths now
+decode and validate Unicode before method/key comparisons and inspection,
+validate JSON number grammar, and reject nesting beyond **64 containers**. A
+valid request after a rejected deep request remains processable. Parsed number
+spellings are preserved for detector input rather than rounded on serialization.
+
+Local strict g++ C++17 builds passed with `-Wall -Wextra -Wpedantic -Werror`.
+All **7 parser unittest methods**, **2 serializer methods**, and **11 original
+C++ assertions** passed. Independent review reran those checks and **39** additional
+valid/invalid Unicode, number and syntax cases. Run the standalone tests with:
+
+```bash
+python3 -m unittest discover -s cpp/tests -p 'test_*.py'
+make -C cpp test
+```
+
+Five additional address/undefined-behavior sanitizer probes passed without
+diagnostics after disabling leak detection: LeakSanitizer failed under the
+workspace's process tracing, so leak detection is **unverified**. The dedicated
+PR workflow now includes the parser suite; hosted results must be checked at the
+updated PR head.
+
+These checks do not establish full Python/Rust parity or resistance to every
+resource-exhaustion attack. Numeric conversion retains `std::stod` range behavior;
+out-of-range numbers fail closed. Total line size/node count and quadratic
+duplicate-key comparisons remain unbounded. The 64-container limit intentionally
+rejects inputs that the previous parser accepted. The sample detector remains
+a small substring detector, not the full Python gateway detector. No pilot or
+persistent deployment validation is implied.
