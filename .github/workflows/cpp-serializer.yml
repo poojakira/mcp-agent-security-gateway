@@ -1,0 +1,25 @@
+name: Auxiliary C++ Serializer
+
+on:
+  pull_request:
+    paths:
+      - "cpp/**"
+      - ".github/workflows/cpp-serializer.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Compile and test existing inspection decisions
+        run: |
+          g++ -std=c++17 -Wall -Wextra -Wpedantic -Icpp/include cpp/tests/test_inspect.cpp -o /tmp/test-inspect
+          /tmp/test-inspect
+      - name: Check NDJSON response serialization
+        run: python3 cpp/tests/test_serializer.py

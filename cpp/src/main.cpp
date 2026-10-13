@@ -41,11 +41,11 @@ int main() {
         std::string patterns = "[";
         for (size_t k = 0; k < r.matched_patterns.size(); ++k) {
             if (k) patterns += ",";
-            patterns += "\"" + r.matched_patterns[k] + "\"";
+            patterns += quote_json(r.matched_patterns[k]);
         }
         patterns += "]";
-        std::cout << "{\"decision\":\"" << d << "\",\"reason\":\"" << r.reason
-                  << "\",\"matched_patterns\":" << patterns << "}\n";
+        std::cout << "{\"decision\":" << quote_json(d) << ",\"reason\":" << quote_json(r.reason)
+                  << ",\"matched_patterns\":" << patterns << "}\n";
     }
     return 0;
 }

@@ -74,3 +74,24 @@ Ported: JSON parsing with duplicate-key rejection, batch atomicity, and the
 allow/block/indeterminate decision. Not ported: the downstream subprocess
 transport, rate limiter, and async loop — those are orchestration, not the
 security decision, and remain covered by the Python test suite.
+
+## Serializer remediation verification, October 12, 2026
+
+The auxiliary NDJSON driver previously inserted reasons and pattern names into
+JSON without escaping quotes, backslashes or control characters. A quoted method
+name reproduced an invalid JSON response. The proposed patch uses one JSON
+quoting function in the driver and inspection-value serializer.
+
+Local g++ C++17 compilation with `-Wall -Wextra -Wpedantic` passed. All **11**
+existing inspection assertions passed, along with **2** Python unittest methods
+covering response string roundtrips and malformed/injection decisions. Independent
+review also checked every ASCII byte through the quoting function. Run the new
+standalone checks with `python3 cpp/tests/test_serializer.py`; its only compiler
+requirement is g++. The dedicated PR workflow runs these checks without accessing
+credentials, Python gateway workloads, telemetry or the external pilot.
+
+This is an auxiliary serializer fix. The existing parser retains raw `\uXXXX`
+escape text rather than decoding Unicode; number grammar, Unicode parsing,
+parser-depth limits and broader Python/Rust parity remain separate review work.
+No gateway deployment or Cerberus pilot capability is established by these tests.
+The older Docker/CMake results above remain historical evidence.

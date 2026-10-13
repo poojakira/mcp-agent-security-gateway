@@ -240,6 +240,32 @@ inline InspectionResult allow(const std::string& reason) {
     return InspectionResult{Decision::Allow, reason, {}};
 }
 
+// Quote strings for JSON, including control characters and embedded delimiters.
+inline std::string quote_json(const std::string& value) {
+    static const char* hex = "0123456789abcdef";
+    std::string out = "\"";
+    for (unsigned char c : value) {
+        switch (c) {
+            case '"': out += "\\\""; break;
+            case '\\': out += "\\\\"; break;
+            case '\b': out += "\\b"; break;
+            case '\f': out += "\\f"; break;
+            case '\n': out += "\\n"; break;
+            case '\r': out += "\\r"; break;
+            case '\t': out += "\\t"; break;
+            default:
+                if (c < 0x20) {
+                    out += "\\u00";
+                    out += hex[c >> 4];
+                    out += hex[c & 0x0f];
+                } else {
+                    out += static_cast<char>(c);
+                }
+        }
+    }
+    return out + "\"";
+}
+
 // Serialize a JSON value back to a compact string (for detector input).
 inline std::string dump(const JsonValue& v) {
     switch (v.type) {
@@ -249,7 +275,7 @@ inline std::string dump(const JsonValue& v) {
             std::string s = std::to_string(v.number);
             return s;
         }
-        case JsonValue::Type::String: return "\"" + v.str + "\"";
+        case JsonValue::Type::String: return quote_json(v.str);
         case JsonValue::Type::Array: {
             std::string s = "[";
             for (size_t k = 0; k < v.array.size(); ++k) {
@@ -262,7 +288,7 @@ inline std::string dump(const JsonValue& v) {
             std::string s = "{";
             for (size_t k = 0; k < v.object.size(); ++k) {
                 if (k) s += ",";
-                s += "\"" + v.object[k].first + "\":" + dump(v.object[k].second);
+                s += quote_json(v.object[k].first) + ":" + dump(v.object[k].second);
             }
             return s + "}";
         }
