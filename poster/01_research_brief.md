@@ -1,6 +1,6 @@
 # Research Brief - Poster 01
 
-> Evidence status: Refreshed against code snapshot `008775c8878cc70c50247baa223da3256e093316` and successful GitHub Actions CI run `37184196303` on 2026-09-30. The quantitative claims below are tied to that code snapshot. Do not generalize benchmark or test results beyond their stated scope.
+> Evidence status: Refreshed against code snapshot `c75c52db` and successful GitHub Actions CI run `38462601803` on 2026-10-13. The quantitative claims below are tied to that code snapshot. Do not generalize benchmark or test results beyond their stated scope.
 
 ## Repository
 
@@ -32,23 +32,23 @@ LLM agents can turn untrusted natural-language context into structured tool call
 
 ## Verified Evidence at Cited Snapshot
 
-GitHub Actions CI on Python 3.12 at the poster snapshot `008775c8878cc70c50247baa223da3256e093316` reports:
+GitHub Actions CI on Python 3.12 at the poster snapshot `c75c52db` (CI run `38462601803`) reports:
 
-- **723 tests passed**, 0 failed.
-- **81.91% statement coverage** - 5,644 statements, 1,021 missed.
+- **782 tests passed**, 0 failed.
+- **81.93% statement coverage** - 5,657 statements, 1,022 missed.
 - The Python 3.10 and 3.11 test jobs also completed successfully.
 - Ruff/format, Pyright, Bandit, pip-audit, CodeQL, Windows control-plane validation, container build, Trivy/Grype/SBOM jobs completed successfully.
-- **55** entries remain in the named prompt-injection pattern collection.
+- **69** entries remain in the named prompt-injection pattern collection.
 - **9** Elastic `[[rule]]` records.
 - **21** core SIEM tests plus **12** SIEM scenario-runner tests.
 
-## October 2026 detector update (separate from the cited historical CI snapshot)
+## October 2026 detector update (now merged into main)
 
-Commit `c30075da1dc1d3fa7b843bb76be8e842fbfa6ae3` merged the detector-only changes from PR #123. The named runtime prompt-injection signature list now has **69 entries (55 historical plus 14 added)**. The focused local regression run passed **77 tests**. On 15 *development* attack examples, the updated regex-only detector flagged **15/15**, while it also flagged **3/15** benign examples. This is a test-set result, **not** independently held-out recall, population-level precision, or a customer-deployment efficacy percentage.
+The 69-entry named runtime prompt-injection signature list is the current main-branch implementation at commit `c75c52db`. The full CI run `38462601803` validates all 782 tests against this implementation. On 15 *development* attack examples, the updated regex-only detector flagged **15/15**, while it also flagged **3/15** benign examples. This is a test-set result, **not** independently held-out recall, population-level precision, or a customer-deployment efficacy percentage.
 
-A separate five-case synthetic policy-enforcement check denied 5/5 disallowed calls against a deliberately pass-through comparator, **not** a measured reduction in incidents or unauthorized execution attempts in the field. A comparison of the earlier 12-signature and 55-signature detectors on 15 familiar positive fixtures found **0 percentage-point recall difference**, because both detected all 15. The 14 additional signatures have not been independently validated against unseen data. The IAM Guard's five-case synthetic check detected 5/5 deliberately vulnerable cases, but also produced a finding on one nominally benign read policy (AIG007); it is **not** evidence of general IAM recall or precision.
+A separate five-case synthetic policy-enforcement check denied 5/5 disallowed calls against a deliberately pass-through comparator, **not** a measured reduction in incidents or unauthorized execution attempts in the field. A comparison of the earlier 12-signature and 55-signature detectors on 15 familiar positive fixtures found **0 percentage-point recall difference**, because both detected all 15. The 14 additional signatures (beyond the earlier 55) have not been independently validated against unseen data. The IAM Guard's five-case synthetic check detected 5/5 deliberately vulnerable cases, but also produced a finding on one nominally benign read policy (AIG007); it is **not** evidence of general IAM recall or precision.
 
-The Cerberus pilot, persistent identities, baseline, deployment and transport configuration are not involved in these measurements. Do not combine the 69-entry runtime detector with the older 55-entry verified snapshot, and do not combine the original 81.91% code coverage figure with the later 752-test Docker run.
+The Cerberus pilot, persistent identities, baseline, deployment and transport configuration are not involved in these measurements. Do not combine the 69-entry runtime detector count with older snapshot counts, and do not combine coverage figures across different CI runs.
 
 ## Honest Boundaries
 
@@ -63,7 +63,7 @@ The Cerberus pilot, persistent identities, baseline, deployment and transport co
 ```powershell
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
 cd mcp-agent-security-gateway
-git checkout 8427f9ecafd3438a86775a7ceaf809f4ee051b5b
+git checkout c75c52db
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev,server]"
@@ -71,11 +71,11 @@ $env:PYTHONPATH="src"
 python -m pytest tests -q --cov=mcp_monitor --cov-report=term
 ```
 
-Expected at the cited snapshot: **723 passed**, **81.91%** statement coverage.
+Expected at the cited snapshot: **782 passed**, **81.93%** statement coverage.
 
 ## Evidence Sources
 
-- GitHub Actions CI run `37184196303`
+- GitHub Actions CI run `38462601803`
 - `VERIFIED_METRICS.md`
 - `evidence/mcp_replay_evidence.json`
 - `detection_rules/elastic_rules.toml`
