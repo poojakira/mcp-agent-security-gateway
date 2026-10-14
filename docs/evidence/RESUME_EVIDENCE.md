@@ -38,14 +38,12 @@ The resume rounds 78.41% to **78%**.
 
 The current evidence anchor is [../../VERIFIED_METRICS.md](../../VERIFIED_METRICS.md).
 
-Latest cited CI code snapshot: `008775c8878cc70c50247baa223da3256e093316` (CI run `37184196303`).
+Latest cited CI code snapshot: `c75c52db` (CI run `38462601803`, October 13, 2026).
 
-- **723 passing tests**
-- **81.91% statement coverage** (5,644 statements, 1,021 missed)
-- **55 prompt-injection patterns**
+- **782 passing tests**
+- **81.93% statement coverage** (5,657 statements, 1,022 missed)
+- **69 prompt-injection patterns**
 - **9 Elastic Security rules**
 - **21 core SIEM tests**
 - Stable multi-credential authentication plus trusted-proxy-aware source attribution
 - Local HMAC-SHA256 credential/network fingerprinting without raw credential/IP export
-
-For current résumé material, the exact supported test-count claim is **"723 passing automated tests."** The repository has grown since the frozen application snapshot; current metrics must not be substituted into older submitted material retroactively. External pilot transport and idempotent retry behavior have been independently validated, but the persistent baseline has not yet accumulated enough normal live traffic to support detector-effectiveness or completed-pilot claims.
