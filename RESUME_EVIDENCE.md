@@ -7,4 +7,5 @@ This compatibility file remains in place so existing resume, portfolio, and exte
 
 ## Latest quantified verified headline
 
-See the maintained evidence file for details. The latest quantified verification snapshot supports **723 passing automated tests** with **81.91% statement coverage** at the cited commit. The earlier 707/82.85% result remains historical evidence. External validation pilot completion is not yet a supported résumé claim.
+See the maintained evidence file for details. The current authoritative verification snapshot is **782 passing tests** at **81.93% statement coverage** (October 13, 2026 hosted Linux CI run [38462601803](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803), commit `c75c52db`). The earlier 723/81.91% and 707/82.85% snapshots remain historical evidence. External validation pilot completion is not yet a supported résumé claim.
+
