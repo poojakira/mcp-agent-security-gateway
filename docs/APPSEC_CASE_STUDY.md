@@ -45,7 +45,7 @@ The review asks:
 
 ## Verified behavior
 
-The current repository evidence records **723 passing tests at 81.91% statement coverage**, with the same suite green across Python 3.10-3.12. The repository also records **9 Elastic Security rules** and **21 core SIEM tests**. Those values are repository verification evidence, not claims of customer deployment or universal detector efficacy.
+The current repository evidence records **782 passing tests at 81.93% statement coverage** (October 13, 2026 CI run [38462601803](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803), commit `c75c52db`), with the same suite green across Python 3.10-3.12. The repository also records **9 Elastic Security rules** and **21 core SIEM tests**. Those values are repository verification evidence, not claims of customer deployment or universal detector efficacy.
 
 Focused tests relevant to this review include:
 
@@ -103,3 +103,4 @@ Prompt-injection, PII, and exfiltration signals are heuristic and can have false
 The reviewed implementation shows a defensible application-security boundary for an agent-to-tool gateway: strict protocol parsing, authenticated control-plane access, default-deny authorization, egress restrictions, abuse controls, and reviewable telemetry. The main remaining risks are architectural/deployment boundaries rather than undocumented claims of perfect detection.
 
 For recruiters and hiring teams, the useful evidence is the review method itself: **threat model → attack surface → control → verification → limitation**, not only the raw test count.
+
