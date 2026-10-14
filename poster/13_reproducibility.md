@@ -1,31 +1,18 @@
-# Reproduce the Work - Poster 01
+# Reproduce the Work — MCP Gateway Poster 01
 
-**Repository:** `github.com/poojakira/mcp-agent-security-gateway`  
-**Verified code snapshot:** `008775c8878cc70c50247baa223da3256e093316`  
-**GitHub Actions CI:** `37184196303`
+**Current code snapshot:** `f1f226feb0d527f27b90081806d7e9bd90ba0574`  
+**Successful Python 3.12 main CI:** [run 38502413461](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461) (October 14, 2026 UTC)
 
-```powershell
+```bash
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
 cd mcp-agent-security-gateway
-git checkout 8427f9ecafd3438a86775a7ceaf809f4ee051b5b
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+git checkout f1f226feb0d527f27b90081806d7e9bd90ba0574
 python -m pip install -e ".[dev,server]"
-$env:PYTHONPATH="src"
-python -m pytest tests -q --cov=mcp_monitor --cov-report=term
+PYTHONPATH=src python -m pytest tests -q --cov=mcp_monitor --cov-report=term
 ```
 
-Expected at the cited snapshot:
+Expected at this cited CI snapshot: **782 passed, 81.93% statement coverage**, 5,657 statements / 1,022 missed. The code-source collection inventory contains **69 named signatures**, plus **9 Elastic rules**, **21 core SIEM tests**, and **12 SIEM scenario tests**; inventory counts are not population-level recall.
 
-- **723 passed**
-- **81.91% statement coverage**
-- 5,644 statements / 1,021 missed
+**Archived October 4 historical run:** [37184196303](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303) at `008775c8878cc70c50247baa223da3256e093316`: 723 passed, 81.91% coverage, 55 named signatures. These values are not this active poster snapshot.
 
-Static evidence:
-
-- prompt-injection collection: **55**
-- Elastic `[[rule]]` records: **9**
-- core SIEM tests: **21**
-- SIEM scenario tests: **12**
-
-GitHub Actions is the authoritative environment for the published test and coverage values.
+Cerberus pilot evidence and detector effectiveness are separate and unchanged. GitHub Actions results are scoped to the cited commit and environment.

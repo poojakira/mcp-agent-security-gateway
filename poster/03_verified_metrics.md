@@ -1,7 +1,7 @@
 # Verified Metrics - Poster 01
 
-> Verified code snapshot: `c75c52db` (commit 5198fe07 on main)
-> Successful CI: https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803
+> Main code snapshot: `f1f226feb0d527f27b90081806d7e9bd90ba0574` (October 14, 2026 UTC)
+> Successful CI: https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461
 
 | Metric | Snapshot value | Scope |
 |---|---:|---|

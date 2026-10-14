@@ -1,6 +1,6 @@
 # Research Brief - Poster 01
 
-> Evidence status: Refreshed against code snapshot `c75c52db` and successful GitHub Actions CI run `38462601803` on 2026-10-13. The quantitative claims below are tied to that code snapshot. Do not generalize benchmark or test results beyond their stated scope.
+> Evidence status: Refreshed against code snapshot `f1f226feb0d527f27b90081806d7e9bd90ba0574` and successful GitHub Actions CI run `38502413461` on 2026-10-14 UTC. The quantitative claims below are tied to that code snapshot. Do not generalize benchmark or test results beyond their stated scope.
 
 ## Repository
 
@@ -32,7 +32,7 @@ LLM agents can turn untrusted natural-language context into structured tool call
 
 ## Verified Evidence at Cited Snapshot
 
-GitHub Actions CI on Python 3.12 at the poster snapshot `c75c52db` (CI run `38462601803`) reports:
+GitHub Actions CI on Python 3.12 at the poster snapshot `f1f226feb0d527f27b90081806d7e9bd90ba0574` (CI run `38502413461`) reports:
 
 - **782 tests passed**, 0 failed.
 - **81.93% statement coverage** - 5,657 statements, 1,022 missed.
@@ -44,7 +44,7 @@ GitHub Actions CI on Python 3.12 at the poster snapshot `c75c52db` (CI run `3846
 
 ## October 2026 detector update (now merged into main)
 
-The 69-entry named runtime prompt-injection signature list is the current main-branch implementation at commit `c75c52db`. The full CI run `38462601803` validates all 782 tests against this implementation. On 15 *development* attack examples, the updated regex-only detector flagged **15/15**, while it also flagged **3/15** benign examples. This is a test-set result, **not** independently held-out recall, population-level precision, or a customer-deployment efficacy percentage.
+The 69-entry named runtime prompt-injection signature list is the current main-branch implementation at commit `f1f226feb0d527f27b90081806d7e9bd90ba0574`. The full CI run `38502413461` validates all 782 tests against this implementation. A small development-only probe exercised attack and benign text, but the committed assertions do **not** establish a reproducible benign-positive count for the cited CI snapshot. Accordingly, this poster does **not** claim a numerical detection rate or false-positive rate from that probe. Neither CI test completion nor signature inventory establishes held-out recall, population-level precision, or customer-deployment efficacy.
 
 A separate five-case synthetic policy-enforcement check denied 5/5 disallowed calls against a deliberately pass-through comparator, **not** a measured reduction in incidents or unauthorized execution attempts in the field. A comparison of the earlier 12-signature and 55-signature detectors on 15 familiar positive fixtures found **0 percentage-point recall difference**, because both detected all 15. The 14 additional signatures (beyond the earlier 55) have not been independently validated against unseen data. The IAM Guard's five-case synthetic check detected 5/5 deliberately vulnerable cases, but also produced a finding on one nominally benign read policy (AIG007); it is **not** evidence of general IAM recall or precision.
 
@@ -75,7 +75,7 @@ Expected at the cited snapshot: **782 passed**, **81.93%** statement coverage.
 
 ## Evidence Sources
 
-- GitHub Actions CI run `38462601803`
+- GitHub Actions CI run `38502413461`
 - `VERIFIED_METRICS.md`
 - `evidence/mcp_replay_evidence.json`
 - `detection_rules/elastic_rules.toml`
