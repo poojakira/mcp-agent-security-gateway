@@ -4,8 +4,8 @@
 
 | Run | Tests passed | Statement coverage | Evidence |
 |---|---:|---:|---|
-| Local Windows Python 3.12.10, October 12, 2026 | **782** | **81.47%**: 5,657 statements / 1,048 missed | Published main checkout `b6d7122ab6f008bd24fa3fcff933618e051aaae1`; local pytest + coverage run |
-| Hosted Linux Python 3.12.15, October 10, 2026 | **782** | **81.93%**: 5,657 statements / 1,022 missed | [GitHub Actions run 38012954359](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38012954359) |
+| Local Windows Python 3.12.10, October 12, 2026 *(for reproducibility reference)* | 782 | 81.47%: 5,657 statements / 1,048 missed | Local run at `b6d7122`; 26-statement gap due to Linux-only paths; see platform note below |
+| **Hosted Linux Python 3.12.15, October 13, 2026** | **782** | **81.93%**: 5,657 statements / 1,022 missed | [GitHub Actions run 38462601803](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803), commit `c75c52db` — **current authoritative result** |
 
 **Platform boundary:** These are different environments and dates. Of the 26 additional missed Windows statements, 22 are in `defense10/network_monitor.py` (Windows 57 missed versus Linux 35) and 4 in `production/identity_shipper.py` (Windows 56 missed versus Linux 52). The source includes Linux-only `/proc/net` reading and POSIX-only directory fsync logic. Both complete Python suites passed; coverage is **not a detector effectiveness percentage**.
 
@@ -25,3 +25,4 @@ py -3.12 -m pytest tests -q -p pytest_cov -p no:cacheprovider --override-ini add
 ## Historical evidence
 
 The previous **723 tests / 81.91% coverage / 55-signature** snapshot at `008775c8878cc70c50247baa223da3256e093316` ([CI run 37184196303](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303)) is preserved in the [dated historical archive](docs/archive/HISTORICAL_EVIDENCE.md), not presented as the current result.
+
