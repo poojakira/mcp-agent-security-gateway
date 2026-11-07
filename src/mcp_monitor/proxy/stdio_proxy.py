@@ -452,7 +452,66 @@ class StdioMCPProxy:
         self._stats["allowed" if tool_count else "passthrough"] += 1
         if not any("id" in message and "method" in message for message in messages):
             return b""  # Notifications and client responses are one-way.
-        return await self._transport.receive()
+        response = await self._transport.receive()
+        if tool_count:
+            # Untrusted MCP server output is an injection surface, even when
+            # the original tools/call arguments were harmless.
+            try:
+                payload = json.loads(response, object_pairs_hook=_unique_json_pairs)
+                results = payload if isinstance(payload, list) else [payload]
+                if not results or any(
+                    not isinstance(item, dict)
+                    or item.get("jsonrpc") != "2.0"
+                    or ("result" not in item and "error" not in item)
+                    for item in results
+                ):
+                    raise ValueError("Invalid downstream JSON-RPC response")
+                for item in results:
+                    detected, patterns = self._detector.detect(
+                        {
+                            "name": "mcp_tool_response",
+                            "arguments": {
+                                "result": item.get("result"),
+                                "error": item.get("error"),
+                            },
+                        }
+                    )
+                    if detected:
+                        logger.warning(
+                            "Blocked suspicious downstream MCP result: %s", patterns
+                        )
+                        self._stats["blocked"] += 1
+                        return _build_error_response(
+                            next(
+                                (
+                                    message["id"]
+                                    for message in messages
+                                    if message.get("method") == "tools/call"
+                                    and "id" in message
+                                ),
+                                None,
+                            ),
+                            self.SECURITY_BLOCK_CODE,
+                            "Security: downstream tool result failed inspection",
+                            {"patterns": patterns},
+                        ).rstrip(b"\\n")
+            except Exception:
+                logger.exception("Downstream MCP result inspection failed closed")
+                self._stats["blocked"] += 1
+                return _build_error_response(
+                    next(
+                        (
+                            message["id"]
+                            for message in messages
+                            if message.get("method") == "tools/call"
+                            and "id" in message
+                        ),
+                        None,
+                    ),
+                    self.SECURITY_BLOCK_CODE,
+                    "Security: downstream tool result validation failed",
+                ).rstrip(b"\\n")
+        return response
 
     def _inspect(self, parsed: dict[str, Any]) -> InspectionResult:
         """Run security inspection on a parsed JSON-RPC tools/call message."""
