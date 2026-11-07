@@ -569,16 +569,20 @@ class TestAdversarialGatewayBoundary:
                 authenticated_principal="alice",
                 protected_resource_tools={"read_file": "path"},
             )
-            first = json.loads(await proxy.handle_message(make_tool_call(
-                "read_file", {"path": resource}, request_id=1
-            )))
+            first = json.loads(
+                await proxy.handle_message(
+                    make_tool_call("read_file", {"path": resource}, request_id=1)
+                )
+            )
             assert "result" in first
             assert len(transport.sent) == 1
 
             guard.apply_change(PermissionChange(1, "alice", resource, False))
-            second = json.loads(await proxy.handle_message(make_tool_call(
-                "read_file", {"path": resource}, request_id=2
-            )))
+            second = json.loads(
+                await proxy.handle_message(
+                    make_tool_call("read_file", {"path": resource}, request_id=2)
+                )
+            )
             assert second["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
             assert "DENY_RESOURCE_ACL" in second["error"]["data"]["patterns"]
             assert len(transport.sent) == 1
@@ -606,9 +610,11 @@ class TestAdversarialGatewayBoundary:
             else:
                 raise AssertionError("Out-of-order change must be rejected")
 
-            reply = json.loads(await proxy.handle_message(make_tool_call(
-                "read_file", {"path": resource}, request_id=3
-            )))
+            reply = json.loads(
+                await proxy.handle_message(
+                    make_tool_call("read_file", {"path": resource}, request_id=3)
+                )
+            )
             assert reply["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
             assert transport.sent == []
 
