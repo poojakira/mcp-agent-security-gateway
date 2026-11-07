@@ -3,6 +3,7 @@
 These tests use the production StdioMCPProxy.handle_message code path, with
 a fake downstream transport. They prove no forwarding occurs on policy deny.
 """
+
 import asyncio
 import json
 
@@ -28,12 +29,14 @@ class FakeTransport:
 
 
 def tool_call(name, arguments=None):
-    return json.dumps({
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "tools/call",
-        "params": {"name": name, "arguments": arguments or {}},
-    }).encode()
+    return json.dumps(
+        {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {"name": name, "arguments": arguments or {}},
+        }
+    ).encode()
 
 
 def run_case(message, **kwargs):
@@ -51,17 +54,13 @@ def test_dangerous_tool_with_clean_arguments_never_reaches_server():
 
 
 def test_unapproved_network_destination_never_reaches_server():
-    response, sent = run_case(
-        tool_call("http_get", {"url": "https://untrusted.example/data"})
-    )
+    response, sent = run_case(tool_call("http_get", {"url": "https://untrusted.example/data"}))
     assert "DENY_EGRESS_NOT_ALLOWED" in response["error"]["message"]
     assert sent == []
 
 
 def test_private_network_destination_never_reaches_server():
-    response, sent = run_case(
-        tool_call("http_get", {"url": "http://127.0.0.1:8080/admin"})
-    )
+    response, sent = run_case(tool_call("http_get", {"url": "http://127.0.0.1:8080/admin"}))
     assert "DENY_EGRESS_NOT_ALLOWED" in response["error"]["message"]
     assert sent == []
 
@@ -75,9 +74,7 @@ def test_safe_tool_reaches_server():
 
 def test_allowlisted_network_destination_reaches_server():
     message = tool_call("http_get", {"url": "https://api.example.com/data"})
-    response, sent = run_case(
-        message, allowed_egress_hosts={"api.example.com"}
-    )
+    response, sent = run_case(message, allowed_egress_hosts={"api.example.com"})
     assert response["result"]["ok"] is True
     assert sent == [message + b"\n"]
 
@@ -99,18 +96,19 @@ def test_policy_evaluation_crash_fails_closed():
             raise RuntimeError("policy unavailable")
 
     response, sent = run_case(
-        tool_call("read_file", {"path": "/tmp/report"}),
-        policy_engine=BrokenPolicy(),
+        tool_call("read_file", {"path": "/tmp/report"}), policy_engine=BrokenPolicy()
     )
     assert response["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
     assert sent == []
 
 
 def test_mixed_batch_with_policy_denial_never_forwards_any_request():
-    batch = json.dumps([
-        json.loads(tool_call("read_file", {"path": "/tmp/report"})),
-        dict(json.loads(tool_call("delete_file", {"path": "/tmp/report"})), id=2),
-    ]).encode()
+    batch = json.dumps(
+        [
+            json.loads(tool_call("read_file", {"path": "/tmp/report"})),
+            dict(json.loads(tool_call("delete_file", {"path": "/tmp/report"})), id=2),
+        ]
+    ).encode()
     response, sent = run_case(batch)
     assert isinstance(response, list)
     assert all(r["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE for r in response)
