@@ -27,6 +27,7 @@ from enum import Enum
 from typing import Any, Protocol
 
 from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
+from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
 
@@ -330,11 +331,23 @@ class StdioMCPProxy:
         detector: PromptInjectionDetector | None = None,
         rate_limiter: RateLimiter | None = None,
         tool_calls_per_minute: int = 300,
+        server_id: str = "local",
+        allowed_egress_hosts: set[str] | frozenset[str] | None = None,
+        policy_engine: PolicyEngine | None = None,
     ) -> None:
         self.command = command
         self._transport = transport or SubprocessTransport(command)
         self._detector = detector or PromptInjectionDetector(enable_ml=False)
         self._adapter = MCPJSONRPCAdapter()
+        # The gateway operator assigns server identity, not the AI agent.
+        # Outbound destinations are denied unless explicitly allowlisted.
+        if not isinstance(server_id, str) or not server_id:
+            raise ValueError("server_id must be a non-empty string")
+        self._server_id = server_id
+        self._policy_engine = policy_engine or PolicyEngine(
+            allowed_servers={server_id},
+            allowed_egress_hosts=allowed_egress_hosts,
+        )
         # Rate limit tool calls at the proxy layer (separate from production/ server rate limiter).
         # Default: 300 tool calls/minute, burst up to 300. Reduces DoS risk and
         # limits blast radius if an agent is compromised or stuck in a loop.
@@ -450,6 +463,29 @@ class StdioMCPProxy:
         all_matched: list[str] = []
         for tool_call in tool_calls:
             internal = tool_call.to_internal_format()
+            # Apply policy before forwarding. Policy errors fail closed.
+            try:
+                policy_decision = self._policy_engine.evaluate({
+                    "name": tool_call.name,
+                    "server_id": self._server_id,
+                    "arguments": tool_call.arguments,
+                })
+            except Exception as exc:
+                logger.exception("Authorization policy engine failed")
+                return InspectionResult(
+                    decision=Decision.INDETERMINATE,
+                    reason=f"Policy engine failed: {exc}",
+                    matched_patterns=[],
+                    request_id=request_id,
+                    detector_errors=[f"policy: {exc}"],
+                )
+            if not policy_decision.allowed:
+                return InspectionResult(
+                    decision=Decision.BLOCK,
+                    reason=f"Policy denied: {policy_decision.reason_code.value}",
+                    matched_patterns=[policy_decision.reason_code.value],
+                    request_id=request_id,
+                )
             try:
                 detected, patterns = self._detector.detect(internal)
             except Exception as exc:
@@ -525,12 +561,19 @@ def main() -> None:
     """
     args = sys.argv[1:]
 
-    # Split on -- to get the downstream command
+    # Flags before '--' configure this gateway; after '--' is the server.
+    import argparse
+
     if "--" in args:
         sep_idx = args.index("--")
-        command = args[sep_idx + 1 :]
+        gateway_args, command = args[:sep_idx], args[sep_idx + 1 :]
     else:
-        command = args
+        gateway_args, command = [], args
+
+    parser = argparse.ArgumentParser(description="Inline MCP security gateway")
+    parser.add_argument("--server-id", default="local")
+    parser.add_argument("--allow-egress-host", action="append", default=[])
+    options = parser.parse_args(gateway_args)
 
     if not command:
         print(
@@ -539,7 +582,11 @@ def main() -> None:
         )
         sys.exit(1)
 
-    proxy = StdioMCPProxy(command)
+    proxy = StdioMCPProxy(
+        command,
+        server_id=options.server_id,
+        allowed_egress_hosts=set(options.allow_egress_host),
+    )
     asyncio.run(proxy.run())
 
 
