@@ -27,7 +27,7 @@ from enum import Enum
 from typing import Any, Protocol
 
 from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
-from mcp_monitor.policy.acl_guard import ACLGuard, AccessDenied
+from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard
 from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
