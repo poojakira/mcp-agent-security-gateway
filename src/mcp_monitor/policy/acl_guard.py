@@ -85,9 +85,7 @@ class ACLGuard:
             self._grants[change.principal] = frozenset(grants)
             self._sequence = change.sequence
 
-    def replace_snapshot(
-        self, grants: dict[str, set[str]], *, sequence: int
-    ) -> None:
+    def replace_snapshot(self, grants: dict[str, set[str]], *, sequence: int) -> None:
         """Trusted full resynchronization after missed/out-of-order CDC events."""
         with self._lock:
             if not isinstance(sequence, int) or sequence < self._sequence:
