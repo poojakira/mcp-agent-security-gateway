@@ -516,9 +516,8 @@ class TestAdversarialGatewayBoundary:
     def test_untrusted_server_result_is_blocked_before_client_receives_it(self) -> None:
         class ResponseDetector:
             def detect(self, call):
-                if (
-                    call.get("name") == "mcp_tool_response"
-                    and "INJECTED_OVERRIDE" in str(call.get("arguments", {}))
+                if call.get("name") == "mcp_tool_response" and "INJECTED_OVERRIDE" in str(
+                    call.get("arguments", {})
                 ):
                     return True, ["synthetic_response_injection"]
                 return False, []
@@ -546,9 +545,7 @@ class TestAdversarialGatewayBoundary:
             )
             reply = json.loads(
                 await proxy.handle_message(
-                    make_tool_call(
-                        "read_file", {"path": "/tmp/normal.txt"}, request_id=41
-                    )
+                    make_tool_call("read_file", {"path": "/tmp/normal.txt"}, request_id=41)
                 )
             )
             assert reply["id"] == 41
