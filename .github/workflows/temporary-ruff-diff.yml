@@ -1,5 +1,6 @@
 name: Temporary Ruff Formatting Diff
 on:
+  pull_request:
   push:
     branches:
       - fix/enforce-policy-in-stdio-proxy
