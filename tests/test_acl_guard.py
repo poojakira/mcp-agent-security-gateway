@@ -6,7 +6,7 @@ Real search connectors must apply the filter within their retrieval query.
 
 import pytest
 
-from mcp_monitor.policy.acl_guard import ACLGuard, AccessDenied, PermissionChange
+from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard, PermissionChange
 
 
 def setup_guard():
