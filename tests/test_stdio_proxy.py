@@ -586,7 +586,7 @@ class TestAdversarialGatewayBoundary:
         _run(scenario())
 
     def test_out_of_order_permission_change_fails_closed_at_proxy(self) -> None:
-        from mcp_monitor.policy.acl_guard import ACLGuard, AccessDenied, PermissionChange
+        from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard, PermissionChange
 
         async def scenario():
             resource = "/tmp/authorized.txt"
