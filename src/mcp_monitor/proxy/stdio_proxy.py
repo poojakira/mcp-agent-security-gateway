@@ -27,6 +27,7 @@ from enum import Enum
 from typing import Any, Protocol
 
 from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
+from mcp_monitor.policy.acl_guard import ACLGuard, AccessDenied
 from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
@@ -334,6 +335,9 @@ class StdioMCPProxy:
         server_id: str = "local",
         allowed_egress_hosts: set[str] | frozenset[str] | None = None,
         policy_engine: PolicyEngine | None = None,
+        acl_guard: ACLGuard | None = None,
+        authenticated_principal: str | None = None,
+        protected_resource_tools: dict[str, str] | None = None,
     ) -> None:
         self.command = command
         self._transport = transport or SubprocessTransport(command)
@@ -344,6 +348,11 @@ class StdioMCPProxy:
         if not isinstance(server_id, str) or not server_id:
             raise ValueError("server_id must be a non-empty string")
         self._server_id = server_id
+        self._acl_guard = acl_guard
+        self._authenticated_principal = authenticated_principal
+        self._protected_resource_tools = dict(protected_resource_tools or {})
+        if self._protected_resource_tools and self._acl_guard is None:
+            raise ValueError("protected resource tools require an ACLGuard")
         self._policy_engine = policy_engine or PolicyEngine(
             allowed_servers={server_id},
             allowed_egress_hosts=allowed_egress_hosts,
@@ -463,6 +472,23 @@ class StdioMCPProxy:
         all_matched: list[str] = []
         for tool_call in tool_calls:
             internal = tool_call.to_internal_format()
+            # The authenticated principal is supplied by gateway configuration,
+            # never by the agent's MCP arguments.
+            if tool_call.name in self._protected_resource_tools:
+                resource_key = self._protected_resource_tools[tool_call.name]
+                try:
+                    resource_id = tool_call.arguments.get(resource_key)
+                    if not isinstance(resource_id, str):
+                        raise AccessDenied("Missing resource identifier")
+                    assert self._acl_guard is not None
+                    self._acl_guard.check(self._authenticated_principal or "", resource_id)
+                except Exception:
+                    return InspectionResult(
+                        decision=Decision.BLOCK,
+                        reason="ACL denied protected resource access",
+                        matched_patterns=["DENY_RESOURCE_ACL"],
+                        request_id=request_id,
+                    )
             # Apply policy before forwarding. Policy errors fail closed.
             try:
                 policy_decision = self._policy_engine.evaluate(
