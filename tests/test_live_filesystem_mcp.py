@@ -3,6 +3,7 @@
 Run only in an environment with Node.js 24+, npm/npx and network access.
 This is separate from fake-transport tests and tests actual MCP I/O.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -19,12 +20,14 @@ from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy
 
 
 def request(request_id, method, params=None):
-    return json.dumps({
-        "jsonrpc": "2.0",
-        "id": request_id,
-        "method": method,
-        "params": params or {},
-    }).encode()
+    return json.dumps(
+        {
+            "jsonrpc": "2.0",
+            "id": request_id,
+            "method": method,
+            "params": params or {},
+        }
+    ).encode()
 
 
 async def live_scenario(root: Path):
@@ -45,37 +48,67 @@ async def live_scenario(root: Path):
     )
     await asyncio.wait_for(proxy.start(), timeout=120)
     try:
-        init = await asyncio.wait_for(proxy.handle_message(request(
-            1, "initialize", {
-                "protocolVersion": "2025-03-26",
-                "capabilities": {},
-                "clientInfo": {"name": "security-gateway-smoke", "version": "1.0"},
-            },
-        )), timeout=120)
+        init = await asyncio.wait_for(
+            proxy.handle_message(
+                request(
+                    1,
+                    "initialize",
+                    {
+                        "protocolVersion": "2025-03-26",
+                        "capabilities": {},
+                        "clientInfo": {
+                            "name": "security-gateway-smoke",
+                            "version": "1.0",
+                        },
+                    },
+                )
+            ),
+            timeout=120,
+        )
         parsed_init = json.loads(init)
         assert "result" in parsed_init, parsed_init
         print("REAL SERVER: initialization succeeded", flush=True)
 
-        await asyncio.wait_for(proxy.handle_message(json.dumps({
-            "jsonrpc": "2.0", "method": "notifications/initialized",
-        }).encode()), timeout=30)
+        await asyncio.wait_for(
+            proxy.handle_message(
+                json.dumps(
+                    {"jsonrpc": "2.0", "method": "notifications/initialized"}
+                ).encode()
+            ),
+            timeout=30,
+        )
 
-        good = await asyncio.wait_for(proxy.handle_message(request(
-            2, "tools/call", {
-                "name": "read_file", "arguments": {"path": str(testfile)},
-            },
-        )), timeout=60)
+        good = await asyncio.wait_for(
+            proxy.handle_message(
+                request(
+                    2,
+                    "tools/call",
+                    {"name": "read_file", "arguments": {"path": str(testfile)}},
+                )
+            ),
+            timeout=60,
+        )
         parsed_good = json.loads(good)
         assert "result" in parsed_good, parsed_good
         assert "known-good-content" in json.dumps(parsed_good)
         print("REAL SERVER: allowed read returned expected file", flush=True)
 
-        blocked = await asyncio.wait_for(proxy.handle_message(request(
-            3, "tools/call", {
-                "name": "write_file",
-                "arguments": {"path": str(testfile), "content": "ATTACK"},
-            },
-        )), timeout=30)
+        blocked = await asyncio.wait_for(
+            proxy.handle_message(
+                request(
+                    3,
+                    "tools/call",
+                    {
+                        "name": "write_file",
+                        "arguments": {
+                            "path": str(testfile),
+                            "content": "ATTACK",
+                        },
+                    },
+                )
+            ),
+            timeout=30,
+        )
         parsed_blocked = json.loads(blocked)
         assert parsed_blocked["error"]["code"] == proxy.SECURITY_BLOCK_CODE
         assert "DENY_DANGEROUS_TOOL" in parsed_blocked["error"]["message"]
