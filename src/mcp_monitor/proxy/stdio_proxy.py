@@ -465,11 +465,13 @@ class StdioMCPProxy:
             internal = tool_call.to_internal_format()
             # Apply policy before forwarding. Policy errors fail closed.
             try:
-                policy_decision = self._policy_engine.evaluate({
-                    "name": tool_call.name,
-                    "server_id": self._server_id,
-                    "arguments": tool_call.arguments,
-                })
+                policy_decision = self._policy_engine.evaluate(
+                    {
+                        "name": tool_call.name,
+                        "server_id": self._server_id,
+                        "arguments": tool_call.arguments,
+                    }
+                )
             except Exception as exc:
                 logger.exception("Authorization policy engine failed")
                 return InspectionResult(
