@@ -90,9 +90,7 @@ class ACLGuard:
         with self._lock:
             if not isinstance(sequence, int) or sequence < self._sequence:
                 raise AccessDenied("Snapshot sequence must not move backwards")
-            self._grants = {
-                user: frozenset(resources) for user, resources in grants.items()
-            }
+            self._grants = {user: frozenset(resources) for user, resources in grants.items()}
             self._sequence = sequence
             self._healthy = True
 

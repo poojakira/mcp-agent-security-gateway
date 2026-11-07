@@ -24,9 +24,9 @@ def search_backend(query, allowed):
 
 def test_pre_retrieval_acl_limits_results_to_principal():
     guard = setup_guard()
-    assert [
-        r["resource_id"] for r in guard.authorized_search("bob", "report", search_backend)
-    ] == ["public"]
+    assert [r["resource_id"] for r in guard.authorized_search("bob", "report", search_backend)] == [
+        "public"
+    ]
 
 
 def test_unknown_principal_returns_nothing():
@@ -44,9 +44,7 @@ def test_backend_leak_fails_closed():
         setup_guard().authorized_search(
             "bob",
             "report",
-            lambda query, allowed: [
-                {"resource_id": "alice-private", "content": "secret"}
-            ],
+            lambda query, allowed: [{"resource_id": "alice-private", "content": "secret"}],
         )
 
 
@@ -64,9 +62,10 @@ def test_revocation_blocks_cached_resource():
 def test_grant_applies_to_next_retrieval():
     guard = setup_guard()
     guard.apply_change(PermissionChange(1, "bob", "bob-private", True))
-    assert {
-        r["resource_id"] for r in guard.authorized_search("bob", "report", search_backend)
-    } == {"public", "bob-private"}
+    assert {r["resource_id"] for r in guard.authorized_search("bob", "report", search_backend)} == {
+        "public",
+        "bob-private",
+    }
 
 
 def test_out_of_order_event_disables_all_access_until_resync():
@@ -99,9 +98,7 @@ def test_snapshot_rejects_rollback():
 def test_empty_allowed_scope_never_calls_backend():
     called = []
     guard = ACLGuard({"bob": set()})
-    result = guard.authorized_search(
-        "bob", "query", lambda q, allowed: called.append(True)
-    )
+    result = guard.authorized_search("bob", "query", lambda q, allowed: called.append(True))
     assert result == []
     assert called == []
 

@@ -71,9 +71,7 @@ async def live_scenario(root: Path):
 
         await asyncio.wait_for(
             proxy.handle_message(
-                json.dumps(
-                    {"jsonrpc": "2.0", "method": "notifications/initialized"}
-                ).encode()
+                json.dumps({"jsonrpc": "2.0", "method": "notifications/initialized"}).encode()
             ),
             timeout=30,
         )

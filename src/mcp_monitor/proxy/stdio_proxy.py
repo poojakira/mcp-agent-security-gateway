@@ -477,17 +477,14 @@ class StdioMCPProxy:
                         }
                     )
                     if detected:
-                        logger.warning(
-                            "Blocked suspicious downstream MCP result: %s", patterns
-                        )
+                        logger.warning("Blocked suspicious downstream MCP result: %s", patterns)
                         self._stats["blocked"] += 1
                         return _build_error_response(
                             next(
                                 (
                                     message["id"]
                                     for message in messages
-                                    if message.get("method") == "tools/call"
-                                    and "id" in message
+                                    if message.get("method") == "tools/call" and "id" in message
                                 ),
                                 None,
                             ),
@@ -503,8 +500,7 @@ class StdioMCPProxy:
                         (
                             message["id"]
                             for message in messages
-                            if message.get("method") == "tools/call"
-                            and "id" in message
+                            if message.get("method") == "tools/call" and "id" in message
                         ),
                         None,
                     ),
