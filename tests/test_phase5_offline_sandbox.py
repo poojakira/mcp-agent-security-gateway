@@ -106,7 +106,9 @@ def test_invalid_sandbox_type_denied_during_setup() -> None:
     with pytest.raises(ValueError, match="offline_sandbox"):
         StdioMCPProxy(command=["python"], offline_sandbox={"image": IMAGE_ID})
 
-@pytest.mark.parametrize("name", ["mcp-offline-123", "--network=host", "", "mcp-offline-" + "g" * 24])
+@pytest.mark.parametrize(
+    "name", ["mcp-offline-123", "--network=host", "", "mcp-offline-" + "g" * 24]
+)
 def test_rejects_untrusted_container_names(name: str) -> None:
     with pytest.raises(ValueError, match="container name"):
         OfflineDockerSandbox(IMAGE_ID).build_command(["python"], container_name=name)

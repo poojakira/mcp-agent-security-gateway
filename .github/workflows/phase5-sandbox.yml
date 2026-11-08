@@ -37,9 +37,6 @@ jobs:
       - name: Install free local test dependencies
         run: |
           python -m pip install -e ".[dev]"
-      - name: Show exact formatting differences (temporary)
-        run: |
-          ruff format --diff tests/test_phase5_offline_sandbox.py || true
       - name: Ruff lint and formatting
         run: |
           ruff check src/mcp_monitor/proxy/sandbox.py src/mcp_monitor/proxy/stdio_proxy.py tests/test_phase5_offline_sandbox.py tests/test_phase5_docker_integration.py tests/fixtures/phase5_synthetic_server.py
@@ -47,6 +44,9 @@ jobs:
       - name: Offline sandbox unit tests and Step 4 regressions
         run: |
           python -m pytest tests/test_phase5_offline_sandbox.py tests/test_step4_protocol_resilience.py tests/test_stdio_proxy.py -q --tb=short
+      - name: Complete repository regression suite
+        run: |
+          python -m pytest tests/ -q --tb=short --cov=mcp_monitor --cov-report=term --cov-fail-under=77
 
   offline-docker-integration:
     name: Isolated disposable Docker network-none test
