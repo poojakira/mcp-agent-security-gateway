@@ -7,7 +7,6 @@ import pytest
 from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
 from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy
 
-
 IMAGE_ID = "sha256:" + "a" * 64
 
 

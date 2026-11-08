@@ -8,9 +8,8 @@ guarantee side-effect rollback, or provide an authenticated identity provider.
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence
-
 
 # A content-addressed, preloaded Docker image ID or repository digest is required.
 # This prevents mutable image tags or implicit pulls from changing the target.

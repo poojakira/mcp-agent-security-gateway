@@ -15,7 +15,6 @@ import pytest
 from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
 from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy
 
-
 IMAGE_ID = os.environ.get("PHASE5_TEST_IMAGE_ID")
 pytestmark = pytest.mark.skipif(not IMAGE_ID, reason="Offline image ID not supplied by Phase 5 CI")
 
