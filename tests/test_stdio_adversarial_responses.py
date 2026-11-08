@@ -181,10 +181,9 @@ def test_blocked_downstream_batch_replies_to_each_request(outcome: str) -> None:
         replies = json.loads(raw_reply)
         assert isinstance(replies, list)
         assert [reply["id"] for reply in replies] == [71, 72]
-        assert all(
-            reply["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE for reply in replies
-        )
-        assert all("result" not in reply for reply in replies)
+        for reply in replies:
+            assert reply["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
+            assert "result" not in reply
         assert "ATTACK_MARKER" not in raw_reply.decode()
         assert transport.sent == [batch + b"\n"]
         assert proxy.stats["blocked"] == 1
