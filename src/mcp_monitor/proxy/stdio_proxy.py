@@ -18,9 +18,12 @@ Usage (Claude Desktop config):
 
 from __future__ import annotations
 
+from collections import Counter
+
 import asyncio
 import json
 import logging
+import math
 import sys
 from dataclasses import dataclass
 from enum import Enum
@@ -48,6 +51,19 @@ def _unique_json_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
 def _reject_json_constant(value: str) -> None:
     """Reject non-standard JSON constants such as NaN and Infinity."""
     raise ValueError(f"Invalid JSON constant: {value}")
+
+
+def _response_id_key(value: Any) -> tuple[str, str | int | float | None]:
+    """Use type-safe, hashable JSON-RPC IDs when matching downstream replies."""
+    if value is None:
+        return ("null", None)
+    if isinstance(value, str):
+        return ("string", value)
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError("Invalid JSON-RPC response ID type")
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError("Non-finite JSON-RPC response ID")
+    return ("number", value)
 
 
 # ---------------------------------------------------------------------------
@@ -529,10 +545,26 @@ class StdioMCPProxy:
                 if not results or any(
                     not isinstance(item, dict)
                     or item.get("jsonrpc") != "2.0"
-                    or ("result" not in item and "error" not in item)
+                    or ("result" in item) == ("error" in item)
+                    or "method" in item
+                    or "id" not in item
                     for item in results
                 ):
                     raise ValueError("Invalid downstream JSON-RPC response")
+                # Never release data attributed to another request ID. A
+                # downstream response can arrive out of order within a batch,
+                # but must have exactly the expected unique IDs.
+                expected_ids = [
+                    _response_id_key(message["id"])
+                    for message in messages
+                    if "id" in message and "method" in message
+                ]
+                received_ids = [_response_id_key(item["id"]) for item in results]
+                if (
+                    len(expected_ids) != len(set(expected_ids))
+                    or Counter(received_ids) != Counter(expected_ids)
+                ):
+                    raise ValueError("Downstream response IDs do not match requests")
                 for item in results:
                     detected, patterns = self._detector.detect(
                         {

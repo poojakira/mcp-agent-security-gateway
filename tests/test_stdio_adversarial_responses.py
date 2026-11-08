@@ -189,3 +189,81 @@ def test_blocked_downstream_batch_replies_to_each_request(outcome: str) -> None:
         assert proxy.stats["blocked"] == 1
 
     asyncio.run(scenario())
+
+@pytest.mark.parametrize(
+    "downstream",
+    [
+        b'{"jsonrpc":"2.0","id":72,"result":{"content":"PRIVATE_MARKER"}}',
+        b'{"jsonrpc":"2.0","result":{"content":"PRIVATE_MARKER"}}',
+        b'{"jsonrpc":"2.0","id":true,"result":{"content":"PRIVATE_MARKER"}}',
+        b'[{"jsonrpc":"2.0","id":71,"result":{}},{"jsonrpc":"2.0","id":72,"result":{"content":"PRIVATE_MARKER"}}]',
+        b'{"jsonrpc":"2.0","id":71,"result":{},"error":{"code":-32000,"message":"invalid"}}',
+    ],
+    ids=[
+        "unexpected-id",
+        "missing-id",
+        "boolean-id",
+        "extra-result",
+        "conflicting-result-and-error",
+    ],
+)
+def test_unmatched_downstream_response_is_not_released(downstream: bytes) -> None:
+    async def scenario() -> None:
+        transport = ControlledTransport(downstream)
+        proxy = StdioMCPProxy(command=["test-server"], transport=transport)
+        raw = await proxy.handle_message(call())
+        reply = json.loads(raw)
+        assert reply["id"] == 71
+        assert reply["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
+        assert "result" not in reply
+        assert "PRIVATE_MARKER" not in raw.decode()
+        assert transport.sent == [call() + b"\\n"]
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        [
+            {"jsonrpc": "2.0", "id": 71, "result": {"content": "SAFE_MARKER"}},
+            {"jsonrpc": "2.0", "id": 71, "result": {"content": "PRIVATE_MARKER"}},
+        ],
+        [{"jsonrpc": "2.0", "id": 71, "result": {"content": "SAFE_MARKER"}}],
+        [
+            {"jsonrpc": "2.0", "id": 71, "result": {"content": "SAFE_MARKER"}},
+            {"jsonrpc": "2.0", "id": 999, "result": {"content": "PRIVATE_MARKER"}},
+        ],
+    ],
+    ids=["duplicate-response-id", "missing-batch-result", "extra-foreign-id"],
+)
+def test_batch_response_id_mismatch_fails_closed(response: list[dict]) -> None:
+    async def scenario() -> None:
+        request = json.dumps([json.loads(call(71)), json.loads(call(72))]).encode()
+        transport = ControlledTransport(json.dumps(response).encode())
+        proxy = StdioMCPProxy(command=["test-server"], transport=transport)
+        raw = await proxy.handle_message(request)
+        replies = json.loads(raw)
+        assert [item["id"] for item in replies] == [71, 72]
+        assert all(item["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE for item in replies)
+        assert "PRIVATE_MARKER" not in raw.decode()
+        assert transport.sent == [request + b"\\n"]
+
+    asyncio.run(scenario())
+
+
+def test_out_of_order_valid_batch_responses_are_accepted() -> None:
+    async def scenario() -> None:
+        request = json.dumps([json.loads(call(71)), json.loads(call(72))]).encode()
+        response = json.dumps(
+            [
+                {"jsonrpc": "2.0", "id": 72, "result": {"content": "SECOND_OK"}},
+                {"jsonrpc": "2.0", "id": 71, "result": {"content": "FIRST_OK"}},
+            ]
+        ).encode()
+        transport = ControlledTransport(response)
+        proxy = StdioMCPProxy(command=["test-server"], transport=transport)
+        assert await proxy.handle_message(request) == response
+        assert transport.sent == [request + b"\\n"]
+
+    asyncio.run(scenario())
