@@ -26,9 +26,7 @@ async def call(proxy: StdioMCPProxy, kind: str, request_id: int) -> dict:
         "method": "tools/call",
         "params": {"name": "sandbox_probe", "arguments": {"kind": kind}},
     }
-    raw = await asyncio.wait_for(
-        proxy.handle_message(json.dumps(message).encode()), timeout=10.0
-    )
+    raw = await asyncio.wait_for(proxy.handle_message(json.dumps(message).encode()), timeout=10.0)
     response = json.loads(raw)
     assert response["id"] == request_id
     assert "error" not in response, response

@@ -36,10 +36,7 @@ class OfflineDockerSandbox:
         if (
             not isinstance(server_command, list | tuple)
             or not server_command
-            or any(
-                not isinstance(arg, str) or not arg or "\x00" in arg
-                for arg in server_command
-            )
+            or any(not isinstance(arg, str) or not arg or "\x00" in arg for arg in server_command)
         ):
             raise ValueError("Sandboxed server command must contain safe non-empty arguments")
 

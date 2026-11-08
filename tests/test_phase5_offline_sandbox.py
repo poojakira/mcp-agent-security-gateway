@@ -11,9 +11,7 @@ IMAGE_ID = "sha256:" + "a" * 64
 
 
 def test_network_isolation_flags_are_immutable_and_no_shell_is_used() -> None:
-    command = OfflineDockerSandbox(IMAGE_ID).build_command(
-        ["python", "-u", "/opt/mcp/server.py"]
-    )
+    command = OfflineDockerSandbox(IMAGE_ID).build_command(["python", "-u", "/opt/mcp/server.py"])
     assert command[:2] == ["docker", "run"]
     assert command[command.index("--workdir=/tmp") + 1] == IMAGE_ID
     assert command[-3:] == ["python", "-u", "/opt/mcp/server.py"]
