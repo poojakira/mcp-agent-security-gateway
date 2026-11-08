@@ -36,9 +36,7 @@ class FixtureTransport:
 
 
 def request(method: str, request_id: int = 71) -> bytes:
-    return json.dumps(
-        {"jsonrpc": "2.0", "id": request_id, "method": method, "params": {}}
-    ).encode()
+    return json.dumps({"jsonrpc": "2.0", "id": request_id, "method": method, "params": {}}).encode()
 
 
 @pytest.mark.parametrize(
@@ -151,9 +149,7 @@ def test_oversized_downstream_result_is_blocked() -> None:
 def test_oversized_request_never_reaches_downstream() -> None:
     async def scenario() -> None:
         transport = FixtureTransport(b'{"jsonrpc":"2.0","id":71,"result":{}}')
-        proxy = StdioMCPProxy(
-            command=["synthetic"], transport=transport, max_message_bytes=256
-        )
+        proxy = StdioMCPProxy(command=["synthetic"], transport=transport, max_message_bytes=256)
         raw = await proxy.handle_message(
             json.dumps(
                 {"jsonrpc": "2.0", "id": 71, "method": "resources/read", "params": {"x": "Z" * 500}}
@@ -184,9 +180,7 @@ def test_invalid_transport_limits_are_rejected(settings: dict) -> None:
 def test_local_subprocess_response_line_size_is_bounded() -> None:
     async def scenario() -> None:
         script = "import sys; sys.stdout.write('X' * 500 + '\\n'); sys.stdout.flush()"
-        transport = SubprocessTransport(
-            [sys.executable, "-u", "-c", script], max_response_bytes=64
-        )
+        transport = SubprocessTransport([sys.executable, "-u", "-c", script], max_response_bytes=64)
         await transport.start()
         try:
             with pytest.raises(ValueError, match="size limit"):

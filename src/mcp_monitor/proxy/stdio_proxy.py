@@ -512,10 +512,7 @@ class StdioMCPProxy:
                         raise ValueError("Invalid JSON-RPC params")
                     if "id" in message:
                         request_ids.append(_response_id_key(message["id"]))
-                elif (
-                    "id" not in message
-                    or ("result" in message) == ("error" in message)
-                ):
+                elif "id" not in message or ("result" in message) == ("error" in message):
                     raise ValueError("Invalid JSON-RPC response envelope")
                 else:
                     _response_id_key(message["id"])
@@ -523,9 +520,7 @@ class StdioMCPProxy:
                 raise ValueError("Duplicate JSON-RPC request ID")
         except (TypeError, ValueError):
             self._stats["blocked"] += 1
-            return _build_error_response(
-                None, -32600, "Invalid JSON-RPC envelope"
-            ).rstrip(b"\n")
+            return _build_error_response(None, -32600, "Invalid JSON-RPC envelope").rstrip(b"\n")
 
         denial: tuple[int, str, dict[str, Any]] | None = None
         tool_count = 0
