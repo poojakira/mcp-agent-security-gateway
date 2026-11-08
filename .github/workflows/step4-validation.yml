@@ -36,6 +36,11 @@ jobs:
         run: |
           python -m pip install ruff==0.8.4
           python -m pip install -e ".[dev]"
+      - name: Diagnose Ruff exact differences (temporary)
+        run: |
+          ruff check --diff tests/test_step4_authoritative_acl.py || true
+          ruff format --diff tests/test_step4_authoritative_acl.py || true
+
       - name: Check Ruff lint and formatting
         run: |
           ruff check src/mcp_monitor/policy/policy_engine.py src/mcp_monitor/policy/acl_guard.py tests/test_step4_egress_validation.py tests/test_step4_nested_egress.py tests/test_step4_authoritative_acl.py
