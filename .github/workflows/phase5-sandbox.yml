@@ -37,6 +37,9 @@ jobs:
       - name: Install free local test dependencies
         run: |
           python -m pip install -e ".[dev]"
+      - name: Show exact formatting differences (temporary)
+        run: |
+          ruff format --diff tests/test_phase5_offline_sandbox.py || true
       - name: Ruff lint and formatting
         run: |
           ruff check src/mcp_monitor/proxy/sandbox.py src/mcp_monitor/proxy/stdio_proxy.py tests/test_phase5_offline_sandbox.py tests/test_phase5_docker_integration.py tests/fixtures/phase5_synthetic_server.py
