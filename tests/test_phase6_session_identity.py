@@ -79,7 +79,7 @@ def test_valid_session_is_tenant_scoped_and_does_not_print_token() -> None:
         {"tenant": "team-beta"},
         {"session_id": "session-b"},
         {"iat": 2000, "exp": 2050},
-        {"iat": 800, "exp": 2000},
+        {"iat": 800, "exp": 5000},
         {"iat": 1000, "exp": 1000},
         {"iat": True},
         {"claims_override": {"sub": ""}},
