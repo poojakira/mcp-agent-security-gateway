@@ -71,11 +71,7 @@ class OfflineJWKSVerifier:
     ) -> None:
         if jwt is None:
             raise RuntimeError("Install the optional [oidc] dependencies to verify JWTs")
-        if (
-            not isinstance(issuer, str)
-            or len(issuer) > 256
-            or not issuer.startswith("https://")
-        ):
+        if not isinstance(issuer, str) or len(issuer) > 256 or not issuer.startswith("https://"):
             raise ValueError("Issuer must be a trusted HTTPS URL")
         url = urlsplit(issuer)
         if not url.hostname or url.username or url.password or url.fragment or url.query:
@@ -126,9 +122,7 @@ class OfflineJWKSVerifier:
             ):
                 raise SessionVerificationError("Unsupported public signing JWK")
             kid = _valid_id(jwk["kid"], "key id")
-            if kid in result or (
-                "key_ops" in jwk and jwk["key_ops"] != ["verify"]
-            ):
+            if kid in result or ("key_ops" in jwk and jwk["key_ops"] != ["verify"]):
                 raise SessionVerificationError("Duplicate or inappropriate signing JWK")
             try:
                 key = RSAAlgorithm.from_jwk(jwk)
@@ -164,11 +158,7 @@ class OfflineJWKSVerifier:
 
     def verify(self, token: str, *, expected_session_id: str) -> VerifiedSession:
         expected_session_id = _valid_id(expected_session_id, "session binding")
-        if (
-            not isinstance(token, str)
-            or not 1 <= len(token) <= 8192
-            or token.count(".") != 2
-        ):
+        if not isinstance(token, str) or not 1 <= len(token) <= 8192 or token.count(".") != 2:
             raise SessionVerificationError("Malformed session JWT")
         with self._lock:
             if not self._healthy:

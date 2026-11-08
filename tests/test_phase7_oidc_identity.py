@@ -129,9 +129,7 @@ def test_tampering_signature_denied(keys) -> None:
     payload = good.split(".")
     payload[1] = payload[1][:-1] + ("A" if payload[1][-1] != "A" else "B")
     with pytest.raises(SessionVerificationError):
-        make_verifier(keys, RevocationLedger()).bind(
-            ".".join(payload), expected_session_id=SID
-        )
+        make_verifier(keys, RevocationLedger()).bind(".".join(payload), expected_session_id=SID)
 
 
 def test_alg_none_and_hmac_confusion_denied(keys) -> None:
@@ -148,7 +146,9 @@ def test_alg_none_and_hmac_confusion_denied(keys) -> None:
         "exp": current + 60,
     }
     unsigned = jwt.encode(claims, key="", algorithm="none", headers={"kid": "key-01"})
-    confused = jwt.encode(claims, key=b"synthetic-only" * 4, algorithm="HS256", headers={"kid": "key-01"})
+    confused = jwt.encode(
+        claims, key=b"synthetic-only" * 4, algorithm="HS256", headers={"kid": "key-01"}
+    )
     verifier = make_verifier(keys, RevocationLedger())
     for value in (unsigned, confused):
         with pytest.raises(SessionVerificationError):
@@ -169,9 +169,7 @@ def test_old_key_is_dropped_when_keys_rotate(keys) -> None:
     verifier.rotate({"keys": [public_jwk(keys[1], "key-02")]}, version=2)
     with pytest.raises(SessionVerificationError, match="key"):
         old.verify()
-    new = verifier.bind(
-        token(keys, kid="key-02", key=keys[1]), expected_session_id=SID
-    )
+    new = verifier.bind(token(keys, kid="key-02", key=keys[1]), expected_session_id=SID)
     assert new.verify().subject == "alice"
 
 
@@ -297,6 +295,7 @@ def test_cross_tenant_identity_is_denied_by_acl(keys) -> None:
         response = json.loads(await proxy.handle_message(request("tools/call")))
         assert response["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
         assert transport.sent == []
+
     # A provider that signs another tenant must still be rejected at binding.
     with pytest.raises(SessionVerificationError, match="binding"):
         proxy_for(keys, RevocationLedger(), PausedTransport(), tenant="team-beta")
