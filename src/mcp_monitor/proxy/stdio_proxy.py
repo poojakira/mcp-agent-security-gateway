@@ -454,6 +454,39 @@ class StdioMCPProxy:
             return b""  # Notifications and client responses are one-way.
         response = await self._transport.receive()
         if tool_count:
+            # Revocation may occur after the request was authorized and sent.
+            # Check the current trusted ACL again before releasing its response.
+            # A denial suppresses the entire batch rather than leaking a
+            # previously authorized result alongside a revoked result.
+            for message in messages:
+                if message.get("method") != "tools/call":
+                    continue
+                try:
+                    tool_calls = self._adapter.parse_message(message)
+                    for tool_call in tool_calls:
+                        resource_key = self._protected_resource_tools.get(tool_call.name)
+                        if resource_key is None:
+                            continue
+                        resource_id = tool_call.arguments.get(resource_key)
+                        if not isinstance(resource_id, str) or self._acl_guard is None:
+                            raise AccessDenied("Missing protected resource or ACL guard")
+                        self._acl_guard.check(self._authenticated_principal or "", resource_id)
+                except Exception:
+                    logger.warning("Suppressed downstream response after ACL recheck")
+                    self._stats["blocked"] += 1
+                    denied = [
+                        _build_error_response(
+                            item["id"],
+                            self.SECURITY_BLOCK_CODE,
+                            "Security: resource access revoked before response release",
+                            {"patterns": ["DENY_RESOURCE_ACL"]},
+                        ).rstrip(b"\\n")
+                        for item in messages
+                        if "id" in item and "method" in item
+                    ]
+                    if not denied:
+                        return b""
+                    return b"[" + b",".join(denied) + b"]" if is_batch else denied[0]
             # Untrusted MCP server output is an injection surface, even when
             # the original tools/call arguments were harmless.
             try:
