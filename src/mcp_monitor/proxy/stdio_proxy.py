@@ -45,6 +45,10 @@ def _unique_json_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
+def _reject_json_constant(value: str) -> None:
+    """Reject non-standard JSON constants such as NaN and Infinity."""
+    raise ValueError(f"Invalid JSON constant: {value}")
+
 # ---------------------------------------------------------------------------
 # Decision types
 # ---------------------------------------------------------------------------
@@ -188,8 +192,12 @@ def inspect_message(raw_message: str | bytes | dict) -> InspectionResult:
     # Parse the message
     if isinstance(raw_message, str | bytes):
         try:
-            parsed_data = json.loads(raw_message, object_pairs_hook=_unique_json_pairs)
-        except (json.JSONDecodeError, ValueError) as e:
+            parsed_data = json.loads(
+                raw_message,
+                object_pairs_hook=_unique_json_pairs,
+                parse_constant=_reject_json_constant,
+            )
+        except (json.JSONDecodeError, UnicodeDecodeError, RecursionError, ValueError) as e:
             return InspectionResult(
                 decision=Decision.BLOCK,
                 reason=f"Invalid JSON: {e}",
@@ -399,8 +407,12 @@ class StdioMCPProxy:
             Either an error (if blocked) or the real server response.
         """
         try:
-            parsed = json.loads(raw_message, object_pairs_hook=_unique_json_pairs)
-        except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as exc:
+            parsed = json.loads(
+                raw_message,
+                object_pairs_hook=_unique_json_pairs,
+                parse_constant=_reject_json_constant,
+            )
+        except (json.JSONDecodeError, UnicodeDecodeError, RecursionError, ValueError) as exc:
             self._stats["blocked"] += 1
             return _build_error_response(None, -32700, f"Invalid JSON: {exc}").rstrip(b"\n")
 
@@ -490,7 +502,11 @@ class StdioMCPProxy:
             # Untrusted MCP server output is an injection surface, even when
             # the original tools/call arguments were harmless.
             try:
-                payload = json.loads(response, object_pairs_hook=_unique_json_pairs)
+                payload = json.loads(
+                    response,
+                    object_pairs_hook=_unique_json_pairs,
+                    parse_constant=_reject_json_constant,
+                )
                 results = payload if isinstance(payload, list) else [payload]
                 if not results or any(
                     not isinstance(item, dict)
