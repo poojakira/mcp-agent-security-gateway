@@ -562,13 +562,37 @@ class ProductionServer:
         self._metrics.set_circuit_state("inspect_output", self._output_circuit_breaker.state.value)
         return 200, self._metrics.expose()
 
+    @staticmethod
+    def _parse_inspection_json(body: bytes) -> dict[str, Any]:
+        """Reject ambiguous JSON and require an object before inspection."""
+
+        def unique_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+            result: dict[str, Any] = {}
+            for key, value in pairs:
+                if key in result:
+                    raise ValueError("Duplicate JSON key")
+                result[key] = value
+            return result
+
+        def reject_constant(value: str) -> None:
+            raise ValueError("Non-finite JSON number")
+
+        parsed = json.loads(
+            body.decode("utf-8"),
+            object_pairs_hook=unique_pairs,
+            parse_constant=reject_constant,
+        )
+        if not isinstance(parsed, dict):
+            raise ValueError("Inspection request must be a JSON object")
+        return parsed
+
     def _handle_inspect_call(
         self, body: bytes, trace_id: str, span_id: str
     ) -> tuple[int, dict[str, Any]]:
         """POST /v1/inspect_call - Forward to MCPSecurityMonitor."""
         try:
-            tool_call = json.loads(body.decode("utf-8"))
-        except (json.JSONDecodeError, UnicodeDecodeError, RecursionError) as exc:
+            tool_call = self._parse_inspection_json(body)
+        except (json.JSONDecodeError, UnicodeDecodeError, RecursionError, ValueError) as exc:
             # RecursionError: attacker-controlled deeply nested JSON exhausts the
             # decoder's recursion limit. This is malformed *client* input, not a
             # server fault, so it must be a 400 (not a 500) and must not leak a
@@ -653,7 +677,7 @@ class ProductionServer:
     ) -> tuple[int, dict[str, Any]]:
         """POST /v1/inspect_output - Forward to MCPSecurityMonitor."""
         try:
-            payload = json.loads(body.decode("utf-8"))
+            payload = self._parse_inspection_json(body)
         except (json.JSONDecodeError, UnicodeDecodeError, RecursionError) as exc:
             # RecursionError: attacker-controlled deeply nested JSON exhausts the
             # decoder's recursion limit. This is malformed *client* input, not a
