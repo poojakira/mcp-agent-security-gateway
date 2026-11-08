@@ -119,7 +119,8 @@ async def live_scenario(root: Path):
         discovered = json.loads(tools_reply)
         assert discovered["id"] == 8
         names = {
-            tool["name"] for tool in discovered["result"]["tools"]
+            tool["name"]
+            for tool in discovered["result"]["tools"]
             if isinstance(tool, dict) and isinstance(tool.get("name"), str)
         }
         assert "read_file" in names
