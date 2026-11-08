@@ -190,6 +190,7 @@ def test_blocked_downstream_batch_replies_to_each_request(outcome: str) -> None:
 
     asyncio.run(scenario())
 
+
 @pytest.mark.parametrize(
     "downstream",
     [
@@ -245,9 +246,7 @@ def test_batch_response_id_mismatch_fails_closed(response: list[dict]) -> None:
         raw = await proxy.handle_message(request)
         replies = json.loads(raw)
         assert [item["id"] for item in replies] == [71, 72]
-        assert all(
-            item["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE for item in replies
-        )
+        assert all(item["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE for item in replies)
         assert "PRIVATE_MARKER" not in raw.decode()
         assert transport.sent == [request + b"\n"]
 

@@ -559,9 +559,8 @@ class StdioMCPProxy:
                     if "id" in message and "method" in message
                 ]
                 received_ids = [_response_id_key(item["id"]) for item in results]
-                if (
-                    len(expected_ids) != len(set(expected_ids))
-                    or Counter(received_ids) != Counter(expected_ids)
+                if len(expected_ids) != len(set(expected_ids)) or Counter(received_ids) != Counter(
+                    expected_ids
                 ):
                     raise ValueError("Downstream response IDs do not match requests")
                 for item in results:
