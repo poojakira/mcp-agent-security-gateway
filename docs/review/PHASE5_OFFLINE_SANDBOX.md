@@ -62,3 +62,20 @@ The Phase 5 production gate stays **OPEN** pending explicit identity,
 distributed authorization, broader protocol/recovery and deployment
 evidence. Completion of this offline pilot, even with green CI, cannot
 be described as overall production readiness.
+
+
+## Verified first-gate result
+
+GitHub Actions run [#42523565469](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42523565469)
+completed successfully at commit `e52a5aa849d3a12240e53eda9655312cbc9517c0`:
+
+- Python 3.10 / 3.11 / 3.12: **71 focused and backward-compatibility tests passed per version**; Ruff lint and formatting passed.
+- Disposable **real Docker integration**: **1 test passed**. It verified no usable outbound TCP connection, only loopback network interface, effective UID 65534 and denied writes to the root filesystem.
+- CI used standard GitHub-hosted runners in a public repository, not paid services.
+- These tests validate the offline Docker profile only. They do not cover networked tool servers or all production workload scenarios.
+
+**Phase 5 is in progress**. This first offline isolation gate is verified;
+production identity binding, durable distributed authorization, complete MCP
+protocol coverage, side-effect recovery, security benchmarking and representative
+deployment acceptance tests are still open. No production deployment or merge
+has been authorized.
