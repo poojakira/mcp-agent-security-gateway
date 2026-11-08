@@ -35,13 +35,31 @@ class ACLGuard:
         grants: dict[str, set[str]],
         *,
         sequence: int = 0,
+        require_resync: bool = False,
     ) -> None:
-        if sequence < 0 or not isinstance(sequence, int):
+        if isinstance(sequence, bool) or not isinstance(sequence, int) or sequence < 0:
             raise ValueError("Invalid starting sequence")
         self._lock = RLock()
-        self._grants = {user: frozenset(resources) for user, resources in grants.items()}
+        self._grants = self._validated_grants(grants)
         self._sequence = sequence
-        self._healthy = True
+        # Set on restart when the local snapshot cannot be proven current.
+        self._healthy = not require_resync
+
+    @staticmethod
+    def _validated_grants(grants: dict[str, set[str]]) -> dict[str, frozenset[str]]:
+        if not isinstance(grants, dict):
+            raise AccessDenied("Malformed ACL snapshot")
+        validated: dict[str, frozenset[str]] = {}
+        for principal, resources in grants.items():
+            if (
+                not isinstance(principal, str)
+                or not principal
+                or not isinstance(resources, set | frozenset)
+                or any(not isinstance(resource, str) or not resource for resource in resources)
+            ):
+                raise AccessDenied("Malformed ACL snapshot")
+            validated[principal] = frozenset(resources)
+        return validated
 
     def _require_healthy(self) -> None:
         if not self._healthy:
@@ -70,10 +88,15 @@ class ACLGuard:
         with self._lock:
             self._require_healthy()
             if (
-                not isinstance(change.sequence, int)
+                not isinstance(change, PermissionChange)
+                or isinstance(change.sequence, bool)
+                or not isinstance(change.sequence, int)
                 or change.sequence != self._sequence + 1
+                or not isinstance(change.principal, str)
                 or not change.principal
+                or not isinstance(change.resource_id, str)
                 or not change.resource_id
+                or not isinstance(change.allowed, bool)
             ):
                 self._healthy = False
                 raise AccessDenied("Out-of-order or malformed permission change")
@@ -88,9 +111,14 @@ class ACLGuard:
     def replace_snapshot(self, grants: dict[str, set[str]], *, sequence: int) -> None:
         """Trusted full resynchronization after missed/out-of-order CDC events."""
         with self._lock:
-            if not isinstance(sequence, int) or sequence < self._sequence:
-                raise AccessDenied("Snapshot sequence must not move backwards")
-            self._grants = {user: frozenset(resources) for user, resources in grants.items()}
+            if (
+                isinstance(sequence, bool)
+                or not isinstance(sequence, int)
+                or sequence <= self._sequence
+            ):
+                raise AccessDenied("Snapshot sequence must strictly advance")
+            validated = self._validated_grants(grants)
+            self._grants = validated
             self._sequence = sequence
             self._healthy = True
 

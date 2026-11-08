@@ -30,6 +30,21 @@ guard.apply_change(PermissionChange(1, "bob", "doc-a", False))
 guard.check("bob", "doc-a")  # raises AccessDenied
 ```
 
+## Restart and trusted snapshot contract
+
+When a gateway process has restarted and its prior ACL/CDC freshness cannot be
+trusted, construct `ACLGuard({}, sequence=<trusted_checkpoint>, require_resync=True)`
+with the last securely persisted sequence. No reads are authorized until a
+trusted *newer* full snapshot is installed using `replace_snapshot`. Duplicate
+or older snapshot sequences fail closed. CDC events must use integer sequence
+numbers (not booleans), string principal/resource IDs, and boolean allow flags.
+
+This is **opt-in local fencing**, not durable storage: the caller must supply a
+checkpoint from a trusted, rollback-resistant source. The repository does not
+supply that source or a distributed CDC consumer. A second process with a stale
+healthy ACL snapshot can still expose data. Production deployments must deny
+access until a central authority confirms freshness.
+
 ## Critical trust requirements
 
 - The principal must come from authenticated session context, never MCP tool

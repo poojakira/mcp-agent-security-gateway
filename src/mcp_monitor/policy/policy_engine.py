@@ -216,16 +216,16 @@ class PolicyEngine:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _extract_destination(self, pi: PolicyInput) -> str | None:
-        """Return the raw egress destination string, or None if none present."""
-        if pi.egress_destination:
-            return pi.egress_destination
-        args = pi.arguments
+    def _extract_destinations(self, pi: PolicyInput) -> list[Any]:
+        """Inspect every declared destination, not just the first allowlisted one."""
+        destinations: list[Any] = []
+        if pi.egress_destination is not None:
+            destinations.append(pi.egress_destination)
         for key in ("url", "host", "endpoint", "target"):
-            val = args.get(key)
+            val = pi.arguments.get(key)
             if isinstance(val, str) and val:
-                return val
-        return None
+                destinations.append(val)
+        return destinations
 
     @staticmethod
     def _host_from_destination(dest: str) -> str | None:
@@ -254,45 +254,46 @@ class PolicyEngine:
         return dest
 
     def _evaluate_egress(self, pi: PolicyInput) -> PolicyDecision | None:
-        """Evaluate the egress allowlist.
+        """Deny if any declared egress destination is malformed or disallowed.
 
-        Returns a DENY decision if egress is disallowed/malformed, or ``None`` if
-        there is nothing to enforce (no destination, or destination allowed).
+        Tool arguments are not authoritative egress metadata. This inspects
+        only recognized fields; OS/network policies must restrict real sockets.
         """
-        dest = self._extract_destination(pi)
-        if dest is None:
-            # No network destination in this call -> egress control not applicable.
-            return None
+        for dest in self._extract_destinations(pi):
+            if not isinstance(dest, str):
+                return PolicyDecision(
+                    allowed=False,
+                    reason_code=ReasonCode.DENY_EGRESS_MALFORMED,
+                    message="Invalid egress destination type",
+                    matched_rule="egress.malformed",
+                )
+            try:
+                host = self._host_from_destination(dest)
+            except ValueError:
+                host = None
+            if host is None:
+                return PolicyDecision(
+                    allowed=False,
+                    reason_code=ReasonCode.DENY_EGRESS_MALFORMED,
+                    message="Could not parse egress destination, denied fail-closed",
+                    matched_rule="egress.malformed",
+                )
 
-        host = self._host_from_destination(dest)
-        if host is None:
-            return PolicyDecision(
-                allowed=False,
-                reason_code=ReasonCode.DENY_EGRESS_MALFORMED,
-                message=f"Could not parse egress destination '{dest}', denied fail-closed",
-                matched_rule="egress.malformed",
-            )
-
-        host = host.lower()
-
-        # Loopback / link-local are treated as disallowed egress unless explicitly
-        # allowlisted, to avoid SSRF-style pivots.
-        if self._is_blocked_ip(host) and host not in self.allowed_egress_hosts:
-            return PolicyDecision(
-                allowed=False,
-                reason_code=ReasonCode.DENY_EGRESS_NOT_ALLOWED,
-                message=f"Egress to internal/loopback address '{host}' is not allowed",
-                matched_rule="egress.blocked_internal",
-            )
-
-        if host not in self.allowed_egress_hosts:
-            return PolicyDecision(
-                allowed=False,
-                reason_code=ReasonCode.DENY_EGRESS_NOT_ALLOWED,
-                message=f"Egress destination '{host}' is not on the allowlist",
-                matched_rule="egress.allowlist",
-            )
-
+            host = host.lower()
+            if self._is_blocked_ip(host) and host not in self.allowed_egress_hosts:
+                return PolicyDecision(
+                    allowed=False,
+                    reason_code=ReasonCode.DENY_EGRESS_NOT_ALLOWED,
+                    message=f"Egress to internal/loopback address '{host}' is not allowed",
+                    matched_rule="egress.blocked_internal",
+                )
+            if host not in self.allowed_egress_hosts:
+                return PolicyDecision(
+                    allowed=False,
+                    reason_code=ReasonCode.DENY_EGRESS_NOT_ALLOWED,
+                    message=f"Egress destination '{host}' is not on the allowlist",
+                    matched_rule="egress.allowlist",
+                )
         return None
 
     @staticmethod

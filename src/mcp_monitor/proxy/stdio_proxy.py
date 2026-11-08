@@ -499,11 +499,22 @@ class StdioMCPProxy:
             # Deny the batch atomically; clients need a reply for each request ID.
             return self._blocked_requests(messages, is_batch, code, reason, data)
 
-        await self._transport.send(raw_message + b"\n")
+        try:
+            await self._transport.send(raw_message + b"\n")
+            if not any("id" in message and "method" in message for message in messages):
+                self._stats["allowed" if tool_count else "passthrough"] += 1
+                return b""  # Notifications and client responses are one-way.
+            response = await self._transport.receive()
+        except Exception:
+            logger.exception("Downstream MCP transport failure; suppressing response")
+            self._stats["blocked"] += 1
+            return self._blocked_requests(
+                messages,
+                is_batch,
+                self.SECURITY_BLOCK_CODE,
+                "Security: downstream transport failure - failing closed",
+            )
         self._stats["allowed" if tool_count else "passthrough"] += 1
-        if not any("id" in message and "method" in message for message in messages):
-            return b""  # Notifications and client responses are one-way.
-        response = await self._transport.receive()
         if tool_count:
             # Revocation may occur after the request was authorized and sent.
             # Check the current trusted ACL again before releasing its response.

@@ -24,6 +24,24 @@
 | Are audit records dependable? | Audit/WAL implementations and documentation exist in this repository. | Confirm durability, integrity, retention, backup/recovery and correlation under realistic failure and multi-instance conditions. |
 | Can it survive real operations? | CI provides lint, tests, static checks, Docker, Windows and real-MCP jobs when those jobs complete successfully. | Representative workload and latency testing, failure injection, disaster recovery, patch process, alerting, and a validated deployment topology. |
 
+## Step 2 bounded validation and open requirements
+
+This branch includes deterministic, in-process security-boundary regression
+tests. A restart may be **fenced** with `ACLGuard(require_resync=True)`, but
+the gateway has no persisted trusted CDC checkpoint, no authenticated
+cross-process feed, and no integrated identity-provider session binding.
+Destination argument checks are *policy signals*, not socket-level egress
+enforcement. Transport failures fail closed in client replies, but cannot
+reverse operations already sent to downstream tools.
+
+**Still required before production or enterprise claims:** authoritative
+identity/tenant binding, durable permission-change replication across nodes,
+cold-start/restart freshness checks integrated into the runtime configuration,
+OS/network egress controls with DNS and redirect defenses, subprocess crash
+recovery under load, output inspection for non-tool response types, and
+verification against a representative multi-tenant deployment.
+These cannot be truthfully certified by synthetic tests alone.
+
 ## Reproducibility and acceptance gate
 
 From a clean checkout of the **specific branch/commit under review**, in an isolated test environment:
@@ -32,7 +50,7 @@ From a clean checkout of the **specific branch/commit under review**, in an isol
 python -m pip install -e ".[dev]"
 ruff check src/ tests/ poster/render_poster.py scripts/recruiter_demo.py
 ruff format --check src/ tests poster/render_poster.py scripts/recruiter_demo.py
-python -m pytest tests/test_stdio_policy_integration.py tests/test_stdio_inflight_revocation.py tests/test_stdio_adversarial_responses.py tests/test_acl_guard.py -q
+python -m pytest tests/test_stdio_policy_integration.py tests/test_stdio_inflight_revocation.py tests/test_stdio_adversarial_responses.py tests/test_acl_guard.py tests/test_step2_security_boundaries.py -q
 MCP_RUN_REAL_SERVER=1 python -m pytest tests/test_live_filesystem_mcp.py -v -s
 ```
 
