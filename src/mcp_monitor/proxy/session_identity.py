@@ -173,13 +173,7 @@ class SessionVerifier:
         ):
             raise SessionVerificationError("Session clock unavailable")
         now = int(current)
-        if (
-            iat < 0
-            or exp <= iat
-            or exp - iat > self._max_ttl
-            or iat > now + 30
-            or exp <= now
-        ):
+        if iat < 0 or exp <= iat or exp - iat > self._max_ttl or iat > now + 30 or exp <= now:
             raise SessionVerificationError("Session expired or outside lifetime")
         return VerifiedSession(tenant, subject, sid, issuer, audience)
 

@@ -173,9 +173,7 @@ def request(args: dict | None = None) -> bytes:
 
 def make_proxy(*, tenant: str, transport: PausedTransport, clock=None, subject: str = "alice"):
     signed_token = signed(tenant=tenant, subject=subject)
-    identity = verifier(tenant=tenant, clock=clock).bind(
-        signed_token, expected_session_id=SID
-    )
+    identity = verifier(tenant=tenant, clock=clock).bind(signed_token, expected_session_id=SID)
     grants = {"10:team-alpha:alice": {RESOURCE}}
     return StdioMCPProxy(
         command=["synthetic"],

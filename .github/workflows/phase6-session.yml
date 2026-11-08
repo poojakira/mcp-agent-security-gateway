@@ -32,9 +32,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install local dependencies
         run: python -m pip install -e ".[dev]"
-      - name: Print exact Ruff formatting differences (temporary)
-        run: |
-          ruff format --diff src/mcp_monitor/proxy/session_identity.py tests/test_phase6_session_identity.py || true
       - name: Lint and format changed source
         run: |
           ruff check src/mcp_monitor/proxy/session_identity.py src/mcp_monitor/proxy/stdio_proxy.py tests/test_phase6_session_identity.py
