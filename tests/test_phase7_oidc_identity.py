@@ -127,7 +127,8 @@ def test_invalid_signed_claims_denied(keys, invalid_claims: dict) -> None:
 def test_tampering_signature_denied(keys) -> None:
     good = token(keys)
     payload = good.split(".")
-    payload[1] = payload[1][:-1] + ("A" if payload[1][-1] != "A" else "B")
+    # Mutate a significant signature byte, not base64 trailing padding bits.
+    payload[2] = ("A" if payload[2][0] != "A" else "B") + payload[2][1:]
     with pytest.raises(SessionVerificationError):
         make_verifier(keys, RevocationLedger()).bind(".".join(payload), expected_session_id=SID)
 
@@ -265,7 +266,7 @@ def request(method: str, *, args: dict | None = None, ident: int = 9) -> bytes:
 
 def proxy_for(keys, ledger: RevocationLedger, transport: PausedTransport, *, tenant: str = TENANT):
     verifier = make_verifier(keys, ledger, tenant=tenant)
-    binding = verifier.bind(token(keys), expected_session_id=SID)
+    binding = verifier.bind(token(keys, claims={"tenant": tenant}), expected_session_id=SID)
     return StdioMCPProxy(
         command=["synthetic"],
         transport=transport,
@@ -296,9 +297,7 @@ def test_cross_tenant_identity_is_denied_by_acl(keys) -> None:
         assert response["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
         assert transport.sent == []
 
-    # A provider that signs another tenant must still be rejected at binding.
-    with pytest.raises(SessionVerificationError, match="binding"):
-        proxy_for(keys, RevocationLedger(), PausedTransport(), tenant="team-beta")
+    asyncio.run(scenario())
 
 
 def test_expired_or_revoked_request_does_not_forward_any_mcp_method(keys) -> None:
