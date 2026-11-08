@@ -199,7 +199,7 @@ Proprietary / All Rights Reserved. See [LICENSE](LICENSE); previous MIT terms ar
 
 ## Secret handling
 
-Keep runtime credentials outside Git. If this repository provides an `.env.example` or `.env.sample`, copy it to a local `.env` or `.env.local` and fill in values locally; the real environment file must remain untracked.
+Keep runtime credentials outside Git. No `.env` file or `.env` template is tracked. Create local configuration only on the deployment machine, with restrictive permissions, or use a secret manager; never commit it. See [RUNBOOK.md](RUNBOOK.md) for the local-only Compose procedure.
 
 Do not commit AWS access keys or session credentials, API tokens, service-account JSON, private keys, package-manager credentials, Terraform state, or secret-bearing `tfvars`. CI/deployment credentials belong in GitHub Actions secrets or the deployment provider's secret manager. AWS account IDs are identifiers; AWS access-key IDs, secret access keys, and session tokens are credentials.
 
@@ -209,7 +209,7 @@ If a real credential is ever exposed, revoke or rotate it at the provider first,
 ## Secrets and local configuration
 
 - Never commit real API keys, access tokens, passwords, cloud credentials, private keys, or a populated `.env` file.
-- Local `.env` and `.env.*` files are ignored by Git. Only safe templates such as `.env.example` or `.env.sample` may be committed, and they must contain placeholder or empty values only.
+- Local `.env` and `.env.*` files, including templates, are ignored by Git. Do not add exceptions for populated or template environment files.
 - If an integration needs credentials, create your own local `.env` file (or use your shell/secret manager) and supply **your own** API key. In GitHub Actions, use repository/environment secrets rather than hard-coding values in workflow YAML.
 - Do not copy or reuse any credential that appears in repository history, examples, tests, screenshots, logs, or documentation. Test strings are not intended to be usable credentials.
 - If a real credential is ever committed, **revoke or rotate it at the credential provider first**, then remove it from the current tree and reachable Git history. Deleting a key from GitHub does not revoke it.
