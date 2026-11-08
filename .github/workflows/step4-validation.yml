@@ -6,8 +6,10 @@ on:
       - fix/enforce-policy-in-stdio-proxy
     paths:
       - "src/mcp_monitor/policy/policy_engine.py"
+      - "src/mcp_monitor/policy/acl_guard.py"
       - "tests/test_step4_egress_validation.py"
       - "tests/test_step4_nested_egress.py"
+      - "tests/test_step4_authoritative_acl.py"
       - ".github/workflows/step4-validation.yml"
   workflow_dispatch:
 
@@ -36,8 +38,8 @@ jobs:
           python -m pip install -e ".[dev]"
       - name: Check Ruff lint and formatting
         run: |
-          ruff check src/mcp_monitor/policy/policy_engine.py tests/test_step4_egress_validation.py tests/test_step4_nested_egress.py
-          ruff format --check src/mcp_monitor/policy/policy_engine.py tests/test_step4_egress_validation.py tests/test_step4_nested_egress.py
+          ruff check src/mcp_monitor/policy/policy_engine.py src/mcp_monitor/policy/acl_guard.py tests/test_step4_egress_validation.py tests/test_step4_nested_egress.py tests/test_step4_authoritative_acl.py
+          ruff format --check src/mcp_monitor/policy/policy_engine.py src/mcp_monitor/policy/acl_guard.py tests/test_step4_egress_validation.py tests/test_step4_nested_egress.py tests/test_step4_authoritative_acl.py
       - name: Run policy and Step 4 tests
         run: |
-          python -m pytest tests/test_step4_egress_validation.py tests/test_step4_nested_egress.py tests/test_stdio_policy_integration.py tests/test_step2_security_boundaries.py -q --tb=short
+          python -m pytest tests/test_step4_egress_validation.py tests/test_step4_nested_egress.py tests/test_step4_authoritative_acl.py tests/test_acl_guard.py tests/test_stdio_inflight_revocation.py tests/test_stdio_policy_integration.py tests/test_step2_security_boundaries.py -q --tb=short
