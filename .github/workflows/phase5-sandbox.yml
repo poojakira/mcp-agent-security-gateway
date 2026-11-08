@@ -1,0 +1,67 @@
+name: Phase 5 Offline Sandbox Validation
+
+on:
+  pull_request:
+    branches:
+      - step4/egress-input-validation
+    paths:
+      - "src/mcp_monitor/proxy/sandbox.py"
+      - "src/mcp_monitor/proxy/stdio_proxy.py"
+      - "tests/test_phase5_offline_sandbox.py"
+      - "tests/test_phase5_docker_integration.py"
+      - "tests/fixtures/phase5_synthetic_server.py"
+      - "tests/fixtures/Dockerfile.phase5"
+      - ".github/workflows/phase5-sandbox.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-sandbox-unit:
+    name: Offline sandbox validation (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install free local test dependencies
+        run: |
+          python -m pip install -e ".[dev]"
+      - name: Ruff lint and formatting
+        run: |
+          ruff check src/mcp_monitor/proxy/sandbox.py src/mcp_monitor/proxy/stdio_proxy.py tests/test_phase5_offline_sandbox.py tests/test_phase5_docker_integration.py tests/fixtures/phase5_synthetic_server.py
+          ruff format --check src/mcp_monitor/proxy/sandbox.py src/mcp_monitor/proxy/stdio_proxy.py tests/test_phase5_offline_sandbox.py tests/test_phase5_docker_integration.py tests/fixtures/phase5_synthetic_server.py
+      - name: Offline sandbox unit tests and Step 4 regressions
+        run: |
+          python -m pytest tests/test_phase5_offline_sandbox.py tests/test_step4_protocol_resilience.py tests/test_stdio_proxy.py -q --tb=short
+
+  offline-docker-integration:
+    name: Isolated disposable Docker network-none test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Install local gateway tests
+        run: python -m pip install -e ".[dev]"
+      - name: Build disposable local image (no paid service or registry push)
+        run: |
+          docker build --file tests/fixtures/Dockerfile.phase5 --tag phase5-synthetic:local .
+          image_id=$(docker image inspect --format '{{ .Id }}' phase5-synthetic:local)
+          echo "PHASE5_TEST_IMAGE_ID=$image_id" >> "$GITHUB_ENV"
+      - name: Verify live isolated stdio server, network and filesystem
+        run: |
+          python -m pytest tests/test_phase5_docker_integration.py -v --tb=short

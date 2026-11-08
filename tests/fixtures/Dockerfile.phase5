@@ -1,0 +1,5 @@
+# Disposable stdlib-only test server; image is pinned by image ID after build.
+FROM public.ecr.aws/docker/library/python:3.12-alpine
+COPY tests/fixtures/phase5_synthetic_server.py /opt/phase5/server.py
+USER 65534:65534
+WORKDIR /tmp

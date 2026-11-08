@@ -31,6 +31,7 @@ from typing import Any, Protocol
 from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
 from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard
 from mcp_monitor.policy.policy_engine import PolicyEngine
+from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
 from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
 
@@ -380,6 +381,7 @@ class StdioMCPProxy:
         acl_guard: ACLGuard | None = None,
         authenticated_principal: str | None = None,
         protected_resource_tools: dict[str, str] | None = None,
+        offline_sandbox: OfflineDockerSandbox | None = None,
         response_timeout_seconds: float = 120.0,
         max_message_bytes: int = 1048576,
     ) -> None:
@@ -398,6 +400,13 @@ class StdioMCPProxy:
             raise ValueError("max_message_bytes must be a positive integer")
         self._response_timeout_seconds = float(response_timeout_seconds)
         self._max_message_bytes = max_message_bytes
+        if offline_sandbox is not None:
+            if not isinstance(offline_sandbox, OfflineDockerSandbox):
+                raise ValueError("offline_sandbox must be an OfflineDockerSandbox")
+            if transport is not None:
+                raise ValueError("Cannot override the isolated transport in offline sandbox mode")
+            command = offline_sandbox.build_command(command)
+        self._offline_sandbox = offline_sandbox
         self.command = command
         self._transport = transport or SubprocessTransport(
             command, max_response_bytes=max_message_bytes
@@ -437,7 +446,10 @@ class StdioMCPProxy:
         """Start the proxy: launch downstream server."""
         await self._transport.start()
         self._running = True
-        logger.info("MCP proxy started, downstream: %s", self.command)
+        logger.info(
+            "MCP proxy started, downstream: %s",
+            "offline Docker sandbox" if self._offline_sandbox is not None else self.command,
+        )
 
     async def stop(self) -> None:
         """Stop the proxy and downstream server."""
@@ -815,6 +827,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Inline MCP security gateway")
     parser.add_argument("--server-id", default="local")
     parser.add_argument("--allow-egress-host", action="append", default=[])
+    parser.add_argument(
+        "--offline-sandbox-image",
+        help="Preloaded Docker image digest or ID (sha256:...) for offline network-none isolation",
+    )
     options = parser.parse_args(gateway_args)
 
     if not command:
@@ -828,6 +844,11 @@ def main() -> None:
         command,
         server_id=options.server_id,
         allowed_egress_hosts=set(options.allow_egress_host),
+        offline_sandbox=(
+            OfflineDockerSandbox(options.offline_sandbox_image)
+            if options.offline_sandbox_image
+            else None
+        ),
     )
     asyncio.run(proxy.run())
 
