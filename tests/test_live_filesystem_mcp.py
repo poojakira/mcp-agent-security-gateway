@@ -111,6 +111,21 @@ async def live_scenario(root: Path):
             timeout=30,
         )
 
+        # Discover the tools offered by this actual MCP server before invoking one.
+        tools_reply = await asyncio.wait_for(
+            proxy.handle_message(request(8, "tools/list")),
+            timeout=60,
+        )
+        discovered = json.loads(tools_reply)
+        assert discovered["id"] == 8
+        names = {
+            tool["name"] for tool in discovered["result"]["tools"]
+            if isinstance(tool, dict) and isinstance(tool.get("name"), str)
+        }
+        assert "read_file" in names
+        assert "write_file" in names
+        print("REAL SERVER: tool discovery returned filesystem capabilities", flush=True)
+
         good = await asyncio.wait_for(
             proxy.handle_message(
                 request(
