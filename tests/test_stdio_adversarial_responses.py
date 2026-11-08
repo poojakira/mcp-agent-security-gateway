@@ -50,7 +50,7 @@ def call(request_id: int = 71) -> bytes:
         b'{"jsonrpc":"2.0","id":71,"result":',
         b'{"jsonrpc":"2.0","id":71,"result":{},"result":{"content":"evil"}}',
         b'{"jsonrpc":"2.0","id":71,"method":"tools/call"}',
-        b'[]',
+        b"[]",
         b'[{"jsonrpc":"2.0","id":71,"result":{}},42]',
     ],
     ids=[
