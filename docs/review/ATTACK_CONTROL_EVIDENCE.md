@@ -1,0 +1,28 @@
+# MCP attack-to-control evidence map
+
+Scope: **public research prototype**, draft PR #148. This document maps the checked-in implementation and tests, not independently verified production security. The latest real filesystem revocation smoke test uses a real downstream process but pauses response release *after* the server has produced the result.
+
+| Scenario / boundary | Enforcement function or type | Files | Direct test evidence | What the test establishes | Not established |
+|---|---|---|---|---|---|
+| Unauthorized protected file read | `StdioMCPProxy._inspect` -> `ACLGuard.check` | `src/mcp_monitor/proxy/stdio_proxy.py`, `src/mcp_monitor/policy/acl_guard.py` | `tests/test_live_filesystem_mcp.py`, `tests/test_acl_guard.py` | Real filesystem integration blocks a read with no grant; response contains no restricted marker | External IdP, multi-tenant production ACL integration |
+| In-flight permission revocation | `StdioMCPProxy.handle_message` post-receive ACL recheck; `ACLGuard.apply_change` | Same proxy and ACL files | `tests/test_stdio_inflight_revocation.py`; `tests/test_live_filesystem_mcp.py` | Synchronized fake transport blocks a result revoked while waiting. Real filesystem subprocess result is caught at a deliberately paused response-delivery point and suppressed after revocation. | Server-side compute-time revocation, multi-process races, remote CDC latency, zero-gap response delivery guarantee |
+| Stale/out-of-order permission changes | `ACLGuard.apply_change`, `_require_healthy`, `replace_snapshot` | `src/mcp_monitor/policy/acl_guard.py` | `tests/test_acl_guard.py`, `tests/test_stdio_inflight_revocation.py` | Invalid event sequence poisons in-memory ACL state until trusted resynchronization | Authenticated distributed CDC feed, persistence and process restart safety |
+| Dangerous tool or wrong server | `StdioMCPProxy._inspect` -> `PolicyEngine.evaluate` | `src/mcp_monitor/proxy/stdio_proxy.py`, `src/mcp_monitor/policy/policy_engine.py` | `tests/test_stdio_policy_integration.py`, `tests/test_live_filesystem_mcp.py` | Denied call is not forwarded; real filesystem write target remains unchanged | Irreversible downstream action after an otherwise allowed call |
+| Disallowed egress destination | `PolicyEngine._evaluate_egress` | `src/mcp_monitor/policy/policy_engine.py` | `tests/test_stdio_policy_integration.py` | Fake transport sees no send for unauthorized destination or private IP literal | Real socket-level egress containment, DNS rebinding, URL/redirect coverage across all tools |
+| Prompt injection in file response | `StdioMCPProxy.handle_message` response detector; `PromptInjectionDetector.detect` | `src/mcp_monitor/proxy/stdio_proxy.py`, `src/mcp_monitor/detectors/prompt_injection.py` | `tests/test_live_filesystem_mcp.py`, `tests/test_stdio_adversarial_responses.py` | A tested malicious filesystem response is withheld from client | Zero false negatives; all languages/encodings or agent-behavior exploitation |
+| Malformed, ambiguous, mixed downstream reply | `_unique_json_pairs`; response validation in `StdioMCPProxy.handle_message` | `src/mcp_monitor/proxy/stdio_proxy.py`, `src/mcp_monitor/protocol/jsonrpc.py` | `tests/test_stdio_adversarial_responses.py` | Invalid reply, duplicate keys, empty/mixed batch are rejected in controlled transport | All protocol message shapes and concurrent multiplexed sessions |
+| Detector exception | response inspection exception handler in `StdioMCPProxy.handle_message` | `src/mcp_monitor/proxy/stdio_proxy.py` | `tests/test_stdio_adversarial_responses.py` | Synthetic detector crash does not release protected marker | Resilience of external detector infrastructure under real load |
+
+## Evidence levels
+
+- **E1, controlled:** Deterministic fake transport tests verify decisions and absence of forwarding or protected response bytes.
+- **E2, real MCP integration:** `tests/test_live_filesystem_mcp.py` launches `@modelcontextprotocol/server-filesystem@2.0.1` under a disposable directory. With `MCP_RUN_REAL_SERVER=1`, verifies permitted read, denied read/write, malicious response, revocation after prior read, and an in-flight response-delivery revocation window.
+- **E3, real-world consequence:** **Not claimed**. No independent production downstream account, external receiver, durable distributed ACL stream, or real-user data is tested.
+
+## CI interpretation
+
+A successful workflow run establishes its configured test jobs, at that commit, passed. It does not imply general exploit resistance. For the latest run see [PR #148 checks](https://github.com/poojakira/mcp-agent-security-gateway/pull/148/checks); do not copy an undated green status into this file.
+
+## Residual risk and boundaries
+
+ACL state is in memory in one process. The proxy rechecks before returning a response, but a revocation arriving after that recheck is not proven blocked, and already-exposed content cannot be recalled. The policy engine controls routed MCP messages, not arbitrary OS/network I/O. A request that already caused an irreversible server-side effect cannot be undone by blocking its response. For real-world experiments, use a separate **private** repository with synthetic assets, explicitly authorized destinations, isolation, audit evidence, and rollback/cleanup.
