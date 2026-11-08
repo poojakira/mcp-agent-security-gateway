@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import sys
 
 from mcp_monitor.proxy.stdio_proxy import SubprocessTransport
@@ -25,7 +26,7 @@ time.sleep(30)
 
         try:
             message = await asyncio.wait_for(transport.receive(), timeout=5.0)
-            assert b'"jsonrpc":"2.0"' in message
+            assert json.loads(message)["jsonrpc"] == "2.0"
         finally:
             await asyncio.wait_for(transport.stop(), timeout=12.0)
 
