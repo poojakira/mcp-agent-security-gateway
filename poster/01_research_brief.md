@@ -63,7 +63,7 @@ The Cerberus pilot, persistent identities, baseline, deployment and transport co
 ```powershell
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
 cd mcp-agent-security-gateway
-git checkout c75c52db
+git checkout f1f226feb0d527f27b90081806d7e9bd90ba0574
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev,server]"
@@ -71,7 +71,7 @@ $env:PYTHONPATH="src"
 python -m pytest tests -q --cov=mcp_monitor --cov-report=term
 ```
 
-Expected at the cited snapshot: **782 passed**, **81.93%** statement coverage.
+The cited GitHub Actions run reports **782 passed** and **81.93%** statement coverage. Local results may differ with platform and dependencies; do not treat them as a guarantee for other commits.
 
 ## Evidence Sources
 
