@@ -53,3 +53,26 @@ downstream effects cannot be rolled back.
 
 The default ACL guard has no authority callback and retains its original
 local-only semantics. No paid or external authorization service is involved.
+
+## Step 4: Protocol and transport hardening
+
+The proxy validates incoming JSON-RPC envelope version, method, parameter
+shape, request-ID type and duplicate batch IDs **before** forwarding to tools.
+It now applies downstream response-ID correlation and the configured content
+detector to *all* request responses, including tool discovery, prompts, and
+resources, not only `tools/call`. The JSON-RPC notification/client-response
+path remains one-way and is not inspected as a server response.
+
+The default response wait is bounded (120 seconds), and both request and
+downstream response bytes are capped at 1 MiB. The native subprocess transport
+also rejects overly long stdio response lines. See
+`tests/test_step4_protocol_resilience.py` for bounded synthetic and local
+subprocess validation.
+
+**Limitations:** the stdio proxy does not yet implement true JSON-RPC
+multiplexing, unsolicited downstream notification handling, cancellation,
+session authentication, or OS-level egress blocking. An already-forwarded tool
+may have caused side effects when a downstream timeout occurs. Security
+detector coverage and false-positive rates must be separately benchmarked.
+These safeguards are a prototype **fail-closed** baseline, not a production
+service-level guarantee.
