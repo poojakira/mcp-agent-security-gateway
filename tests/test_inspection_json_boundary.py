@@ -17,10 +17,10 @@ from mcp_monitor.production.server import ProductionServer
         b'{"risk":NaN}',
         b'{"risk":Infinity}',
         b'{"risk":-Infinity}',
-        b'[]',
-        b'null',
+        b"[]",
+        b"null",
         b'"string"',
-        b'42',
+        b"42",
     ],
 )
 def test_inspection_parser_rejects_ambiguous_and_non_object_input(payload: bytes) -> None:
@@ -28,7 +28,7 @@ def test_inspection_parser_rejects_ambiguous_and_non_object_input(payload: bytes
         ProductionServer._parse_inspection_json(payload)
 
 
-@pytest.mark.parametrize("payload", [b'{}', b'{"name":"read_file","arguments":{}}'])
+@pytest.mark.parametrize("payload", [b"{}", b'{"name":"read_file","arguments":{}}'])
 def test_inspection_parser_accepts_json_objects(payload: bytes) -> None:
     assert ProductionServer._parse_inspection_json(payload) == json.loads(payload)
 
@@ -43,8 +43,8 @@ def test_inspection_parser_accepts_json_objects(payload: bytes) -> None:
         b'{"name":"read_file","name":"write_file"}',
         b'{"arguments":{"path":"a","path":"b"}}',
         b'{"arguments":{"amount":NaN}}',
-        b'[]',
-        b'null',
+        b"[]",
+        b"null",
     ],
 )
 def test_inspection_endpoints_reject_invalid_json_before_execution(
