@@ -106,6 +106,7 @@ def test_invalid_sandbox_type_denied_during_setup() -> None:
     with pytest.raises(ValueError, match="offline_sandbox"):
         StdioMCPProxy(command=["python"], offline_sandbox={"image": IMAGE_ID})
 
+
 @pytest.mark.parametrize(
     "name", ["mcp-offline-123", "--network=host", "", "mcp-offline-" + "g" * 24]
 )
