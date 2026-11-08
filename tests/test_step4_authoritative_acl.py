@@ -15,7 +15,6 @@ import pytest
 from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard
 from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy
 
-
 RESOURCE = "/synthetic/private.txt"
 USER = "operator-authenticated-user"
 
@@ -181,9 +180,7 @@ def test_revoked_authority_blocks_proxy_before_forwarding() -> None:
         transport = PausedTransport()
         proxy = make_proxy(guard, transport)
         authority.revoke()
-        raw = await proxy.handle_message(
-            make_call({"path": RESOURCE, "principal": "other-user"})
-        )
+        raw = await proxy.handle_message(make_call({"path": RESOURCE, "principal": "other-user"}))
         response = json.loads(raw)
         assert response["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
         assert "DENY_RESOURCE_ACL" in response["error"]["data"]["patterns"]
