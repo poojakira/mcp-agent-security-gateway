@@ -126,13 +126,22 @@ class SubprocessTransport:
         )
 
     async def stop(self) -> None:
-        """Terminate the downstream server."""
-        if self._process and self._process.returncode is None:
-            self._process.terminate()
-            try:
-                await asyncio.wait_for(self._process.wait(), timeout=5.0)
-            except asyncio.TimeoutError:
-                self._process.kill()
+        """Stop the child and drain its stdio pipes before the event loop closes."""
+        process = self._process
+        if process is None:
+            return
+        if process.returncode is None:
+            process.terminate()
+        try:
+            # wait() alone leaves asyncio pipe transports open after child exit.
+            await asyncio.wait_for(process.communicate(), timeout=5.0)
+        except asyncio.TimeoutError:
+            if process.returncode is None:
+                process.kill()
+            await asyncio.wait_for(process.communicate(), timeout=5.0)
+        finally:
+            self._process = None
+            self._read_buffer = b""
 
     async def send(self, data: bytes) -> None:
         """Send raw bytes to the downstream server's stdin."""
