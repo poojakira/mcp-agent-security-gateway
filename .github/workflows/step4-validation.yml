@@ -34,6 +34,10 @@ jobs:
         run: |
           python -m pip install ruff==0.8.4
           python -m pip install -e ".[dev]"
+      - name: Diagnose Ruff formatting (temporary)
+        run: |
+          ruff format --diff tests/test_step4_nested_egress.py || true
+
       - name: Check Ruff lint and formatting
         run: |
           ruff check src/mcp_monitor/policy/policy_engine.py tests/test_step4_egress_validation.py tests/test_step4_nested_egress.py
