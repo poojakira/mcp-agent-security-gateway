@@ -51,3 +51,26 @@ evidence only for its test cases, not for live IdP integration or production
 authorization. All PRs remain draft and unmerged.
 
 CI evidence will be recorded after successful execution on exact source commit.
+
+## Verification on the exact Phase 7 source commit
+
+**Verified source commit:** `867d90301d4e3967d550567128214fced5090ca2`.
+**GitHub Actions:** [Run #42535148284](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42535148284), completed successfully, **3/3 jobs passed**.
+
+| Validation | Confirmed result |
+|---|---|
+| Python 3.10 | 1008 passed, 2 skipped, 82.75% coverage |
+| Python 3.11 | 1008 passed, 2 skipped, 82.72% coverage |
+| Python 3.12 | 1008 passed, 2 skipped, 82.72% coverage |
+| Focused JWT/session/ACL/proxy suite | 78 passed per Python version |
+| Ruff lint and formatting | Passed on all three Python versions |
+| External identity provider | Not integrated or tested |
+| Distributed durable revocation | Not implemented |
+| Production deployment | None |
+| Paid services | None |
+
+This verification covers only trusted local JWKS snapshots and a synthetic
+revocation callback, not live remote identity-provider authentication,
+JWKS-provisioning security, restart-safe revocation or token theft/replay.
+
+**Pilot gate: COMPLETE AND VERIFIED. Production identity gate: OPEN.**
