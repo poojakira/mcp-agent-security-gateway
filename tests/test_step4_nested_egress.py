@@ -26,9 +26,7 @@ def engine() -> PolicyEngine:
         {"nested": {"target": "https://unapproved.example"}},
     ],
 )
-def test_nested_destinations_deny_unauthorized_host(
-    engine: PolicyEngine, arguments: dict
-) -> None:
+def test_nested_destinations_deny_unauthorized_host(engine: PolicyEngine, arguments: dict) -> None:
     decision = engine.evaluate(
         {"name": "http_get", "server_id": "synthetic", "arguments": arguments}
     )
@@ -45,9 +43,7 @@ def test_nested_destinations_deny_unauthorized_host(
         {"options": {"host": False}},
     ],
 )
-def test_nested_malformed_destinations_fail_closed(
-    engine: PolicyEngine, argument: dict
-) -> None:
+def test_nested_malformed_destinations_fail_closed(engine: PolicyEngine, argument: dict) -> None:
     decision = engine.evaluate(
         {"name": "http_get", "server_id": "synthetic", "arguments": argument}
     )
@@ -78,9 +74,7 @@ def test_excessive_nesting_denied_not_crashed(engine: PolicyEngine) -> None:
         nested: dict = {}
         cursor["child"] = nested
         cursor = nested
-    decision = engine.evaluate(
-        {"name": "http_get", "server_id": "synthetic", "arguments": root}
-    )
+    decision = engine.evaluate({"name": "http_get", "server_id": "synthetic", "arguments": root})
     assert not decision.allowed
     assert decision.reason_code == ReasonCode.DENY_EGRESS_MALFORMED
 
@@ -104,9 +98,7 @@ def test_unrecognized_nested_free_text_is_not_network_enforcement(
         {
             "name": "text_reader",
             "server_id": "synthetic",
-            "arguments": {
-                "user_text": "See https://unapproved.example for documentation"
-            },
+            "arguments": {"user_text": "See https://unapproved.example for documentation"},
         }
     )
     assert decision.allowed
