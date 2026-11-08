@@ -18,8 +18,8 @@ does it enforce OS/network traffic or intercept redirects and DNS resolution.
 
 | Gate | Current state | Required acceptance evidence |
 |---|---|---|
-| Recognized egress argument shape validation | Patch prepared, CI required | Full Python matrix, Ruff, Pyright, CodeQL and Docker on exact commit |
-| Nested recognized destination keys | Bounded recursive patch, CI required | Regression matrix across Python versions |
+| Recognized egress argument shape validation | Prototype verified (full Python matrix, Ruff, focused Pyright and Bandit) | CodeQL, Docker and deployment-level network enforcement still required |
+| Nested recognized destination keys | Prototype verified across Python 3.10/3.11/3.12 | Validate representative tool schemas and false-positive effects |
 | Dynamic/opaque tool destinations | Not solved | Schema-aware tool integration and negative tests |
 | Actual OS/network egress | Not solved | Controlled namespace/firewall policy, DNS rebinding and redirects verified |
 | Distributed ACL/revocation | Optional authoritative checker prepared; no production integration | Simulated two-guard tests, authenticated ordered feed, real two-node test and restart rollback guard |
@@ -76,3 +76,15 @@ may have caused side effects when a downstream timeout occurs. Security
 detector coverage and false-positive rates must be separately benchmarked.
 These safeguards are a prototype **fail-closed** baseline, not a production
 service-level guarantee.
+
+## Verified Step 4 source validation
+
+Run [#42444861042](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42444861042) successfully validated source commit
+`706aa40df2eff64e151b5f9f98e66dabdf54e5de`:
+**925 passed and 1 skipped** on each of Python 3.10, 3.11 and 3.12;
+**82.69–82.72% coverage**; Ruff, Bandit and focused Pyright passed.
+
+This does not establish the open production-facing controls listed above,
+including distributed durable authorization, authenticated real identities,
+socket-level egress isolation or full concurrency support. See
+`docs/review/STEP4_FINAL_ASSESSMENT.md`.
