@@ -49,6 +49,7 @@ def _reject_json_constant(value: str) -> None:
     """Reject non-standard JSON constants such as NaN and Infinity."""
     raise ValueError(f"Invalid JSON constant: {value}")
 
+
 # ---------------------------------------------------------------------------
 # Decision types
 # ---------------------------------------------------------------------------
