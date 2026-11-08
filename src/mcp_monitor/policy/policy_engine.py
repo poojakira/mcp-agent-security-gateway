@@ -223,7 +223,7 @@ class PolicyEngine:
             destinations.append(pi.egress_destination)
         for key in ("url", "host", "endpoint", "target"):
             val = pi.arguments.get(key)
-            if isinstance(val, str) and val:
+            if val is not None:
                 destinations.append(val)
         return destinations
 
