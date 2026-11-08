@@ -12,7 +12,7 @@ IMAGE_ID = "sha256:" + "a" * 64
 
 def test_network_isolation_flags_are_immutable_and_no_shell_is_used() -> None:
     command = OfflineDockerSandbox(IMAGE_ID).build_command(["python", "-u", "/opt/mcp/server.py"])
-    assert command[:2] == ["docker", "run"]
+    assert command[:4] == ["docker", "--host", "unix:///var/run/docker.sock", "run"]
     assert command[command.index("--workdir=/tmp") + 1] == IMAGE_ID
     assert command[-3:] == ["python", "-u", "/opt/mcp/server.py"]
     for option in (
@@ -32,6 +32,8 @@ def test_network_isolation_flags_are_immutable_and_no_shell_is_used() -> None:
     assert "--volume" not in command
     assert "--mount" not in command
     assert command[0] != "sh"
+    assert "--init" in command
+    assert "--name" not in command
 
 
 @pytest.mark.parametrize(
@@ -84,7 +86,9 @@ def test_proxy_uses_sandbox_command_without_implicit_fallback() -> None:
         command=["python", "-u", "/opt/mcp/server.py"],
         offline_sandbox=OfflineDockerSandbox(IMAGE_ID),
     )
-    assert proxy.command[0:2] == ["docker", "run"]
+    assert proxy.command[:4] == ["docker", "--host", "unix:///var/run/docker.sock", "run"]
+    assert "--name" in proxy.command
+    assert proxy.command[proxy.command.index("--name") + 1].startswith("mcp-offline-")
     assert "--network=none" in proxy.command
     assert proxy.command[-4:] == [IMAGE_ID, "python", "-u", "/opt/mcp/server.py"]
 
@@ -101,3 +105,32 @@ def test_injected_transport_cannot_bypass_requested_sandbox() -> None:
 def test_invalid_sandbox_type_denied_during_setup() -> None:
     with pytest.raises(ValueError, match="offline_sandbox"):
         StdioMCPProxy(command=["python"], offline_sandbox={"image": IMAGE_ID})
+
+@pytest.mark.parametrize("name", ["mcp-offline-123", "--network=host", "", "mcp-offline-" + "g" * 24])
+def test_rejects_untrusted_container_names(name: str) -> None:
+    with pytest.raises(ValueError, match="container name"):
+        OfflineDockerSandbox(IMAGE_ID).build_command(["python"], container_name=name)
+
+
+def test_independent_instances_use_distinct_cleanup_names() -> None:
+    first = StdioMCPProxy(command=["python"], offline_sandbox=OfflineDockerSandbox(IMAGE_ID))
+    second = StdioMCPProxy(command=["python"], offline_sandbox=OfflineDockerSandbox(IMAGE_ID))
+    first_name = first.command[first.command.index("--name") + 1]
+    second_name = second.command[second.command.index("--name") + 1]
+    assert first_name != second_name
+    assert first_name.startswith("mcp-offline-")
+    assert len(first_name) == len(second_name)
+
+
+def test_missing_docker_runtime_fails_without_unsandboxed_fallback(monkeypatch) -> None:
+    import asyncio
+
+    async def unavailable(*args, **kwargs):
+        raise FileNotFoundError("synthetic Docker binary not installed")
+
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", unavailable)
+    proxy = StdioMCPProxy(command=["python"], offline_sandbox=OfflineDockerSandbox(IMAGE_ID))
+
+    with pytest.raises(FileNotFoundError, match="synthetic Docker"):
+        asyncio.run(proxy.start())
+    assert proxy.command[0] == "docker"

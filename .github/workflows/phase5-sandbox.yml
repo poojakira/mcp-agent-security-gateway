@@ -8,6 +8,7 @@ on:
       - "src/mcp_monitor/proxy/sandbox.py"
       - "src/mcp_monitor/proxy/stdio_proxy.py"
       - "tests/test_phase5_offline_sandbox.py"
+      - "docs/review/PHASE5_OFFLINE_SANDBOX.md"
       - "tests/test_phase5_docker_integration.py"
       - "tests/fixtures/phase5_synthetic_server.py"
       - "tests/fixtures/Dockerfile.phase5"

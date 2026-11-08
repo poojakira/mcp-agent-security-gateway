@@ -22,6 +22,7 @@ import asyncio
 import json
 import logging
 import math
+import secrets
 import sys
 from collections import Counter
 from dataclasses import dataclass
@@ -197,6 +198,69 @@ class SubprocessTransport:
             if not chunk:
                 raise RuntimeError("Downstream server closed stdout")
             self._read_buffer += chunk
+
+
+class OfflineDockerTransport(SubprocessTransport):
+    """Track a uniquely named local Docker container and prove cleanup.
+
+    The Docker CLI is a child process, not the actual container process.
+    Killing that CLI alone may leave a running container behind. Cleanup
+    therefore targets the exact random name on the local Docker daemon.
+    """
+
+    def __init__(
+        self,
+        sandbox: OfflineDockerSandbox,
+        server_command: list[str],
+        *,
+        max_response_bytes: int = 1048576,
+    ) -> None:
+        self.container_name = "mcp-offline-" + secrets.token_hex(12)
+        super().__init__(
+            sandbox.build_command(server_command, container_name=self.container_name),
+            max_response_bytes=max_response_bytes,
+        )
+
+    async def _docker_call(self, *args: str) -> tuple[int, bytes]:
+        process = await asyncio.create_subprocess_exec(
+            "docker",
+            "--host",
+            "unix:///var/run/docker.sock",
+            *args,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.DEVNULL,
+        )
+        try:
+            stdout, _ = await asyncio.wait_for(process.communicate(), timeout=6.0)
+        except asyncio.TimeoutError:
+            process.kill()
+            await process.communicate()
+            raise RuntimeError("Offline Docker cleanup timed out") from None
+        return process.returncode or 0, stdout
+
+    async def stop(self) -> None:
+        """Force-remove and verify the exact sandbox container, then close stdio."""
+        cleanup_error: Exception | None = None
+        try:
+            await self._docker_call("rm", "--force", self.container_name)
+            rc, remaining = await self._docker_call(
+                "ps",
+                "--all",
+                "--filter",
+                f"name=^/{self.container_name}$",
+                "--format",
+                "{{.Names}}",
+            )
+            if rc != 0 or remaining.strip():
+                raise RuntimeError("Could not verify removal of offline Docker container")
+        except Exception as exc:
+            cleanup_error = exc
+        finally:
+            await super().stop()
+        if cleanup_error is not None:
+            raise RuntimeError("Offline Docker container cleanup could not be verified") from (
+                cleanup_error
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -405,7 +469,11 @@ class StdioMCPProxy:
                 raise ValueError("offline_sandbox must be an OfflineDockerSandbox")
             if transport is not None:
                 raise ValueError("Cannot override the isolated transport in offline sandbox mode")
-            command = offline_sandbox.build_command(command)
+            isolated = OfflineDockerTransport(
+                offline_sandbox, command, max_response_bytes=max_message_bytes
+            )
+            command = isolated.command
+            transport = isolated
         self._offline_sandbox = offline_sandbox
         self.command = command
         self._transport = transport or SubprocessTransport(

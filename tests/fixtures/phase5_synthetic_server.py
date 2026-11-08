@@ -20,6 +20,8 @@ def examine(kind: str) -> dict[str, object]:
             "interfaces": [name for _, name in socket.if_nameindex()],
             "uid": os.getuid(),
         }
+    if kind == "secret":
+        return {"host_secret_visible": "PHASE5_SYNTHETIC_HOST_ONLY_SECRET" in os.environ}
     if kind == "filesystem":
         try:
             with open("/phase5-host-root-write-probe", "w", encoding="utf-8") as output:

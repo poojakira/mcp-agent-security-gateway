@@ -79,3 +79,20 @@ production identity binding, durable distributed authorization, complete MCP
 protocol coverage, side-effect recovery, security benchmarking and representative
 deployment acceptance tests are still open. No production deployment or merge
 has been authorized.
+
+## Lifecycle and host-secret containment (Phase 5 hardening)
+
+The opt-in Docker transport now assigns a cryptographically random,
+operator-owned container name. Its shutdown forcibly removes that exact
+container and queries the local Docker daemon to verify no matching running
+or stopped container remains. The Docker client uses an explicit local Unix
+daemon socket. It raises a security error if removal cannot be verified;
+an absent Docker binary fails rather than silently executing a host process.
+
+The disposable integration test also checks that a synthetic secret present
+in the parent host environment is **not** inherited by the container.
+The test makes no claim about actual production credential sources.
+
+The Docker daemon itself is a privileged trust boundary. Operators must
+not expose its socket to an agent, allow host mounts, or provide an
+untrusted image or agent-controlled subprocess command.

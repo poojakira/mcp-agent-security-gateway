@@ -39,13 +39,33 @@ def test_actual_offline_network_and_filesystem_isolation() -> None:
             command=["python", "-u", "/opt/phase5/server.py"],
             offline_sandbox=OfflineDockerSandbox(IMAGE_ID),
         )
+        container_name = proxy._transport.container_name
+        os.environ["PHASE5_SYNTHETIC_HOST_ONLY_SECRET"] = "synthetic-do-not-ship"
         await asyncio.wait_for(proxy.start(), timeout=10.0)
         try:
             ready = await call(proxy, "ready", 1)
             network = await call(proxy, "network", 2)
             filesystem = await call(proxy, "filesystem", 3)
+            secret = await call(proxy, "secret", 4)
         finally:
             await asyncio.wait_for(proxy.stop(), timeout=12.0)
+            os.environ.pop("PHASE5_SYNTHETIC_HOST_ONLY_SECRET", None)
+        assert secret == {"host_secret_visible": False}
+        query = await asyncio.create_subprocess_exec(
+            "docker",
+            "--host",
+            "unix:///var/run/docker.sock",
+            "ps",
+            "--all",
+            "--filter",
+            f"name=^/{container_name}$",
+            "--format",
+            "{{.Names}}",
+            stdout=asyncio.subprocess.PIPE,
+        )
+        remaining, _ = await query.communicate()
+        assert query.returncode == 0
+        assert remaining.strip() == b""
         assert ready == {"status": "ready", "uid": 65534}
         assert network["network_denied"] is True
         assert network["socket_error"] != 0
