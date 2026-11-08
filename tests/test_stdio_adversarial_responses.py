@@ -137,3 +137,55 @@ def test_malicious_member_in_downstream_batch_is_blocked() -> None:
         assert len(transport.sent) == 1
 
     asyncio.run(scenario())
+
+@pytest.mark.parametrize("outcome", ["malicious", "malformed", "detector-crash"])
+def test_blocked_downstream_batch_replies_to_each_request(outcome: str) -> None:
+    """A denied batch must not leave other JSON-RPC request IDs waiting."""
+
+    class ResponseDetector:
+        def detect(self, payload):
+            if payload.get("name") != "mcp_tool_response":
+                return False, []
+            if outcome == "detector-crash":
+                raise RuntimeError("synthetic response detector failure")
+            if "ATTACK_MARKER" in str(payload.get("arguments", {})):
+                return True, ["malicious_downstream_content"]
+            return False, []
+
+    async def scenario() -> None:
+        batch = json.dumps(
+            [
+                json.loads(call(71)),
+                {"jsonrpc": "2.0", "method": "notifications/initialized"},
+                json.loads(call(72)),
+            ]
+        ).encode()
+        if outcome == "malformed":
+            response = b'{"jsonrpc":"2.0","id":71,"result":'
+        else:
+            response = json.dumps(
+                [
+                    {"jsonrpc": "2.0", "id": 71, "result": {"content": "safe"}},
+                    {"jsonrpc": "2.0", "id": 72, "result": {"content": "ATTACK_MARKER"}},
+                ]
+            ).encode()
+        transport = ControlledTransport(response)
+        proxy = StdioMCPProxy(
+            command=["test-server"],
+            transport=transport,
+            detector=ResponseDetector(),
+        )
+
+        raw_reply = await proxy.handle_message(batch)
+        replies = json.loads(raw_reply)
+        assert isinstance(replies, list)
+        assert [reply["id"] for reply in replies] == [71, 72]
+        assert all(
+            reply["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE for reply in replies
+        )
+        assert all("result" not in reply for reply in replies)
+        assert "ATTACK_MARKER" not in raw_reply.decode()
+        assert transport.sent == [batch + b"\n"]
+        assert proxy.stats["blocked"] == 1
+
+    asyncio.run(scenario())
