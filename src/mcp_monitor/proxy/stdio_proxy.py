@@ -34,6 +34,7 @@ from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard
 from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
+from mcp_monitor.proxy.oidc_identity import OIDCSessionBinding
 from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
 from mcp_monitor.proxy.session_identity import BoundSession, SessionVerificationError
 
@@ -445,7 +446,7 @@ class StdioMCPProxy:
         policy_engine: PolicyEngine | None = None,
         acl_guard: ACLGuard | None = None,
         authenticated_principal: str | None = None,
-        session_binding: BoundSession | None = None,
+        session_binding: BoundSession | OIDCSessionBinding | None = None,
         protected_resource_tools: dict[str, str] | None = None,
         offline_sandbox: OfflineDockerSandbox | None = None,
         response_timeout_seconds: float = 120.0,
@@ -490,8 +491,8 @@ class StdioMCPProxy:
         self._server_id = server_id
         self._acl_guard = acl_guard
         if session_binding is not None:
-            if not isinstance(session_binding, BoundSession):
-                raise ValueError("session_binding must be a verified BoundSession")
+            if not isinstance(session_binding, BoundSession | OIDCSessionBinding):
+                raise ValueError("session_binding must be a verified session binding")
             if authenticated_principal is not None:
                 raise ValueError("Cannot mix signed session with legacy principal")
             try:
@@ -614,6 +615,25 @@ class StdioMCPProxy:
             self._stats["blocked"] += 1
             return _build_error_response(None, -32600, "Invalid JSON-RPC envelope").rstrip(b"\n")
 
+        # A verified session protects the full request surface, not just
+        # tools/call. Otherwise resources/read and prompts/get would bypass it.
+        # The entire batch fails closed before forwarding if the session
+        # expires, is revoked, or no longer maps to the bound tenant.
+        if self._session_binding is not None and any("method" in item for item in messages):
+            try:
+                current = self._session_binding.verify()
+                if current.principal != self._authenticated_principal:
+                    raise SessionVerificationError("Session principal changed")
+            except SessionVerificationError:
+                self._stats["blocked"] += 1
+                return self._blocked_requests(
+                    messages,
+                    is_batch,
+                    self.SECURITY_BLOCK_CODE,
+                    "Security: signed session invalid before request forwarding",
+                    {"patterns": ["DENY_SESSION_AUTH"]},
+                )
+
         denial: tuple[int, str, dict[str, Any]] | None = None
         tool_count = 0
         for message in messages:
@@ -671,7 +691,7 @@ class StdioMCPProxy:
         if request_ids:
             # An already-forwarded call must not release a result if its
             # gateway-bound authentication expires or fails meanwhile.
-            if tool_count and self._session_binding is not None:
+            if self._session_binding is not None:
                 try:
                     session = self._session_binding.verify()
                     if session.principal != self._authenticated_principal:
