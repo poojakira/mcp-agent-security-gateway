@@ -35,6 +35,7 @@ from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
 from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
+from mcp_monitor.proxy.session_identity import BoundSession, SessionVerificationError
 
 logger = logging.getLogger(__name__)
 
@@ -444,6 +445,7 @@ class StdioMCPProxy:
         policy_engine: PolicyEngine | None = None,
         acl_guard: ACLGuard | None = None,
         authenticated_principal: str | None = None,
+        session_binding: BoundSession | None = None,
         protected_resource_tools: dict[str, str] | None = None,
         offline_sandbox: OfflineDockerSandbox | None = None,
         response_timeout_seconds: float = 120.0,
@@ -487,6 +489,16 @@ class StdioMCPProxy:
             raise ValueError("server_id must be a non-empty string")
         self._server_id = server_id
         self._acl_guard = acl_guard
+        if session_binding is not None:
+            if not isinstance(session_binding, BoundSession):
+                raise ValueError("session_binding must be a verified BoundSession")
+            if authenticated_principal is not None:
+                raise ValueError("Cannot mix signed session with legacy principal")
+            try:
+                authenticated_principal = session_binding.verify().principal
+            except SessionVerificationError as exc:
+                raise ValueError("Signed session verification failed") from exc
+        self._session_binding = session_binding
         self._authenticated_principal = authenticated_principal
         self._protected_resource_tools = dict(protected_resource_tools or {})
         if self._protected_resource_tools and self._acl_guard is None:
@@ -657,6 +669,22 @@ class StdioMCPProxy:
             )
         self._stats["allowed" if tool_count else "passthrough"] += 1
         if request_ids:
+            # An already-forwarded call must not release a result if its
+            # gateway-bound authentication expires or fails meanwhile.
+            if tool_count and self._session_binding is not None:
+                try:
+                    session = self._session_binding.verify()
+                    if session.principal != self._authenticated_principal:
+                        raise SessionVerificationError("Session principal changed")
+                except SessionVerificationError:
+                    self._stats["blocked"] += 1
+                    return self._blocked_requests(
+                        messages,
+                        is_batch,
+                        self.SECURITY_BLOCK_CODE,
+                        "Security: signed session invalid before response release",
+                        {"patterns": ["DENY_SESSION_AUTH"]},
+                    )
             # All server replies are untrusted, including tool discovery,
             # resources/read, prompts/get, and initialization responses.
             # Revocation may occur after a tool request was sent.
@@ -752,6 +780,19 @@ class StdioMCPProxy:
         """Run security inspection on a parsed JSON-RPC tools/call message."""
         request_id = parsed.get("id")
         detector_errors: list[str] = []
+
+        if self._session_binding is not None:
+            try:
+                session = self._session_binding.verify()
+                if session.principal != self._authenticated_principal:
+                    raise SessionVerificationError("Session principal changed")
+            except SessionVerificationError:
+                return InspectionResult(
+                    decision=Decision.BLOCK,
+                    reason="Signed session expired or invalid",
+                    matched_patterns=["DENY_SESSION_AUTH"],
+                    request_id=request_id,
+                )
 
         try:
             tool_calls = self._adapter.parse_message(parsed)
