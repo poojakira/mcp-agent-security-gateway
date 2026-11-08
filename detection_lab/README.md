@@ -106,8 +106,14 @@ python -m mcp_monitor.siem.attack_simulations --json --quiet
 
 ### Run the detection lab locally
 
+The lab requires a locally generated `MCP_API_KEY`; the formerly shared key has been removed from active Compose configuration but remains in Git history. If that shared key was reused in any running gateway, replace it there and restart that deployment. The bundled Elasticsearch/Kibana configuration disables authentication and is **local-lab only**.
+
 ```bash
-# Start the full stack
+# Create a NEW secret for your local gateway. Never reuse the previously
+# committed demonstration key: it remains visible in Git history.
+export MCP_API_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
+
+# Start the full stack (ports bind to 127.0.0.1, not the public interface)
 docker compose -f docker-compose.detection-lab.yml up -d
 
 # Wait for Elasticsearch to be ready
