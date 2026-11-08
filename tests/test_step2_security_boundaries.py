@@ -70,8 +70,12 @@ def test_batch_transport_failure_returns_all_request_ids() -> None:
         transport = FailureTransport("receive")
         proxy = StdioMCPProxy(command=["synthetic"], transport=transport)
         raw = await proxy.handle_message(
-            json.dumps([json.loads(request({"path": "/tmp/one"}, 7)),
-                        json.loads(request({"path": "/tmp/two"}, 8))]).encode()
+            json.dumps(
+                [
+                    json.loads(request({"path": "/tmp/one"}, 7)),
+                    json.loads(request({"path": "/tmp/two"}, 8)),
+                ]
+            ).encode()
         )
         errors = json.loads(raw)
         assert [item["id"] for item in errors] == [7, 8]
@@ -184,8 +188,12 @@ def test_secondary_egress_destination_cannot_bypass_allowlist(arguments: dict) -
 def test_malformed_explicit_egress_destination_denied() -> None:
     engine = PolicyEngine(allowed_servers={"local"}, allowed_egress_hosts={"api.example.com"})
     decision = engine.evaluate(
-        {"name": "http_get", "server_id": "local", "egress_destination": 123,
-         "arguments": {"url": "https://api.example.com"}}
+        {
+            "name": "http_get",
+            "server_id": "local",
+            "egress_destination": 123,
+            "arguments": {"url": "https://api.example.com"},
+        }
     )
     assert not decision.allowed
     assert decision.reason_code == ReasonCode.DENY_EGRESS_MALFORMED
@@ -194,7 +202,10 @@ def test_malformed_explicit_egress_destination_denied() -> None:
 def test_all_allowlisted_destinations_can_pass_policy() -> None:
     engine = PolicyEngine(allowed_servers={"local"}, allowed_egress_hosts={"api.example.com"})
     decision = engine.evaluate(
-        {"name": "http_get", "server_id": "local",
-         "arguments": {"url": "https://api.example.com/a", "host": "api.example.com"}}
+        {
+            "name": "http_get",
+            "server_id": "local",
+            "arguments": {"url": "https://api.example.com/a", "host": "api.example.com"},
+        }
     )
     assert decision.allowed
