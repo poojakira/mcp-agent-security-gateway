@@ -58,7 +58,7 @@ def _response_id_key(value: Any) -> tuple[str, str | int | float | None]:
         return ("null", None)
     if isinstance(value, str):
         return ("string", value)
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
+    if isinstance(value, bool) or not isinstance(value, int | float):
         raise ValueError("Invalid JSON-RPC response ID type")
     if isinstance(value, float) and not math.isfinite(value):
         raise ValueError("Non-finite JSON-RPC response ID")
