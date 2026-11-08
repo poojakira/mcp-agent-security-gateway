@@ -50,6 +50,9 @@ jobs:
       - name: Lint with Ruff
         run: ruff check src/ tests/ poster/render_poster.py scripts/recruiter_demo.py --output-format=github
 
+      - name: Diagnose Step 2 formatting (temporary)
+        run: ruff format --diff src/mcp_monitor/policy/acl_guard.py src/mcp_monitor/policy/policy_engine.py src/mcp_monitor/proxy/stdio_proxy.py tests/test_step2_security_boundaries.py
+
       - name: Run Ruff Formatter Check
         run: ruff format --check src/ tests poster/render_poster.py scripts/recruiter_demo.py
 
