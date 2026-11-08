@@ -678,7 +678,7 @@ class ProductionServer:
         """POST /v1/inspect_output - Forward to MCPSecurityMonitor."""
         try:
             payload = self._parse_inspection_json(body)
-        except (json.JSONDecodeError, UnicodeDecodeError, RecursionError) as exc:
+        except (json.JSONDecodeError, UnicodeDecodeError, RecursionError, ValueError) as exc:
             # RecursionError: attacker-controlled deeply nested JSON exhausts the
             # decoder's recursion limit. This is malformed *client* input, not a
             # server fault, so it must be a 400 (not a 500) and must not leak a
