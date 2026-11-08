@@ -217,14 +217,38 @@ class PolicyEngine:
     # ------------------------------------------------------------------
 
     def _extract_destinations(self, pi: PolicyInput) -> list[Any]:
-        """Inspect every declared destination, not just the first allowlisted one."""
+        """Inspect recognized destinations throughout bounded JSON arguments.
+
+        Only destination-shaped keys are interpreted as URLs or hosts.
+        Arbitrary free-form text and opaque tool schemas remain out of scope.
+        """
+        if not isinstance(pi.arguments, dict):
+            raise ValueError("Invalid egress argument object")
         destinations: list[Any] = []
         if pi.egress_destination is not None:
             destinations.append(pi.egress_destination)
-        for key in ("url", "host", "endpoint", "target"):
-            val = pi.arguments.get(key)
-            if isinstance(val, str) and val:
-                destinations.append(val)
+
+        keys = frozenset({"url", "host", "endpoint", "target", "destination"})
+        pending: list[tuple[Any, int]] = [(pi.arguments, 0)]
+        nodes = 0
+        while pending:
+            node, depth = pending.pop()
+            nodes += 1
+            if nodes > 4096 or depth > 16:
+                raise ValueError("Egress argument inspection limit exceeded")
+            if isinstance(node, dict):
+                if len(node) + len(pending) > 4096:
+                    raise ValueError("Egress argument inspection limit exceeded")
+                for key, value in node.items():
+                    if not isinstance(key, str):
+                        raise ValueError("Invalid egress argument key")
+                    if key.lower() in keys and value is not None:
+                        destinations.append(value)
+                    pending.append((value, depth + 1))
+            elif isinstance(node, list):
+                if len(node) + len(pending) > 4096:
+                    raise ValueError("Egress argument inspection limit exceeded")
+                pending.extend((value, depth + 1) for value in node)
         return destinations
 
     @staticmethod
@@ -259,7 +283,16 @@ class PolicyEngine:
         Tool arguments are not authoritative egress metadata. This inspects
         only recognized fields; OS/network policies must restrict real sockets.
         """
-        for dest in self._extract_destinations(pi):
+        try:
+            destinations = self._extract_destinations(pi)
+        except (TypeError, ValueError):
+            return PolicyDecision(
+                allowed=False,
+                reason_code=ReasonCode.DENY_EGRESS_MALFORMED,
+                message="Unable to inspect egress arguments safely",
+                matched_rule="egress.malformed",
+            )
+        for dest in destinations:
             if not isinstance(dest, str):
                 return PolicyDecision(
                     allowed=False,

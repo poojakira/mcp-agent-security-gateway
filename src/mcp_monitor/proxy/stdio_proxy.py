@@ -126,8 +126,13 @@ class Transport(Protocol):
 class SubprocessTransport:
     """Real transport that launches a subprocess and communicates via stdio."""
 
-    def __init__(self, command: list[str]) -> None:
+    def __init__(self, command: list[str], *, max_response_bytes: int = 1048576) -> None:
+        if isinstance(max_response_bytes, bool) or not isinstance(max_response_bytes, int):
+            raise ValueError("max_response_bytes must be a positive integer")
+        if max_response_bytes <= 0:
+            raise ValueError("max_response_bytes must be positive")
         self.command = command
+        self._max_response_bytes = max_response_bytes
         self._process: asyncio.subprocess.Process | None = None
         self._read_buffer: bytes = b""
 
@@ -176,12 +181,16 @@ class SubprocessTransport:
             # Check if we have a complete line in buffer
             newline_pos = self._read_buffer.find(b"\n")
             if newline_pos != -1:
+                if newline_pos > self._max_response_bytes:
+                    raise ValueError("Downstream MCP response exceeds size limit")
                 line = self._read_buffer[:newline_pos]
                 self._read_buffer = self._read_buffer[newline_pos + 1 :]
                 if line.strip():
                     return line.strip()
                 continue
 
+            if len(self._read_buffer) > self._max_response_bytes:
+                raise ValueError("Downstream MCP response exceeds size limit")
             # Read more data
             chunk = await self._process.stdout.read(8192)
             if not chunk:
@@ -371,9 +380,28 @@ class StdioMCPProxy:
         acl_guard: ACLGuard | None = None,
         authenticated_principal: str | None = None,
         protected_resource_tools: dict[str, str] | None = None,
+        response_timeout_seconds: float = 120.0,
+        max_message_bytes: int = 1048576,
     ) -> None:
+        if (
+            isinstance(response_timeout_seconds, bool)
+            or not isinstance(response_timeout_seconds, int | float)
+            or not math.isfinite(response_timeout_seconds)
+            or response_timeout_seconds <= 0
+        ):
+            raise ValueError("response_timeout_seconds must be finite and positive")
+        if (
+            isinstance(max_message_bytes, bool)
+            or not isinstance(max_message_bytes, int)
+            or max_message_bytes <= 0
+        ):
+            raise ValueError("max_message_bytes must be a positive integer")
+        self._response_timeout_seconds = float(response_timeout_seconds)
+        self._max_message_bytes = max_message_bytes
         self.command = command
-        self._transport = transport or SubprocessTransport(command)
+        self._transport = transport or SubprocessTransport(
+            command, max_response_bytes=max_message_bytes
+        )
         self._detector = detector or PromptInjectionDetector(enable_ml=False)
         self._adapter = MCPJSONRPCAdapter()
         # The gateway operator assigns server identity, not the AI agent.
@@ -449,6 +477,11 @@ class StdioMCPProxy:
             The response bytes to send back to the client.
             Either an error (if blocked) or the real server response.
         """
+        if len(raw_message) > self._max_message_bytes:
+            self._stats["blocked"] += 1
+            return _build_error_response(
+                None, self.SECURITY_BLOCK_CODE, "Security: MCP request size limit exceeded"
+            ).rstrip(b"\n")
         try:
             parsed = json.loads(
                 raw_message,
@@ -464,6 +497,30 @@ class StdioMCPProxy:
         if not messages or any(not isinstance(message, dict) for message in messages):
             self._stats["blocked"] += 1
             return _build_error_response(None, -32600, "Invalid JSON-RPC request").rstrip(b"\n")
+
+        request_ids: list[tuple[str, str | int | float | None]] = []
+        try:
+            for message in messages:
+                if message.get("jsonrpc") != "2.0":
+                    raise ValueError("Invalid JSON-RPC version")
+                if "method" in message:
+                    if not isinstance(message["method"], str) or not message["method"]:
+                        raise ValueError("Invalid JSON-RPC method")
+                    if "result" in message or "error" in message:
+                        raise ValueError("Request cannot contain a result or error")
+                    if "params" in message and not isinstance(message["params"], dict | list):
+                        raise ValueError("Invalid JSON-RPC params")
+                    if "id" in message:
+                        request_ids.append(_response_id_key(message["id"]))
+                elif "id" not in message or ("result" in message) == ("error" in message):
+                    raise ValueError("Invalid JSON-RPC response envelope")
+                else:
+                    _response_id_key(message["id"])
+            if len(request_ids) != len(set(request_ids)):
+                raise ValueError("Duplicate JSON-RPC request ID")
+        except (TypeError, ValueError):
+            self._stats["blocked"] += 1
+            return _build_error_response(None, -32600, "Invalid JSON-RPC envelope").rstrip(b"\n")
 
         denial: tuple[int, str, dict[str, Any]] | None = None
         tool_count = 0
@@ -504,7 +561,11 @@ class StdioMCPProxy:
             if not any("id" in message and "method" in message for message in messages):
                 self._stats["allowed" if tool_count else "passthrough"] += 1
                 return b""  # Notifications and client responses are one-way.
-            response = await self._transport.receive()
+            response = await asyncio.wait_for(
+                self._transport.receive(), timeout=self._response_timeout_seconds
+            )
+            if not isinstance(response, bytes) or len(response) > self._max_message_bytes:
+                raise ValueError("Invalid or oversized downstream MCP response")
         except Exception:
             logger.exception("Downstream MCP transport failure; suppressing response")
             self._stats["blocked"] += 1
@@ -515,8 +576,10 @@ class StdioMCPProxy:
                 "Security: downstream transport failure - failing closed",
             )
         self._stats["allowed" if tool_count else "passthrough"] += 1
-        if tool_count:
-            # Revocation may occur after the request was authorized and sent.
+        if request_ids:
+            # All server replies are untrusted, including tool discovery,
+            # resources/read, prompts/get, and initialization responses.
+            # Revocation may occur after a tool request was sent.
             # Check the current trusted ACL again before releasing its response.
             # A denial suppresses the entire batch rather than leaking a
             # previously authorized result alongside a revoked result.
@@ -543,8 +606,8 @@ class StdioMCPProxy:
                         "Security: resource access revoked before response release",
                         {"patterns": ["DENY_RESOURCE_ACL"]},
                     )
-            # Untrusted MCP server output is an injection surface, even when
-            # the original tools/call arguments were harmless.
+            # Every downstream MCP response is untrusted, including tool
+            # descriptions, resources, prompts and non-tool protocol results.
             try:
                 payload = json.loads(
                     response,
@@ -591,7 +654,7 @@ class StdioMCPProxy:
                             messages,
                             is_batch,
                             self.SECURITY_BLOCK_CODE,
-                            "Security: downstream tool result failed inspection",
+                            "Security: downstream MCP response failed inspection",
                             {"patterns": patterns},
                         )
             except Exception:
@@ -601,7 +664,7 @@ class StdioMCPProxy:
                     messages,
                     is_batch,
                     self.SECURITY_BLOCK_CODE,
-                    "Security: downstream tool result validation failed",
+                    "Security: downstream MCP response validation failed",
                 )
         return response
 

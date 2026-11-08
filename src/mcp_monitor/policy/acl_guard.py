@@ -4,7 +4,9 @@ The operator supplies authenticated user identity and trusted ACL snapshots.
 Agent-supplied user IDs, ACLs, or search filters are never authorization inputs.
 CDC events must come from an authenticated, ordered feed. Loss of order fails closed.
 This is an in-process reference implementation; no external CDC or index connector
-is bundled, and no millisecond propagation guarantee is made.
+is bundled, and no millisecond propagation guarantee is made. An optional
+operator-supplied authoritative callback can be checked on every access, but
+the caller is responsible for authentication, freshness, and availability.
 """
 
 from __future__ import annotations
@@ -36,12 +38,18 @@ class ACLGuard:
         *,
         sequence: int = 0,
         require_resync: bool = False,
+        authority_check: Callable[[str, str], bool] | None = None,
     ) -> None:
         if isinstance(sequence, bool) or not isinstance(sequence, int) or sequence < 0:
             raise ValueError("Invalid starting sequence")
+        if authority_check is not None and not callable(authority_check):
+            raise ValueError("authority_check must be callable")
         self._lock = RLock()
         self._grants = self._validated_grants(grants)
         self._sequence = sequence
+        # The callback must be configured by a trusted operator, never by a
+        # tool argument. A non-True response or exception denies access.
+        self._authority_check = authority_check
         # Set on restart when the local snapshot cannot be proven current.
         self._healthy = not require_resync
 
@@ -73,12 +81,27 @@ class ACLGuard:
                 raise AccessDenied("Missing authenticated identity")
             return self._grants.get(principal, frozenset())
 
+    def _authority_allows(self, principal: str, resource_id: str) -> bool:
+        """Require a strict boolean response from the trusted permission source."""
+        if self._authority_check is None:
+            return True
+        try:
+            allowed = self._authority_check(principal, resource_id)
+        except Exception as exc:
+            raise AccessDenied("Authoritative permission verification unavailable") from exc
+        if type(allowed) is not bool:
+            raise AccessDenied("Invalid authoritative permission response")
+        return allowed
+
     def check(self, principal: str, resource_id: str) -> None:
-        """Deny by default, including absent or malformed identities/resources."""
+        """Deny when either local ACL or optional authority denies the resource."""
         if not isinstance(resource_id, str) or not resource_id:
             raise AccessDenied("Missing resource identity")
-        if resource_id not in self.allowed_resources(principal):
-            raise AccessDenied("Resource not authorized")
+        with self._lock:
+            if resource_id not in self.allowed_resources(principal):
+                raise AccessDenied("Resource not authorized")
+            if not self._authority_allows(principal, resource_id):
+                raise AccessDenied("Resource denied by authoritative permission source")
 
     def apply_change(self, change: PermissionChange) -> None:
         """Apply an authenticated ordered CDC event; reject gaps and replays.
@@ -137,6 +160,12 @@ class ACLGuard:
         with self._lock:
             self._require_healthy()
             allowed = self.allowed_resources(principal)
+            # A stale local snapshot must not grant a resource to a retrieval
+            # backend when the authoritative source has already revoked it.
+            if self._authority_check is not None:
+                allowed = frozenset(
+                    resource for resource in allowed if self._authority_allows(principal, resource)
+                )
             if not allowed:
                 return []
             # Lock prevents same-process CDC revocations from racing a retrieval.
