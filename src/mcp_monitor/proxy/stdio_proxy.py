@@ -393,6 +393,24 @@ class StdioMCPProxy:
         await self._transport.stop()
         logger.info("MCP proxy stopped. Stats: %s", self._stats)
 
+    def _blocked_requests(
+        self,
+        messages: list[dict[str, Any]],
+        is_batch: bool,
+        code: int,
+        reason: str,
+        data: dict[str, Any] | None = None,
+    ) -> bytes:
+        """Return a denial for each request ID, never for notifications or responses."""
+        errors = [
+            _build_error_response(message["id"], code, reason, data).rstrip(b"\n")
+            for message in messages
+            if "id" in message and "method" in message
+        ]
+        if not errors:
+            return b""
+        return b"[" + b",".join(errors) + b"]" if is_batch else errors[0]
+
     async def handle_message(self, raw_message: bytes) -> bytes:
         """Process a single JSON-RPC message from the client.
 
@@ -436,11 +454,15 @@ class StdioMCPProxy:
             result = self._inspect(message)
             if result.decision != Decision.ALLOW:
                 self._stats["blocked"] += 1
-                reason = (
-                    "Security: Detector failure - failing closed"
-                    if result.decision == Decision.INDETERMINATE
-                    else f"Security: {result.reason}"
-                )
+                if result.decision == Decision.INDETERMINATE:
+                    failure = (
+                        "Policy engine"
+                        if "policy_engine_failure" in result.matched_patterns
+                        else "Detector"
+                    )
+                    reason = f"Security: {failure} failure - failing closed"
+                else:
+                    reason = f"Security: {result.reason}"
                 denial = (
                     self.SECURITY_BLOCK_CODE,
                     reason,
@@ -450,16 +472,8 @@ class StdioMCPProxy:
 
         if denial is not None:
             code, reason, data = denial
-            # A batch is atomic here: no member is forwarded if any tool call fails.
-            # Return one error for each request so clients do not wait for omitted IDs.
-            responses = [
-                _build_error_response(message["id"], code, reason, data).rstrip(b"\n")
-                for message in messages
-                if "id" in message
-            ]
-            if not responses:
-                return b""  # Notifications have no JSON-RPC response.
-            return b"[" + b",".join(responses) + b"]" if is_batch else responses[0]
+            # Deny the batch atomically; clients need a reply for each request ID.
+            return self._blocked_requests(messages, is_batch, code, reason, data)
 
         await self._transport.send(raw_message + b"\n")
         self._stats["allowed" if tool_count else "passthrough"] += 1
@@ -487,19 +501,13 @@ class StdioMCPProxy:
                 except Exception:
                     logger.warning("Suppressed downstream response after ACL recheck")
                     self._stats["blocked"] += 1
-                    denied = [
-                        _build_error_response(
-                            item["id"],
-                            self.SECURITY_BLOCK_CODE,
-                            "Security: resource access revoked before response release",
-                            {"patterns": ["DENY_RESOURCE_ACL"]},
-                        ).rstrip(b"\n")
-                        for item in messages
-                        if "id" in item and "method" in item
-                    ]
-                    if not denied:
-                        return b""
-                    return b"[" + b",".join(denied) + b"]" if is_batch else denied[0]
+                    return self._blocked_requests(
+                        messages,
+                        is_batch,
+                        self.SECURITY_BLOCK_CODE,
+                        "Security: resource access revoked before response release",
+                        {"patterns": ["DENY_RESOURCE_ACL"]},
+                    )
             # Untrusted MCP server output is an injection surface, even when
             # the original tools/call arguments were harmless.
             try:
@@ -529,34 +537,22 @@ class StdioMCPProxy:
                     if detected:
                         logger.warning("Blocked suspicious downstream MCP result: %s", patterns)
                         self._stats["blocked"] += 1
-                        return _build_error_response(
-                            next(
-                                (
-                                    message["id"]
-                                    for message in messages
-                                    if message.get("method") == "tools/call" and "id" in message
-                                ),
-                                None,
-                            ),
+                        return self._blocked_requests(
+                            messages,
+                            is_batch,
                             self.SECURITY_BLOCK_CODE,
                             "Security: downstream tool result failed inspection",
                             {"patterns": patterns},
-                        ).rstrip(b"\n")
+                        )
             except Exception:
                 logger.exception("Downstream MCP result inspection failed closed")
                 self._stats["blocked"] += 1
-                return _build_error_response(
-                    next(
-                        (
-                            message["id"]
-                            for message in messages
-                            if message.get("method") == "tools/call" and "id" in message
-                        ),
-                        None,
-                    ),
+                return self._blocked_requests(
+                    messages,
+                    is_batch,
                     self.SECURITY_BLOCK_CODE,
                     "Security: downstream tool result validation failed",
-                ).rstrip(b"\n")
+                )
         return response
 
     def _inspect(self, parsed: dict[str, Any]) -> InspectionResult:
@@ -607,8 +603,8 @@ class StdioMCPProxy:
                 logger.exception("Authorization policy engine failed")
                 return InspectionResult(
                     decision=Decision.INDETERMINATE,
-                    reason=f"Policy engine failed: {exc}",
-                    matched_patterns=[],
+                    reason="Policy engine failed",
+                    matched_patterns=["policy_engine_failure"],
                     request_id=request_id,
                     detector_errors=[f"policy: {exc}"],
                 )
