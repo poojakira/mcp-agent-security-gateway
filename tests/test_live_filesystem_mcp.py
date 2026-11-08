@@ -20,7 +20,6 @@ from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy, SubprocessTransport
 
 
-
 class PausedRealFilesystemTransport(SubprocessTransport):
     """Use actual filesystem MCP I/O, pausing only after one real response arrives."""
 
