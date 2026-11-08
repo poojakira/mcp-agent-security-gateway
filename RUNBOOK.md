@@ -65,14 +65,17 @@ Production startup fails when:
 
 ## Docker Compose
 
-Copy the example environment and replace its values:
+Create a local-only environment file (the repository intentionally does **not** track any `.env` template). The file is ignored by Git and created with owner-only permissions:
 
 ```bash
-cp .env.example .env
-# edit .env with MCP_API_KEY or MCP_API_KEYS and the exact MCP_ALLOWED_SERVERS set
+umask 077
+printf 'MCP_API_KEY=%s\nMCP_ALLOWED_SERVERS=github,filesystem\n' "$(openssl rand -hex 32)" > .env
+# Review and adjust the allowed-server list for the deployment.
 docker compose config >/dev/null
 docker compose up -d --build
 ```
+
+Prefer a deployment secret manager over a local `.env` in shared or production environments. Never commit the generated file.
 
 The Compose contract:
 
