@@ -18,13 +18,12 @@ Usage (Claude Desktop config):
 
 from __future__ import annotations
 
-from collections import Counter
-
 import asyncio
 import json
 import logging
 import math
 import sys
+from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Protocol

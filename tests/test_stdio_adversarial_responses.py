@@ -217,7 +217,7 @@ def test_unmatched_downstream_response_is_not_released(downstream: bytes) -> Non
         assert reply["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
         assert "result" not in reply
         assert "PRIVATE_MARKER" not in raw.decode()
-        assert transport.sent == [call() + b"\\n"]
+        assert transport.sent == [call() + b"\n"]
 
     asyncio.run(scenario())
 
@@ -247,7 +247,7 @@ def test_batch_response_id_mismatch_fails_closed(response: list[dict]) -> None:
         assert [item["id"] for item in replies] == [71, 72]
         assert all(item["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE for item in replies)
         assert "PRIVATE_MARKER" not in raw.decode()
-        assert transport.sent == [request + b"\\n"]
+        assert transport.sent == [request + b"\n"]
 
     asyncio.run(scenario())
 
@@ -264,6 +264,6 @@ def test_out_of_order_valid_batch_responses_are_accepted() -> None:
         transport = ControlledTransport(response)
         proxy = StdioMCPProxy(command=["test-server"], transport=transport)
         assert await proxy.handle_message(request) == response
-        assert transport.sent == [request + b"\\n"]
+        assert transport.sent == [request + b"\n"]
 
     asyncio.run(scenario())
