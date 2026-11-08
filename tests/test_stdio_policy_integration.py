@@ -99,6 +99,7 @@ def test_policy_evaluation_crash_fails_closed():
         tool_call("read_file", {"path": "/tmp/report"}), policy_engine=BrokenPolicy()
     )
     assert response["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
+    assert response["error"]["message"] == "Security: Policy engine failure - failing closed"
     assert sent == []
 
 
