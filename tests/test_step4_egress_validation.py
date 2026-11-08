@@ -49,14 +49,14 @@ def test_null_optional_egress_field_preserves_legacy_behavior() -> None:
     assert decision.allowed
 
 
-def test_unrecognized_nested_destination_still_requires_network_enforcement() -> None:
+def test_opaque_command_still_requires_os_network_enforcement() -> None:
     engine = PolicyEngine(allowed_servers={"synthetic"})
     decision = engine.evaluate(
         {
             "name": "indirect_request",
             "server_id": "synthetic",
-            "arguments": {"operation": {"destination": "https://unapproved.example"}},
+            "arguments": {"command_text": "connect to https://unapproved.example"},
         }
     )
-    # Documented residual risk: arbitrary nested tool schemas are not inspected.
+    # Opaque free-form text is not an authoritative network destination.
     assert decision.allowed
