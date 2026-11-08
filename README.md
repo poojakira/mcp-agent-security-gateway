@@ -27,6 +27,10 @@ Portfolio: [Pooja Kiran Security Engineering Portfolio](https://poojakira.github
 
 The October 4, 2026 snapshot (**723 passed**, **81.91% statement coverage**, **55 named signatures**) is preserved, with its original commit and CI run, in [Historical Verification Evidence](docs/archive/HISTORICAL_EVIDENCE.md). The linked research poster also presents dated evidence rather than verification of the current main commit.
 
+## Explore the gateway
+
+Open the [interactive request-flow and file explorer](docs/review/explore.html) to step through the reviewed MCP enforcement path and search the repository's tracked files. The page is a self-contained visualization with clickable GitHub source links; its animated path is illustrative, **not live request execution**. Open it as a local HTML file or inspect it on GitHub. For evidence-backed real-MCP testing and supported setup, follow the [reviewer acceptance guide](docs/review/REAL_WORLD_PROTOTYPE_ACCEPTANCE.md) and [runbook](RUNBOOK.md).
+
 ## Repository file guide
 
 For a clickable, file-by-file inventory of the project, including source modules, tests, workflows, documentation, posters and supporting assets, see [Repository File Field Guide](docs/review/FILE_FIELD_GUIDE.md). The guide is an inventory at a specified commit, not a certification that every file has been independently security-reviewed. The [dependency and execution map](docs/review/REPOSITORY_DEPENDENCY_MAP.md) traces the reviewed MCP path.
