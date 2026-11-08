@@ -17,7 +17,29 @@ import pytest
 
 from mcp_monitor.policy.acl_guard import ACLGuard, PermissionChange
 from mcp_monitor.policy.policy_engine import PolicyEngine
-from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy
+from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy, SubprocessTransport
+
+
+
+class PausedRealFilesystemTransport(SubprocessTransport):
+    """Use actual filesystem MCP I/O, pausing only after one real response arrives."""
+
+    def __init__(self, command: list[str]) -> None:
+        super().__init__(command)
+        self.pause_next_response = False
+        self.response_received = asyncio.Event()
+        self.release_response = asyncio.Event()
+        self.received_payload: bytes | None = None
+
+    async def receive(self) -> bytes:
+        response = await super().receive()
+        if self.pause_next_response:
+            self.pause_next_response = False
+            self.received_payload = response
+            self.response_received.set()
+            await self.release_response.wait()
+        return response
+
 
 
 def request(request_id, method, params=None):
@@ -50,8 +72,11 @@ async def live_scenario(root: Path):
         allowed_servers={"filesystem"},
         dangerous_tools={"write_file", "delete_file", "shell_exec"},
     )
+    server_command = ["npx", "--yes", "@modelcontextprotocol/server-filesystem@2.0.1", str(root)]
+    real_transport = PausedRealFilesystemTransport(server_command)
     proxy = StdioMCPProxy(
-        ["npx", "--yes", "@modelcontextprotocol/server-filesystem@2.0.1", str(root)],
+        server_command,
+        transport=real_transport,
         server_id="filesystem",
         policy_engine=policy,
         acl_guard=acl_guard,
@@ -162,8 +187,38 @@ async def live_scenario(root: Path):
         assert "Ignore previous instructions" not in json.dumps(parsed_injected)
         print("REAL SERVER: malicious file response blocked", flush=True)
 
-        # A permission revoked during the same server session must block new reads.
-        acl_guard.apply_change(PermissionChange(1, "integration-user", str(testfile), False))
+        # Real filesystem subprocess has produced a read result, but the
+        # proxy has not received/released it to the client. This closes the
+        # live transport-to-client revocation window, not the server's compute window.
+        real_transport.pause_next_response = True
+        pending_read = asyncio.create_task(
+            proxy.handle_message(
+                request(
+                    7,
+                    "tools/call",
+                    {"name": "read_file", "arguments": {"path": str(testfile)}},
+                )
+            )
+        )
+        try:
+            await asyncio.wait_for(real_transport.response_received.wait(), timeout=60)
+            assert real_transport.received_payload is not None
+            assert "known-good-content" in real_transport.received_payload.decode()
+            assert not pending_read.done()
+            acl_guard.apply_change(PermissionChange(1, "integration-user", str(testfile), False))
+        finally:
+            real_transport.release_response.set()
+
+        in_flight = await asyncio.wait_for(pending_read, timeout=30)
+        in_flight_result = json.loads(in_flight)
+        assert in_flight_result["id"] == 7
+        assert in_flight_result["error"]["code"] == proxy.SECURITY_BLOCK_CODE
+        assert "DENY_RESOURCE_ACL" in in_flight_result["error"]["data"]["patterns"]
+        assert "result" not in in_flight_result
+        assert "known-good-content" not in in_flight.decode()
+        print("REAL SERVER: in-flight revoked result suppressed", flush=True)
+
+        # A subsequent read after revocation must also be blocked.
         revoked = await asyncio.wait_for(
             proxy.handle_message(
                 request(
