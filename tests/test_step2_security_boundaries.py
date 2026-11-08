@@ -11,7 +11,7 @@ import json
 
 import pytest
 
-from mcp_monitor.policy.acl_guard import ACLGuard, AccessDenied, PermissionChange
+from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard, PermissionChange
 from mcp_monitor.policy.policy_engine import PolicyEngine, ReasonCode
 from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy
 
