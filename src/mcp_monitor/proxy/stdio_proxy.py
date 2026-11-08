@@ -480,7 +480,7 @@ class StdioMCPProxy:
                             self.SECURITY_BLOCK_CODE,
                             "Security: resource access revoked before response release",
                             {"patterns": ["DENY_RESOURCE_ACL"]},
-                        ).rstrip(b"\\n")
+                        ).rstrip(b"\n")
                         for item in messages
                         if "id" in item and "method" in item
                     ]
@@ -524,7 +524,7 @@ class StdioMCPProxy:
                             self.SECURITY_BLOCK_CODE,
                             "Security: downstream tool result failed inspection",
                             {"patterns": patterns},
-                        ).rstrip(b"\\n")
+                        ).rstrip(b"\n")
             except Exception:
                 logger.exception("Downstream MCP result inspection failed closed")
                 self._stats["blocked"] += 1
@@ -539,7 +539,7 @@ class StdioMCPProxy:
                     ),
                     self.SECURITY_BLOCK_CODE,
                     "Security: downstream tool result validation failed",
-                ).rstrip(b"\\n")
+                ).rstrip(b"\n")
         return response
 
     def _inspect(self, parsed: dict[str, Any]) -> InspectionResult:
