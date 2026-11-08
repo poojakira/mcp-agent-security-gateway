@@ -138,6 +138,7 @@ def test_malicious_member_in_downstream_batch_is_blocked() -> None:
 
     asyncio.run(scenario())
 
+
 @pytest.mark.parametrize("outcome", ["malicious", "malformed", "detector-crash"])
 def test_blocked_downstream_batch_replies_to_each_request(outcome: str) -> None:
     """A denied batch must not leave other JSON-RPC request IDs waiting."""
