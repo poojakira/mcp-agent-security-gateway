@@ -27,6 +27,10 @@ Portfolio: [Pooja Kiran Security Engineering Portfolio](https://poojakira.github
 
 The October 4, 2026 snapshot (**723 passed**, **81.91% statement coverage**, **55 named signatures**) is preserved, with its original commit and CI run, in [Historical Verification Evidence](docs/archive/HISTORICAL_EVIDENCE.md). The linked research poster also presents dated evidence rather than verification of the current main commit.
 
+## Repository file guide
+
+For a clickable, file-by-file inventory of the project, including source modules, tests, workflows, documentation, posters and supporting assets, see [Repository File Field Guide](docs/review/FILE_FIELD_GUIDE.md). The guide is an inventory at a specified commit, not a certification that every file has been independently security-reviewed. The [dependency and execution map](docs/review/REPOSITORY_DEPENDENCY_MAP.md) traces the reviewed MCP path.
+
 ## Security Problem
 
 MCP gives agents a standardized way to invoke external tools that can read data, send messages, reach networks, or execute operations. That creates a trust boundary between model-generated requests and systems that can act. The gateway addresses whether a caller can apply explicit validation, authorization, detection, audit, and policy controls before selected tool calls reach a downstream server — covering prompt-injection content in arguments, unexpected server/capability use, sensitive-data leakage, process-execution intent, and disallowed egress destinations.
