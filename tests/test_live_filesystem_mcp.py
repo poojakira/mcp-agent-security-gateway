@@ -40,7 +40,6 @@ class PausedRealFilesystemTransport(SubprocessTransport):
         return response
 
 
-
 def request(request_id, method, params=None):
     return json.dumps(
         {
