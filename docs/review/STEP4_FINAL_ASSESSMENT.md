@@ -1,4 +1,4 @@
-# Step 4 — Security engineering assessment (draft pending full CI)
+# Step 4 — Security engineering assessment (scoped prototype validation verified)
 
 **Branch:** `step4/egress-input-validation` (draft PR #149, stacked on draft PR #148).
 **Scope:** production-oriented *prototype hardening*, NOT production certification.
@@ -15,7 +15,17 @@
 
 ## Required evidence
 
-The focused Step 4 tests and cross-version suite must pass *on the precise reviewed commit*. The expanded CI workflow also invokes all repository tests with >=77% coverage, Bandit and a focused Pyright gate. Only the CI output, not these written statements, establishes the actual pass/fail status.
+**Verified GitHub Actions run:** [#42444861042](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42444861042) completed successfully at source/workflow commit `706aa40df2eff64e151b5f9f98e66dabdf54e5de`. The subsequent commits only updated documentation.
+
+- Python 3.10: **925 passed, 1 skipped**, **82.72%** coverage.
+- Python 3.11: **925 passed, 1 skipped**, **82.69%** coverage.
+- Python 3.12: **925 passed, 1 skipped**, **82.69%** coverage.
+- Focused Step 4/test regression set: **144 passed** per matrix version.
+- Ruff lint/formatter, Bandit scan and focused Pyright: passed.
+- This stacked PR did **not** execute the complete main-branch CI workflow (e.g., separate Docker, CodeQL, Windows runners). Previous PR #148 checks do not certify the latest Step 4 modifications.
+- No paid hosted service or production target was used. The validation ran on GitHub standard runners in a public repository.
+
+The above constitutes the evidence for bounded source-level prototype hardening, not for the still-open deployment requirements.
 
 ## Risk register: production blockers
 
@@ -32,7 +42,7 @@ The focused Step 4 tests and cross-version suite must pass *on the precise revie
 
 ## Verdict rules
 
-- **Prototype implementation and scoped CI validation:** may be marked completed only if the expanded workflow is green on the exact final commit.
+- **Prototype implementation and scoped CI validation:** **COMPLETE** for source commit `706aa40d` (three Python versions, full suite and focused static checks). Documentation commits after this source SHA did not alter runtime code.
 - **Step 4 production security gate:** **NOT COMPLETE** until S4-01 through S4-08 are independently exercised in an authorized representative environment or explicitly removed from the supported product scope and proven unreachable.
 - No merge, deployment, private CI charge, credential sharing or claim of third-party certification is authorized by this document.
 
