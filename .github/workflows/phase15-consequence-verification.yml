@@ -29,6 +29,7 @@ jobs:
       - name: Check syntax and formatting of new verification boundary
         run: |
           ruff check src/mcp_monitor/protocol/consequence_verifier.py tests/test_phase15_consequence_verification.py
+          ruff format --diff src/mcp_monitor/protocol/consequence_verifier.py tests/test_phase15_consequence_verification.py || true
           ruff format --check src/mcp_monitor/protocol/consequence_verifier.py tests/test_phase15_consequence_verification.py
       - name: Test independent consequence proofs and real MCP lost ACK
         run: |
