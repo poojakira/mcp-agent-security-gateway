@@ -114,3 +114,31 @@ def test_mixed_batch_with_policy_denial_never_forwards_any_request():
     assert isinstance(response, list)
     assert all(r["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE for r in response)
     assert sent == []
+
+
+def test_client_claimed_server_id_does_not_grant_access():
+    """A request cannot claim an approved server to override the trusted subprocess identity."""
+    payload = json.loads(tool_call("read_file", {"path": "/tmp/report"}))
+    payload["params"]["server_id"] = "authorized-server"
+    response, sent = run_case(
+        json.dumps(payload).encode(),
+        server_id="unapproved-server",
+        policy_engine=PolicyEngine(allowed_servers={"authorized-server"}),
+    )
+    assert response["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
+    assert "DENY_SERVER_NOT_ALLOWED" in response["error"]["message"]
+    assert sent == []
+
+
+def test_client_claimed_server_id_does_not_replace_trusted_server():
+    """A rogue client field cannot replace the identity bound to the allowed subprocess."""
+    payload = json.loads(tool_call("read_file", {"path": "/tmp/report"}))
+    payload["params"]["server_id"] = "rogue-server"
+    message = json.dumps(payload).encode()
+    response, sent = run_case(
+        message,
+        server_id="authorized-server",
+        policy_engine=PolicyEngine(allowed_servers={"authorized-server"}),
+    )
+    assert response["result"]["ok"] is True
+    assert sent == [message + b"\n"]

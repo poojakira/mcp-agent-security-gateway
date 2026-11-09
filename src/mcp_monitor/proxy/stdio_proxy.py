@@ -149,7 +149,9 @@ class SubprocessTransport:
             *self.command,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
+            # An untrusted child can flood stderr and deadlock if its pipe is
+            # not drained. Discard stderr rather than buffer it indefinitely.
+            stderr=asyncio.subprocess.DEVNULL,
         )
 
     async def stop(self) -> None:
@@ -497,6 +499,7 @@ class StdioMCPProxy:
         effect_tools: set[str] | frozenset[str] | None = None,
         response_timeout_seconds: float = 120.0,
         max_message_bytes: int = 1048576,
+        strict_mcp_methods: bool = False,
     ) -> None:
         if (
             isinstance(response_timeout_seconds, bool)
@@ -511,6 +514,9 @@ class StdioMCPProxy:
             or max_message_bytes <= 0
         ):
             raise ValueError("max_message_bytes must be a positive integer")
+        if type(strict_mcp_methods) is not bool:
+            raise ValueError("strict_mcp_methods must be boolean")
+        self._strict_mcp_methods = strict_mcp_methods
         self._response_timeout_seconds = float(response_timeout_seconds)
         self._max_message_bytes = max_message_bytes
         if offline_sandbox is not None and internal_sandbox is not None:
@@ -548,6 +554,8 @@ class StdioMCPProxy:
             if multiplexed
             else selected_transport
         )
+        # Prevent responses from being cross-delivered on sequential stdio transports.
+        self._exchange_lock = asyncio.Lock()
         self._detector = detector or PromptInjectionDetector(enable_ml=False)
         self._adapter = MCPJSONRPCAdapter()
         self._effect_journal = effect_journal
@@ -698,6 +706,31 @@ class StdioMCPProxy:
             self._stats["blocked"] += 1
             return _build_error_response(None, -32600, "Invalid JSON-RPC envelope").rstrip(b"\n")
 
+        # In the hardened CLI, reject all methods that are not explicitly
+        # supported. In particular resources/read and prompts/get must not
+        # bypass tools/call capability checks by taking a passthrough path.
+        if self._strict_mcp_methods:
+            supported = {
+                "initialize",
+                "ping",
+                "tools/list",
+                "tools/call",
+                "notifications/initialized",
+                "notifications/cancelled",
+            }
+            if any(
+                "method" not in message or message["method"] not in supported
+                for message in messages
+            ):
+                self._stats["blocked"] += 1
+                return self._blocked_requests(
+                    messages,
+                    is_batch,
+                    self.SECURITY_BLOCK_CODE,
+                    "Security: MCP method not enabled by the hardened gateway",
+                    {"patterns": ["DENY_METHOD_NOT_ALLOWED"]},
+                )
+
         # A verified session protects the full request surface, not just
         # tools/call. Otherwise resources/read and prompts/get would bypass it.
         # The entire batch fails closed before forwarding if the session
@@ -812,13 +845,14 @@ class StdioMCPProxy:
                     is_batch=is_batch,
                 )
             else:
-                await self._transport.send(outbound_raw + b"\n")
-                if not expects_reply:
-                    self._stats["allowed" if tool_count else "passthrough"] += 1
-                    return b""  # Notifications and client responses are one-way.
-                response = await asyncio.wait_for(
-                    self._transport.receive(), timeout=self._response_timeout_seconds
-                )
+                async with self._exchange_lock:
+                    await self._transport.send(outbound_raw + b"\n")
+                    if not expects_reply:
+                        self._stats["allowed" if tool_count else "passthrough"] += 1
+                        return b""  # Notifications and client responses are one-way.
+                    response = await asyncio.wait_for(
+                        self._transport.receive(), timeout=self._response_timeout_seconds
+                    )
             if not expects_reply:
                 self._stats["allowed" if tool_count else "passthrough"] += 1
                 return b""
@@ -1125,6 +1159,17 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="Inline MCP security gateway")
     parser.add_argument("--server-id", default="local")
+    parser.add_argument(
+        "--allow-tool",
+        action="append",
+        default=[],
+        help="Trusted exact MCP tool capability; repeat per tool",
+    )
+    parser.add_argument(
+        "--unsafe-local-dev",
+        action="store_true",
+        help="Explicitly opt out of container isolation for local testing only",
+    )
     parser.add_argument("--allow-egress-host", action="append", default=[])
     parser.add_argument(
         "--offline-sandbox-image",
@@ -1157,10 +1202,32 @@ def main() -> None:
     if options.offline_sandbox_image and options.internal_sandbox_image:
         parser.error("Offline and internal Docker profiles are mutually exclusive")
 
+    if not options.allow_tool or any(not item.strip() for item in options.allow_tool):
+        parser.error(
+            "Provide at least one trusted --allow-tool; unrestricted tool execution is forbidden"
+        )
+    if not (
+        options.offline_sandbox_image or options.internal_sandbox_image or options.unsafe_local_dev
+    ):
+        parser.error(
+            "Select --offline-sandbox-image or internal Docker isolation; "
+            "--unsafe-local-dev is for disposable testing only"
+        )
+    if options.unsafe_local_dev and (
+        options.offline_sandbox_image or options.internal_sandbox_image
+    ):
+        parser.error("--unsafe-local-dev cannot be combined with sandbox isolation")
+
     proxy = StdioMCPProxy(
         command,
         server_id=options.server_id,
         allowed_egress_hosts=set(options.allow_egress_host),
+        strict_mcp_methods=True,
+        policy_engine=PolicyEngine(
+            allowed_servers={options.server_id},
+            allowed_tools=set(options.allow_tool),
+            allowed_egress_hosts=set(options.allow_egress_host),
+        ),
         offline_sandbox=(
             OfflineDockerSandbox(options.offline_sandbox_image)
             if options.offline_sandbox_image
