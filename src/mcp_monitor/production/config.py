@@ -6,6 +6,15 @@ All settings are read from os.environ with sensible defaults.
 from __future__ import annotations
 
 import os
+from hashlib import sha256
+
+
+# Hash of a publicly exposed demonstration gateway credential. New instances
+# must reject it even if an operator manually reconfigures the old value.
+# This does not rotate/revoke secrets in running, unpatched deployments.
+_RETIRED_GATEWAY_KEY_SHA256 = frozenset({
+    "060837576772b02286292ea61844da9ac2ba84fe5d3e732906ac2130eac93aa2",
+})
 
 
 class Config:
@@ -122,6 +131,8 @@ class Config:
         deduplicated: list[str] = []
         seen: set[str] = set()
         for value in values:
+            if sha256(value.encode("utf-8")).hexdigest() in _RETIRED_GATEWAY_KEY_SHA256:
+                raise ValueError("Known publicly exposed MCP API credential is forbidden; rotate it")
             if value not in seen:
                 deduplicated.append(value)
                 seen.add(value)
