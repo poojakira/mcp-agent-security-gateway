@@ -5,11 +5,15 @@
 # Not production-hardened. No TLS, default credentials, single-node.
 #
 # Usage:
+#   export MCP_API_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
 #   docker compose -f docker-compose.detection-lab.yml up -d
 #   Open Kibana at http://localhost:5601
 #   Run attack simulations: python -m mcp_monitor.siem.attack_simulations
 #   View detections in Kibana > Security > Alerts
 #
+# Requires: Docker Engine 28.0.0+ with at least 4GB RAM, or equivalent firewall
+# restrictions preventing L2/local-network access to loopback-published lab ports.
+# Elasticsearch/Kibana have authentication disabled: NEVER expose the lab.
 # Requires: Docker with at least 4GB RAM allocated
 
 services:
@@ -20,10 +24,10 @@ services:
       dockerfile: Dockerfile
     container_name: mcp-gateway
     ports:
-      - "8000:8000"
-      - "8080:8080"
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8080:8080"
     environment:
-      - MCP_API_KEY=lab-api-key-not-for-production
+      - "MCP_API_KEY=${MCP_API_KEY:?Generate and export a new unique lab API key before starting}"
       - MCP_ALLOWED_SERVERS=postmark,filesystem,processor
       - MCP_DEMO_MODE=0
       - MCP_LOG_LEVEL=INFO
@@ -50,7 +54,7 @@ services:
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - cluster.name=detection-lab
     ports:
-      - "9200:9200"
+      - "127.0.0.1:9200:9200"
     volumes:
       - es-data:/usr/share/elasticsearch/data
     networks:
@@ -69,7 +73,7 @@ services:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       - xpack.security.enabled=false
     ports:
-      - "5601:5601"
+      - "127.0.0.1:5601:5601"
     depends_on:
       elasticsearch:
         condition: service_healthy
