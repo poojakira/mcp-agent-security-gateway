@@ -130,8 +130,10 @@ def test_corrupt_or_absent_authority_denies_even_with_approved_manifest(protecte
 def test_unprovisioned_identity_cannot_write(protected):
     _, authority, workspace = protected
     stranger = ProtectedRepo(
-        workspace, {"safe-package": "1.1.0"},
-        revocation_fence=authority, operator_principal="unknown",
+        workspace,
+        {"safe-package": "1.1.0"},
+        revocation_fence=authority,
+        operator_principal="unknown",
     )
     with pytest.raises(ProtectedOperationError):
         call(stranger)
