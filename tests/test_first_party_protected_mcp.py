@@ -238,9 +238,7 @@ async def _direct_bypass_scenario(root: Path):
                 },
             )
             await transport.send(direct_approved + b"\n")
-            approved_reply = json.loads(
-                await asyncio.wait_for(transport.receive(), timeout=10)
-            )
+            approved_reply = json.loads(await asyncio.wait_for(transport.receive(), timeout=10))
             assert "result" in approved_reply
             assert json.loads(manifest.read_text())["dependencies"]["safe-package"] == "1.1.0"
             assert _hash(protected) == protected_before
