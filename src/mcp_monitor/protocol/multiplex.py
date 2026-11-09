@@ -129,7 +129,10 @@ class MultiplexedTransport:
                 items = message if isinstance(message, list) else [message]
                 if not items:
                     raise ValueError("Empty downstream batch")
+                # Validate the ENTIRE frame before releasing any item.
+                # Otherwise an invalid second item could leak a valid first.
                 seen: set[tuple] = set()
+                staged: list[tuple[tuple, dict[str, Any]]] = []
                 for item in items:
                     if (
                         not isinstance(item, dict)
@@ -143,14 +146,15 @@ class MultiplexedTransport:
                     if key in seen:
                         raise ValueError("Duplicate downstream response ID")
                     seen.add(key)
-                    future = self._pending.pop(key, None)
-                    if future is None:
-                        if key in self._retired:
-                            continue
+                    if key not in self._pending and key not in self._retired:
                         raise ValueError("Unknown downstream request ID")
-                    self._retire([key])
-                    if not future.done():
-                        future.set_result(item)
+                    staged.append((key, item))
+                for key, item in staged:
+                    future = self._pending.pop(key, None)
+                    if future is not None:
+                        self._retire([key])
+                        if not future.done():
+                            future.set_result(item)
         except asyncio.CancelledError:
             raise
         except Exception as exc:
