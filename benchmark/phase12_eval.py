@@ -2,6 +2,7 @@
 
 Regex-only baseline. Not representative of live attacks or real users.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -20,8 +21,7 @@ def load_cases(path: Path = CORPUS) -> tuple[list[dict], str]:
         raise ValueError("Invalid corpus size")
     cases = [json.loads(line) for line in raw.decode("utf-8").splitlines()]
     if len(cases) != 96 or any(
-        not isinstance(c, dict) or set(c) != {"id", "label", "family", "text"}
-        for c in cases
+        not isinstance(c, dict) or set(c) != {"id", "label", "family", "text"} for c in cases
     ):
         raise ValueError("Unexpected benchmark schema")
     if any(
@@ -48,7 +48,10 @@ def score(results: list[dict]) -> dict:
     fp = sum(x["label"] == "benign" and x["detected"] for x in results)
     tn = sum(x["label"] == "benign" and not x["detected"] for x in results)
     return {
-        "tp": tp, "fp": fp, "fn": fn, "tn": tn,
+        "tp": tp,
+        "fp": fp,
+        "fn": fn,
+        "tn": tn,
         "precision": safe_ratio(tp, tp + fp),
         "recall": safe_ratio(tp, tp + fn),
         "false_positive_rate": safe_ratio(fp, fp + tn),
@@ -64,10 +67,15 @@ def evaluate() -> dict:
     for case in cases:
         call = {"name": "read_document", "arguments": {"content": case["text"]}}
         detected, patterns = detector.detect(call)
-        results.append({
-            "id": case["id"], "label": case["label"],
-            "family": case["family"], "detected": detected, "patterns": patterns,
-        })
+        results.append(
+            {
+                "id": case["id"],
+                "label": case["label"],
+                "family": case["family"],
+                "detected": detected,
+                "patterns": patterns,
+            }
+        )
     families = defaultdict(list)
     for item in results:
         families[item["label"] + "/" + item["family"]].append(item)

@@ -1,4 +1,5 @@
 """Verify the frozen benchmark's accounting, not a desired detector score."""
+
 from __future__ import annotations
 
 import pytest
@@ -51,7 +52,7 @@ def test_metrics_and_zero_denominator():
     assert safe_ratio(0, 0) is None
 
 
-@pytest.mark.parametrize("extra", ['{}', '{"label":"malicious"}', '{"id":"x"}'])
+@pytest.mark.parametrize("extra", ["{}", '{"label":"malicious"}', '{"id":"x"}'])
 def test_corrupt_corpus_rejected(tmp_path, extra):
     path = tmp_path / "bad.jsonl"
     path.write_text(CORPUS.read_text() + extra + "\n")
