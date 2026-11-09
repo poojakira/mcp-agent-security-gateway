@@ -84,5 +84,13 @@ jobs:
         run: |
           docker build --tag mcp-gateway-phase13:ci .
           test "$(docker image inspect mcp-gateway-phase13:ci --format '{{.Config.User}}')" = "mlsec"
-          docker run --rm --network none -e MCP_ENV=production --entrypoint python mcp-gateway-phase13:ci -c 'from mcp_monitor.production.config import Config; exec("try:\\n Config()\\nexcept ValueError as exc:\\n assert \'Invalid production configuration\' in str(exc)\\nelse:\\n raise AssertionError(\'Unsafe production configuration accepted\')")'
+          if output="$(docker run --rm --network none -e MCP_ENV=production --entrypoint python mcp-gateway-phase13:ci -c 'from mcp_monitor.production.config import Config; Config()' 2>&1)"; then
+            echo "FAIL: missing security configuration allowed startup"
+            exit 1
+          fi
+          if ! grep -Fq "Invalid production configuration" <<< "$output"; then
+            echo "FAIL: container process exited for a reason other than expected security validation"
+            exit 1
+          fi
+          echo "Missing production security settings rejected, as expected"
 
