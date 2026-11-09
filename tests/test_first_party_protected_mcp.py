@@ -237,7 +237,7 @@ async def _direct_bypass_scenario(root: Path):
                     "expected_previous": "1.0.0",
                 },
             )
-            await transport.send(direct_approved + b"\\n")
+            await transport.send(direct_approved + b"\n")
             approved_reply = json.loads(
                 await asyncio.wait_for(transport.receive(), timeout=10)
             )
