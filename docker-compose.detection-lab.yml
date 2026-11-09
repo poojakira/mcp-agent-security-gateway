@@ -11,6 +11,9 @@
 #   Run attack simulations: python -m mcp_monitor.siem.attack_simulations
 #   View detections in Kibana > Security > Alerts
 #
+# Requires: Docker Engine 28.0.0+ with at least 4GB RAM, or equivalent firewall
+# restrictions preventing L2/local-network access to loopback-published lab ports.
+# Elasticsearch/Kibana have authentication disabled: NEVER expose the lab.
 # Requires: Docker with at least 4GB RAM allocated
 
 services:
