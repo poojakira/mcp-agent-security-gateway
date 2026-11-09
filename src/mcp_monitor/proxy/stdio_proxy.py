@@ -291,8 +291,11 @@ class InternalDockerTransport(OfflineDockerTransport):
     async def start(self) -> None:
         try:
             rc, raw = await self._docker_call(
-                "network", "inspect", self._sandbox.network_id,
-                "--format", "{{json .}}",
+                "network",
+                "inspect",
+                self._sandbox.network_id,
+                "--format",
+                "{{json .}}",
             )
             if rc != 0 or len(raw) > 131072:
                 raise ValueError("Invalid internal network inspection result")
@@ -583,7 +586,9 @@ class StdioMCPProxy:
             (
                 "attested internal Docker sandbox"
                 if self._internal_sandbox is not None
-                else "offline Docker sandbox" if self._offline_sandbox is not None else self.command
+                else "offline Docker sandbox"
+                if self._offline_sandbox is not None
+                else self.command
             ),
         )
 

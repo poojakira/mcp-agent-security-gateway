@@ -28,9 +28,7 @@ async def call(gateway: StdioMCPProxy, kind: str, ident: int) -> dict:
         "method": "tools/call",
         "params": {"name": "phase9_probe", "arguments": {"kind": kind}},
     }
-    raw = await asyncio.wait_for(
-        gateway.handle_message(json.dumps(value).encode()), timeout=12
-    )
+    raw = await asyncio.wait_for(gateway.handle_message(json.dumps(value).encode()), timeout=12)
     response = json.loads(raw)
     assert "error" not in response, response
     return response["result"]
@@ -38,9 +36,7 @@ async def call(gateway: StdioMCPProxy, kind: str, ident: int) -> dict:
 
 def test_real_internal_bridge_only_talks_to_attested_sidecar() -> None:
     async def scenario() -> None:
-        sandbox = InternalDockerSandbox(
-            IMAGE, NETWORK, PROXY, NAME
-        )
+        sandbox = InternalDockerSandbox(IMAGE, NETWORK, PROXY, NAME)
         gateway = StdioMCPProxy(
             command=["python", "-u", "/opt/phase9/mcp.py"],
             internal_sandbox=sandbox,
@@ -64,9 +60,15 @@ def test_real_internal_bridge_only_talks_to_attested_sidecar() -> None:
         assert filesystem == {"root_write_denied": True, "uid": 65534}
         assert secret["host_secret_inherited"] is False
         process = await asyncio.create_subprocess_exec(
-            "docker", "--host", "unix:///var/run/docker.sock",
-            "ps", "--all", "--filter", f"name=^/{name}$",
-            "--format", "{{.Names}}",
+            "docker",
+            "--host",
+            "unix:///var/run/docker.sock",
+            "ps",
+            "--all",
+            "--filter",
+            f"name=^/{name}$",
+            "--format",
+            "{{.Names}}",
             stdout=asyncio.subprocess.PIPE,
         )
         output, _ = await process.communicate()

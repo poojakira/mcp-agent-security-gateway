@@ -104,9 +104,7 @@ def test_rejects_untrusted_sandbox_configuration(changes: dict) -> None:
 
 def test_transport_bypass_and_conflicting_sandboxes_rejected() -> None:
     with pytest.raises(ValueError, match="override"):
-        StdioMCPProxy(
-            command=["python"], internal_sandbox=sandbox(), transport=object()
-        )
+        StdioMCPProxy(command=["python"], internal_sandbox=sandbox(), transport=object())
     from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
 
     with pytest.raises(ValueError, match="cannot be combined"):

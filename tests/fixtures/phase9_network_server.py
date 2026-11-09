@@ -47,10 +47,16 @@ def main() -> None:
             result = probe(kind)
             print(json.dumps({"jsonrpc": "2.0", "id": value["id"], "result": result}), flush=True)
         except Exception:
-            print(json.dumps({
-                "jsonrpc": "2.0", "id": None,
-                "error": {"code": -32603, "message": "Fixture failed"},
-            }), flush=True)
+            print(
+                json.dumps(
+                    {
+                        "jsonrpc": "2.0",
+                        "id": None,
+                        "error": {"code": -32603, "message": "Fixture failed"},
+                    }
+                ),
+                flush=True,
+            )
 
 
 if __name__ == "__main__":
