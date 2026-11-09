@@ -1,0 +1,13 @@
+# Research-only isolated MCP server, no cloud access, no credentials.
+# CI validates the resulting image ID before running it with --pull=never.
+# Base image supply-chain pinning still requires review for release approval.
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+COPY src/mcp_monitor/protected_repo_server.py /app/mcp_monitor/protected_repo_server.py
+
+# The trusted launcher supplies a non-root UID/GID, fixed bind mount and scope.
+CMD ["python", "-m", "mcp_monitor.protected_repo_server"]
