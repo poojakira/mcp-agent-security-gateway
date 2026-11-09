@@ -32,8 +32,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install free testing dependencies
         run: python -m pip install -e ".[dev,oidc]"
-      - name: Show final formatter difference (temporary)
-        run: ruff format --diff tests/test_phase11_effect_journal.py || true
       - name: Ruff lint and formatting
         run: |
           ruff check src/mcp_monitor/protocol/effect_journal.py src/mcp_monitor/proxy/stdio_proxy.py tests/test_phase11_effect_journal.py

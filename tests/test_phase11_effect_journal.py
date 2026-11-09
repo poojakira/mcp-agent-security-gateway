@@ -107,6 +107,7 @@ def test_restart_with_uncertain_intent_denies_duplicate(tmp_path):
         response = await gateway.handle_message(make_request("op-restart"))
         assert json.loads(response)["error"]["code"] == gateway.SECURITY_BLOCK_CODE
         assert transport.sent == []
+
     asyncio.run(scenario())
     assert status(restarted, "op-restart") == "UNCERTAIN"
 
