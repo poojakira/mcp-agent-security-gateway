@@ -29,6 +29,7 @@ jobs:
       - name: Security module and test formatting
         run: |
           ruff check src/mcp_monitor/protocol/verified_effect_adapter.py tests/test_phase15_verified_effect_adapter.py
+          ruff format --diff src/mcp_monitor/protocol/verified_effect_adapter.py || true
           ruff format --check src/mcp_monitor/protocol/verified_effect_adapter.py tests/test_phase15_verified_effect_adapter.py
       - name: Real SQLite commit, lost acknowledgement and independent reconciliation
         run: python -m pytest tests/test_phase15_verified_effect_adapter.py tests/test_phase11_effect_journal.py -q --tb=short
