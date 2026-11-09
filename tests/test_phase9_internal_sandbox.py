@@ -10,7 +10,6 @@ import pytest
 from mcp_monitor.proxy.internal_sandbox import InternalDockerSandbox
 from mcp_monitor.proxy.stdio_proxy import InternalDockerTransport, StdioMCPProxy
 
-
 IMAGE = "sha256:" + "a" * 64
 NETWORK = "b" * 64
 PROXY_ID = "c" * 64

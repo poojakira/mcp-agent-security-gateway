@@ -11,7 +11,6 @@ import pytest
 from mcp_monitor.proxy.internal_sandbox import InternalDockerSandbox
 from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy
 
-
 IMAGE = os.environ.get("PHASE9_IMAGE_ID")
 NETWORK = os.environ.get("PHASE9_NETWORK_ID")
 PROXY = os.environ.get("PHASE9_PROXY_ID")
