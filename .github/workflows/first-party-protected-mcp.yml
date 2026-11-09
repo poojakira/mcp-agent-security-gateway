@@ -1,0 +1,45 @@
+name: Phase 14 real MCP bypass resistance verification
+
+on:
+  pull_request:
+    branches:
+      - phase13/release-readiness-gate
+      - phase14/real-mcp-bypass-gate
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  protected-mcp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install free, open-source development dependencies
+        run: python -m pip install -e ".[dev,oidc]"
+      - name: Lint the protected server and real-process tests
+        run: |
+          ruff check src/mcp_monitor/protected_repo_server.py tests/test_first_party_protected_mcp.py tests/test_first_party_public_manifest.py tests/test_phase14_bypass_matrix.py
+          ruff format --check src/mcp_monitor/protected_repo_server.py tests/test_first_party_protected_mcp.py tests/test_first_party_public_manifest.py
+      - name: Real MCP server process through the actual gateway
+        run: python -m pytest tests/test_first_party_protected_mcp.py tests/test_phase14_bypass_matrix.py -q -s --tb=short
+      - name: Download pinned real open-source MCP repository manifest
+        run: |
+          curl --fail --location --silent --show-error --retry 2 https://raw.githubusercontent.com/modelcontextprotocol/servers/36380287ed3b15d115b55f546617d723072b1296/package.json -o "$RUNNER_TEMP/public-mcp-package.json"
+          test "$(git hash-object "$RUNNER_TEMP/public-mcp-package.json")" = "34557784d197891ed31204127a76fde5eee240da"
+          python -c 'import json,os,pathlib; p=pathlib.Path(os.environ["RUNNER_TEMP"])/"public-mcp-package.json"; d=json.loads(p.read_text()); assert d["dependencies"]["@modelcontextprotocol/server-filesystem"]=="*"'
+      - name: Real protected update of authentic public MCP dependency manifest
+        run: |
+          MCP_PUBLIC_MANIFEST_PATH="$RUNNER_TEMP/public-mcp-package.json" python -m pytest tests/test_first_party_public_manifest.py -q -s --tb=short
+      - name: Gateway policy and protocol regressions
+        run: python -m pytest tests/test_stdio_policy_integration.py tests/test_stdio_adversarial_responses.py tests/test_protocol_hardening.py -q --tb=short
