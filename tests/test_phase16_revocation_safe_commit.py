@@ -8,13 +8,12 @@ from __future__ import annotations
 
 import json
 import threading
-import time
 from pathlib import Path
 
 import pytest
 
 from mcp_monitor.protected_repo_server import ProtectedOperationError, ProtectedRepo
-from mcp_monitor.protocol.revocation_fence import RevocationFence, RevocationFenceError
+from mcp_monitor.protocol.revocation_fence import RevocationFence
 
 
 @pytest.fixture
