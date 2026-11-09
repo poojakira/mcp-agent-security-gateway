@@ -9,7 +9,6 @@ import pytest
 
 from mcp_monitor.production.config import Config
 
-
 # Construct a previously public demonstration value solely for the negative
 # regression; do not add any working token, secret or account credential.
 _RETIRED_DEMO = "lab-" + "api-key-not-for-production"
