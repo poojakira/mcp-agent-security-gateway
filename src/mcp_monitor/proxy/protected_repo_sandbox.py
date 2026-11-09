@@ -42,10 +42,7 @@ class ProtectedRepoDockerSandbox(OfflineDockerSandbox):
             not isinstance(self.approved_updates, dict)
             or not self.approved_updates
             or any(
-                not isinstance(key, str)
-                or not key
-                or not isinstance(value, str)
-                or not value
+                not isinstance(key, str) or not key or not isinstance(value, str) or not value
                 for key, value in self.approved_updates.items()
             )
         ):
