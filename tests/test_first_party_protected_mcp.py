@@ -199,11 +199,15 @@ async def _direct_bypass_scenario(root: Path):
             for identity, name, arguments in (
                 (101, "write_file", {"path": str(protected), "content": "unsafe"}),
                 (102, "read_file", {"path": str(protected)}),
-                (103, "update_dependency", {
-                    "package": "safe-package",
-                    "version": "9.9.9",
-                    "expected_previous": "1.0.0",
-                }),
+                (
+                    103,
+                    "update_dependency",
+                    {
+                        "package": "safe-package",
+                        "version": "9.9.9",
+                        "expected_previous": "1.0.0",
+                    },
+                ),
             ):
                 await transport.send(_call(identity, name, arguments) + b"\n")
                 reply = json.loads(await asyncio.wait_for(transport.receive(), timeout=10))
