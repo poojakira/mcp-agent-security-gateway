@@ -33,6 +33,7 @@ from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
 from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard
 from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
+from mcp_monitor.protocol.effect_journal import DurableEffectJournal, EffectJournalError
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
 from mcp_monitor.protocol.multiplex import MultiplexedTransport
 from mcp_monitor.proxy.internal_sandbox import InternalDockerSandbox
@@ -492,6 +493,8 @@ class StdioMCPProxy:
         offline_sandbox: OfflineDockerSandbox | None = None,
         internal_sandbox: InternalDockerSandbox | None = None,
         multiplexed: bool = False,
+        effect_journal: DurableEffectJournal | None = None,
+        effect_tools: set[str] | frozenset[str] | None = None,
         response_timeout_seconds: float = 120.0,
         max_message_bytes: int = 1048576,
     ) -> None:
@@ -547,6 +550,17 @@ class StdioMCPProxy:
         )
         self._detector = detector or PromptInjectionDetector(enable_ml=False)
         self._adapter = MCPJSONRPCAdapter()
+        self._effect_journal = effect_journal
+        if effect_tools is not None and (
+            not isinstance(effect_tools, set | frozenset)
+            or any(not isinstance(name, str) or not name for name in effect_tools)
+        ):
+            raise ValueError("effect_tools must be a trusted set of nonempty names")
+        self._effect_tools = frozenset(effect_tools or ())
+        if self._effect_tools and not isinstance(effect_journal, DurableEffectJournal):
+            raise ValueError("effect_tools require a durable effect journal")
+        if effect_journal is not None and not self._effect_tools:
+            raise ValueError("effect journal requires explicitly selected effect tools")
         # The gateway operator assigns server identity, not the AI agent.
         # Outbound destinations are denied unless explicitly allowlisted.
         if not isinstance(server_id, str) or not server_id:
@@ -737,6 +751,52 @@ class StdioMCPProxy:
             # Deny the batch atomically; clients need a reply for each request ID.
             return self._blocked_requests(messages, is_batch, code, reason, data)
 
+        # Side-effect protection is opt-in and strict. No batch of effects is
+        # forwarded because one downstream action could succeed while another
+        # fails. A journal reservation is durable BEFORE downstream send.
+        outbound_raw = raw_message
+        effect_key: str | None = None
+        if self._effect_tools and any(
+            message.get("method") == "tools/call" for message in messages
+        ):
+            try:
+                if len(messages) != 1 or messages[0].get("method") != "tools/call":
+                    raise EffectJournalError("Effect journal supports one tool call at a time")
+                current = messages[0]
+                params = current.get("params")
+                if not isinstance(params, dict):
+                    raise EffectJournalError("Malformed tool parameters")
+                if params.get("name") in self._effect_tools:
+                    if "id" not in current:
+                        raise EffectJournalError("Side-effect notification cannot be journaled")
+                    if not self._authenticated_principal:
+                        raise EffectJournalError("Authenticated principal required")
+                    effect_key = params.get("_gateway_operation_key")
+                    if not isinstance(effect_key, str):
+                        raise EffectJournalError("Stable operation key required")
+                    sanitized = dict(params)
+                    sanitized.pop("_gateway_operation_key", None)
+                    outbound = dict(current)
+                    outbound["params"] = sanitized
+                    outbound_raw = json.dumps(outbound, separators=(",", ":")).encode()
+                    assert self._effect_journal is not None
+                    self._effect_journal.reserve(
+                        principal=self._authenticated_principal,
+                        server=self._server_id,
+                        tool=params["name"],
+                        operation_key=effect_key,
+                        arguments=sanitized.get("arguments"),
+                    )
+            except Exception:
+                self._stats["blocked"] += 1
+                return self._blocked_requests(
+                    messages,
+                    is_batch,
+                    self.SECURITY_BLOCK_CODE,
+                    "Security: effect journal denied duplicate, unsafe, or uncertain operation",
+                    {"patterns": ["DENY_EFFECT_JOURNAL"]},
+                )
+
         try:
             expects_reply = any("id" in message and "method" in message for message in messages)
             if isinstance(self._transport, MultiplexedTransport):
@@ -746,13 +806,13 @@ class StdioMCPProxy:
                         raise ValueError("Invalid cancellation notification")
                     self._transport.cancel(params["requestId"])
                 response = await self._transport.exchange(
-                    raw_message + b"\n",
+                    outbound_raw + b"\n",
                     request_ids=request_ids,
                     timeout=self._response_timeout_seconds,
                     is_batch=is_batch,
                 )
             else:
-                await self._transport.send(raw_message + b"\n")
+                await self._transport.send(outbound_raw + b"\n")
                 if not expects_reply:
                     self._stats["allowed" if tool_count else "passthrough"] += 1
                     return b""  # Notifications and client responses are one-way.
@@ -879,6 +939,30 @@ class StdioMCPProxy:
                     is_batch,
                     self.SECURITY_BLOCK_CODE,
                     "Security: downstream MCP response validation failed",
+                )
+        if effect_key is not None:
+            # Only a valid, fully inspected downstream success is recorded as
+            # completed. Any crash, timeout, cancellation, error response, or
+            # journal storage failure remains UNKNOWN and cannot be retried.
+            try:
+                payload = json.loads(response)
+                if not isinstance(payload, dict) or "result" not in payload or "error" in payload:
+                    raise EffectJournalError("Effect outcome not confirmed")
+                assert self._effect_journal is not None
+                self._effect_journal.mark_completed(
+                    principal=self._authenticated_principal or "",
+                    server=self._server_id,
+                    tool=messages[0]["params"]["name"],
+                    operation_key=effect_key,
+                )
+            except Exception:
+                self._stats["blocked"] += 1
+                return self._blocked_requests(
+                    messages,
+                    is_batch,
+                    self.SECURITY_BLOCK_CODE,
+                    "Security: side-effect outcome uncertain; no automatic retry",
+                    {"patterns": ["DENY_EFFECT_UNCERTAIN"]},
                 )
         return response
 
