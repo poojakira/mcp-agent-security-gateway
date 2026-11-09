@@ -22,6 +22,7 @@ from unittest.mock import patch
 
 import pytest
 
+from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy
 
 PACKAGE = "@modelcontextprotocol/server-filesystem"
@@ -42,7 +43,15 @@ async def _public_manifest_test(root: Path) -> None:
             "MCP_APPROVED_DEPENDENCY_UPDATES": json.dumps({PACKAGE: NEW_VERSION}),
         },
     ):
-        gateway = StdioMCPProxy(command, server_id="protected-repo")
+        gateway = StdioMCPProxy(
+            command,
+            server_id="protected-repo",
+            strict_mcp_methods=True,
+            policy_engine=PolicyEngine(
+                allowed_servers={"protected-repo"},
+                allowed_tools={"read_manifest", "update_dependency"},
+            ),
+        )
         await gateway.start()
         try:
             request = {
