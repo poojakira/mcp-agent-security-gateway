@@ -74,3 +74,27 @@ Use only free public-repository GitHub Actions, local synthetic fixtures and dis
 **Explicit exclusions and blockers:** CI did not run all optional real Docker image-isolation jobs on this exact commit; this workflow validates Docker Compose configuration but does not deploy a live container. Static checks do not establish historical credential revocation, real network destination fencing, identity-provider authenticity, distributed authorization freshness, cross-host crash recovery, broad MCP transport interoperability, independent representative adversarial efficacy, dependency vulnerability closure, or formal release approval. The real MCP filesystem test checks a controlled response-delivery revocation window, not a transactional fence before every downstream effect.
 
 **Decision:** `PHASE 13 — PARTIAL (verified integrated real-MCP and credential/lab configuration milestone)`. The final Phase 13 acceptance gate remains **OPEN / PRODUCTION NO-GO**. Do not start dependent Phase 14 engineering under the assumption that the broader Phase 13 security baseline has been completely approved; close or explicitly scope the required production blockers first. Do not merge, publish, or deploy without an owner's explicit approval.
+
+## Phase 13 expanded package/container validation — 2026-11-09
+
+**Validated source commit:** `03f0122d851fe80162a4dd7f28c7fdd9a1d77006`. **Actions:** [run #42563477969](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42563477969). **Result: 4/4 jobs passed** (Python 3.10, 3.11, 3.12 and real MCP/container integration).
+
+The initially added real container build correctly exposed two collection failures absent from the Python-host regression: the Docker builder had not copied the `benchmark` package used by the Phase 12 test, and did not install the optional OIDC/JWT test dependency. The builder also lacked the detection-lab Compose fixture needed by Phase 13 tests. Corrected `Dockerfile` to copy `benchmark/` and the lab Compose fixture, install `.[dev,oidc]`, and invoke `python -m pytest tests/ -v`. These are **test-dependency and packaging fixes, not weakened test expectations**.
+
+| Verified check on exact source | Evidence |
+|---|---|
+| Host CI Python 3.10 / 3.11 / 3.12 regression | **1,083 passed, 3 skipped**, 83% coverage per version |
+| Additional Phase 13 retired-key/lab-config tests | **9 passed** per Python version |
+| Focused stdio authorization, revocation and journal tests | **58 passed** in integration job |
+| Actual external pinned filesystem MCP server in disposable test directory | **1 passed**, including allowed read, blocked denied write, malicious content, and response-release revocation |
+| `pip check`, workflow-source lint, Compose config validation | Passed |
+| Actual multi-stage Docker image build, running all tests in builder | **1,092 passed, 3 skipped** |
+| Resulting container runtime account | `mlsec` (non-root), verified via image inspection |
+| No-network container with `MCP_ENV=production` and no credentials/required security settings | Startup failed with the **expected security configuration validation**, not an unrelated process error |
+
+**Residual-risk classification at this gate:**
+- **CLOSED within the disposable laboratory scope:** previously broken Docker build/test inputs; static detection-lab key/port configuration on this branch; retired gateway key rejection in updated parser; source-level policy/revocation/file-operation regressions; real filesystem MCP test; Python matrix and non-root image smoke.
+- **OPEN:** broader PR #147 divergence review, main-branch integration and merge, any live credential rotation/provider-side revocation, authenticated production IdP and durable distributed authority, network/OS egress controls in real deployments, crash/power-loss and external-effect reconciliation, complete MCP transport interoperability, independent adversarial performance, security/SBOM and supply-chain assessment, and formal release-owner acceptance.
+- **NOT APPLICABLE to this scoped CI run:** commercial production deployment, real customer data, live secret stores, external targets and paid services. These exclusions do not close the corresponding real-world product gates.
+
+**Verdict:** The **Phase 13 integrated lab and container build baseline is validated**, but **overall Phase 13 acceptance remains PARTIAL and production release remains NO-GO**. Keep PR #159 draft/unmerged; Phase 14 remains blocked under the master execution plan until the relevant Phase 13 blockers are explicitly resolved or the scope is appropriately approved.
