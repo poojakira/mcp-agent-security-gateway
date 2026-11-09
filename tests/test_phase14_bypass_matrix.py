@@ -58,7 +58,6 @@ _APPROVED_UPDATE = {
         ("tools/call", "read_file", {"path": "%2e%2e/security-policy.json"}),
     ],
 )
-
 def test_unapproved_operations_leave_independent_state_unchanged(
     workspace, method, name, arguments
 ):
