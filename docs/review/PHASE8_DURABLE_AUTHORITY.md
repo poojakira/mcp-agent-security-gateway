@@ -60,3 +60,40 @@ experiments are verified in an authorized environment.
 No paid service, private runner, production deployments, real user data,
 or external customer targets. All ancestor PRs must remain draft and
 unmerged.
+
+
+## Verified Phase 8 local pilot evidence
+
+**Exact code commit:** `274bb7d3cc22efabdbf59708ece573bc3375c64e`.
+**GitHub Actions:** [run #42538037169](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42538037169), completed successfully with **3/3 Python jobs passed**.
+
+| Validation | Verified result |
+|---|---|
+| Python 3.10 complete suite | **1,027 passed, 2 skipped**, 82.93% coverage |
+| Python 3.11 complete suite | **1,027 passed, 2 skipped**, 82.90% coverage |
+| Python 3.12 complete suite | **1,027 passed, 2 skipped**, 82.90% coverage |
+| Focused Phase 8 and existing authority regressions | **34 passed** per version |
+| Ruff lint and formatting | Passed per version |
+| Two persistent independent local Python processes observing revocation | Passed |
+| Synthetic paused MCP result suppressed after revocation | Passed |
+| DB rollback/tampering/unavailability and stale write handling | Passed in scoped fixtures |
+| External cross-host consensus or authenticated CDC service | Not implemented |
+| Paid services and production deployments | None |
+
+## Exit assessment
+
+**Phase 8 local durable multi-process milestone: COMPLETE and VERIFIED.**
+**Production distributed ACL/revocation gate: OPEN.**
+
+This implementation is restricted to one trusted host and controlled
+filesystem permissions. HMAC prevents undetected modifications **unless the
+signing key is compromised**, and readers need that key to verify state.
+The protected SQLite database path and all configuration must remain
+trusted; giving a malicious local process the HMAC key and database write
+access defeats this control. The highest-seen revision kept in memory is
+not a durable rollback anchor. An independently persisted, authenticated
+high-water mark is required for rollback detection across restarts.
+
+No claims of cross-host failover, security against local root compromise,
+zero-latency revocation, network authentication, or full production
+readiness are supported by these results.
