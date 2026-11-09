@@ -48,7 +48,7 @@ jobs:
   real-mcp-integration:
     name: Real filesystem MCP / config / deny-before-effect
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -77,3 +77,12 @@ jobs:
         env:
           MCP_RUN_REAL_SERVER: "1"
         run: python -m pytest tests/test_live_filesystem_mcp.py -v -s --tb=short -rs
+      - name: Verify installed Python dependency consistency
+        run: python -m pip check
+      - name: Build nonproduction Docker image and verify fail-closed startup config
+        shell: bash
+        run: |
+          docker build --tag mcp-gateway-phase13:ci .
+          test "$(docker image inspect mcp-gateway-phase13:ci --format '{{.Config.User}}')" = "mlsec"
+          docker run --rm --network none -e MCP_ENV=production --entrypoint python mcp-gateway-phase13:ci -c 'from mcp_monitor.production.config import Config; exec("try:\\n Config()\\nexcept ValueError as exc:\\n assert \'Invalid production configuration\' in str(exc)\\nelse:\\n raise AssertionError(\'Unsafe production configuration accepted\')")'
+
