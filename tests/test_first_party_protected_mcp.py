@@ -13,7 +13,7 @@ from unittest.mock import patch
 import pytest
 
 from mcp_monitor.protected_repo_server import ProtectedOperationError, ProtectedRepo
-from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy
+from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy, SubprocessTransport
 
 
 def _rpc(identity: int, method: str, params: dict | None = None) -> bytes:
@@ -180,3 +180,45 @@ async def _real_gateway_test(root: Path):
 
 def test_real_first_party_mcp_gateway_controls_effects(workspace):
     asyncio.run(_real_gateway_test(workspace))
+
+
+async def _direct_bypass_scenario(root: Path):
+    """Try to bypass the gateway by calling the protected server directly."""
+    command = [sys.executable, "-m", "mcp_monitor.protected_repo_server"]
+    protected = root / "security-policy.json"
+    manifest = root / "package.json"
+    protected_before = _hash(protected)
+    env = {
+        "MCP_PROTECTED_REPO_ROOT": str(root),
+        "MCP_APPROVED_DEPENDENCY_UPDATES": json.dumps({"safe-package": "1.1.0"}),
+    }
+    with patch.dict(os.environ, env):
+        transport = SubprocessTransport(command)
+        await transport.start()
+        try:
+            for identity, name, arguments in (
+                (101, "write_file", {"path": str(protected), "content": "unsafe"}),
+                (102, "read_file", {"path": str(protected)}),
+                (103, "update_dependency", {
+                    "package": "safe-package",
+                    "version": "9.9.9",
+                    "expected_previous": "1.0.0",
+                }),
+            ):
+                await transport.send(_call(identity, name, arguments) + b"\\n")
+                reply = json.loads(await asyncio.wait_for(transport.receive(), timeout=10))
+                assert reply["id"] == identity
+                assert "error" in reply
+                assert _hash(protected) == protected_before
+                assert json.loads(manifest.read_text())["dependencies"]["safe-package"] == "1.0.0"
+            print(
+                "DIRECT SERVER BYPASS: three disallowed commands denied independently "
+                "without the gateway; protected file unchanged",
+                flush=True,
+            )
+        finally:
+            await transport.stop()
+
+
+def test_direct_server_connection_cannot_bypass_resource_policy(workspace):
+    asyncio.run(_direct_bypass_scenario(workspace))
