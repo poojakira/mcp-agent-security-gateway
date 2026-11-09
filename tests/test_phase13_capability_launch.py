@@ -164,3 +164,53 @@ def test_hardened_proxy_allows_protocol_handshake() -> None:
     response = asyncio.run(proxy.handle_message(message))
     assert json.loads(response)["result"]["ok"] is True
     assert transport.sent == [message + b"\n"]
+
+
+def test_concurrent_nonmultiplexed_calls_preserve_response_pairing() -> None:
+    class SingleFlightTransport(SpyTransport):
+        def __init__(self) -> None:
+            super().__init__()
+            self.pending_id: int | None = None
+            self.max_active = 0
+
+        async def send(self, data: bytes) -> None:
+            assert self.pending_id is None, "second request sent before first reply"
+            self.pending_id = json.loads(data)["id"]
+            self.max_active = max(self.max_active, 1)
+            self.sent.append(data)
+
+        async def receive(self) -> bytes:
+            await asyncio.sleep(0.02)
+            assert self.pending_id is not None
+            result = json.dumps(
+                {
+                    "jsonrpc": "2.0",
+                    "id": self.pending_id,
+                    "result": {"ok": True},
+                }
+            ).encode()
+            self.pending_id = None
+            return result
+
+    async def scenario() -> None:
+        transport = SingleFlightTransport()
+        proxy = StdioMCPProxy(
+            ["placeholder"],
+            transport=transport,
+            server_id="trusted",
+            policy_engine=PolicyEngine(
+                allowed_servers={"trusted"}, allowed_tools={"read_manifest"}
+            ),
+        )
+        first = json.loads(_tool("read_manifest"))
+        second = json.loads(_tool("read_manifest"))
+        second["id"] = 2
+        replies = await asyncio.gather(
+            proxy.handle_message(json.dumps(first).encode()),
+            proxy.handle_message(json.dumps(second).encode()),
+        )
+        assert [json.loads(reply)["id"] for reply in replies] == [1, 2]
+        assert all("result" in json.loads(reply) for reply in replies)
+        assert len(transport.sent) == 2
+
+    asyncio.run(scenario())
