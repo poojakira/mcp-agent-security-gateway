@@ -149,7 +149,9 @@ class SubprocessTransport:
             *self.command,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
+            # An untrusted child can flood stderr and deadlock if its pipe is
+            # not drained. Discard stderr rather than buffer it indefinitely.
+            stderr=asyncio.subprocess.DEVNULL,
         )
 
     async def stop(self) -> None:
