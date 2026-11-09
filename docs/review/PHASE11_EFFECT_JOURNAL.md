@@ -45,3 +45,38 @@ until a trusted human/operator reconciles the real downstream side effect.
 
 No paid services, production targets, customer information, or deployments.
 This first pilot is only complete once CI passes on the exact source commit.
+
+
+## Verified Phase 11 journal milestone
+
+**Exact source commit:** `f262493112578addc0d7a6f244d8009ae744f59e`.
+**CI evidence:** [run #42542628588](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42542628588), completed **successfully (3/3 jobs)**.
+
+| Validation | Verified result |
+|---|---|
+| Python 3.10 full repository suite | 1,076 passed, 3 skipped; 83.07% coverage |
+| Python 3.11 full repository suite | 1,076 passed, 3 skipped; 83.04% coverage |
+| Python 3.12 full repository suite | 1,076 passed, 3 skipped; 83.04% coverage |
+| Focused journal, concurrency, policy security regressions | 38 passed on each version |
+| Ruff lint and formatter | Passed |
+| Synthetic restart from UNCERTAIN reservation | Passed; repeat dispatch denied |
+| Timeout and downstream error outcome handling | Passed; uncertain remains, no automatic retry |
+| Concurrent second store instance duplicate reservation | Denied |
+| Real crash/power-loss or production infrastructure fault injection | **Not tested** |
+| Paid services / production deployment | None |
+
+## Exit decision
+
+**Phase 11 local side-effect intent journal: COMPLETE as a scoped prototype.**
+**Phase 11 production recovery and exactly-once-effect safety: OPEN.**
+
+The journal does not undo effects, provide a downstream transaction, or
+guarantee exactly-once execution. A malicious or buggy client that changes
+the operation key can still submit a new operation: stable keys need trusted
+caller issuance. A database loss, corrupted or manipulated journal,
+filesystem compromise, disabled journaling on an unconfigured tool, and
+untrusted operation-key generation remain production hazards. The
+`UNCERTAIN` state requires independent operator reconciliation before
+any reconsideration of the real-world outcome.
+
+The parent PRs remain drafts and are not merged by this pilot.
