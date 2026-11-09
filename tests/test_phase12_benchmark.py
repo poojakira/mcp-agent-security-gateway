@@ -36,7 +36,8 @@ def test_detector_never_receives_labels(monkeypatch):
     monkeypatch.setattr(PromptInjectionDetector, "detect", capture)
     assert evaluate()["metrics"]["fn"] == 48
     assert len(calls) == 96
-    assert all("label" not in str(c) and "family" not in str(c) for c in calls)
+    assert all(set(c) == {"name", "arguments"} for c in calls)
+    assert all(set(c["arguments"]) == {"content"} for c in calls)
 
 
 def test_metrics_and_zero_denominator():
