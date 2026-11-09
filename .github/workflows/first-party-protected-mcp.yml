@@ -34,9 +34,7 @@ jobs:
         run: python -m pytest tests/test_first_party_protected_mcp.py -q -s --tb=short
       - name: Download pinned real open-source MCP repository manifest
         run: |
-          curl --fail --location --silent --show-error --retry 2 \\
-            https://raw.githubusercontent.com/modelcontextprotocol/servers/36380287ed3b15d115b55f546617d723072b1296/package.json \\
-            -o "$RUNNER_TEMP/public-mcp-package.json"
+          curl --fail --location --silent --show-error --retry 2 https://raw.githubusercontent.com/modelcontextprotocol/servers/36380287ed3b15d115b55f546617d723072b1296/package.json -o "$RUNNER_TEMP/public-mcp-package.json"
           test "$(git hash-object "$RUNNER_TEMP/public-mcp-package.json")" = "34557784d197891ed31204127a76fde5eee240da"
           python -c 'import json,os,pathlib; p=pathlib.Path(os.environ["RUNNER_TEMP"])/"public-mcp-package.json"; d=json.loads(p.read_text()); assert d["dependencies"]["@modelcontextprotocol/server-filesystem"]=="*"'
       - name: Real protected update of authentic public MCP dependency manifest
