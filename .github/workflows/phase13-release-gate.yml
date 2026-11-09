@@ -114,12 +114,12 @@ jobs:
         run: |
           bandit -r src -ll -f json -o bandit-report.json
           python .github/scripts/check_bandit.py
-      - name: Public dependency vulnerability audit (no API key)
-        run: |
-          pip-audit --skip-editable --format json --output pip-audit.json
-          python .github/scripts/check_pip_audit.py
       - name: Generate software bill of materials
         run: cyclonedx-py environment --output-format JSON --outfile sbom.json
+      - name: Public dependency vulnerability audit (no API key)
+        run: |
+          pip-audit --skip-editable --format json --output pip-audit.json || true
+          python .github/scripts/check_pip_audit.py
       - name: Upload restricted-retention security evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
