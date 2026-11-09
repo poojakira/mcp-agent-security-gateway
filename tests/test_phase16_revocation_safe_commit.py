@@ -170,3 +170,29 @@ def test_enforced_launch_rejects_incomplete_fence_configuration(protected, monke
     with pytest.raises(SystemExit, match="Invalid protected workspace configuration"):
         main()
     assert version(workspace) == "1.0.0"
+
+
+def test_production_startup_defaults_to_mandatory_revocation(protected, monkeypatch):
+    _, _, workspace = protected
+    monkeypatch.setenv("MCP_ENV", "production")
+    monkeypatch.setenv("MCP_PROTECTED_REPO_ROOT", str(workspace))
+    monkeypatch.setenv("MCP_APPROVED_DEPENDENCY_UPDATES", '{"safe-package":"1.1.0"}')
+    monkeypatch.delenv("MCP_REQUIRE_REVOCATION_FENCE", raising=False)
+    monkeypatch.delenv("MCP_REVOCATION_AUTHORITY_DB", raising=False)
+    monkeypatch.delenv("MCP_TRUSTED_OPERATOR_PRINCIPAL", raising=False)
+    with pytest.raises(SystemExit, match="Invalid protected workspace configuration"):
+        main()
+    assert version(workspace) == "1.0.0"
+
+
+def test_production_cannot_explicitly_disable_revocation(protected, monkeypatch):
+    _, authority, workspace = protected
+    monkeypatch.setenv("MCP_ENV", "production")
+    monkeypatch.setenv("MCP_PROTECTED_REPO_ROOT", str(workspace))
+    monkeypatch.setenv("MCP_APPROVED_DEPENDENCY_UPDATES", '{"safe-package":"1.1.0"}')
+    monkeypatch.setenv("MCP_REVOCATION_AUTHORITY_DB", str(authority._path))
+    monkeypatch.setenv("MCP_TRUSTED_OPERATOR_PRINCIPAL", "operator")
+    monkeypatch.setenv("MCP_REQUIRE_REVOCATION_FENCE", "0")
+    with pytest.raises(SystemExit, match="Invalid protected workspace configuration"):
+        main()
+    assert version(workspace) == "1.0.0"
