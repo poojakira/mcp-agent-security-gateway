@@ -7,7 +7,7 @@ import json
 
 import pytest
 
-from mcp_monitor.protocol.multiplex import MultiplexedTransport, ProtocolCancelled
+from mcp_monitor.protocol.multiplex import MultiplexedTransport
 from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy
 
 
