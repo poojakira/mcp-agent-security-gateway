@@ -21,12 +21,16 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
 import sys
+from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Protocol
 
 from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
+from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard
+from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
 
@@ -41,6 +45,24 @@ def _unique_json_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
             raise ValueError(f"Duplicate JSON key: {key}")
         result[key] = value
     return result
+
+
+def _reject_json_constant(value: str) -> None:
+    """Reject non-standard JSON constants such as NaN and Infinity."""
+    raise ValueError(f"Invalid JSON constant: {value}")
+
+
+def _response_id_key(value: Any) -> tuple[str, str | int | float | None]:
+    """Use type-safe, hashable JSON-RPC IDs when matching downstream replies."""
+    if value is None:
+        return ("null", None)
+    if isinstance(value, str):
+        return ("string", value)
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        raise ValueError("Invalid JSON-RPC response ID type")
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError("Non-finite JSON-RPC response ID")
+    return ("number", value)
 
 
 # ---------------------------------------------------------------------------
@@ -119,13 +141,22 @@ class SubprocessTransport:
         )
 
     async def stop(self) -> None:
-        """Terminate the downstream server."""
-        if self._process and self._process.returncode is None:
-            self._process.terminate()
-            try:
-                await asyncio.wait_for(self._process.wait(), timeout=5.0)
-            except asyncio.TimeoutError:
-                self._process.kill()
+        """Stop the child and drain its stdio pipes before the event loop closes."""
+        process = self._process
+        if process is None:
+            return
+        if process.returncode is None:
+            process.terminate()
+        try:
+            # wait() alone leaves asyncio pipe transports open after child exit.
+            await asyncio.wait_for(process.communicate(), timeout=5.0)
+        except asyncio.TimeoutError:
+            if process.returncode is None:
+                process.kill()
+            await asyncio.wait_for(process.communicate(), timeout=5.0)
+        finally:
+            self._process = None
+            self._read_buffer = b""
 
     async def send(self, data: bytes) -> None:
         """Send raw bytes to the downstream server's stdin."""
@@ -186,8 +217,12 @@ def inspect_message(raw_message: str | bytes | dict) -> InspectionResult:
     # Parse the message
     if isinstance(raw_message, str | bytes):
         try:
-            parsed_data = json.loads(raw_message, object_pairs_hook=_unique_json_pairs)
-        except (json.JSONDecodeError, ValueError) as e:
+            parsed_data = json.loads(
+                raw_message,
+                object_pairs_hook=_unique_json_pairs,
+                parse_constant=_reject_json_constant,
+            )
+        except (json.JSONDecodeError, UnicodeDecodeError, RecursionError, ValueError) as e:
             return InspectionResult(
                 decision=Decision.BLOCK,
                 reason=f"Invalid JSON: {e}",
@@ -330,11 +365,31 @@ class StdioMCPProxy:
         detector: PromptInjectionDetector | None = None,
         rate_limiter: RateLimiter | None = None,
         tool_calls_per_minute: int = 300,
+        server_id: str = "local",
+        allowed_egress_hosts: set[str] | frozenset[str] | None = None,
+        policy_engine: PolicyEngine | None = None,
+        acl_guard: ACLGuard | None = None,
+        authenticated_principal: str | None = None,
+        protected_resource_tools: dict[str, str] | None = None,
     ) -> None:
         self.command = command
         self._transport = transport or SubprocessTransport(command)
         self._detector = detector or PromptInjectionDetector(enable_ml=False)
         self._adapter = MCPJSONRPCAdapter()
+        # The gateway operator assigns server identity, not the AI agent.
+        # Outbound destinations are denied unless explicitly allowlisted.
+        if not isinstance(server_id, str) or not server_id:
+            raise ValueError("server_id must be a non-empty string")
+        self._server_id = server_id
+        self._acl_guard = acl_guard
+        self._authenticated_principal = authenticated_principal
+        self._protected_resource_tools = dict(protected_resource_tools or {})
+        if self._protected_resource_tools and self._acl_guard is None:
+            raise ValueError("protected resource tools require an ACLGuard")
+        self._policy_engine = policy_engine or PolicyEngine(
+            allowed_servers={server_id},
+            allowed_egress_hosts=allowed_egress_hosts,
+        )
         # Rate limit tool calls at the proxy layer (separate from production/ server rate limiter).
         # Default: 300 tool calls/minute, burst up to 300. Reduces DoS risk and
         # limits blast radius if an agent is compromised or stuck in a loop.
@@ -362,6 +417,24 @@ class StdioMCPProxy:
         await self._transport.stop()
         logger.info("MCP proxy stopped. Stats: %s", self._stats)
 
+    def _blocked_requests(
+        self,
+        messages: list[dict[str, Any]],
+        is_batch: bool,
+        code: int,
+        reason: str,
+        data: dict[str, Any] | None = None,
+    ) -> bytes:
+        """Return a denial for each request ID, never for notifications or responses."""
+        errors = [
+            _build_error_response(message["id"], code, reason, data).rstrip(b"\n")
+            for message in messages
+            if "id" in message and "method" in message
+        ]
+        if not errors:
+            return b""
+        return b"[" + b",".join(errors) + b"]" if is_batch else errors[0]
+
     async def handle_message(self, raw_message: bytes) -> bytes:
         """Process a single JSON-RPC message from the client.
 
@@ -377,8 +450,12 @@ class StdioMCPProxy:
             Either an error (if blocked) or the real server response.
         """
         try:
-            parsed = json.loads(raw_message, object_pairs_hook=_unique_json_pairs)
-        except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as exc:
+            parsed = json.loads(
+                raw_message,
+                object_pairs_hook=_unique_json_pairs,
+                parse_constant=_reject_json_constant,
+            )
+        except (json.JSONDecodeError, UnicodeDecodeError, RecursionError, ValueError) as exc:
             self._stats["blocked"] += 1
             return _build_error_response(None, -32700, f"Invalid JSON: {exc}").rstrip(b"\n")
 
@@ -401,11 +478,15 @@ class StdioMCPProxy:
             result = self._inspect(message)
             if result.decision != Decision.ALLOW:
                 self._stats["blocked"] += 1
-                reason = (
-                    "Security: Detector failure - failing closed"
-                    if result.decision == Decision.INDETERMINATE
-                    else f"Security: {result.reason}"
-                )
+                if result.decision == Decision.INDETERMINATE:
+                    failure = (
+                        "Policy engine"
+                        if "policy_engine_failure" in result.matched_patterns
+                        else "Detector"
+                    )
+                    reason = f"Security: {failure} failure - failing closed"
+                else:
+                    reason = f"Security: {result.reason}"
                 denial = (
                     self.SECURITY_BLOCK_CODE,
                     reason,
@@ -415,22 +496,114 @@ class StdioMCPProxy:
 
         if denial is not None:
             code, reason, data = denial
-            # A batch is atomic here: no member is forwarded if any tool call fails.
-            # Return one error for each request so clients do not wait for omitted IDs.
-            responses = [
-                _build_error_response(message["id"], code, reason, data).rstrip(b"\n")
-                for message in messages
-                if "id" in message
-            ]
-            if not responses:
-                return b""  # Notifications have no JSON-RPC response.
-            return b"[" + b",".join(responses) + b"]" if is_batch else responses[0]
+            # Deny the batch atomically; clients need a reply for each request ID.
+            return self._blocked_requests(messages, is_batch, code, reason, data)
 
-        await self._transport.send(raw_message + b"\n")
+        try:
+            await self._transport.send(raw_message + b"\n")
+            if not any("id" in message and "method" in message for message in messages):
+                self._stats["allowed" if tool_count else "passthrough"] += 1
+                return b""  # Notifications and client responses are one-way.
+            response = await self._transport.receive()
+        except Exception:
+            logger.exception("Downstream MCP transport failure; suppressing response")
+            self._stats["blocked"] += 1
+            return self._blocked_requests(
+                messages,
+                is_batch,
+                self.SECURITY_BLOCK_CODE,
+                "Security: downstream transport failure - failing closed",
+            )
         self._stats["allowed" if tool_count else "passthrough"] += 1
-        if not any("id" in message and "method" in message for message in messages):
-            return b""  # Notifications and client responses are one-way.
-        return await self._transport.receive()
+        if tool_count:
+            # Revocation may occur after the request was authorized and sent.
+            # Check the current trusted ACL again before releasing its response.
+            # A denial suppresses the entire batch rather than leaking a
+            # previously authorized result alongside a revoked result.
+            for message in messages:
+                if message.get("method") != "tools/call":
+                    continue
+                try:
+                    tool_calls = self._adapter.parse_message(message)
+                    for tool_call in tool_calls:
+                        resource_key = self._protected_resource_tools.get(tool_call.name)
+                        if resource_key is None:
+                            continue
+                        resource_id = tool_call.arguments.get(resource_key)
+                        if not isinstance(resource_id, str) or self._acl_guard is None:
+                            raise AccessDenied("Missing protected resource or ACL guard")
+                        self._acl_guard.check(self._authenticated_principal or "", resource_id)
+                except Exception:
+                    logger.warning("Suppressed downstream response after ACL recheck")
+                    self._stats["blocked"] += 1
+                    return self._blocked_requests(
+                        messages,
+                        is_batch,
+                        self.SECURITY_BLOCK_CODE,
+                        "Security: resource access revoked before response release",
+                        {"patterns": ["DENY_RESOURCE_ACL"]},
+                    )
+            # Untrusted MCP server output is an injection surface, even when
+            # the original tools/call arguments were harmless.
+            try:
+                payload = json.loads(
+                    response,
+                    object_pairs_hook=_unique_json_pairs,
+                    parse_constant=_reject_json_constant,
+                )
+                results = payload if isinstance(payload, list) else [payload]
+                if not results or any(
+                    not isinstance(item, dict)
+                    or item.get("jsonrpc") != "2.0"
+                    or ("result" in item) == ("error" in item)
+                    or "method" in item
+                    or "id" not in item
+                    for item in results
+                ):
+                    raise ValueError("Invalid downstream JSON-RPC response")
+                # Never release data attributed to another request ID. A
+                # downstream response can arrive out of order within a batch,
+                # but must have exactly the expected unique IDs.
+                expected_ids = [
+                    _response_id_key(message["id"])
+                    for message in messages
+                    if "id" in message and "method" in message
+                ]
+                received_ids = [_response_id_key(item["id"]) for item in results]
+                if len(expected_ids) != len(set(expected_ids)) or Counter(received_ids) != Counter(
+                    expected_ids
+                ):
+                    raise ValueError("Downstream response IDs do not match requests")
+                for item in results:
+                    detected, patterns = self._detector.detect(
+                        {
+                            "name": "mcp_tool_response",
+                            "arguments": {
+                                "result": item.get("result"),
+                                "error": item.get("error"),
+                            },
+                        }
+                    )
+                    if detected:
+                        logger.warning("Blocked suspicious downstream MCP result: %s", patterns)
+                        self._stats["blocked"] += 1
+                        return self._blocked_requests(
+                            messages,
+                            is_batch,
+                            self.SECURITY_BLOCK_CODE,
+                            "Security: downstream tool result failed inspection",
+                            {"patterns": patterns},
+                        )
+            except Exception:
+                logger.exception("Downstream MCP result inspection failed closed")
+                self._stats["blocked"] += 1
+                return self._blocked_requests(
+                    messages,
+                    is_batch,
+                    self.SECURITY_BLOCK_CODE,
+                    "Security: downstream tool result validation failed",
+                )
+        return response
 
     def _inspect(self, parsed: dict[str, Any]) -> InspectionResult:
         """Run security inspection on a parsed JSON-RPC tools/call message."""
@@ -450,6 +623,48 @@ class StdioMCPProxy:
         all_matched: list[str] = []
         for tool_call in tool_calls:
             internal = tool_call.to_internal_format()
+            # The authenticated principal is supplied by gateway configuration,
+            # never by the agent's MCP arguments.
+            if tool_call.name in self._protected_resource_tools:
+                resource_key = self._protected_resource_tools[tool_call.name]
+                try:
+                    resource_id = tool_call.arguments.get(resource_key)
+                    if not isinstance(resource_id, str):
+                        raise AccessDenied("Missing resource identifier")
+                    assert self._acl_guard is not None
+                    self._acl_guard.check(self._authenticated_principal or "", resource_id)
+                except Exception:
+                    return InspectionResult(
+                        decision=Decision.BLOCK,
+                        reason="ACL denied protected resource access",
+                        matched_patterns=["DENY_RESOURCE_ACL"],
+                        request_id=request_id,
+                    )
+            # Apply policy before forwarding. Policy errors fail closed.
+            try:
+                policy_decision = self._policy_engine.evaluate(
+                    {
+                        "name": tool_call.name,
+                        "server_id": self._server_id,
+                        "arguments": tool_call.arguments,
+                    }
+                )
+            except Exception as exc:
+                logger.exception("Authorization policy engine failed")
+                return InspectionResult(
+                    decision=Decision.INDETERMINATE,
+                    reason="Policy engine failed",
+                    matched_patterns=["policy_engine_failure"],
+                    request_id=request_id,
+                    detector_errors=[f"policy: {exc}"],
+                )
+            if not policy_decision.allowed:
+                return InspectionResult(
+                    decision=Decision.BLOCK,
+                    reason=f"Policy denied: {policy_decision.reason_code.value}",
+                    matched_patterns=[policy_decision.reason_code.value],
+                    request_id=request_id,
+                )
             try:
                 detected, patterns = self._detector.detect(internal)
             except Exception as exc:
@@ -525,12 +740,19 @@ def main() -> None:
     """
     args = sys.argv[1:]
 
-    # Split on -- to get the downstream command
+    # Flags before '--' configure this gateway; after '--' is the server.
+    import argparse
+
     if "--" in args:
         sep_idx = args.index("--")
-        command = args[sep_idx + 1 :]
+        gateway_args, command = args[:sep_idx], args[sep_idx + 1 :]
     else:
-        command = args
+        gateway_args, command = [], args
+
+    parser = argparse.ArgumentParser(description="Inline MCP security gateway")
+    parser.add_argument("--server-id", default="local")
+    parser.add_argument("--allow-egress-host", action="append", default=[])
+    options = parser.parse_args(gateway_args)
 
     if not command:
         print(
@@ -539,7 +761,11 @@ def main() -> None:
         )
         sys.exit(1)
 
-    proxy = StdioMCPProxy(command)
+    proxy = StdioMCPProxy(
+        command,
+        server_id=options.server_id,
+        allowed_egress_hosts=set(options.allow_egress_host),
+    )
     asyncio.run(proxy.run())
 
 

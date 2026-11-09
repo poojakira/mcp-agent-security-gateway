@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Click through the MCP Security Gateway request path and explore the repository files.">
+<title>MCP Security Gateway — Explore the system</title>
+<style>
+:root{color-scheme:dark;--bg:#0c1521;--panel:#142338;--line:#314965;--txt:#ecf3fb;--muted:#b9cada;--focus:#9cd8ff;--edge:#80c5e2;--danger:#fdc4b6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif}
+header,main,footer{max-width:1240px;margin:auto;padding:18px}
+header{border-bottom:1px solid var(--line)}
+h1{font-size:clamp(1.5rem,4vw,2.3rem);margin:.1rem 0}
+h2{font-size:1.3rem}h3{font-size:1.06rem}
+p{max-width:85ch}a{color:var(--focus)}
+.note{color:var(--muted)}
+.cols{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:18px}
+.panel{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:18px;min-width:0}
+button,input{font:inherit}button{cursor:pointer;border:1px solid #7aaccb;color:var(--txt);background:#1d3550;padding:12px;border-radius:9px;min-height:44px}
+button:hover,button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button[aria-pressed=true]{background:#345979;border-color:var(--focus)}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.scene{perspective:1050px;padding:18px 0 34px;overflow:hidden}
+.rail{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;transform:rotateX(6deg);transform-style:preserve-3d}
+.node{flex:1 1 140px;min-width:120px;min-height:92px;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;box-shadow:0 5px 0 #0c1726;transform:translateZ(6px)}
+.node.active{border-color:#b4f2d2;background:#245d56;transform:translateZ(20px)}
+.flowline{width:26px;min-width:18px;align-self:center;height:4px;background:repeating-linear-gradient(90deg,var(--edge) 0 8px,transparent 8px 15px);animation:travel 1.1s linear infinite}
+@keyframes travel{to{background-position:15px 0}}
+dl{margin:0}dt{font-weight:700;margin-top:12px}dd{margin:2px 0 10px}
+small{color:var(--muted)}
+input{width:100%;padding:12px;border-radius:9px;background:#0c1928;color:var(--txt);border:1px solid #94b3c8;min-height:48px}
+.filelist{max-height:460px;overflow-y:auto;list-style:none;padding:0;margin:12px 0}
+.filelist li{border-bottom:1px solid var(--line);padding:8px 0;overflow-wrap:anywhere}
+.filelist code{font-size:.86rem}
+.tag{font-size:.78rem;color:#d7e9f7;background:#294362;border-radius:8px;padding:3px 7px}
+.steps{display:flex;gap:8px;flex-wrap:wrap}
+.status{font-weight:650}
+@media(max-width:720px){.cols{grid-template-columns:1fr}.scene{padding:8px}.rail{transform:none}.flowline{display:none}.node{flex-basis:42%}}
+@media(prefers-reduced-motion:reduce){.flowline{animation:none}.rail{transform:none}.node.active{transform:none}}
+</style>
+</head>
+<body>
+<header>
+<h1>MCP Security Gateway — Explore the system</h1>
+<p>Follow a tool request through the security gateway and open the actual source, tests, documentation, and workflows. No installation or credentials are needed to view this explorer.</p>
+<p class="note"><strong>Evidence boundary:</strong> This is a static, interactive explanation, not a live gateway or a certification. Its moving connector is illustrative, not a trace of a live request. File links target a fixed Git commit.</p>
+</header>
+<main>
+<section class="cols" aria-label="Request flow">
+<div class="panel">
+<h2>1. Request and response flow</h2>
+<div class="controls">
+<button type="button" id="play" aria-pressed="false">Play walkthrough</button>
+<button type="button" id="stop">Stop</button>
+<button type="button" id="reset">Start over</button>
+</div>
+<div class="scene"><div class="rail" id="rail"></div></div>
+<p class="note">Select any component to see what it does and which implementation and test files to inspect.</p>
+</div>
+<aside class="panel" aria-live="polite">
+<h2 id="selected-title">Client / tool request</h2>
+<p id="selected-text">A client sends MCP/JSON-RPC messages. The gateway only protects requests routed through its integration.</p>
+<dl>
+<dt>Source or test</dt><dd id="selected-links"></dd>
+<dt>Operational limit</dt><dd id="selected-limit"></dd>
+</dl>
+</aside>
+</section>
+<section class="panel" style="margin-top:18px">
+<h2>2. Find any repository file</h2>
+<p class="note">Paths are grouped by their top-level folder. This is an exact path inventory for commit <code id="commit"></code>, not an exhaustive import dependency calculation.</p>
+<label for="search">Search filenames or folders</label><input id="search" placeholder="e.g. tests, README.md, policy_engine" autocomplete="off">
+<p id="count" class="status" aria-live="polite"></p>
+<ul id="files" class="filelist"></ul>
+</section>
+<section class="panel" style="margin-top:18px">
+<h2>3. Try a verified workflow</h2>
+<p>See the existing <a href="../review/ATTACK_CONTROL_EVIDENCE.md">attack-to-control evidence table</a> and <a href="../review/REAL_WORLD_PROTOTYPE_ACCEPTANCE.md">reproducibility and operational limitations</a>. To execute the security engine yourself, follow the <a href="../../RUNBOOK.md">runbook</a> in an isolated local environment. No script in this page executes MCP tools.</p>
+<p><strong>Key distinction:</strong> controlled real-filesystem tests cover specific allow, deny, injection, and paused response-release scenarios. They do not establish complete protection for arbitrary downstream MCP servers or production load.</p>
+</section>
+</main>
+<footer><p class="note">Source-visible proprietary repository: review <a href="../../LICENSE">LICENSE</a> before reuse or execution. Generated explorer inventory is pinned to a commit; update it after repository changes.</p></footer>
+<script>
+(function(){
+"use strict";
+const repo="https://github.com/poojakira/mcp-agent-security-gateway";
+const revision="f419cca2f3a4ce34deb05635df7f24e80e186cff";
+const paths=[".gitattributes",".github/CODEOWNERS",".github/dependabot.yml",".github/format-trigger.txt",".github/scripts/check_bandit.py",".github/scripts/check_pip_audit.py",".github/workflows/appsec-focused.yml",".github/workflows/ci.yml",".github/workflows/poster-artifact-parity.yml",".github/workflows/production-gate.yml",".github/workflows/production-policy.yml",".github/workflows/real-mcp-smoke.yml",".github/workflows/release.yml",".github/workflows/security-hygiene.yml",".gitignore",".gitleaksignore",".mailmap","CHANGELOG.md","CONTRIBUTING.md","Dockerfile","INCIDENT_RUNBOOK.md","LICENSE","MCP_Gateway_Poster.pdf","PRODUCTION.md","PROVENANCE.md","README.md","RESEARCH_REPORT.md","RESUME_EVIDENCE.md","RUNBOOK.md","SECURITY.md","SECURITY_AUDIT.md","SECURITY_AUDIT_2026-09-30.md","THREAT_MODEL.md","VERIFIED_METRICS.md","benchmark/replay_evidence.py","benchmark/tool_call_latency.py","benchmarks/enforcement_regression.py","benchmarks/perf_gate.py","cpp/.gitignore","cpp/CMakeLists.txt","cpp/Makefile","cpp/README.md","cpp/include/mcp_inspect.hpp","cpp/src/main.cpp","cpp/tests/test_inspect.cpp","deploy/k8s/README.md","deploy/k8s/configmap.yaml","deploy/k8s/deployment.yaml","deploy/k8s/hpa.yaml","deploy/k8s/namespace.yaml","deploy/k8s/pvc.yaml","deploy/k8s/secret.example.yaml","deploy/k8s/service.yaml","detection_lab/README.md","detection_lab/filebeat.yml","detection_rules/elastic_rules.toml","docker-compose.detection-lab.yml","docker-compose.yml","docs/API_VERSIONING.md","docs/APPSEC_ASSESSMENT_2026-10-05.md","docs/APPSEC_CASE_STUDY.md","docs/DOCKER_BUILD.md","docs/ENFORCEMENT_BENCHMARK_2026-10-09.md","docs/OPERATIONAL_INCIDENT_RESPONSE_MEASUREMENT.md","docs/PERFORMANCE_BASELINE.md","docs/RECRUITER_DEMO_60S.md","docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md","docs/VERIFICATION_STATUS_2026-10-09.md","docs/archive/HISTORICAL_EVIDENCE.md","docs/detection/TUNING_LOG.md","docs/detection/coverage_matrix.json","docs/detection/coverage_matrix.md","docs/detection/fixtures/synthetic_events.json","docs/detection/latency_bench.json","docs/detection/latency_bench.md","docs/detection/precision_recall.json","docs/detection/precision_recall.md","docs/evidence/RESUME_EVIDENCE.md","docs/license-history/LICENSE-BEFORE-2026-10-13.txt","docs/policy/ACL_CDC_GUARD.md","docs/policy/POLICY_AS_CODE.md","docs/review/ATTACK_CONTROL_EVIDENCE.md","docs/review/FILE_FIELD_GUIDE.md","docs/review/REAL_WORLD_PROTOTYPE_ACCEPTANCE.md","docs/review/REPOSITORY_DEPENDENCY_MAP.md","evidence/generated/mcp_replay_evidence.json","evidence_policy.json","locustfile.py","policy/rego/README.md","policy/rego/egress.rego","policy/rego/egress_test.rego","policy/rego/tool_authorization.rego","policy/rego/tool_authorization_test.rego","poster/01_research_brief.md","poster/02_claim_ledger.md","poster/03_verified_metrics.md","poster/13_reproducibility.md","poster/poster.png","poster/poster_36x48.pdf","poster/render_poster.py","pyproject.toml","run_dashboard.py","run_realtime.py","rust/.gitignore","rust/Cargo.lock","rust/Cargo.toml","rust/LICENSE","rust/README.md","rust/src/lib.rs","rust/src/main.rs","scripts/measure_incident_response.py","scripts/recruiter_demo.py","scripts/workflow_security_scan.py","src/mcp_monitor/__init__.py","src/mcp_monitor/advanced/__init__.py","src/mcp_monitor/advanced/canary.py","src/mcp_monitor/advanced/correlation.py","src/mcp_monitor/advanced/drift.py","src/mcp_monitor/advanced/invariants.py","src/mcp_monitor/advanced/manifest.py","src/mcp_monitor/audit/__init__.py","src/mcp_monitor/audit/log.py","src/mcp_monitor/audit/wal.py","src/mcp_monitor/client.py","src/mcp_monitor/dashboard/__init__.py","src/mcp_monitor/dashboard/report.py","src/mcp_monitor/dashboard/terminal.py","src/mcp_monitor/defense10/__init__.py","src/mcp_monitor/defense10/corpus.py","src/mcp_monitor/defense10/dataset.py","src/mcp_monitor/defense10/egress_proxy.py","src/mcp_monitor/defense10/features.py","src/mcp_monitor/defense10/honeypot.py","src/mcp_monitor/defense10/ml_classifier.py","src/mcp_monitor/defense10/network_monitor.py","src/mcp_monitor/defense10/orchestrator10.py","src/mcp_monitor/defense10/rate_limiter.py","src/mcp_monitor/defense10/sandbox.py","src/mcp_monitor/detectors/__init__.py","src/mcp_monitor/detectors/exfiltration.py","src/mcp_monitor/detectors/pii_detector.py","src/mcp_monitor/detectors/prompt_injection.py","src/mcp_monitor/detectors/shadow_server.py","src/mcp_monitor/layers/__init__.py","src/mcp_monitor/layers/egress.py","src/mcp_monitor/layers/kernel.py","src/mcp_monitor/layers/orchestrator.py","src/mcp_monitor/layers/proxy.py","src/mcp_monitor/layers/semantic.py","src/mcp_monitor/monitor.py","src/mcp_monitor/policy/__init__.py","src/mcp_monitor/policy/acl_guard.py","src/mcp_monitor/policy/policy_engine.py","src/mcp_monitor/production/__init__.py","src/mcp_monitor/production/alerting.py","src/mcp_monitor/production/circuit_breaker.py","src/mcp_monitor/production/config.py","src/mcp_monitor/production/identity_shipper.py","src/mcp_monitor/production/identity_smoke.py","src/mcp_monitor/production/identity_telemetry.py","src/mcp_monitor/production/identity_transport.py","src/mcp_monitor/production/logging.py","src/mcp_monitor/production/metrics.py","src/mcp_monitor/production/rate_limiter.py","src/mcp_monitor/production/server.py","src/mcp_monitor/production/shutdown.py","src/mcp_monitor/production/tracing.py","src/mcp_monitor/protocol/__init__.py","src/mcp_monitor/protocol/jsonrpc.py","src/mcp_monitor/proxy/__init__.py","src/mcp_monitor/proxy/stdio_proxy.py","src/mcp_monitor/redteam/__init__.py","src/mcp_monitor/redteam/payloads.py","src/mcp_monitor/redteam/simulator.py","src/mcp_monitor/server/__init__.py","src/mcp_monitor/server/dashboard.html","src/mcp_monitor/server/realtime.py","src/mcp_monitor/server/workload.py","src/mcp_monitor/siem/__init__.py","src/mcp_monitor/siem/attack_simulations.py","src/mcp_monitor/siem/correlation.py","src/mcp_monitor/siem/ecs_formatter.py","src/mcp_monitor/siem/lifecycle.py","src/mcp_monitor/siem/shipper.py","tests/__init__.py","tests/test_5_layers.py","tests/test_acl_guard.py","tests/test_advanced_canary.py","tests/test_advanced_correlation.py","tests/test_advanced_drift.py","tests/test_advanced_invariants.py","tests/test_advanced_manifest.py","tests/test_alerting_security.py","tests/test_audit_log.py","tests/test_client.py","tests/test_coverage_100.py","tests/test_cross_platform.py","tests/test_defense10.py","tests/test_deployment.py","tests/test_detection_lifecycle.py","tests/test_detector_failures.py","tests/test_exfiltration.py","tests/test_http_framing.py","tests/test_identity_shipper.py","tests/test_identity_telemetry.py","tests/test_identity_transport.py","tests/test_injection_enforcement_regression.py","tests/test_inspection_json_boundary.py","tests/test_instruction_authority_regression.py","tests/test_live_filesystem_mcp.py","tests/test_measure_incident_response.py","tests/test_pii_detector.py","tests/test_policy_enforcement.py","tests/test_production.py","tests/test_prompt_injection.py","tests/test_protocol_hardening.py","tests/test_real_mcp_protocol.py","tests/test_realtime.py","tests/test_redteam_simulator.py","tests/test_shadow_server.py","tests/test_siem.py","tests/test_siem_scenarios.py","tests/test_stdio_adversarial_responses.py","tests/test_stdio_inflight_revocation.py","tests/test_stdio_policy_integration.py","tests/test_stdio_proxy.py","tests/test_workload.py"];
+const root=document;
+const steps=[
+{title:"MCP client",detail:"A client generates a JSON-RPC tool request. Only routed traffic can be inspected.",file:"src/mcp_monitor/proxy/stdio_proxy.py",test:"tests/test_stdio_proxy.py",limit:"The client can bypass the gateway if the integration is not configured to route through it."},
+{title:"Protocol validation",detail:"The stdio proxy validates JSON-RPC message shape and rejects malformed or ambiguous requests before selected tool calls are forwarded.",file:"src/mcp_monitor/protocol/jsonrpc.py",test:"tests/test_protocol_hardening.py",limit:"Validation applies to supported integration paths; this view does not prove universal protocol conformance."},
+{title:"Authorization",detail:"The proxy evaluates server/tool policy and optional in-memory ACL rules before forwarding protected operations.",file:"src/mcp_monitor/policy/policy_engine.py",test:"tests/test_stdio_policy_integration.py",limit:"A complete external identity provider, distributed CDC, and irreversible-action protection are not demonstrated."},
+{title:"Content inspection",detail:"Heuristic prompt-injection checks inspect selected tool arguments; suspicious tool output is checked before release on the reviewed stdio path.",file:"src/mcp_monitor/detectors/prompt_injection.py",test:"tests/test_stdio_adversarial_responses.py",limit:"False negatives and false positives remain possible. Signature count is not recall."},
+{title:"Downstream MCP",detail:"Permitted requests reach the configured external MCP server. The real-filesystem smoke test uses a disposable directory.",file:"src/mcp_monitor/proxy/stdio_proxy.py",test:"tests/test_live_filesystem_mcp.py",limit:"Not all downstream MCP tools and side effects have been tested."},
+{title:"Response inspection",detail:"The stdio proxy checks downstream JSON-RPC results and suspicious content before returning the response to the client.",file:"src/mcp_monitor/proxy/stdio_proxy.py",test:"tests/test_stdio_adversarial_responses.py",limit:"This check is heuristic. Other audit and telemetry implementations are separate, and this diagram does not establish complete response protection."}
+];
+const q=id=>root.getElementById(id); const rail=q("rail"); let selected=0,interval=null;
+function url(path){return repo+"/blob/"+encodeURIComponent(revision)+"/"+path.split("/").map(encodeURIComponent).join("/")}
+function anchor(path){const a=document.createElement("a");a.href=url(path);a.target="_blank";a.rel="noopener noreferrer";a.textContent=path;return a}
+function select(i){selected=i;const s=steps[i];q("selected-title").textContent=(i+1)+". "+s.title;q("selected-text").textContent=s.detail;q("selected-limit").textContent=s.limit;q("selected-links").replaceChildren(anchor(s.file),document.createTextNode(" · "),anchor(s.test));[...rail.querySelectorAll(".node")].forEach((b,j)=>{b.classList.toggle("active",j===i);b.setAttribute("aria-pressed",String(j===i))})}
+steps.forEach((s,i)=>{if(i){const edge=document.createElement("span");edge.className="flowline";edge.setAttribute("aria-hidden","true");rail.append(edge)}const b=document.createElement("button");b.type="button";b.className="node";b.textContent=s.title;b.addEventListener("click",()=>{pause();select(i)});rail.append(b)});
+function pause(){if(interval!==null){clearInterval(interval);interval=null}q("play").setAttribute("aria-pressed","false")}
+q("play").addEventListener("click",()=>{if(interval!==null){pause();return}q("play").setAttribute("aria-pressed","true");interval=setInterval(()=>select((selected+1)%steps.length),1800)});
+q("stop").addEventListener("click",pause);q("reset").addEventListener("click",()=>{pause();select(0)});select(0);
+q("commit").textContent=revision.slice(0,12);
+const filelist=q("files"),input=q("search");
+function render(){const term=input.value.trim().toLowerCase();const subset=paths.filter(p=>p.toLowerCase().includes(term));q("count").textContent=subset.length+" of "+paths.length+" tracked files";const frag=document.createDocumentFragment();subset.slice(0,250).forEach(path=>{const li=document.createElement("li");const tag=document.createElement("span");tag.className="tag";tag.textContent=path.includes("/")?path.split("/")[0]:"root";li.append(tag,document.createTextNode("  "),anchor(path));frag.append(li)});filelist.replaceChildren(frag)}
+input.addEventListener("input",render);render();
+})();
+</script>
+</body></html>
