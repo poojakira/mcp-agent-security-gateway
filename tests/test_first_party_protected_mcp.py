@@ -205,7 +205,7 @@ async def _direct_bypass_scenario(root: Path):
                     "expected_previous": "1.0.0",
                 }),
             ):
-                await transport.send(_call(identity, name, arguments) + b"\\n")
+                await transport.send(_call(identity, name, arguments) + b"\n")
                 reply = json.loads(await asyncio.wait_for(transport.receive(), timeout=10))
                 assert reply["id"] == identity
                 assert "error" in reply
