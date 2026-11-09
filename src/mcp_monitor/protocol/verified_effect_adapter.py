@@ -130,9 +130,7 @@ class VerifiedSQLiteEffectAdapter:
 
     def independently_observed_effect(self, op: EffectRequest) -> bool | None:
         """Return true only on matching committed evidence; never infer from response."""
-        with sqlite3.connect(
-            f"file:{self.downstream_path.as_posix()}?mode=ro", uri=True
-        ) as db:
+        with sqlite3.connect(f"file:{self.downstream_path.as_posix()}?mode=ro", uri=True) as db:
             entry = db.execute(
                 "SELECT principal,resource,delta,evidence_hash "
                 "FROM committed_operations WHERE operation_id=?",
@@ -157,10 +155,6 @@ class VerifiedSQLiteEffectAdapter:
         return "COMMITTED"
 
     def balance(self, resource: str) -> int:
-        with sqlite3.connect(
-            f"file:{self.downstream_path.as_posix()}?mode=ro", uri=True
-        ) as db:
-            row = db.execute(
-                "SELECT amount FROM balances WHERE resource=?", (resource,)
-            ).fetchone()
+        with sqlite3.connect(f"file:{self.downstream_path.as_posix()}?mode=ro", uri=True) as db:
+            row = db.execute("SELECT amount FROM balances WHERE resource=?", (resource,)).fetchone()
         return row[0] if row else 0
