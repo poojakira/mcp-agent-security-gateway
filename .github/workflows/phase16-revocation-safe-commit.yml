@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - phase16/revocation-safe-commit-fence
+  pull_request:
+    branches:
+      - phase15/independent-consequence-verification
   workflow_dispatch:
 
 permissions:
