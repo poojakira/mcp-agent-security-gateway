@@ -34,6 +34,7 @@ from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard
 from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
+from mcp_monitor.protocol.multiplex import MultiplexedTransport, ProtocolCancelled
 from mcp_monitor.proxy.internal_sandbox import InternalDockerSandbox
 from mcp_monitor.proxy.oidc_identity import OIDCSessionBinding
 from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
@@ -490,6 +491,7 @@ class StdioMCPProxy:
         protected_resource_tools: dict[str, str] | None = None,
         offline_sandbox: OfflineDockerSandbox | None = None,
         internal_sandbox: InternalDockerSandbox | None = None,
+        multiplexed: bool = False,
         response_timeout_seconds: float = 120.0,
         max_message_bytes: int = 1048576,
     ) -> None:
@@ -533,8 +535,15 @@ class StdioMCPProxy:
         self._offline_sandbox = offline_sandbox
         self._internal_sandbox = internal_sandbox
         self.command = command
-        self._transport = transport or SubprocessTransport(
+        selected_transport = transport or SubprocessTransport(
             command, max_response_bytes=max_message_bytes
+        )
+        if type(multiplexed) is not bool:
+            raise ValueError("multiplexed must be a boolean")
+        self._transport = (
+            MultiplexedTransport(selected_transport, max_message_bytes=max_message_bytes)
+            if multiplexed
+            else selected_transport
         )
         self._detector = detector or PromptInjectionDetector(enable_ml=False)
         self._adapter = MCPJSONRPCAdapter()
@@ -729,13 +738,30 @@ class StdioMCPProxy:
             return self._blocked_requests(messages, is_batch, code, reason, data)
 
         try:
-            await self._transport.send(raw_message + b"\n")
-            if not any("id" in message and "method" in message for message in messages):
+            expects_reply = any("id" in message and "method" in message for message in messages)
+            if isinstance(self._transport, MultiplexedTransport):
+                if len(messages) == 1 and messages[0].get("method") == "notifications/cancelled":
+                    params = messages[0].get("params")
+                    if not isinstance(params, dict) or "requestId" not in params:
+                        raise ValueError("Invalid cancellation notification")
+                    self._transport.cancel(params["requestId"])
+                response = await self._transport.exchange(
+                    raw_message + b"\n",
+                    request_ids=request_ids,
+                    timeout=self._response_timeout_seconds,
+                    is_batch=is_batch,
+                )
+            else:
+                await self._transport.send(raw_message + b"\n")
+                if not expects_reply:
+                    self._stats["allowed" if tool_count else "passthrough"] += 1
+                    return b""  # Notifications and client responses are one-way.
+                response = await asyncio.wait_for(
+                    self._transport.receive(), timeout=self._response_timeout_seconds
+                )
+            if not expects_reply:
                 self._stats["allowed" if tool_count else "passthrough"] += 1
-                return b""  # Notifications and client responses are one-way.
-            response = await asyncio.wait_for(
-                self._transport.receive(), timeout=self._response_timeout_seconds
-            )
+                return b""
             if not isinstance(response, bytes) or len(response) > self._max_message_bytes:
                 raise ValueError("Invalid or oversized downstream MCP response")
         except Exception:
