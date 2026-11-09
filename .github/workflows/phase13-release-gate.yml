@@ -118,8 +118,10 @@ jobs:
         run: cyclonedx-py environment --output-format JSON --outfile sbom.json
       - name: Public dependency vulnerability audit (no API key)
         run: |
-          pip-audit --skip-editable --format json --output pip-audit.json || true
+          status=0
+          pip-audit --skip-editable --format json --output pip-audit.json || status=$?
           python .github/scripts/check_pip_audit.py
+          test "$status" -eq 0
       - name: Upload restricted-retention security evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
