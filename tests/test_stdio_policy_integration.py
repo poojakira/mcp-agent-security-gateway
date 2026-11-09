@@ -141,4 +141,4 @@ def test_client_claimed_server_id_does_not_replace_trusted_server():
         policy_engine=PolicyEngine(allowed_servers={"authorized-server"}),
     )
     assert response["result"]["ok"] is True
-    assert sent == [message + b"\\n"]
+    assert sent == [message + b"\n"]
