@@ -30,7 +30,7 @@ jobs:
       - name: Lint the protected server and real-process tests
         run: |
           ruff check src/mcp_monitor/protected_repo_server.py tests/test_first_party_protected_mcp.py tests/test_first_party_public_manifest.py tests/test_phase14_bypass_matrix.py
-          ruff format --check src/mcp_monitor/protected_repo_server.py tests/test_first_party_protected_mcp.py tests/test_first_party_public_manifest.py
+          ruff format --check src/mcp_monitor/protected_repo_server.py tests/test_first_party_protected_mcp.py tests/test_first_party_public_manifest.py tests/test_phase14_bypass_matrix.py
       - name: Real MCP server process through the actual gateway
         run: python -m pytest tests/test_first_party_protected_mcp.py tests/test_phase14_bypass_matrix.py -q -s --tb=short
       - name: Download pinned real open-source MCP repository manifest
