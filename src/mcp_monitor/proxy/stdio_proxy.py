@@ -497,6 +497,7 @@ class StdioMCPProxy:
         effect_tools: set[str] | frozenset[str] | None = None,
         response_timeout_seconds: float = 120.0,
         max_message_bytes: int = 1048576,
+        strict_mcp_methods: bool = False,
     ) -> None:
         if (
             isinstance(response_timeout_seconds, bool)
@@ -511,6 +512,9 @@ class StdioMCPProxy:
             or max_message_bytes <= 0
         ):
             raise ValueError("max_message_bytes must be a positive integer")
+        if type(strict_mcp_methods) is not bool:
+            raise ValueError("strict_mcp_methods must be boolean")
+        self._strict_mcp_methods = strict_mcp_methods
         self._response_timeout_seconds = float(response_timeout_seconds)
         self._max_message_bytes = max_message_bytes
         if offline_sandbox is not None and internal_sandbox is not None:
@@ -697,6 +701,31 @@ class StdioMCPProxy:
         except (TypeError, ValueError):
             self._stats["blocked"] += 1
             return _build_error_response(None, -32600, "Invalid JSON-RPC envelope").rstrip(b"\n")
+
+        # In the hardened CLI, reject all methods that are not explicitly
+        # supported. In particular resources/read and prompts/get must not
+        # bypass tools/call capability checks by taking a passthrough path.
+        if self._strict_mcp_methods:
+            supported = {
+                "initialize",
+                "ping",
+                "tools/list",
+                "tools/call",
+                "notifications/initialized",
+                "notifications/cancelled",
+            }
+            if any(
+                "method" not in message or message["method"] not in supported
+                for message in messages
+            ):
+                self._stats["blocked"] += 1
+                return self._blocked_requests(
+                    messages,
+                    is_batch,
+                    self.SECURITY_BLOCK_CODE,
+                    "Security: MCP method not enabled by the hardened gateway",
+                    {"patterns": ["DENY_METHOD_NOT_ALLOWED"]},
+                )
 
         # A verified session protects the full request surface, not just
         # tools/call. Otherwise resources/read and prompts/get would bypass it.
@@ -1188,6 +1217,7 @@ def main() -> None:
         command,
         server_id=options.server_id,
         allowed_egress_hosts=set(options.allow_egress_host),
+        strict_mcp_methods=True,
         policy_engine=PolicyEngine(
             allowed_servers={options.server_id},
             allowed_tools=set(options.allow_tool),
