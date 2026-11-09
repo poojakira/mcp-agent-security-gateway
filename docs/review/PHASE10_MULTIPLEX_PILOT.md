@@ -36,3 +36,27 @@ one stdio connection and dispatches responses to their correct waiting calls.
 
 The Phase 10 pilot is complete only if exact-commit cross-version CI passes.
 Production protocol completeness remains an open goal.
+
+
+## Verified scoped milestone
+
+**Exact source commit:** `ff6a0c81021cec8e1924beae38ea5eea90fb29f0`.
+**GitHub Actions:** [run #42541381322](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42541381322), completed successfully, **3/3 matrix jobs passed**.
+
+| Validation | Verified result |
+|---|---|
+| Python 3.10 full repository suite | **1,060 passed, 3 skipped**, 83.03% coverage |
+| Python 3.11 full repository suite | **1,060 passed, 3 skipped**, 83.00% coverage |
+| Python 3.12 full repository suite | **1,060 passed, 3 skipped**, 83.00% coverage |
+| Focused multiplex and previously hardened protocol security tests | **56 passed** per Python version |
+| Ruff lint and formatting | Passed on all three |
+| Real cross-transport multiplex / streaming / server-originated request support | Not implemented |
+| Paid services / production deployment | None |
+
+The verified code implements a single-reader, bounded **opt-in** stdio
+response broker. It rejects unsolicited server-originated messages and
+does not implement the full MCP protocol or Streamable HTTP. Cancellation
+quarantines response IDs but does NOT undo effects already executed by tools.
+
+**Phase 10 bounded stdio multiplexing pilot: COMPLETE and VERIFIED.**
+**Production/full MCP protocol gate: OPEN.**
