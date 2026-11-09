@@ -114,8 +114,10 @@ class AuditLog:
             prev_hash=prev_hash,
         )
         entry.entry_hash = entry.compute_hash(self._hmac_key)
-        self._entries.append(entry)
+        # Never claim an audit event was committed until the durable append
+        # succeeded; an I/O failure must not silently advance the memory chain.
         self._persist(entry)
+        self._entries.append(entry)
         return entry
 
     def verify_chain(self) -> tuple[bool, int | None]:
@@ -161,6 +163,8 @@ class AuditLog:
         self._log_file.parent.mkdir(parents=True, exist_ok=True)
         with self._log_file.open("a", encoding="utf-8") as f:
             f.write(json.dumps(asdict(entry)) + "\n")
+            f.flush()
+            os.fsync(f.fileno())
 
     def _load(self) -> None:
         """Load existing entries from the log file."""
@@ -181,3 +185,7 @@ class AuditLog:
                     entry_hash=raw["entry_hash"],
                 )
                 self._entries.append(entry)
+        intact, broken_at = self.verify_chain()
+        if not intact:
+            self._entries.clear()
+            raise ValueError(f"Audit chain integrity failed at entry {broken_at}")
