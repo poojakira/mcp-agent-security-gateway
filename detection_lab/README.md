@@ -106,15 +106,30 @@ python -m mcp_monitor.siem.attack_simulations --json --quiet
 
 ### Run the detection lab locally
 
-The lab requires a locally generated `MCP_API_KEY`; the formerly shared key has been removed from active Compose configuration but remains in Git history. If that shared key was reused in any running gateway, replace it there and restart that deployment. The bundled Elasticsearch/Kibana configuration disables authentication and is **local-lab only**.
+**Docker Engine safety:** Use Docker Engine **28.0.0 or newer** for the loopback-only published ports, or enforce equivalent host firewall restrictions that prevent access from other devices on the local network. Do not expose the unauthenticated Elasticsearch/Kibana lab to shared or public networks. These examples are local-only, not a production deployment.
+
+The lab requires a locally generated `MCP_API_KEY`; the formerly shared key has been removed from active Compose configuration but remains in Git history. If that shared key was reused in any running gateway, isolate the affected instance, replace the credential in the deployment secret store, and **recreate** the service or roll new pods. A plain `docker compose restart` does not apply changed environment variables. The bundled Elasticsearch/Kibana configuration disables authentication and is **local-lab only**.
 
 ```bash
 # Create a NEW secret for your local gateway. Never reuse the previously
 # committed demonstration key: it remains visible in Git history.
 export MCP_API_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
 
+# Optionally persist a newly generated lab-only credential outside the repository:
+umask 077
+mkdir -p "$HOME/.config/mcp-gateway"
+printf '%s' "$MCP_API_KEY" > "$HOME/.config/mcp-gateway/detection-lab-key"
+chmod 600 "$HOME/.config/mcp-gateway/detection-lab-key"
+# In a later shell, reload that same local credential before Compose commands:
+# export MCP_API_KEY="$(cat "$HOME/.config/mcp-gateway/detection-lab-key")"
+# Never commit, paste, log, or publish the credential file.
+
 # Start the full stack (ports bind to 127.0.0.1, not the public interface)
 docker compose -f docker-compose.detection-lab.yml up -d
+
+# After a rotation, recreate to apply changed environment rather than 'restart':
+# docker compose -f docker-compose.detection-lab.yml up -d --force-recreate mcp-gateway
+# Confirm the retired credential is rejected without printing it into logs.
 
 # Wait for Elasticsearch to be ready
 curl -s http://localhost:9200/_cluster/health | python -m json.tool
