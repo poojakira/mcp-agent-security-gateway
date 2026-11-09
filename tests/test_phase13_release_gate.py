@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 import yaml
 
+
 COMPOSE = Path(__file__).resolve().parents[1] / "docker-compose.detection-lab.yml"
 
 
