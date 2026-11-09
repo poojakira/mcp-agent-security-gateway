@@ -112,8 +112,7 @@ class ManifestConsequenceVerifier:
         approved_version: str,
     ) -> None:
         if not all(
-            isinstance(v, str) and bool(v)
-            for v in (package, expected_previous, approved_version)
+            isinstance(v, str) and bool(v) for v in (package, expected_previous, approved_version)
         ):
             raise ValueError("Trusted exact package/version approval required")
         if expected_previous == approved_version:
