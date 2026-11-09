@@ -34,6 +34,8 @@ def test_audit_persistence_failure_does_not_claim_success(tmp_path) -> None:
             log.append("allowed", {"resource": "test"})
     assert len(log) == 0
     assert log.verify_chain() == (True, None)
+    with pytest.raises(OSError, match="not healthy"):
+        log.append("another_event", {"resource": "test"})
 
 
 def test_hmac_log_fails_if_reloaded_without_expected_key(tmp_path) -> None:
