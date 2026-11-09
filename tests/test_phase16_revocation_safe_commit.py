@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from mcp_monitor.protected_repo_server import ProtectedOperationError, ProtectedRepo
+from mcp_monitor.protected_repo_server import ProtectedOperationError, ProtectedRepo, main
 from mcp_monitor.protocol.revocation_fence import RevocationFence
 
 
@@ -142,3 +142,29 @@ def test_protected_repo_rejects_partial_fence_config(protected):
     _, authority, workspace = protected
     with pytest.raises(ValueError):
         ProtectedRepo(workspace, {"safe-package": "1.1.0"}, revocation_fence=authority)
+
+
+def test_enforced_launch_rejects_missing_authority_even_when_legacy_approval_exists(
+    protected, monkeypatch
+):
+    _, _, workspace = protected
+    monkeypatch.setenv("MCP_PROTECTED_REPO_ROOT", str(workspace))
+    monkeypatch.setenv("MCP_APPROVED_DEPENDENCY_UPDATES", '{"safe-package":"1.1.0"}')
+    monkeypatch.setenv("MCP_REQUIRE_REVOCATION_FENCE", "1")
+    monkeypatch.delenv("MCP_REVOCATION_AUTHORITY_DB", raising=False)
+    monkeypatch.delenv("MCP_TRUSTED_OPERATOR_PRINCIPAL", raising=False)
+    with pytest.raises(SystemExit, match="Invalid protected workspace configuration"):
+        main()
+    assert version(workspace) == "1.0.0"
+
+
+def test_enforced_launch_rejects_incomplete_fence_configuration(protected, monkeypatch):
+    _, authority, workspace = protected
+    monkeypatch.setenv("MCP_PROTECTED_REPO_ROOT", str(workspace))
+    monkeypatch.setenv("MCP_APPROVED_DEPENDENCY_UPDATES", '{"safe-package":"1.1.0"}')
+    monkeypatch.setenv("MCP_REQUIRE_REVOCATION_FENCE", "1")
+    monkeypatch.setenv("MCP_REVOCATION_AUTHORITY_DB", str(authority._path))
+    monkeypatch.delenv("MCP_TRUSTED_OPERATOR_PRINCIPAL", raising=False)
+    with pytest.raises(SystemExit, match="Invalid protected workspace configuration"):
+        main()
+    assert version(workspace) == "1.0.0"
