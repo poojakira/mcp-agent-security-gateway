@@ -3,13 +3,10 @@
 This is not a whole-repository secret scan or a production deployment audit.
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 
 import pytest
 import yaml
-
 
 COMPOSE = Path(__file__).resolve().parents[1] / "docker-compose.detection-lab.yml"
 
