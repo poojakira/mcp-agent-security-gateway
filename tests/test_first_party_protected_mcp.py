@@ -47,13 +47,15 @@ def test_server_rejects_protected_paths_and_unapproved_change(workspace):
     protected = workspace / "security-policy.json"
     before = _hash(protected)
     with pytest.raises(ProtectedOperationError, match="not approved"):
-        repo.update(
-            {"package": "safe-package", "version": "999.0.0", "expected_previous": "1.0.0"}
-        )
+        repo.update({"package": "safe-package", "version": "999.0.0", "expected_previous": "1.0.0"})
     with pytest.raises(ProtectedOperationError, match="Invalid dependency"):
         repo.update(
-            {"package": "safe-package", "version": "1.1.0", "expected_previous": "1.0.0",
-             "path": "../security-policy.json"}
+            {
+                "package": "safe-package",
+                "version": "1.1.0",
+                "expected_previous": "1.0.0",
+                "path": "../security-policy.json",
+            }
         )
     assert before == _hash(protected)
     assert repo.read({}) == {"dependencies": {"safe-package": "1.0.0"}}
@@ -69,9 +71,7 @@ def test_manifest_symlink_is_denied(workspace, tmp_path):
     with pytest.raises(ProtectedOperationError, match="Manifest missing"):
         repo.read({})
     with pytest.raises(ProtectedOperationError, match="Manifest missing"):
-        repo.update(
-            {"package": "safe-package", "version": "1.1.0", "expected_previous": "1.0.0"}
-        )
+        repo.update({"package": "safe-package", "version": "1.1.0", "expected_previous": "1.0.0"})
     assert "1.0.0" in other.read_text(encoding="utf-8")
 
 
@@ -90,32 +90,46 @@ async def _real_gateway_test(root: Path):
         gateway = StdioMCPProxy(command, server_id="protected-repo")
         await gateway.start()
         try:
-            init = json.loads(await gateway.handle_message(_rpc(1, "initialize", {
-                "protocolVersion": "2025-03-26",
-                "capabilities": {},
-                "clientInfo": {"name": "protected-repo-test", "version": "0.1"},
-            })))
-            assert init["result"]["serverInfo"]["name"] == "first-party-protected-repo"
-            await gateway.handle_message(
-                b'{"jsonrpc":"2.0","method":"notifications/initialized"}'
+            init = json.loads(
+                await gateway.handle_message(
+                    _rpc(
+                        1,
+                        "initialize",
+                        {
+                            "protocolVersion": "2025-03-26",
+                            "capabilities": {},
+                            "clientInfo": {"name": "protected-repo-test", "version": "0.1"},
+                        },
+                    )
+                )
             )
+            assert init["result"]["serverInfo"]["name"] == "first-party-protected-repo"
+            await gateway.handle_message(b'{"jsonrpc":"2.0","method":"notifications/initialized"}')
             tools = json.loads(await gateway.handle_message(_rpc(2, "tools/list")))
             names = {t["name"] for t in tools["result"]["tools"]}
             assert names == {"read_manifest", "update_dependency"}
 
-            good_read = json.loads(await gateway.handle_message(
-                _call(3, "read_manifest", {})
-            ))
+            good_read = json.loads(await gateway.handle_message(_call(3, "read_manifest", {})))
             assert "1.0.0" in json.dumps(good_read)
 
             for ident, name, args in (
                 (4, "read_file", {"path": str(protected)}),
                 (5, "write_file", {"path": str(protected), "content": "unsafe"}),
-                (6, "update_dependency", {"package": "safe-package", "version": "9.9.9",
-                                           "expected_previous": "1.0.0"}),
-                (7, "update_dependency", {"package": "safe-package", "version": "1.1.0",
-                                           "expected_previous": "1.0.0",
-                                           "path": str(protected)}),
+                (
+                    6,
+                    "update_dependency",
+                    {"package": "safe-package", "version": "9.9.9", "expected_previous": "1.0.0"},
+                ),
+                (
+                    7,
+                    "update_dependency",
+                    {
+                        "package": "safe-package",
+                        "version": "1.1.0",
+                        "expected_previous": "1.0.0",
+                        "path": str(protected),
+                    },
+                ),
                 (8, "run_command", {"command": "echo unauthorized"}),
             ):
                 denial = json.loads(await gateway.handle_message(_call(ident, name, args)))
@@ -123,24 +137,36 @@ async def _real_gateway_test(root: Path):
                 assert _hash(protected) == protected_before
                 assert json.loads(manifest.read_text())["dependencies"]["safe-package"] == "1.0.0"
 
-            allowed = json.loads(await gateway.handle_message(
-                _call(9, "update_dependency", {
-                    "package": "safe-package",
-                    "version": "1.1.0",
-                    "expected_previous": "1.0.0",
-                })
-            ))
+            allowed = json.loads(
+                await gateway.handle_message(
+                    _call(
+                        9,
+                        "update_dependency",
+                        {
+                            "package": "safe-package",
+                            "version": "1.1.0",
+                            "expected_previous": "1.0.0",
+                        },
+                    )
+                )
+            )
             assert "result" in allowed, allowed
             assert json.loads(manifest.read_text())["dependencies"]["safe-package"] == "1.1.0"
             assert _hash(protected) == protected_before
 
-            repeated = json.loads(await gateway.handle_message(
-                _call(10, "update_dependency", {
-                    "package": "safe-package",
-                    "version": "1.1.0",
-                    "expected_previous": "1.0.0",
-                })
-            ))
+            repeated = json.loads(
+                await gateway.handle_message(
+                    _call(
+                        10,
+                        "update_dependency",
+                        {
+                            "package": "safe-package",
+                            "version": "1.1.0",
+                            "expected_previous": "1.0.0",
+                        },
+                    )
+                )
+            )
             assert "error" in repeated
             assert _hash(protected) == protected_before
             print(
