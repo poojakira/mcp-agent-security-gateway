@@ -29,10 +29,17 @@ jobs:
       - name: Check syntax and formatting of new verification boundary
         run: |
           ruff check src/mcp_monitor/protocol/consequence_verifier.py tests/test_phase15_consequence_verification.py
-          ruff format --diff src/mcp_monitor/protocol/consequence_verifier.py tests/test_phase15_consequence_verification.py || true
           ruff format --check src/mcp_monitor/protocol/consequence_verifier.py tests/test_phase15_consequence_verification.py
       - name: Test independent consequence proofs and real MCP lost ACK
         run: |
           python -m pytest tests/test_phase15_consequence_verification.py tests/test_phase11_effect_journal.py -v --tb=short -rs
       - name: Verify real Phase 14 protected MCP adapter still functions
         run: python -m pytest tests/test_first_party_protected_mcp.py tests/test_phase14_bypass_matrix.py -q --tb=short
+      - name: Rebuild pinned-ID isolated Phase 14 MCP demonstrator
+        run: |
+          docker build -f Dockerfile.protected-mcp -t mcp-phase15-local:ci .
+          image_id="$(docker image inspect mcp-phase15-local:ci --format '{{.Id}}')"
+          case "$image_id" in sha256:*) ;; *) echo "Missing image ID"; exit 1;; esac
+          echo "MCP_PHASE14_DOCKER_IMAGE=$image_id" >> "$GITHUB_ENV"
+      - name: Verify real isolated MCP adapter remains independent
+        run: python -m pytest tests/test_phase14_isolated_docker.py -v --tb=short -rs
