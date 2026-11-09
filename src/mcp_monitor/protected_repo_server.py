@@ -239,8 +239,13 @@ def main() -> None:
     try:
         fence_path = os.environ.get("MCP_REVOCATION_AUTHORITY_DB")
         principal = os.environ.get("MCP_TRUSTED_OPERATOR_PRINCIPAL")
+        require_fence = os.environ.get("MCP_REQUIRE_REVOCATION_FENCE", "0")
+        if require_fence not in ("0", "1"):
+            raise ValueError("Invalid revocation enforcement configuration")
         if bool(fence_path) != bool(principal):
             raise ValueError("Both revocation authority and principal are required")
+        if require_fence == "1" and not (fence_path and principal):
+            raise ValueError("Revocation enforcement requires a trusted authority and principal")
         fence = RevocationFence(Path(fence_path)) if fence_path else None
         repo = ProtectedRepo(
             Path(root_value), _load_json(approval_value),
