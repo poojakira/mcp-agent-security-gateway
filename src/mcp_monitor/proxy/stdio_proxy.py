@@ -33,9 +33,9 @@ from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
 from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard
 from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
+from mcp_monitor.protocol.effect_journal import DurableEffectJournal, EffectJournalError
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
 from mcp_monitor.protocol.multiplex import MultiplexedTransport
-from mcp_monitor.protocol.effect_journal import DurableEffectJournal, EffectJournalError
 from mcp_monitor.proxy.internal_sandbox import InternalDockerSandbox
 from mcp_monitor.proxy.oidc_identity import OIDCSessionBinding
 from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
