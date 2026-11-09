@@ -1,0 +1,42 @@
+name: Phase 13 Release Readiness (NO-GO until remediated)
+
+on:
+  pull_request:
+    branches:
+      - phase12/frozen-adversarial-benchmark
+    paths:
+      - "docker-compose.detection-lab.yml"
+      - "tests/test_phase13_release_gate.py"
+      - "docs/review/PHASE13_RELEASE_READINESS.md"
+      - ".github/workflows/phase13-release-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integration-regression:
+    name: Full suite Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dev dependencies
+        run: python -m pip install -e ".[dev,oidc]"
+      - name: Lint release gate
+        run: |
+          ruff check tests/test_phase13_release_gate.py
+          ruff format --check tests/test_phase13_release_gate.py
+      - name: Run inherited regression suite
+        run: python -m pytest tests/ --ignore=tests/test_phase13_release_gate.py -q --tb=short --cov=mcp_monitor --cov-report=term --cov-fail-under=77
+      - name: Enforce lab configuration release gate
+        run: python -m pytest tests/test_phase13_release_gate.py -q --tb=short
