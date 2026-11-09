@@ -67,12 +67,13 @@ class ProtectedRepo:
     def __init__(self, root: Path, updates: dict[str, str]):
         if not root.is_dir() or root.is_symlink() or not root.is_absolute():
             raise ValueError("Workspace must be an existing absolute non-symlink directory")
-        if not isinstance(updates, dict) or not updates or any(
-            not isinstance(k, str)
-            or not k
-            or not isinstance(v, str)
-            or not v
-            for k, v in updates.items()
+        if (
+            not isinstance(updates, dict)
+            or not updates
+            or any(
+                not isinstance(k, str) or not k or not isinstance(v, str) or not v
+                for k, v in updates.items()
+            )
         ):
             raise ValueError("At least one operator-approved package/version required")
         self.root = root.resolve(strict=True)
@@ -100,7 +101,9 @@ class ProtectedRepo:
 
     def update(self, arguments: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(arguments, dict) or set(arguments) != {
-            "package", "version", "expected_previous"
+            "package",
+            "version",
+            "expected_previous",
         }:
             raise ProtectedOperationError("Invalid dependency update arguments")
         name, version, previous = (
