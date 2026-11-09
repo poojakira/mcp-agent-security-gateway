@@ -163,9 +163,10 @@ async def _lost_ack_scenario(workspace: Path, tmp_path: Path) -> None:
     with pytest.raises(EffectJournalError, match="Duplicate or unresolved"):
         restarted.reserve(**identity, arguments=arguments)
     # No automatic retry or misleading "COMPLETED" write after lost ACK.
-    assert json.loads((workspace / "package.json").read_text())["dependencies"][
-        "safe-package"
-    ] == "1.1.0"
+    assert (
+        json.loads((workspace / "package.json").read_text())["dependencies"]["safe-package"]
+        == "1.1.0"
+    )
 
 
 def test_real_mcp_lost_ack_does_not_falsify_consequence_or_retry(
