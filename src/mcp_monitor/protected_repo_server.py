@@ -14,6 +14,8 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+from mcp_monitor.protocol.revocation_fence import RevocationFence, RevocationFenceError
+
 MAX_FRAME_BYTES = 131072
 MAX_MANIFEST_BYTES = 65536
 PROTOCOL_VERSION = "2025-03-26"
@@ -64,7 +66,14 @@ def _load_json(raw: str) -> Any:
 class ProtectedRepo:
     """Single explicitly provisioned workspace, with no client-controlled paths."""
 
-    def __init__(self, root: Path, updates: dict[str, str]):
+    def __init__(
+        self,
+        root: Path,
+        updates: dict[str, str],
+        *,
+        revocation_fence: RevocationFence | None = None,
+        operator_principal: str | None = None,
+    ):
         if not root.is_dir() or root.is_symlink() or not root.is_absolute():
             raise ValueError("Workspace must be an existing absolute non-symlink directory")
         if (
@@ -77,7 +86,11 @@ class ProtectedRepo:
         ):
             raise ValueError("At least one operator-approved package/version required")
         self.root = root.resolve(strict=True)
+        if (revocation_fence is None) != (operator_principal is None):
+            raise ValueError("Fence and trusted operator principal must be supplied together")
         self.approved = dict(updates)
+        self.revocation_fence = revocation_fence
+        self.operator_principal = operator_principal
 
     def _manifest(self) -> tuple[Path, dict[str, Any]]:
         path = self.root / "package.json"
@@ -100,6 +113,16 @@ class ProtectedRepo:
         return {"dependencies": data["dependencies"]}
 
     def update(self, arguments: dict[str, Any]) -> dict[str, Any]:
+        if self.revocation_fence is None:
+            # Legacy laboratory mode is unfenced; never represent it as revocation safe.
+            return self._update_unfenced(arguments)
+        try:
+            with self.revocation_fence.authorize_effect(self.operator_principal):
+                return self._update_unfenced(arguments)
+        except RevocationFenceError as exc:
+            raise ProtectedOperationError("Revocation authority denied protected effect") from exc
+
+    def _update_unfenced(self, arguments: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(arguments, dict) or set(arguments) != {
             "package",
             "version",
@@ -217,7 +240,22 @@ def main() -> None:
     if not root_value or not approval_value:
         raise SystemExit("Required protected workspace / approval environment missing")
     try:
-        repo = ProtectedRepo(Path(root_value), _load_json(approval_value))
+        fence_path = os.environ.get("MCP_REVOCATION_AUTHORITY_DB")
+        principal = os.environ.get("MCP_TRUSTED_OPERATOR_PRINCIPAL")
+        require_fence = os.environ.get("MCP_REQUIRE_REVOCATION_FENCE", "0")
+        if require_fence not in ("0", "1"):
+            raise ValueError("Invalid revocation enforcement configuration")
+        if bool(fence_path) != bool(principal):
+            raise ValueError("Both revocation authority and principal are required")
+        if require_fence == "1" and not (fence_path and principal):
+            raise ValueError("Revocation enforcement requires a trusted authority and principal")
+        fence = RevocationFence(Path(fence_path)) if fence_path else None
+        repo = ProtectedRepo(
+            Path(root_value),
+            _load_json(approval_value),
+            revocation_fence=fence,
+            operator_principal=principal,
+        )
     except (ValueError, OSError) as exc:
         raise SystemExit("Invalid protected workspace configuration") from exc
     for raw in sys.stdin.buffer:
