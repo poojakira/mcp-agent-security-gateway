@@ -88,5 +88,5 @@ def test_genuine_public_mcp_manifest_through_first_party_gateway(tmp_path):
     assert data["name"] == "@modelcontextprotocol/servers"
     assert data["dependencies"][PACKAGE] == "*"
     shutil.copyfile(source, tmp_path / "package.json")
-    (tmp_path / "security-policy.json").write_text('{"audit":"required"}\\n', encoding="utf-8")
+    (tmp_path / "security-policy.json").write_text('{"audit":"required"}\n', encoding="utf-8")
     asyncio.run(_public_manifest_test(tmp_path))
