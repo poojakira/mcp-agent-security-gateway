@@ -42,7 +42,8 @@ def _snapshot(grants: dict[str, list[str]], revoked: list[list[str]]) -> str:
         if (
             not isinstance(resources, list)
             or len(resources) > 1024
-            or len(resources) != len(set(resources)) if all(isinstance(x, str) for x in resources) else True
+            or any(not isinstance(item, str) for item in resources)
+            or len(resources) != len(set(resources))
         ):
             raise AccessDenied("Invalid authoritative grant list")
         clean[principal] = sorted(_name(x) for x in resources)
@@ -198,8 +199,11 @@ class SQLitePermissionAuthority:
     def _current(self) -> tuple[int, dict[str, list[str]], list[list[str]]]:
         with self._lock:
             try:
-                with self._reader() as db:
+                db = self._reader()
+                try:
                     return self._load(db)
+                finally:
+                    db.close()
             except AccessDenied:
                 raise
             except Exception as exc:
@@ -292,6 +296,5 @@ class SQLitePermissionAuthority:
     ) -> int:
         """Durably revoke a single session token triple for all local readers."""
         return self._update(
-            expected_revision,
-            revoke=(_name(tenant), _name(sid), _name(jti)),
+            expected_revision, revoke=(_name(tenant), _name(sid), _name(jti))
         )
