@@ -32,6 +32,7 @@ jobs:
       - name: Lint integration-specific security files
         run: |
           ruff check src/mcp_monitor/protocol/revocation_fence.py src/mcp_monitor/protected_repo_server.py tests/test_phase16_revocation_safe_commit.py tests/test_retired_demo_credential.py
+          ruff format --diff src/mcp_monitor/protocol/revocation_fence.py src/mcp_monitor/protected_repo_server.py tests/test_phase16_revocation_safe_commit.py tests/test_retired_demo_credential.py
           ruff format --check src/mcp_monitor/protocol/revocation_fence.py src/mcp_monitor/protected_repo_server.py tests/test_phase16_revocation_safe_commit.py tests/test_retired_demo_credential.py
       - name: Full inherited regression suite
         run: python -m pytest tests/ -q --tb=short
