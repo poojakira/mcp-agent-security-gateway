@@ -13,6 +13,7 @@ from unittest.mock import patch
 import pytest
 
 from mcp_monitor.protected_repo_server import ProtectedOperationError, ProtectedRepo
+from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy, SubprocessTransport
 
 
@@ -87,7 +88,15 @@ async def _real_gateway_test(root: Path):
     manifest = root / "package.json"
     protected_before = _hash(protected)
     with patch.dict(os.environ, env):
-        gateway = StdioMCPProxy(command, server_id="protected-repo")
+        gateway = StdioMCPProxy(
+            command,
+            server_id="protected-repo",
+            strict_mcp_methods=True,
+            policy_engine=PolicyEngine(
+                allowed_servers={"protected-repo"},
+                allowed_tools={"read_manifest", "update_dependency"},
+            ),
+        )
         await gateway.start()
         try:
             init = json.loads(
