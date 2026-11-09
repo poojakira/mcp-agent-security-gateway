@@ -34,6 +34,7 @@ from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard
 from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
+from mcp_monitor.proxy.internal_sandbox import InternalDockerSandbox
 from mcp_monitor.proxy.oidc_identity import OIDCSessionBinding
 from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
 from mcp_monitor.proxy.session_identity import BoundSession, SessionVerificationError
@@ -265,6 +266,45 @@ class OfflineDockerTransport(SubprocessTransport):
             )
 
 
+class InternalDockerTransport(OfflineDockerTransport):
+    """Attest a sole-proxy internal Docker network before any MCP launch.
+
+    Ordinary host execution is never used when this profile was selected.
+    The inherited stop() force-removes and verifies the exact container.
+    """
+
+    def __init__(
+        self,
+        sandbox: InternalDockerSandbox,
+        server_command: list[str],
+        *,
+        max_response_bytes: int = 1048576,
+    ) -> None:
+        self._sandbox = sandbox
+        self.container_name = "mcp-offline-" + secrets.token_hex(12)
+        SubprocessTransport.__init__(
+            self,
+            sandbox.build_command(server_command, container_name=self.container_name),
+            max_response_bytes=max_response_bytes,
+        )
+
+    async def start(self) -> None:
+        try:
+            rc, raw = await self._docker_call(
+                "network",
+                "inspect",
+                self._sandbox.network_id,
+                "--format",
+                "{{json .}}",
+            )
+            if rc != 0 or len(raw) > 131072:
+                raise ValueError("Invalid internal network inspection result")
+            self._sandbox.validate_network_inspection(json.loads(raw))
+        except (ValueError, RuntimeError, OSError, asyncio.TimeoutError) as exc:
+            raise RuntimeError("Internal Docker network attestation failed closed") from exc
+        await super().start()
+
+
 # ---------------------------------------------------------------------------
 # Core inspection function
 # ---------------------------------------------------------------------------
@@ -449,6 +489,7 @@ class StdioMCPProxy:
         session_binding: BoundSession | OIDCSessionBinding | None = None,
         protected_resource_tools: dict[str, str] | None = None,
         offline_sandbox: OfflineDockerSandbox | None = None,
+        internal_sandbox: InternalDockerSandbox | None = None,
         response_timeout_seconds: float = 120.0,
         max_message_bytes: int = 1048576,
     ) -> None:
@@ -467,6 +508,18 @@ class StdioMCPProxy:
             raise ValueError("max_message_bytes must be a positive integer")
         self._response_timeout_seconds = float(response_timeout_seconds)
         self._max_message_bytes = max_message_bytes
+        if offline_sandbox is not None and internal_sandbox is not None:
+            raise ValueError("Offline and internal Docker modes cannot be combined")
+        if internal_sandbox is not None:
+            if not isinstance(internal_sandbox, InternalDockerSandbox):
+                raise ValueError("internal_sandbox must be InternalDockerSandbox")
+            if transport is not None:
+                raise ValueError("Cannot override the trusted internal Docker transport")
+            isolated = InternalDockerTransport(
+                internal_sandbox, command, max_response_bytes=max_message_bytes
+            )
+            command = isolated.command
+            transport = isolated
         if offline_sandbox is not None:
             if not isinstance(offline_sandbox, OfflineDockerSandbox):
                 raise ValueError("offline_sandbox must be an OfflineDockerSandbox")
@@ -478,6 +531,7 @@ class StdioMCPProxy:
             command = isolated.command
             transport = isolated
         self._offline_sandbox = offline_sandbox
+        self._internal_sandbox = internal_sandbox
         self.command = command
         self._transport = transport or SubprocessTransport(
             command, max_response_bytes=max_message_bytes
@@ -529,7 +583,13 @@ class StdioMCPProxy:
         self._running = True
         logger.info(
             "MCP proxy started, downstream: %s",
-            "offline Docker sandbox" if self._offline_sandbox is not None else self.command,
+            (
+                "attested internal Docker sandbox"
+                if self._internal_sandbox is not None
+                else "offline Docker sandbox"
+                if self._offline_sandbox is not None
+                else self.command
+            ),
         )
 
     async def stop(self) -> None:
@@ -960,6 +1020,11 @@ def main() -> None:
         "--offline-sandbox-image",
         help="Preloaded Docker image digest or ID (sha256:...) for offline network-none isolation",
     )
+    parser.add_argument("--internal-sandbox-image")
+    parser.add_argument("--internal-network-id")
+    parser.add_argument("--internal-proxy-id")
+    parser.add_argument("--internal-proxy-name")
+    parser.add_argument("--internal-proxy-port", type=int, default=3128)
     options = parser.parse_args(gateway_args)
 
     if not command:
@@ -969,6 +1034,19 @@ def main() -> None:
         )
         sys.exit(1)
 
+    internal_options = (
+        options.internal_sandbox_image,
+        options.internal_network_id,
+        options.internal_proxy_id,
+        options.internal_proxy_name,
+    )
+    if any(item is not None for item in internal_options) and not all(
+        item is not None for item in internal_options
+    ):
+        parser.error("All internal sandbox and trusted proxy identity options are required")
+    if options.offline_sandbox_image and options.internal_sandbox_image:
+        parser.error("Offline and internal Docker profiles are mutually exclusive")
+
     proxy = StdioMCPProxy(
         command,
         server_id=options.server_id,
@@ -976,6 +1054,17 @@ def main() -> None:
         offline_sandbox=(
             OfflineDockerSandbox(options.offline_sandbox_image)
             if options.offline_sandbox_image
+            else None
+        ),
+        internal_sandbox=(
+            InternalDockerSandbox(
+                image=options.internal_sandbox_image,
+                network_id=options.internal_network_id,
+                proxy_container_id=options.internal_proxy_id,
+                proxy_name=options.internal_proxy_name,
+                proxy_port=options.internal_proxy_port,
+            )
+            if options.internal_sandbox_image
             else None
         ),
     )
