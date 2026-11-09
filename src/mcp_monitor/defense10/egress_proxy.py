@@ -107,8 +107,16 @@ class EgressInspector:
     def inspect(self, correlation_id: str, actual_payload: Any) -> EgressVerdict:
         """Compare actual outbound recipients vs authorized recipients."""
         intent = self._registry.get(correlation_id)
-        authorized = set(intent["recipients"]) if intent else set()
+        if intent is None:
+            verdict = EgressVerdict(
+                allowed=False,
+                reason="No trusted, unexpired MCP intent for outbound request",
+                severity=98,
+            )
+            self._verdicts.append(verdict)
+            return verdict
 
+        authorized = set(intent["recipients"])
         actual = self._extract_all_emails(actual_payload)
 
         # Any recipient in the actual call NOT authorized by the agent = exfil
