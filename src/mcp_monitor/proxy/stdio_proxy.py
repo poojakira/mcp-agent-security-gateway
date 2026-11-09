@@ -285,10 +285,11 @@ class InternalDockerTransport(OfflineDockerTransport):
         max_response_bytes: int = 1048576,
     ) -> None:
         self._sandbox = sandbox
-        self.container_name = "mcp-offline-" + secrets.token_hex(12)
-        SubprocessTransport.__init__(
-            self,
-            sandbox.build_command(server_command, container_name=self.container_name),
+        # Reuse the parent constructor so container identity and cleanup state
+        # are initialized once for both offline and internal Docker profiles.
+        super().__init__(
+            sandbox,
+            server_command,
             max_response_bytes=max_response_bytes,
         )
 
