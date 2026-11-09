@@ -115,7 +115,7 @@ jobs:
           bandit -r src -ll -f json -o bandit-report.json
           python .github/scripts/check_bandit.py
       - name: Generate software bill of materials
-        run: cyclonedx-py environment --output-format JSON --outfile sbom.json
+        run: cyclonedx-py environment --output-format JSON --output-file sbom.json
       - name: Public dependency vulnerability audit (no API key)
         run: |
           status=0
