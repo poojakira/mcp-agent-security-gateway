@@ -15,7 +15,6 @@ from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard
 from mcp_monitor.policy.durable_authority import SQLitePermissionAuthority
 from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy
 
-
 KEY = b"SYNTHETIC_PHASE8_HMAC_KEY_NOT_FOR_DEPLOYMENT_0001"
 PRINCIPAL = "10:team-alpha:alice"
 RESOURCE = "/synthetic/private.txt"
