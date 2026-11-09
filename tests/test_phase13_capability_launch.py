@@ -125,3 +125,42 @@ def test_cli_refuses_insecure_configuration(args: list[str], reason: str) -> Non
         with pytest.raises(SystemExit) as exit_info:
             main()
     assert exit_info.value.code == 2
+
+
+@pytest.mark.parametrize("method", ["resources/read", "prompts/get", "sampling/createMessage"])
+def test_hardened_proxy_denies_non_tool_method(method: str) -> None:
+    transport = SpyTransport()
+    proxy = StdioMCPProxy(
+        ["placeholder"],
+        transport=transport,
+        server_id="trusted",
+        strict_mcp_methods=True,
+        policy_engine=PolicyEngine(
+            allowed_servers={"trusted"}, allowed_tools={"read_manifest"}
+        ),
+    )
+    message = json.dumps(
+        {"jsonrpc": "2.0", "id": 1, "method": method, "params": {}}
+    ).encode()
+    response = asyncio.run(proxy.handle_message(message))
+    assert json.loads(response)["error"]["code"] == proxy.SECURITY_BLOCK_CODE
+    assert transport.sent == []
+
+
+def test_hardened_proxy_allows_protocol_handshake() -> None:
+    transport = SpyTransport()
+    proxy = StdioMCPProxy(
+        ["placeholder"],
+        transport=transport,
+        server_id="trusted",
+        strict_mcp_methods=True,
+        policy_engine=PolicyEngine(
+            allowed_servers={"trusted"}, allowed_tools={"read_manifest"}
+        ),
+    )
+    message = json.dumps(
+        {"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}
+    ).encode()
+    response = asyncio.run(proxy.handle_message(message))
+    assert json.loads(response)["result"]["ok"] is True
+    assert transport.sent == [message + b"\n"]
