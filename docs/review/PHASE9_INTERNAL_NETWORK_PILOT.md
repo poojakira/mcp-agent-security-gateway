@@ -43,6 +43,30 @@ closed on a detected change. IPv6 networking, production HTTPS inspection,
 operator identity management, secure DNS, real IdP integration, side-effect
 recovery and resilience still require separate acceptance evidence.
 
-**Milestone verdict:** pending CI. **Production secure online egress: OPEN.**
+**Milestone verdict:** COMPLETED for the scoped internal-network isolation pilot. **Production secure online egress: OPEN.**
 No paid services, private runner, external test targets or production
 deployment. All preceding PRs remain draft and unmerged.
+
+## Verified CI evidence
+
+**Exact tested source commit:** `a075860545bccd9635892cbe7904836fc4bc13cb`.
+**Actions run:** [#42539490251](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42539490251), completed successfully (**4/4 jobs**).
+
+| Validation | Result |
+|---|---|
+| Python 3.10 complete suite | 1,046 passed, 3 skipped; 82.94% coverage |
+| Python 3.11 complete suite | 1,046 passed, 3 skipped; 82.91% coverage |
+| Python 3.12 complete suite | 1,046 passed, 3 skipped; 82.91% coverage |
+| Focused network-attestation tests | 19 passed per Python version |
+| Real Docker internal bridge and local sidecar | 1 passed |
+| Ruff lint and formatting | Passed |
+| Actual allowlisted HTTPS CONNECT and DNS/redirect defense | **Not implemented or tested** |
+| Production deployment / paid service | None |
+
+This validates launch-time bridge attestation, direct outbound denial and
+local synthetic sidecar connectivity. It does not prove that a *real* proxy
+enforces allowed destinations, nor does it test DNS rebinding, TLS, internet
+traffic, live network membership drift or host-container escape.
+
+**Phase 9 network topology pilot: COMPLETE. General secure online egress
+and the production Phase 9 gate: OPEN.**
