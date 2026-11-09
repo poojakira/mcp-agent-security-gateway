@@ -23,11 +23,11 @@ printf '{"name":"example","dependencies":{"safe-package":"1.0.0"}}\n' > /tmp/pro
 printf '{"audit":"required"}\n' > /tmp/protected-mcp-workspace/security-policy.json
 export MCP_PROTECTED_REPO_ROOT=/tmp/protected-mcp-workspace
 export MCP_APPROVED_DEPENDENCY_UPDATES='{"safe-package":"1.1.0"}'
-python -m mcp_monitor.proxy.stdio_proxy --server-id protected-repo -- \
+python -m mcp_monitor.proxy.stdio_proxy --server-id protected-repo --allow-tool read_manifest --allow-tool update_dependency --unsafe-local-dev -- \
   python -m mcp_monitor.protected_repo_server
 ```
 
-The last command runs a long-lived MCP server over stdin/stdout; it must be launched by an MCP client or tested with the real-process harness. To run deterministic client-side checks:
+The last command runs a long-lived MCP server over stdin/stdout; it must be launched by an MCP client or tested with the real-process harness. `--unsafe-local-dev` is an **explicit disposable-local exception**, not production isolation. In real deployments, replace it with a sandboxed downstream server and an operator-controlled identity and filesystem permission boundary. To run deterministic client-side checks:
 
 ```bash
 python -m pytest tests/test_first_party_protected_mcp.py -q -s
@@ -61,3 +61,7 @@ This provides **real publicly sourced project data** and actual downstream file 
 ## Release assessment
 
 **Research / controlled local demonstrator only. Production NO-GO.** Every CI run must be cited by exact SHA and reported separately from independent third-party adversarial results. Do not merge or deploy by default.
+
+## Phase 14 integration against hardened Phase 13
+
+The real-process tests now construct a `StdioMCPProxy` with strict-method mode enabled and a `PolicyEngine` exact tool-capability allowlist (`read_manifest`, `update_dependency`). Agent-supplied parameters never select the trusted `server_id`. Direct-process bypass tests independently demonstrate that *this specifically limited server* still denies unapproved tools and versions; an OS user with arbitrary write access to its workspace remains out of scope and is a release blocker. This is a real, disposable process experiment, not universal mediation.
