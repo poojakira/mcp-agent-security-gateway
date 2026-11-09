@@ -100,6 +100,8 @@ class MultiplexedTransport:
             try:
                 await self._reader
             except asyncio.CancelledError:
+                # Cancellation is expected because stop() explicitly cancels the reader.
+                # The transport is still closed below, even if the task was cancelled.
                 pass
             self._reader = None
         await self._transport.stop()
