@@ -67,7 +67,10 @@ class ProtectedRepo:
     """Single explicitly provisioned workspace, with no client-controlled paths."""
 
     def __init__(
-        self, root: Path, updates: dict[str, str], *,
+        self,
+        root: Path,
+        updates: dict[str, str],
+        *,
         revocation_fence: RevocationFence | None = None,
         operator_principal: str | None = None,
     ):
@@ -248,8 +251,10 @@ def main() -> None:
             raise ValueError("Revocation enforcement requires a trusted authority and principal")
         fence = RevocationFence(Path(fence_path)) if fence_path else None
         repo = ProtectedRepo(
-            Path(root_value), _load_json(approval_value),
-            revocation_fence=fence, operator_principal=principal,
+            Path(root_value),
+            _load_json(approval_value),
+            revocation_fence=fence,
+            operator_principal=principal,
         )
     except (ValueError, OSError) as exc:
         raise SystemExit("Invalid protected workspace configuration") from exc
