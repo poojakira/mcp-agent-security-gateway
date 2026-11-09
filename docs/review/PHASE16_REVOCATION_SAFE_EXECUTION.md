@@ -12,7 +12,7 @@ A trusted operator provisions a local principal with `RevocationFence.bootstrap`
 - `MCP_TRUSTED_OPERATOR_PRINCIPAL`: provisioned operator identity.
 - `MCP_REQUIRE_REVOCATION_FENCE=1`: reject startup when revocation authority or principal is missing.
 
-**Important:** `MCP_REQUIRE_REVOCATION_FENCE` defaults to `0` for legacy laboratory compatibility. A launch without enforced mode is **not revocation-safe**. The current adapter cannot authenticate an arbitrary external client's principal; it relies on operator-controlled process configuration.
+**Important:** In the Phase 1–16 integration candidate, `MCP_ENV=production` requires the revocation fence and rejects `MCP_REQUIRE_REVOCATION_FENCE=0`. Outside production, the variable defaults to `0` for legacy laboratory compatibility. A lab launch without enforced mode is **not revocation-safe**. The current adapter cannot authenticate an arbitrary external client's principal; it relies on operator-controlled process configuration.
 
 During `update_dependency`, the cooperating adapter holds `BEGIN IMMEDIATE` in the same SQLite authority until `os.replace` and its directory synchronization attempt finish. A revocation that commits before the writer acquires the lock denies the operation. A revocation that starts while the effect owns the lock cannot commit until the protected operation releases it. A subsequent protected operation after revocation fails closed. The current authorization revision cannot reverse an already executed effect.
 
