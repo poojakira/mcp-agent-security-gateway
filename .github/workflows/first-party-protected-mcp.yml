@@ -39,7 +39,6 @@ jobs:
           python -c 'import json,os,pathlib; p=pathlib.Path(os.environ["RUNNER_TEMP"])/"public-mcp-package.json"; d=json.loads(p.read_text()); assert d["dependencies"]["@modelcontextprotocol/server-filesystem"]=="*"'
       - name: Real protected update of authentic public MCP dependency manifest
         run: |
-          MCP_PUBLIC_MANIFEST_PATH="$RUNNER_TEMP/public-mcp-package.json" \\
-            python -m pytest tests/test_first_party_public_manifest.py -q -s --tb=short
+          MCP_PUBLIC_MANIFEST_PATH="$RUNNER_TEMP/public-mcp-package.json" python -m pytest tests/test_first_party_public_manifest.py -q -s --tb=short
       - name: Gateway policy and protocol regressions
         run: python -m pytest tests/test_stdio_policy_integration.py tests/test_stdio_adversarial_responses.py tests/test_protocol_hardening.py -q --tb=short
