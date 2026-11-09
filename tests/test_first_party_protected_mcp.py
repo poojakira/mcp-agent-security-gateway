@@ -12,8 +12,8 @@ from unittest.mock import patch
 
 import pytest
 
-from mcp_monitor.protected_repo_server import ProtectedOperationError, ProtectedRepo
 from mcp_monitor.policy.policy_engine import PolicyEngine
+from mcp_monitor.protected_repo_server import ProtectedOperationError, ProtectedRepo
 from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy, SubprocessTransport
 
 
