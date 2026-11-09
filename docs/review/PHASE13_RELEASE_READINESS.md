@@ -53,3 +53,24 @@ Use only free public-repository GitHub Actions, local synthetic fixtures and dis
 - No real secret revocation was performed, no actual production deployment was started, and no other open P13 gates were certified.
 
 **Exit verdict:** Phase 13 **first scoped lab-config release-gate milestone complete and verified**. Overall Phase 13 production-release gate **NO-GO / OPEN**.
+
+## Phase 13 integrated real-MCP verification — 2026-11-09
+
+**Verified source commit:** `2dab4e528b149a82ea14f16f644be86d3eb71960` (the workflow and production credential formatting fixes).
+**CI evidence:** [Run #42549250333](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42549250333), **4 of 4 jobs passed**.
+
+| Controlled check | Result on this commit |
+|---|---|
+| Full inherited regressions, Python 3.10 / 3.11 / 3.12 | 1,083 passed and 3 skipped on **each** version; coverage shown as 83% |
+| Phase 13 lab configuration and retired credential checks | 9 passed on **each** version |
+| Focused stdio policy, in-flight revocation, malformed response, ACL and effect-journal checks | 58 passed |
+| Actual pinned MCP filesystem server through the gateway | 1 passed; initialize, list tools, authorized read, denied read/write, malicious response, in-flight revocation and post-revocation read confirmed against disposable file state |
+| Security-sensitive source Ruff lint and formatting | Passed |
+| GitHub Actions workflow policy scan | Passed |
+| Docker Compose local-lab syntax/config validation with a disposable generated key | Passed; not a running Docker deployment |
+
+**Integration review:** PR #159 includes the stacked development ancestry from PR #148 through the phase-specific ancestors, and includes the security configuration fixes copied from PR #150. **PR #147 diverges from PR #159** (three commits behind in the comparison) and is not implicitly part of this candidate. It requires separate review, not an automatic merge. This is a reviewable **stacked integration candidate**, not an approved main-branch integration or product release.
+
+**Explicit exclusions and blockers:** CI did not run all optional real Docker image-isolation jobs on this exact commit; this workflow validates Docker Compose configuration but does not deploy a live container. Static checks do not establish historical credential revocation, real network destination fencing, identity-provider authenticity, distributed authorization freshness, cross-host crash recovery, broad MCP transport interoperability, independent representative adversarial efficacy, dependency vulnerability closure, or formal release approval. The real MCP filesystem test checks a controlled response-delivery revocation window, not a transactional fence before every downstream effect.
+
+**Decision:** `PHASE 13 — PARTIAL (verified integrated real-MCP and credential/lab configuration milestone)`. The final Phase 13 acceptance gate remains **OPEN / PRODUCTION NO-GO**. Do not start dependent Phase 14 engineering under the assumption that the broader Phase 13 security baseline has been completely approved; close or explicitly scope the required production blockers first. Do not merge, publish, or deploy without an owner's explicit approval.
