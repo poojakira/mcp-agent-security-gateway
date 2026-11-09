@@ -554,6 +554,8 @@ class StdioMCPProxy:
             if multiplexed
             else selected_transport
         )
+        # Prevent responses from being cross-delivered on sequential stdio transports.
+        self._exchange_lock = asyncio.Lock()
         self._detector = detector or PromptInjectionDetector(enable_ml=False)
         self._adapter = MCPJSONRPCAdapter()
         self._effect_journal = effect_journal
@@ -843,13 +845,14 @@ class StdioMCPProxy:
                     is_batch=is_batch,
                 )
             else:
-                await self._transport.send(outbound_raw + b"\n")
-                if not expects_reply:
-                    self._stats["allowed" if tool_count else "passthrough"] += 1
-                    return b""  # Notifications and client responses are one-way.
-                response = await asyncio.wait_for(
-                    self._transport.receive(), timeout=self._response_timeout_seconds
-                )
+                async with self._exchange_lock:
+                    await self._transport.send(outbound_raw + b"\n")
+                    if not expects_reply:
+                        self._stats["allowed" if tool_count else "passthrough"] += 1
+                        return b""  # Notifications and client responses are one-way.
+                    response = await asyncio.wait_for(
+                        self._transport.receive(), timeout=self._response_timeout_seconds
+                    )
             if not expects_reply:
                 self._stats["allowed" if tool_count else "passthrough"] += 1
                 return b""
