@@ -36,9 +36,7 @@ class ControlledTransport:
 
 
 def req(ident: int, method: str = "resources/read") -> bytes:
-    return json.dumps(
-        {"jsonrpc": "2.0", "id": ident, "method": method, "params": {}}
-    ).encode()
+    return json.dumps({"jsonrpc": "2.0", "id": ident, "method": method, "params": {}}).encode()
 
 
 def _error(raw: bytes) -> int:
@@ -128,7 +126,9 @@ def test_cancel_pending_request_quarantines_late_result() -> None:
         try:
             active = asyncio.create_task(proxy.handle_message(req(41)))
             await backend.sent.get()
-            cancel = b'{"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":41}}'
+            cancel = (
+                b'{"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":41}}'
+            )
             assert await proxy.handle_message(cancel) == b""
             await backend.sent.get()
             assert _error(await asyncio.wait_for(active, 2)) == StdioMCPProxy.SECURITY_BLOCK_CODE
@@ -148,7 +148,10 @@ def test_timeout_quarantines_late_reply() -> None:
     async def scenario() -> None:
         backend = ControlledTransport()
         proxy = StdioMCPProxy(
-            command=["synthetic"], transport=backend, multiplexed=True, response_timeout_seconds=0.01
+            command=["synthetic"],
+            transport=backend,
+            multiplexed=True,
+            response_timeout_seconds=0.01,
         )
         await proxy.start()
         try:
@@ -193,11 +196,15 @@ def test_bounded_pending_capacity_denies_excess_without_forwarding() -> None:
         await broker.start()
         try:
             first = asyncio.create_task(
-                broker.exchange(req(71) + b"\n", request_ids=[("number", 71)], timeout=2, is_batch=False)
+                broker.exchange(
+                    req(71) + b"\n", request_ids=[("number", 71)], timeout=2, is_batch=False
+                )
             )
             await backend.sent.get()
             with pytest.raises(RuntimeError, match="capacity"):
-                await broker.exchange(req(72) + b"\n", request_ids=[("number", 72)], timeout=1, is_batch=False)
+                await broker.exchange(
+                    req(72) + b"\n", request_ids=[("number", 72)], timeout=1, is_batch=False
+                )
             assert backend.sent.empty()
             await backend.reply(71)
             assert json.loads(await first)["id"] == 71
@@ -214,7 +221,9 @@ def test_duplicate_response_fails_closed() -> None:
         await broker.start()
         try:
             future = asyncio.create_task(
-                broker.exchange(req(81) + b"\n", request_ids=[("number", 81)], timeout=2, is_batch=False)
+                broker.exchange(
+                    req(81) + b"\n", request_ids=[("number", 81)], timeout=2, is_batch=False
+                )
             )
             await backend.sent.get()
             duplicate = [

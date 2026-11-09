@@ -181,10 +181,7 @@ class MultiplexedTransport:
             raise RuntimeError("MCP broker unavailable")
         if len(raw) > self._max_message_bytes:
             raise ValueError("MCP request too large")
-        if (
-            not request_ids
-            and not raw.endswith(b"\n")
-        ):
+        if not request_ids and not raw.endswith(b"\n"):
             raise ValueError("Invalid MCP request framing")
         if len(request_ids) != len(set(request_ids)):
             raise ValueError("Duplicate IDs within request")
@@ -199,9 +196,7 @@ class MultiplexedTransport:
                 raise RuntimeError("Request ID already active or retired")
             for key in request_ids:
                 future: asyncio.Future[dict] = loop.create_future()
-                future.add_done_callback(
-                    lambda f: f.exception() if not f.cancelled() else None
-                )
+                future.add_done_callback(lambda f: f.exception() if not f.cancelled() else None)
                 self._pending[key] = future
                 pending.append(future)
             try:
@@ -215,9 +210,7 @@ class MultiplexedTransport:
         if not pending:
             return b""
         try:
-            results = await asyncio.wait_for(
-                asyncio.gather(*pending), timeout=timeout
-            )
+            results = await asyncio.wait_for(asyncio.gather(*pending), timeout=timeout)
         finally:
             for key in request_ids:
                 self._pending.pop(key, None)
