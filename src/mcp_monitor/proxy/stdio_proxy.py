@@ -756,7 +756,9 @@ class StdioMCPProxy:
         # fails. A journal reservation is durable BEFORE downstream send.
         outbound_raw = raw_message
         effect_key: str | None = None
-        if self._effect_tools and any(message.get("method") == "tools/call" for message in messages):
+        if self._effect_tools and any(
+            message.get("method") == "tools/call" for message in messages
+        ):
             try:
                 if len(messages) != 1 or messages[0].get("method") != "tools/call":
                     raise EffectJournalError("Effect journal supports one tool call at a time")

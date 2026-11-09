@@ -69,9 +69,7 @@ def proxy(journal, transport, **options):
 
 
 def status(journal, key="operation-01"):
-    return journal.status(
-        principal=PRINCIPAL, server="local", tool=TOOL, operation_key=key
-    )
+    return journal.status(principal=PRINCIPAL, server="local", tool=TOOL, operation_key=key)
 
 
 def test_success_reserved_before_dispatch_and_exactly_one_forward(journal):
@@ -95,11 +93,15 @@ def test_restart_with_uncertain_intent_denies_duplicate(tmp_path):
     path = tmp_path / "effects.sqlite3"
     journal = DurableEffectJournal.bootstrap(path)
     journal.reserve(
-        principal=PRINCIPAL, server="local", tool=TOOL,
-        operation_key="op-restart", arguments=ARGS,
+        principal=PRINCIPAL,
+        server="local",
+        tool=TOOL,
+        operation_key="op-restart",
+        arguments=ARGS,
     )
     restarted = DurableEffectJournal(path)
     transport = ControlledTransport()
+
     async def scenario():
         gateway = proxy(restarted, transport)
         response = await gateway.handle_message(make_request("op-restart"))
@@ -111,13 +113,19 @@ def test_restart_with_uncertain_intent_denies_duplicate(tmp_path):
 
 def test_same_key_different_payload_denied(journal):
     journal.reserve(
-        principal=PRINCIPAL, server="local", tool=TOOL,
-        operation_key="operation-01", arguments=ARGS,
+        principal=PRINCIPAL,
+        server="local",
+        tool=TOOL,
+        operation_key="operation-01",
+        arguments=ARGS,
     )
     with pytest.raises(EffectJournalError):
         journal.reserve(
-            principal=PRINCIPAL, server="local", tool=TOOL,
-            operation_key="operation-01", arguments={"unexpected": "new"},
+            principal=PRINCIPAL,
+            server="local",
+            tool=TOOL,
+            operation_key="operation-01",
+            arguments={"unexpected": "new"},
         )
 
 
@@ -131,8 +139,10 @@ def test_missing_key_and_unauthenticated_principal_block_before_send(journal):
         assert json.loads(blocked)["error"]["code"] == gateway.SECURITY_BLOCK_CODE
         assert transport.sent == []
         no_identity = StdioMCPProxy(
-            command=["synthetic"], transport=transport,
-            effect_journal=journal, effect_tools={TOOL},
+            command=["synthetic"],
+            transport=transport,
+            effect_journal=journal,
+            effect_tools={TOOL},
         )
         result = await no_identity.handle_message(make_request())
         assert json.loads(result)["error"]["code"] == gateway.SECURITY_BLOCK_CODE
@@ -158,7 +168,9 @@ def test_timeout_leaves_uncertain_and_denies_retry(journal):
 
 def test_downstream_error_is_uncertain_not_replay_safe(journal):
     async def scenario():
-        transport = ControlledTransport(reply=b'{"jsonrpc":"2.0","id":7,"error":{"code":-32001,"message":"maybe applied"}}')
+        transport = ControlledTransport(
+            reply=b'{"jsonrpc":"2.0","id":7,"error":{"code":-32001,"message":"maybe applied"}}'
+        )
         gateway = proxy(journal, transport)
         raw = await gateway.handle_message(make_request())
         assert json.loads(raw)["error"]["code"] == gateway.SECURITY_BLOCK_CODE
@@ -170,6 +182,7 @@ def test_downstream_error_is_uncertain_not_replay_safe(journal):
 def test_missing_database_never_forwards(journal):
     path = journal._path
     path.unlink()
+
     async def scenario():
         transport = ControlledTransport()
         gateway = proxy(journal, transport)
@@ -185,13 +198,19 @@ def test_atomic_duplicate_reservation_from_two_instances(tmp_path):
     first = DurableEffectJournal.bootstrap(path)
     second = DurableEffectJournal(path)
     first.reserve(
-        principal=PRINCIPAL, server="local", tool=TOOL,
-        operation_key="duplicate", arguments=ARGS,
+        principal=PRINCIPAL,
+        server="local",
+        tool=TOOL,
+        operation_key="duplicate",
+        arguments=ARGS,
     )
     with pytest.raises(EffectJournalError):
         second.reserve(
-            principal=PRINCIPAL, server="local", tool=TOOL,
-            operation_key="duplicate", arguments=ARGS,
+            principal=PRINCIPAL,
+            server="local",
+            tool=TOOL,
+            operation_key="duplicate",
+            arguments=ARGS,
         )
 
 
@@ -199,9 +218,17 @@ def test_batch_containing_effect_is_denied(journal):
     async def scenario():
         transport = ControlledTransport()
         gateway = proxy(journal, transport)
-        batch = json.dumps([json.loads(make_request()), {
-            "jsonrpc": "2.0", "id": 8, "method": "tools/list", "params": {},
-        }]).encode()
+        batch = json.dumps(
+            [
+                json.loads(make_request()),
+                {
+                    "jsonrpc": "2.0",
+                    "id": 8,
+                    "method": "tools/list",
+                    "params": {},
+                },
+            ]
+        ).encode()
         reply = json.loads(await gateway.handle_message(batch))
         assert len(reply) == 2
         assert all(x["error"]["code"] == gateway.SECURITY_BLOCK_CODE for x in reply)
@@ -226,8 +253,9 @@ def test_non_effect_read_keeps_existing_behavior(journal):
 @pytest.mark.parametrize("value", ["", "a space", None, 7, "a" * 129])
 def test_invalid_operation_keys_fail_closed(journal, value):
     with pytest.raises(EffectJournalError):
-        journal.reserve(principal=PRINCIPAL, server="local", tool=TOOL,
-                        operation_key=value, arguments=ARGS)
+        journal.reserve(
+            principal=PRINCIPAL, server="local", tool=TOOL, operation_key=value, arguments=ARGS
+        )
 
 
 def test_corrupt_completion_state_fails_closed(journal):

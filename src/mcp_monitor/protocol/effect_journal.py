@@ -52,10 +52,7 @@ class DurableEffectJournal:
     def __init__(self, path: str | Path, *, timeout_seconds: float = 0.2) -> None:
         if not isinstance(path, str | Path) or not str(path):
             raise ValueError("Trusted effect database path required")
-        if (
-            type(timeout_seconds) not in (float, int)
-            or not 0 < timeout_seconds <= 2
-        ):
+        if type(timeout_seconds) not in (float, int) or not 0 < timeout_seconds <= 2:
             raise ValueError("Invalid journal timeout")
         self._path = Path(path).resolve()
         self._timeout = float(timeout_seconds)
@@ -88,9 +85,7 @@ class DurableEffectJournal:
 
     def _open(self) -> sqlite3.Connection:
         uri = "file:" + quote(str(self._path), safe="/") + "?mode=rw"
-        db = sqlite3.connect(
-            uri, uri=True, isolation_level=None, timeout=self._timeout
-        )
+        db = sqlite3.connect(uri, uri=True, isolation_level=None, timeout=self._timeout)
         db.execute("PRAGMA synchronous=FULL")
         return db
 
@@ -137,9 +132,7 @@ class DurableEffectJournal:
             except Exception as exc:
                 raise EffectJournalError("Effect journal unavailable") from exc
 
-    def mark_completed(
-        self, *, principal: str, server: str, tool: str, operation_key: str
-    ) -> None:
+    def mark_completed(self, *, principal: str, server: str, tool: str, operation_key: str) -> None:
         identity = (
             _label(principal, "principal"),
             _label(server, "server"),
@@ -170,9 +163,7 @@ class DurableEffectJournal:
             except Exception as exc:
                 raise EffectJournalError("Effect completion journal unavailable") from exc
 
-    def status(
-        self, *, principal: str, server: str, tool: str, operation_key: str
-    ) -> str | None:
+    def status(self, *, principal: str, server: str, tool: str, operation_key: str) -> str | None:
         identity = (
             _label(principal, "principal"),
             _label(server, "server"),
