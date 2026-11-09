@@ -224,9 +224,29 @@ async def _direct_bypass_scenario(root: Path):
                 assert "error" in reply
                 assert _hash(protected) == protected_before
                 assert json.loads(manifest.read_text())["dependencies"]["safe-package"] == "1.0.0"
+            # A same-user process with direct access to the server and the trusted
+            # environment can still perform an operator-approved operation without
+            # traversing the gateway. This is intentionally documented as a
+            # production bypass blocker, not treated as an authorization success.
+            direct_approved = _call(
+                104,
+                "update_dependency",
+                {
+                    "package": "safe-package",
+                    "version": "1.1.0",
+                    "expected_previous": "1.0.0",
+                },
+            )
+            await transport.send(direct_approved + b"\\n")
+            approved_reply = json.loads(
+                await asyncio.wait_for(transport.receive(), timeout=10)
+            )
+            assert "result" in approved_reply
+            assert json.loads(manifest.read_text())["dependencies"]["safe-package"] == "1.1.0"
+            assert _hash(protected) == protected_before
             print(
-                "DIRECT SERVER BYPASS: three disallowed commands denied independently "
-                "without the gateway; protected file unchanged",
+                "DIRECT SERVER BOUNDARY: unauthorized calls denied, but same-user "
+                "approved tool effect can bypass the gateway: RELEASE BLOCKER",
                 flush=True,
             )
         finally:
