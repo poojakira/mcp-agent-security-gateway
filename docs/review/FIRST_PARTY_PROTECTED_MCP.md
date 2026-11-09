@@ -48,6 +48,14 @@ All real file operations in CI use separate temporary directories and disposable
 | repeated update with stale previous-version precondition | Denied |
 | package.json symlink to external file | Denied, external file unchanged |
 
+A second independent-process test bypasses the gateway entirely and sends denied MCP methods directly to the server. It validates that the server independently refuses unauthorized reads, writes, and unapproved dependency changes. Such testing does not prove an attacker with direct OS-level write permissions is contained.
+
+## Authentically sourced public dependency manifest
+
+In addition to disposable authored fixtures, CI downloads the actual published `package.json` from [modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers/blob/36380287ed3b15d115b55f546617d723072b1296/package.json), pinned to commit `36380287ed3b15d115b55f546617d723072b1296` and Git blob `34557784d197891ed31204127a76fde5eee240da`. The workflow verifies the blob before testing. The server runs through the gateway and changes only the copied open-source manifest's explicitly approved `@modelcontextprotocol/server-filesystem` dependency version; it independently verifies all other fields and a protected policy file remain unchanged. The upstream repository is untouched.
+
+This provides **real publicly sourced project data** and actual downstream file effects, but it is not a source of real customer credentials, production compromise events, attack attempts, or measured adversarial prompt-injection efficacy. It remains an isolated reproducible study, not a live test against the upstream project's infrastructure.
+
 **Do not claim** this endpoint is a general file protection appliance. It only protects this one declared server contract, and does not prove that another MCP server or direct OS process is inaccessible.
 
 ## Release assessment
