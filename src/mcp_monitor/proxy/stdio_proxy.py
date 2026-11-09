@@ -1125,6 +1125,8 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="Inline MCP security gateway")
     parser.add_argument("--server-id", default="local")
+    parser.add_argument("--allow-tool", action="append", default=[], help="Trusted exact MCP tool capability; repeat per tool")
+    parser.add_argument("--unsafe-local-dev", action="store_true", help="Explicitly opt out of container isolation for local testing only")
     parser.add_argument("--allow-egress-host", action="append", default=[])
     parser.add_argument(
         "--offline-sandbox-image",
@@ -1157,10 +1159,29 @@ def main() -> None:
     if options.offline_sandbox_image and options.internal_sandbox_image:
         parser.error("Offline and internal Docker profiles are mutually exclusive")
 
+    if not options.allow_tool or any(not item.strip() for item in options.allow_tool):
+        parser.error("Provide at least one trusted --allow-tool; unrestricted tool execution is forbidden")
+    if not (
+        options.offline_sandbox_image
+        or options.internal_sandbox_image
+        or options.unsafe_local_dev
+    ):
+        parser.error("Select --offline-sandbox-image or internal Docker isolation; "
+                     "--unsafe-local-dev is for disposable testing only")
+    if options.unsafe_local_dev and (
+        options.offline_sandbox_image or options.internal_sandbox_image
+    ):
+        parser.error("--unsafe-local-dev cannot be combined with sandbox isolation")
+
     proxy = StdioMCPProxy(
         command,
         server_id=options.server_id,
         allowed_egress_hosts=set(options.allow_egress_host),
+        policy_engine=PolicyEngine(
+            allowed_servers={options.server_id},
+            allowed_tools=set(options.allow_tool),
+            allowed_egress_hosts=set(options.allow_egress_host),
+        ),
         offline_sandbox=(
             OfflineDockerSandbox(options.offline_sandbox_image)
             if options.offline_sandbox_image
