@@ -50,9 +50,7 @@ def test_unlisted_tool_never_reaches_downstream() -> None:
         ["placeholder"],
         transport=transport,
         server_id="trusted",
-        policy_engine=PolicyEngine(
-            allowed_servers={"trusted"}, allowed_tools={"read_manifest"}
-        ),
+        policy_engine=PolicyEngine(allowed_servers={"trusted"}, allowed_tools={"read_manifest"}),
     )
     response = asyncio.run(proxy.handle_message(_tool("write_file")))
     assert json.loads(response)["error"]["code"] == proxy.SECURITY_BLOCK_CODE
@@ -65,9 +63,7 @@ def test_listed_tool_passes_capability_gate() -> None:
         ["placeholder"],
         transport=transport,
         server_id="trusted",
-        policy_engine=PolicyEngine(
-            allowed_servers={"trusted"}, allowed_tools={"read_manifest"}
-        ),
+        policy_engine=PolicyEngine(allowed_servers={"trusted"}, allowed_tools={"read_manifest"}),
     )
     response = asyncio.run(proxy.handle_message(_tool("read_manifest")))
     assert json.loads(response)["result"]["ok"] is True
@@ -75,12 +71,8 @@ def test_listed_tool_passes_capability_gate() -> None:
 
 
 def test_dangerous_tool_stays_denied_even_if_listed() -> None:
-    policy = PolicyEngine(
-        allowed_servers={"trusted"}, allowed_tools={"shell_exec"}
-    )
-    decision = policy.evaluate(
-        {"server_id": "trusted", "name": "shell_exec", "arguments": {}}
-    )
+    policy = PolicyEngine(allowed_servers={"trusted"}, allowed_tools={"shell_exec"})
+    decision = policy.evaluate({"server_id": "trusted", "name": "shell_exec", "arguments": {}})
     assert decision.allowed is False
     assert decision.reason_code is ReasonCode.DENY_DANGEROUS_TOOL
 
@@ -135,13 +127,9 @@ def test_hardened_proxy_denies_non_tool_method(method: str) -> None:
         transport=transport,
         server_id="trusted",
         strict_mcp_methods=True,
-        policy_engine=PolicyEngine(
-            allowed_servers={"trusted"}, allowed_tools={"read_manifest"}
-        ),
+        policy_engine=PolicyEngine(allowed_servers={"trusted"}, allowed_tools={"read_manifest"}),
     )
-    message = json.dumps(
-        {"jsonrpc": "2.0", "id": 1, "method": method, "params": {}}
-    ).encode()
+    message = json.dumps({"jsonrpc": "2.0", "id": 1, "method": method, "params": {}}).encode()
     response = asyncio.run(proxy.handle_message(message))
     assert json.loads(response)["error"]["code"] == proxy.SECURITY_BLOCK_CODE
     assert transport.sent == []
@@ -154,13 +142,9 @@ def test_hardened_proxy_allows_protocol_handshake() -> None:
         transport=transport,
         server_id="trusted",
         strict_mcp_methods=True,
-        policy_engine=PolicyEngine(
-            allowed_servers={"trusted"}, allowed_tools={"read_manifest"}
-        ),
+        policy_engine=PolicyEngine(allowed_servers={"trusted"}, allowed_tools={"read_manifest"}),
     )
-    message = json.dumps(
-        {"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}
-    ).encode()
+    message = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}).encode()
     response = asyncio.run(proxy.handle_message(message))
     assert json.loads(response)["result"]["ok"] is True
     assert transport.sent == [message + b"\n"]
