@@ -29,7 +29,6 @@ jobs:
       - name: Lint the protected server and real-process tests
         run: |
           ruff check src/mcp_monitor/protected_repo_server.py tests/test_first_party_protected_mcp.py
-          ruff format --diff src/mcp_monitor/protected_repo_server.py tests/test_first_party_protected_mcp.py || true
           ruff format --check src/mcp_monitor/protected_repo_server.py tests/test_first_party_protected_mcp.py
       - name: Real MCP server process through the actual gateway
         run: python -m pytest tests/test_first_party_protected_mcp.py -q -s --tb=short
