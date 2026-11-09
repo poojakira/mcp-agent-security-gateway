@@ -131,7 +131,9 @@ class Config:
         seen: set[str] = set()
         for value in values:
             if sha256(value.encode("utf-8")).hexdigest() in _RETIRED_GATEWAY_KEY_SHA256:
-                raise ValueError("Known publicly exposed MCP API credential is forbidden; rotate it")
+                raise ValueError(
+                    "Known publicly exposed MCP API credential is forbidden; rotate it"
+                )
             if value not in seen:
                 deduplicated.append(value)
                 seen.add(value)
