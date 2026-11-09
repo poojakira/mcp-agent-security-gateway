@@ -24,9 +24,7 @@ SESSION = ("team-alpha", "session-01", "token-01")
 @pytest.fixture
 def authority(tmp_path):
     path = tmp_path / "permissions.sqlite3"
-    store = SQLitePermissionAuthority.bootstrap(
-        path, key=KEY, grants={PRINCIPAL: {RESOURCE}}
-    )
+    store = SQLitePermissionAuthority.bootstrap(path, key=KEY, grants={PRINCIPAL: {RESOURCE}})
     return path, store
 
 
@@ -43,8 +41,7 @@ def test_two_nodes_see_revocation_without_resync(authority) -> None:
     first = SQLitePermissionAuthority(path, key=KEY)
     second = SQLitePermissionAuthority(path, key=KEY)
     guards = [
-        ACLGuard({PRINCIPAL: {RESOURCE}}, authority_check=node.check)
-        for node in (first, second)
+        ACLGuard({PRINCIPAL: {RESOURCE}}, authority_check=node.check) for node in (first, second)
     ]
     for guard in guards:
         guard.check(PRINCIPAL, RESOURCE)
@@ -52,9 +49,10 @@ def test_two_nodes_see_revocation_without_resync(authority) -> None:
     for guard in guards:
         with pytest.raises(AccessDenied):
             guard.check(PRINCIPAL, RESOURCE)
-    assert SQLitePermissionAuthority(path, key=KEY, minimum_revision=1).check(
-        PRINCIPAL, RESOURCE
-    ) is False
+    assert (
+        SQLitePermissionAuthority(path, key=KEY, minimum_revision=1).check(PRINCIPAL, RESOURCE)
+        is False
+    )
 
 
 def test_stale_writer_conflict_fails_closed(authority) -> None:
@@ -98,7 +96,9 @@ def test_deleted_db_never_reinitialized_as_permissive(authority) -> None:
     assert not path.exists()
 
 
-def test_signed_rollback_detected_by_live_reader_and_trusted_restart_floor(authority, tmp_path) -> None:
+def test_signed_rollback_detected_by_live_reader_and_trusted_restart_floor(
+    authority, tmp_path
+) -> None:
     path, store = authority
     old = tmp_path / "old-state.sqlite3"
     shutil.copyfile(path, old)
@@ -165,9 +165,11 @@ def test_pre_retrieval_filter_uses_authoritative_state(authority) -> None:
         authority_check=store.check,
     )
     visited = []
+
     def backend(query, ids):
         visited.append(ids)
         return [{"resource_id": res, "content": "synthetic"} for res in ids]
+
     assert guard.authorized_search(PRINCIPAL, "synthetic", backend)
     store.set_grant(PRINCIPAL, RESOURCE, False, expected_revision=0)
     assert guard.authorized_search(PRINCIPAL, "synthetic", backend) == []
@@ -207,10 +209,14 @@ def test_inflight_revocation_does_not_release_protected_result(authority) -> Non
             authenticated_principal=PRINCIPAL,
             protected_resource_tools={"read_file": "path"},
         )
-        req = json.dumps({
-            "jsonrpc": "2.0", "id": 9, "method": "tools/call",
-            "params": {"name": "read_file", "arguments": {"path": RESOURCE}},
-        }).encode()
+        req = json.dumps(
+            {
+                "jsonrpc": "2.0",
+                "id": 9,
+                "method": "tools/call",
+                "params": {"name": "read_file", "arguments": {"path": RESOURCE}},
+            }
+        ).encode()
         task = asyncio.create_task(proxy.handle_message(req))
         try:
             await asyncio.wait_for(transport.waiting.wait(), timeout=3.0)
@@ -230,7 +236,7 @@ def test_two_real_python_processes_observe_shared_durable_revocation(authority) 
     path, writer = authority
     # Separate, persistent Python worker processes; they keep stale local
     # ACL snapshots but consult the same authenticated SQLite source.
-    script = '''
+    script = """
 import sys
 from mcp_monitor.policy.acl_guard import ACLGuard, AccessDenied
 from mcp_monitor.policy.durable_authority import SQLitePermissionAuthority
@@ -245,7 +251,7 @@ for line in sys.stdin:
         print("allow", flush=True)
     except AccessDenied:
         print("deny", flush=True)
-'''
+"""
     workers = [
         subprocess.Popen(
             [sys.executable, "-u", "-c", script, str(path), PRINCIPAL, RESOURCE],

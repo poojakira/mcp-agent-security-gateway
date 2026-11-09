@@ -23,11 +23,7 @@ _MAX_SNAPSHOT_BYTES = 524288
 
 
 def _name(value: object) -> str:
-    if (
-        not isinstance(value, str)
-        or not 1 <= len(value) <= 512
-        or "\x00" in value
-    ):
+    if not isinstance(value, str) or not 1 <= len(value) <= 512 or "\x00" in value:
         raise AccessDenied("Invalid authoritative identity or resource")
     return value
 
@@ -124,9 +120,7 @@ class SQLitePermissionAuthority:
         return sqlite3.connect(uri, uri=True, timeout=self._timeout, isolation_level=None)
 
     def _load(self, db: sqlite3.Connection) -> tuple[int, dict[str, list[str]], list[list[str]]]:
-        row = db.execute(
-            "SELECT revision, snapshot, mac FROM authority WHERE id = 1"
-        ).fetchone()
+        row = db.execute("SELECT revision, snapshot, mac FROM authority WHERE id = 1").fetchone()
         if (
             row is None
             or type(row[0]) is not int
@@ -291,10 +285,6 @@ class SQLitePermissionAuthority:
             expected_revision, principal=principal, resource_id=resource_id, allow=allowed
         )
 
-    def revoke_session(
-        self, tenant: str, sid: str, jti: str, *, expected_revision: int
-    ) -> int:
+    def revoke_session(self, tenant: str, sid: str, jti: str, *, expected_revision: int) -> int:
         """Durably revoke a single session token triple for all local readers."""
-        return self._update(
-            expected_revision, revoke=(_name(tenant), _name(sid), _name(jti))
-        )
+        return self._update(expected_revision, revoke=(_name(tenant), _name(sid), _name(jti)))
