@@ -6,6 +6,8 @@ on:
       - phase12/frozen-adversarial-benchmark
     paths:
       - "docker-compose.detection-lab.yml"
+      - "src/mcp_monitor/production/config.py"
+      - "tests/test_phase13_retired_credential.py"
       - "tests/test_phase13_release_gate.py"
       - "docs/review/PHASE13_RELEASE_READINESS.md"
       - ".github/workflows/phase13-release-gate.yml"
@@ -34,9 +36,9 @@ jobs:
         run: python -m pip install -e ".[dev,oidc]"
       - name: Lint release gate
         run: |
-          ruff check tests/test_phase13_release_gate.py
-          ruff format --check tests/test_phase13_release_gate.py
+          ruff check tests/test_phase13_release_gate.py tests/test_phase13_retired_credential.py
+          ruff format --check tests/test_phase13_release_gate.py tests/test_phase13_retired_credential.py
       - name: Run inherited regression suite
-        run: python -m pytest tests/ --ignore=tests/test_phase13_release_gate.py -q --tb=short --cov=mcp_monitor --cov-report=term --cov-fail-under=77
+        run: python -m pytest tests/ --ignore=tests/test_phase13_release_gate.py --ignore=tests/test_phase13_retired_credential.py -q --tb=short --cov=mcp_monitor --cov-report=term --cov-fail-under=77
       - name: Enforce lab configuration release gate
-        run: python -m pytest tests/test_phase13_release_gate.py -q --tb=short
+        run: python -m pytest tests/test_phase13_release_gate.py tests/test_phase13_retired_credential.py -q --tb=short
