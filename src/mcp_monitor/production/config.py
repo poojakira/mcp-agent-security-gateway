@@ -8,7 +8,6 @@ from __future__ import annotations
 import os
 from hashlib import sha256
 
-
 # Hash of a publicly exposed demonstration gateway credential. New instances
 # must reject it even if an operator manually reconfigures the old value.
 # This does not rotate/revoke secrets in running, unpatched deployments.
