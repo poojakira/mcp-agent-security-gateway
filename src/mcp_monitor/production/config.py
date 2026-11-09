@@ -11,9 +11,9 @@ from hashlib import sha256
 # Hash of a publicly exposed demonstration gateway credential. New instances
 # must reject it even if an operator manually reconfigures the old value.
 # This does not rotate/revoke secrets in running, unpatched deployments.
-_RETIRED_GATEWAY_KEY_SHA256 = frozenset({
-    "060837576772b02286292ea61844da9ac2ba84fe5d3e732906ac2130eac93aa2",
-})
+_RETIRED_GATEWAY_KEY_SHA256 = frozenset(
+    {"060837576772b02286292ea61844da9ac2ba84fe5d3e732906ac2130eac93aa2"}
+)
 
 
 class Config:
