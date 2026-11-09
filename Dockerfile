@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
 COPY tests ./tests
+COPY benchmark ./benchmark
 # This source-only measurement helper is imported by a builder-stage regression test.
 # It is intentionally not copied into the runtime stage.
 COPY scripts/measure_incident_response.py ./scripts/measure_incident_response.py
@@ -19,8 +20,8 @@ COPY Dockerfile docker-compose.yml locustfile.py ./
 COPY deploy ./deploy
 
 # Validate the package in the build stage; this is a build gate, not a deployment proof.
-RUN pip install --no-cache-dir -e ".[dev]"
-RUN pytest tests/ -v
+RUN pip install --no-cache-dir -e ".[dev,oidc]"
+RUN python -m pytest tests/ -v
 
 RUN pip wheel --wheel-dir=/wheels --no-deps .
 
