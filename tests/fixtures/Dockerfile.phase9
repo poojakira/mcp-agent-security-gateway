@@ -1,0 +1,6 @@
+# Disposable, stdlib-only networking fixtures. Not a production server.
+FROM public.ecr.aws/docker/library/python:3.12-alpine
+COPY tests/fixtures/phase9_network_server.py /opt/phase9/mcp.py
+COPY tests/fixtures/phase9_sidecar_fixture.py /opt/phase9/sidecar.py
+USER 65534:65534
+WORKDIR /tmp
