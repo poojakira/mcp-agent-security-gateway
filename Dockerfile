@@ -16,7 +16,7 @@ COPY benchmark ./benchmark
 # It is intentionally not copied into the runtime stage.
 COPY scripts/measure_incident_response.py ./scripts/measure_incident_response.py
 COPY detection_rules ./detection_rules
-COPY Dockerfile docker-compose.yml locustfile.py ./
+COPY Dockerfile docker-compose.yml docker-compose.detection-lab.yml locustfile.py ./
 COPY deploy ./deploy
 
 # Validate the package in the build stage; this is a build gate, not a deployment proof.
