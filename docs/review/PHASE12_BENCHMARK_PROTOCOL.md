@@ -41,8 +41,8 @@ The 96 labels were committed on commit `e6dc1ef9465f79d530472706ac00d0f49b8f748e
 `malicious/novel_indirect`, indicating poor generalization to implicit
 authority-promotion instructions. The remaining false negative comes from
 another malicious family. All 8 quoted attack-text *benign* cases were
-classified as malicious. Four benign security-review examples and two benign
-Unicode cases also triggered false positives.
+classified as malicious. Four benign security-review examples, two benign Unicode cases, and
+two benign HTML/documentation examples also triggered false positives.
 
 These examples were intentionally difficult and curator-labeled. They show
 limitations of pattern-based detection **on this dataset only**, not estimates
