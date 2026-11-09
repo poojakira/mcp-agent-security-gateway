@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - phase13/release-readiness-gate
+      - phase14/real-mcp-execution-proof
   workflow_dispatch:
 
 permissions:
