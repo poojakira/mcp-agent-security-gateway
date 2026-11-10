@@ -115,7 +115,6 @@ def test_transport_bypass_and_conflicting_sandboxes_rejected() -> None:
         )
 
 
-
 def test_internal_transport_parent_constructor_preserves_container_identity() -> None:
     gateway = StdioMCPProxy(
         command=["python", "-u", "/opt/phase9/mcp.py"],
