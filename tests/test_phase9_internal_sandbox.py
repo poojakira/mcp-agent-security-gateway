@@ -115,6 +115,21 @@ def test_transport_bypass_and_conflicting_sandboxes_rejected() -> None:
         )
 
 
+
+def test_internal_transport_parent_constructor_preserves_container_identity() -> None:
+    gateway = StdioMCPProxy(
+        command=["python", "-u", "/opt/phase9/mcp.py"],
+        internal_sandbox=sandbox(),
+    )
+    transport = gateway._transport
+    assert isinstance(transport, InternalDockerTransport)
+    assert transport._sandbox == sandbox()
+    assert transport.container_name.startswith("mcp-offline-")
+    assert len(transport.container_name) == len("mcp-offline-") + 24
+    assert transport.command == gateway.command
+    assert gateway.command.count(transport.container_name) == 1
+
+
 def test_failed_attestation_never_starts_unrestricted_process(monkeypatch) -> None:
     async def scenario() -> None:
         gateway = StdioMCPProxy(command=["python"], internal_sandbox=sandbox())
