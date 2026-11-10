@@ -18,6 +18,7 @@ Usage (Claude Desktop config):
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import json
 import logging
@@ -27,6 +28,7 @@ from enum import Enum
 from typing import Any, Protocol
 
 from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
+from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
 
@@ -330,11 +332,28 @@ class StdioMCPProxy:
         detector: PromptInjectionDetector | None = None,
         rate_limiter: RateLimiter | None = None,
         tool_calls_per_minute: int = 300,
+        server_id: str = "local",
+        allowed_egress_hosts: set[str] | frozenset[str] | None = None,
+        policy_engine: PolicyEngine | None = None,
     ) -> None:
+        if not isinstance(server_id, str) or not server_id.strip():
+            raise ValueError("server_id must be a non-empty trusted downstream identifier")
         self.command = command
         self._transport = transport or SubprocessTransport(command)
         self._detector = detector or PromptInjectionDetector(enable_ml=False)
         self._adapter = MCPJSONRPCAdapter()
+        # Bind the authorized identity to the configured subprocess, never to
+        # client-provided JSON-RPC arguments. The default policy denies known
+        # destructive tools and all declared egress destinations not allowlisted.
+        self._server_id = server_id
+        self._policy_engine = (
+            policy_engine
+            if policy_engine is not None
+            else PolicyEngine(
+                allowed_servers={server_id},
+                allowed_egress_hosts=allowed_egress_hosts,
+            )
+        )
         # Rate limit tool calls at the proxy layer (separate from production/ server rate limiter).
         # Default: 300 tool calls/minute, burst up to 300. Reduces DoS risk and
         # limits blast radius if an agent is compromised or stuck in a loop.
@@ -450,6 +469,33 @@ class StdioMCPProxy:
         all_matched: list[str] = []
         for tool_call in tool_calls:
             internal = tool_call.to_internal_format()
+            # Authorization is an enforcement decision, not a prompt-injection
+            # signature. Perform it on every tools/call before any forwarding.
+            # The server ID comes from the trusted subprocess configuration.
+            try:
+                authorization = self._policy_engine.evaluate(
+                    {
+                        "name": tool_call.name,
+                        "server_id": self._server_id,
+                        "arguments": tool_call.arguments,
+                    }
+                )
+            except Exception:
+                logger.exception("Authorization policy evaluation failed")
+                return InspectionResult(
+                    decision=Decision.INDETERMINATE,
+                    reason="Authorization policy evaluation failed",
+                    matched_patterns=["policy_error"],
+                    request_id=request_id,
+                    detector_errors=["authorization_policy"],
+                )
+            if not authorization.allowed:
+                return InspectionResult(
+                    decision=Decision.BLOCK,
+                    reason=f"Authorization denied: {authorization.reason_code.value}",
+                    matched_patterns=[f"policy_{authorization.reason_code.value.lower()}"],
+                    request_id=request_id,
+                )
             try:
                 detected, patterns = self._detector.detect(internal)
             except Exception as exc:
@@ -523,23 +569,35 @@ def main() -> None:
 
     Usage: python -m mcp_monitor.proxy.stdio_proxy -- <server_command> [args...]
     """
-    args = sys.argv[1:]
+    parser = argparse.ArgumentParser(
+        description="Fail-closed MCP stdio proxy for one configured downstream server."
+    )
+    parser.add_argument(
+        "--server-id",
+        default="local",
+        help="Trusted identifier bound to the configured downstream subprocess.",
+    )
+    parser.add_argument(
+        "--allow-egress-host",
+        action="append",
+        default=[],
+        metavar="HOST",
+        help="Explicitly authorized egress hostname (repeatable; default: none).",
+    )
+    parser.add_argument("server_command", nargs=argparse.REMAINDER)
+    args = parser.parse_args()
 
-    # Split on -- to get the downstream command
-    if "--" in args:
-        sep_idx = args.index("--")
-        command = args[sep_idx + 1 :]
-    else:
-        command = args
-
+    command = args.server_command
+    if command and command[0] == "--":
+        command = command[1:]
     if not command:
-        print(
-            "Usage: python -m mcp_monitor.proxy.stdio_proxy -- <command> [args...]",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+        parser.error("a downstream command is required after --")
 
-    proxy = StdioMCPProxy(command)
+    proxy = StdioMCPProxy(
+        command,
+        server_id=args.server_id,
+        allowed_egress_hosts=set(args.allow_egress_host),
+    )
     asyncio.run(proxy.run())
 
 

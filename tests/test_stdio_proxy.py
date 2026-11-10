@@ -503,3 +503,125 @@ class TestStdioMCPProxy:
             assert transport.stopped
 
         _run(_test())
+
+
+# ---------------------------------------------------------------------------
+# Real stdio authorization regressions: decisions must gate actual transport.
+# ---------------------------------------------------------------------------
+
+
+class TestStdioAuthorizationEnforcement:
+    def _proxy(self, **kwargs):
+        transport = FakeTransport()
+        proxy = StdioMCPProxy(
+            ["python", "-m", "fake_server"],
+            transport=transport,
+            server_id="filesystem",
+            **kwargs,
+        )
+        return proxy, transport
+
+    def test_dangerous_tool_is_denied_without_injection_text(self):
+        async def check():
+            proxy, transport = self._proxy()
+            response = await proxy.handle_message(
+                make_tool_call("delete_file", {"path": "/tmp/important.txt"}, 41)
+            )
+            body = json.loads(response)
+            assert body["id"] == 41
+            assert body["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
+            assert "DENY_DANGEROUS_TOOL" in body["error"]["message"]
+            assert transport.sent == []
+
+        _run(check())
+
+    def test_client_supplied_server_id_cannot_select_another_server(self):
+        async def check():
+            from mcp_monitor.policy.policy_engine import PolicyEngine
+
+            proxy, transport = self._proxy(
+                policy_engine=PolicyEngine(allowed_servers={"filesystem"})
+            )
+            payload = json.loads(make_tool_call("read_file", {"path": "/tmp/a"}, 42))
+            payload["params"]["server_id"] = "rogue-server"
+            response = await proxy.handle_message(json.dumps(payload).encode())
+            assert "result" in json.loads(response)
+            assert len(transport.sent) == 1
+
+        _run(check())
+
+    def test_unallowed_server_cannot_forward(self):
+        async def check():
+            from mcp_monitor.policy.policy_engine import PolicyEngine
+
+            proxy, transport = self._proxy(
+                policy_engine=PolicyEngine(allowed_servers={"other-server"})
+            )
+            body = json.loads(
+                await proxy.handle_message(make_tool_call("read_file", {"path": "/tmp/a"}, 43))
+            )
+            assert "DENY_SERVER_NOT_ALLOWED" in body["error"]["message"]
+            assert transport.sent == []
+
+        _run(check())
+
+    def test_disallowed_network_egress_is_denied(self):
+        async def check():
+            proxy, transport = self._proxy()
+            body = json.loads(
+                await proxy.handle_message(
+                    make_tool_call(
+                        "http_get",
+                        {"url": "https://untrusted.example/secret"},
+                        44,
+                    )
+                )
+            )
+            assert "DENY_EGRESS_NOT_ALLOWED" in body["error"]["message"]
+            assert transport.sent == []
+
+        _run(check())
+
+    def test_explicitly_allowlisted_network_egress_is_forwarded(self):
+        async def check():
+            proxy, transport = self._proxy(
+                allowed_egress_hosts={"api.example.com"}
+            )
+            body = json.loads(
+                await proxy.handle_message(
+                    make_tool_call("http_get", {"url": "https://api.example.com/health"}, 45)
+                )
+            )
+            assert "result" in body
+            assert len(transport.sent) == 1
+
+        _run(check())
+
+    def test_policy_exception_fails_closed(self):
+        async def check():
+            class BrokenPolicy:
+                def evaluate(self, request):
+                    raise RuntimeError("simulated failure")
+
+            proxy, transport = self._proxy(policy_engine=BrokenPolicy())
+            body = json.loads(
+                await proxy.handle_message(make_tool_call("read_file", {"path": "/tmp/a"}, 46))
+            )
+            assert body["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
+            assert transport.sent == []
+
+        _run(check())
+
+    def test_mixed_batch_is_atomic_when_policy_denies_one_tool(self):
+        async def check():
+            proxy, transport = self._proxy()
+            batch = json.dumps([
+                json.loads(make_tool_call("read_file", {"path": "/tmp/safe"}, 47)),
+                json.loads(make_tool_call("delete_file", {"path": "/tmp/safe"}, 48)),
+            ]).encode()
+            result = json.loads(await proxy.handle_message(batch))
+            assert [item["id"] for item in result] == [47, 48]
+            assert all("error" in item for item in result)
+            assert transport.sent == []
+
+        _run(check())
