@@ -1,5 +1,6 @@
 # Phase 5 — Offline downstream MCP container isolation (pilot)
 
+> **Evidence boundary (2026-11-09):** An internal/no-network container and reduced capabilities are useful layered controls but not a sandbox against host operator or Docker daemon compromise. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 ## Scope
 
 Phase 5 starts from draft PR #149 and keeps all source changes isolated in a

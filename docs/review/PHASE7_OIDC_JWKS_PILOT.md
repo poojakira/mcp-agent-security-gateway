@@ -1,5 +1,6 @@
 # Phase 7 — Offline JWKS verification and revocation pilot
 
+> **Evidence boundary (2026-11-09):** Offline trusted JWKS snapshots do not prove secure live OIDC discovery, independent issuer custody, distributed revocation or replay protection in deployment. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 **Scope:** A bounded identity and revocation pilot stacked on Phase 6 draft PR #152.
 **No paid services, production deployment, remote IdP, or real user data.**
 

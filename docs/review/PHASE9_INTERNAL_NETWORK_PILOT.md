@@ -1,5 +1,6 @@
 # Phase 9 — Internal network boundary and trusted egress sidecar (pilot)
 
+> **Evidence boundary (2026-11-09):** The isolated internal Docker network and synthetic sidecar do not proxy real online traffic or enforce DNS, redirect, CIDR or internet access policy. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 Phase 9 first milestone adds a **restricted network attachment mode** for MCP
 stdio tool servers without trusting agent-supplied URL or tool schema fields.
 

@@ -1,5 +1,6 @@
 # Detection Coverage Matrix
 
+> **Review context (2026-11-09):** Technique mappings mean rules have been mapped to a known taxonomy, not that every attack technique, environment, or variant has been effectively detected. The [integrated release-readiness gate](../../docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**.
 > Coverage is measured against the set of ATT&CK techniques referenced by these rules. It does not imply coverage of the full ATT&CK matrix.
 
 - Generated: `2026-09-28T06:21:46Z`

@@ -1,5 +1,6 @@
 # Prototype repository dependency and execution map
 
+> **Evidence boundary (2026-11-09):** The dependency map is illustrative, not a complete static/dynamic import or policy-enforcement proof for every alternate route. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 This is a **logical module graph for the currently reviewed MCP enforcement path** rather than an exhaustive whole-repository import graph. Arrows labeled `uses` are observed from reviewed source; deployment and documentation nodes describe configuration or verification rather than Python imports.
 
 ```mermaid

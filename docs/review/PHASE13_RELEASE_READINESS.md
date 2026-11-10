@@ -1,5 +1,6 @@
 # Phase 13 — Integrated security and release-readiness gate
 
+> **Integration-documentation review (2026-11-09):** This is the controlling release assessment. The integrated phase candidate has passing scoped checks, but all unresolved mandatory production gates require separate owner-approved evidence. The development integration is [draft PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167), **not a production-approved release**.
 **Current decision: NO-GO for production.** This is a release gate and an evidence ledger, not a deployment authorization. The document is initially based on the Phase 12 stacked head cfd42b8df5561e0b6ea4dd1ed75281abc9e84a95. Update this verdict only after testing the *final integrated source commit*.
 
 ## Scope and evidence boundaries
@@ -97,4 +98,10 @@ The initially added real container build correctly exposed two collection failur
 - **OPEN:** broader PR #147 divergence review, main-branch integration and merge, any live credential rotation/provider-side revocation, authenticated production IdP and durable distributed authority, network/OS egress controls in real deployments, crash/power-loss and external-effect reconciliation, complete MCP transport interoperability, independent adversarial performance, security/SBOM and supply-chain assessment, and formal release-owner acceptance.
 - **NOT APPLICABLE to this scoped CI run:** commercial production deployment, real customer data, live secret stores, external targets and paid services. These exclusions do not close the corresponding real-world product gates.
 
-**Verdict:** The **Phase 13 integrated lab and container build baseline is validated**, but **overall Phase 13 acceptance remains PARTIAL and production release remains NO-GO**. Keep PR #159 draft/unmerged; Phase 14 remains blocked under the master execution plan until the relevant Phase 13 blockers are explicitly resolved or the scope is appropriately approved.
+**Verdict:*** The **Phase 13 integrated lab and container build baseline is validated**, but **overall Phase 13 acceptance remains PARTIAL and production release remains NO-GO**. Keep PR #159 draft/unmerged; Phase 14 remains blocked under the master execution plan until the relevant Phase 13 blockers are explicitly resolved or the scope is appropriately approved.
+
+## Phases 1–16 integrated candidate (documentation reconciliation — 2026-11-09)
+
+The current review candidate is [draft PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167), based on `integration/phase1-16-remediation-20261109`. Scoped automation includes a multi-Python-version regression matrix, an isolated Docker sidecar check, real disposable MCP filesystem smoke tests, lab key and loopback checks, security scans and poster parity. Those workflows have reported passing results for the README-update head `c8c8ab17ce0b2682d4a58c1fde97604ed6526b83`; consult the exact-head workflow checks for every subsequent commit. They must not be aggregated with older metrics as a new pass count or interpreted as production release evidence.
+
+**Disposition: PRODUCTION NO-GO.** Applicable P13-01 through P13-10 evidence remains incomplete, especially independently authenticated identity/authorization, outbound enforcement, cross-process effect recovery, complete MCP interoperability, independent representative adversarial testing, full deployment/supply-chain verification and accountable human approval. A green workflow called `Production Gate` does not override this human security disposition. No deployment, branch merge, issuer-side revocation or independent production test is claimed by this update.

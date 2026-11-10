@@ -1,10 +1,15 @@
 # Security Audit — mcp-security-gateway-monitor
 
+> **Documentation alignment (2026-11-09):** **Historical review dated 2026-08-05 with later dated follow-ups.** All “fixed,” “safe” and “no hardcoded secrets” findings are scoped to the commits and searches cited at the time; they do not certify the current tree, Git history, artifact stores or credential issuer state. The [release gate](docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**; [draft integration PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is not a released deployment.
 **Audit date:** 2026-08-05  
 **Audit owner:** Pooja Kiran ([@poojakira](https://github.com/poojakira))  
 **Review scope:** security-hardening review
 
 ---
+
+## Historical interpretation
+
+The reported demonstration secret retirement and the live-provider revocation question must be handled separately. An early scan finding no real provider credential is **not** proof that a live credential never existed. Current lab configuration and release blockers are tracked by the integration review, not this archived audit.
 
 ## Summary
 

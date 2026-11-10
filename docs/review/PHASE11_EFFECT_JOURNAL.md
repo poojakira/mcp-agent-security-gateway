@@ -1,5 +1,6 @@
 # Phase 11 — Durable side-effect intent journal (pilot)
 
+> **Integration-documentation review (2026-11-09):** A recorded intent, unknown outcome and confirmed effect are separate states. No exactly-once delivery, external rollback or crash-proof reconciliation is claimed. The development integration is [draft PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167), **not a production-approved release**.
 ## Security goal
 
 Prevent accidental **automatic repeat dispatch** of explicitly selected

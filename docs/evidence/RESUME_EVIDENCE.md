@@ -1,5 +1,6 @@
 # Resume Evidence
 
+> **Review context (2026-11-09):** Claims about test counts, coverage and signature inventories apply only to the indicated October commits. The phases 1–16 candidate has different scope and a separate release gate. The [integrated release-readiness gate](../../docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**.
 This file preserves the quantitative snapshot used in previously submitted application material without confusing it with the repository's newer state.
 
 ## Frozen application snapshot

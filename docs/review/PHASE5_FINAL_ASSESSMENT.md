@@ -1,5 +1,6 @@
 # Phase 5 — Offline MCP containment verification and exit assessment
 
+> **Evidence boundary (2026-11-09):** The Docker containment results are bounded to offline, disposable fixtures and do not show resilience to kernel, daemon, privileged host or arbitrary power-loss failures. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 **Scope:** The opt-in **offline** downstream MCP Docker containment pilot.
 **Draft PR:** [#151](https://github.com/poojakira/mcp-agent-security-gateway/pull/151), stacked on Step 4 draft PR #149, which in turn depends on draft PR #148.
 **Production security gate:** **OPEN**. This assessment is not a production approval.

@@ -1,5 +1,6 @@
 # Repository file field guide
 
+> **Integration-documentation review (2026-11-09):** This map describes tracked repository files and sampled execution paths. Optional integrations, tests and prototype adapters must not be conflated with the active supported runtime. The development integration is [draft PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167), **not a production-approved release**.
 **Snapshot:** [`a3359e47d68c`](https://github.com/poojakira/mcp-agent-security-gateway/commit/a3359e47d68c231e20e62fb4063eb552d1c43b46) on draft PR #148. **Inventory:** 225 tracked files (including binary assets). This is an exhaustive **path inventory at this commit**, not an assertion that every file has passed a line-by-line security audit. Descriptions of critical MCP enforcement files are grounded in the previous source review; most other descriptions summarize the file's apparent role from path/name and must be confirmed against implementation before making detailed claims.
 
 ## How to explain the product

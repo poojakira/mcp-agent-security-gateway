@@ -1,5 +1,6 @@
 # Real-world prototype: operator questions and acceptance criteria
 
+> **Evidence boundary (2026-11-09):** This document sets acceptance questions and exploratory proof criteria; it does not establish live customer operation or production release. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 > Status: public **research/engineering prototype**, not a certified production security boundary. This document distinguishes implementation and demonstrated test behavior from requirements that remain unverified. Always consult the GitHub checks for the exact commit being evaluated.
 
 ## What is actually runnable?

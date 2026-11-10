@@ -1,5 +1,6 @@
 # 60-Second Recruiter Demo — MCP Agent Security Gateway
 
+> **Review context (2026-11-09):** The demo is a guided presentation of selected controls and historical figures. It does not prove production deployment or full protection against tool bypass. The [integrated release-readiness gate](../docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**.
 This is a recording guide for a short recruiter/hiring-manager demo backed by the repository's real policy engine, tamper-evident audit implementation, and ECS formatter.
 
 ## Run it

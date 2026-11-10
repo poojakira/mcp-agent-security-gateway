@@ -1,5 +1,6 @@
 # Phase 13 — adversarial hardening status and acceptance boundary
 
+> **Integration-documentation review (2026-11-09):** The historical hardening milestone and draft source changes cannot by themselves close the integrated release gate or establish real provider-side credential revocation. The development integration is [draft PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167), **not a production-approved release**.
 **Decision:** Production NO-GO. This is an isolated, free, credential-free research/development branch, **not** a release authorization. The branch is intentionally draft and unmerged.
 
 ## Emergency fix on main

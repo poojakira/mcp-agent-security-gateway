@@ -1,5 +1,6 @@
 # Phase 12 — Frozen adversarial synthetic baseline
 
+> **Integration-documentation review (2026-11-09):** The adversarial baseline uses author-curated synthetic cases and scoped regex-only evaluation; it is not an independent representative benchmark of the combined gateway. The development integration is [draft PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167), **not a production-approved release**.
 96 author-curated, balanced cases: 48 malicious and 48 benign, in
 12 families. The cases were committed separately before evaluation.
 Only the repository's PromptInjectionDetector regex-only implementation

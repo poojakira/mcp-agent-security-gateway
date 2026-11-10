@@ -1,5 +1,6 @@
 # Phase 6 — Signed local session and tenant isolation: verified prototype
 
+> **Evidence boundary (2026-11-09):** Locally issued and tested session assertions are not authenticated identity from a remote organization or production tenant boundary. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 **Draft PR:** [#152](https://github.com/poojakira/mcp-agent-security-gateway/pull/152) stacked on draft #151, #149 and #148.
 **Scope:** Opt-in operator-controlled, locally signed session assertions with tenant-scoped ACL lookup.
 **Production authentication:** **NOT VERIFIED**; no external identity provider, OAuth/OIDC, mTLS or authenticated remote channel.

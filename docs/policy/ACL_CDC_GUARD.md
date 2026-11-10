@@ -1,5 +1,6 @@
 # ACL-aware retrieval and permission-change enforcement
 
+> **Review context (2026-11-09):** ACL and permission-change checks are bounded experiments. No guaranteed distributed revocation, complete cache invalidation or live external synchronization is established. The [integrated release-readiness gate](../../docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**.
 ## Scope and honest status
 
 This branch adds `src/mcp_monitor/policy/acl_guard.py`, an in-process reference

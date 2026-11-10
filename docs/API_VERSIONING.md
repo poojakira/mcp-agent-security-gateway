@@ -1,5 +1,6 @@
 # API Versioning
 
+> **Evidence and release status (2026-11-09):** The API-versioning policy describes intended compatibility; only the explicitly implemented endpoints/transports and tested integration matrix can be treated as supported. The [release review](../docs/review/PHASE13_RELEASE_READINESS.md) remains **NO-GO**, and [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is a draft integration candidate.
 This document describes the versioning approach for the
 `mcp-agent-security-gateway` HTTP inspection service
 (`src/mcp_monitor/production/server.py`).

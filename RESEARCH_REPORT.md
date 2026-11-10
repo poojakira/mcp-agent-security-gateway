@@ -1,5 +1,6 @@
 # Research Report: MCP Security Gateway Monitor
 
+> **Documentation alignment (2026-11-09):** This research report explains implemented and experimental mechanisms, not a production certification. Its original measurements and claims must be interpreted at their dated code snapshots; the integrated candidate has separate CI. The [release gate](docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**; [draft integration PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is not a released deployment.
 **Author:** Repository research assessment
 **Date:** July 10, 2026  
 **Classification:** Honest, Skeptical Technical Assessment  
@@ -324,4 +325,3 @@ The repository adds multiple application and host-oriented security controls, bu
 *Report prepared from repository evidence and cited research notes. Re-run tests,
 coverage, and repository metrics before treating numeric claims as current.
 Limitations are documented alongside capabilities.*
-

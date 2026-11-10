@@ -1,5 +1,6 @@
 # Rust port of the MCP stdio proxy inspection core (Gap 5)
 
+> **Evidence boundary (2026-11-09):** The Rust component has its own test and integration boundary; do not infer complete Python control parity or production release evidence solely from the shared repository. [Production release gate](../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 This crate re-implements the **security-critical decision logic** of the Python
 `src/mcp_monitor/proxy/stdio_proxy.py` (`inspect_message`) in Rust, to
 demonstrate systems-programming capability and a memory-safe, dependency-light

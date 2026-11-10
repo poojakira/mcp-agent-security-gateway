@@ -1,5 +1,6 @@
 # Step 4: Production-oriented security controls (in progress)
 
+> **Evidence boundary (2026-11-09):** This check records a scoped security-development milestone and does not replace the integrated release-risk register or accountable approval. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 This is a **research prototype hardening** workstream following the verified private Step 3 tests at gateway commit `7901a2c`. It does not authorize deployment, merging PR #148, real targets, or paid services.
 
 ## Current bounded change

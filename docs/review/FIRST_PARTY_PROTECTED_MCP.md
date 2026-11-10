@@ -1,5 +1,6 @@
 # First-party protected repository MCP server (free local demonstrator)
 
+> **Integration-documentation review (2026-11-09):** The protected local first-party MCP demonstrator enforces a bounded filesystem/package contract but does not prevent host operator, Docker-daemon, or same-principal bypass. The development integration is [draft PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167), **not a production-approved release**.
 The first-party server is a **real stdio MCP server** with no paid model, cloud account, OAuth provider or third-party MCP server requirement. It is a separate Python subprocess exercised through the actual `StdioMCPProxy` and independently checked via the filesystem.
 
 ## Threat model and explicit trust boundaries

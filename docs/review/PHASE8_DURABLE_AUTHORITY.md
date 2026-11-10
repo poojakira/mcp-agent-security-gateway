@@ -1,5 +1,6 @@
 # Phase 8 — Signed durable local authorization (multi-process pilot)
 
+> **Evidence boundary (2026-11-09):** Durable SQLite authority is a local/multi-process pilot. Rollback-protected independent persistence and cross-host revocation remain unverified. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 This is a **same-host multi-process prototype**, not a production distributed
 permissions service. It extends the existing Phase 4 `ACLGuard(authority_check=...)`
 and Phase 7 `OfflineJWKSVerifier(is_active=...)` operator interfaces without

@@ -1,5 +1,6 @@
 # Phase 16 — Cooperative revocation-safe MCP commit fence
 
+> **Evidence boundary (2026-11-09):** The revocation fence is cooperative and single-host. Noncooperating processes, root-capable host principals, external services and distributed revocation remain outside the proved contract. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 **Status: candidate only, production NO-GO.** This phase uses a free, local SQLite authority file and a first-party protected manifest MCP adapter. It does not need API keys, a provider account, or paid services.
 
 ## Trust boundary

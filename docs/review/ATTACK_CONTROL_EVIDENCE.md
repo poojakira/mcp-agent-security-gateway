@@ -1,5 +1,6 @@
 # MCP attack-to-control evidence map
 
+> **Integration-documentation review (2026-11-09):** The matrix links observed threats to tested controls. An inspection DENY is not proof that an outside MCP server never performed an action. The development integration is [draft PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167), **not a production-approved release**.
 Scope: **public research prototype**, draft PR #148. This document maps the checked-in implementation and tests, not independently verified production security. The latest real filesystem revocation smoke test uses a real downstream process but pauses response release *after* the server has produced the result.
 
 | Scenario / boundary | Enforcement function or type | Files | Direct test evidence | What the test establishes | Not established |

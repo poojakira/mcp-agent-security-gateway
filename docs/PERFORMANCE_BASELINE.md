@@ -1,5 +1,6 @@
 # Performance Baseline
 
+> **Review context (2026-11-09):** All performance measurements are environment- and commit-specific. Local latency or single-process throughput is not an independently measured production SLO. The [integrated release-readiness gate](../docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**.
 This document records measured performance for `mcp-agent-security-gateway`.
 All numbers are produced by [`benchmarks/perf_gate.py`](../benchmarks/perf_gate.py),
 which exercises the real `MCPSecurityMonitor.inspect_call()` path (4 detectors +

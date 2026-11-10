@@ -1,5 +1,6 @@
 # Application Security Case Study: MCP Agent-to-Tool Boundary
 
+> **Evidence and release status (2026-11-09):** This case study documents a review method and selected tested controls; it must not be interpreted as complete non-bypassable gateway protection. The [release review](../docs/review/PHASE13_RELEASE_READINESS.md) remains **NO-GO**, and [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is a draft integration candidate.
 **Assessment date:** 2026-10-05  
 **System:** MCP Agent Security Gateway  
 **Scope:** White-box review of the repository's production HTTP control plane, JSON-RPC inspection path, policy enforcement boundary, and security telemetry.  
@@ -103,4 +104,3 @@ Prompt-injection, PII, and exfiltration signals are heuristic and can have false
 The reviewed implementation shows a defensible application-security boundary for an agent-to-tool gateway: strict protocol parsing, authenticated control-plane access, default-deny authorization, egress restrictions, abuse controls, and reviewable telemetry. The main remaining risks are architectural/deployment boundaries rather than undocumented claims of perfect detection.
 
 For recruiters and hiring teams, the useful evidence is the review method itself: **threat model → attack surface → control → verification → limitation**, not only the raw test count.
-

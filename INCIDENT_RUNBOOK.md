@@ -1,5 +1,6 @@
 # Incident Runbook — mcp-agent-security-gateway
 
+> **Documentation alignment (2026-11-09):** This is a response procedure template for maintainers and operators, not evidence of a staffed on-call rotation, production incident program, tested live paging, SLO or real deployment. Verify contacts, credentials and containment authority before operational use. The [release gate](docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**; [draft integration PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is not a released deployment.
 > Reference incident-response procedures for teams that choose to operate the
 > gateway. This is a template, not a record of an operated production service:
 > the project has no on-call rotation, SLA, or live deployment. Adapt the

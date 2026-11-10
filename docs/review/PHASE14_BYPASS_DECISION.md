@@ -1,5 +1,6 @@
 # Phase 14 — Real MCP execution and bypass resistance
 
+> **Integration-documentation review (2026-11-09):** The no-network Docker demonstrator passed bounded test cases. It does not establish non-bypassable routing, production identity, general Docker escape protection or a deployment release. The development integration is [draft PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167), **not a production-approved release**.
 **State: COMPLETE for the explicitly bounded, no-network Docker laboratory demonstrator; production NO-GO.**
 
 This branch is based on the independently green Phase 13 lab gate at `365f99c679bb780864e888c3287ba9bec3c1cc30`. The initial first-party server and real filesystem test are incorporated from research PR #160 and updated to run through **explicit gateway tool allowlists** and the hardened MCP method boundary. The repository remains a disposable offline experiment. No API keys, paid services, or real third-party infrastructure are used.
@@ -34,19 +35,11 @@ This branch is based on the independently green Phase 13 lab gate at `365f99c679
 - **OPEN:** universal non-bypassable gateway path, OS containment, trusted principal, concurrent filesystem mutation robustness, broader MCP interoperability and independent evaluation.
 - **COMPLETE (bounded laboratory demonstrator):** exact-file effect authorization, denied operations producing no prohibited changes, real Docker isolation with a single approved writable mount, and a passing Python matrix are independently evidenced below.
 - **NO-GO (general deployment):** universal bypass resistance, remote-user identity and host-privileged access are not proven.
-- **DOWNSTREAM DEPENDENCY:** Phases 15–19 must not be marked complete or production approved based on this partial Phase 14 test. Next engineering milestone is isolating the adapter in a minimal OS sandbox and proving direct-path denial to the protected scope.
+- **Research dependency:** Controlled consequence and revocation experiments may reuse this laboratory adapter; they do not inherit production release authorization.
 
-## Phase roadmap retained from the approved execution plan
+## Relationship to subsequent bounded research
 
-| Phase | Description | State |
-|---|---|---|
-| 13 | Integrated security baseline | Laboratory scope verified; production NO-GO |
-| 14 | Real MCP execution and bypass resistance | Complete for declared isolated Docker experiment; production bypass protection remains open |
-| 15 | Independent consequence verification | Not started; can use the validated bounded adapter as a research dependency |
-| 16 | Revocation-safe execution | Not started: requires Phase 15 fenced effect adapter |
-| 17 | Realistic adversarial evaluation | Not started: requires stable demonstrator and independent inputs |
-| 18 | NVIDIA OpenShell comparative research | Not started: must pin upstream version and test equivalent workloads |
-| 19 | Final security engineering release | Not started: requires the full evidence package and human approval |
+The separate consequence-verification and cooperative revocation-fence experiments are documented in [Phase 15](PHASE15_CONSEQUENCE_VERIFICATION.md) and [Phase 16](PHASE16_REVOCATION_SAFE_EXECUTION.md). Neither changes the protected adapter's explicitly limited trust model or the open production gate.
 
 ## Verified isolated Docker execution
 

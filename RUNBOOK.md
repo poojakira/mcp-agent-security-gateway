@@ -1,5 +1,6 @@
 # Runbook — MCP Agent Security Gateway
 
+> **Documentation alignment (2026-11-09):** The commands below are local development and prospective operating procedures; they do not imply that the experimental gateway is approved for production. Identity, network egress and effect reconciliation remain gated. The [release gate](docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**; [draft integration PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is not a released deployment.
 ## Runtime roles
 
 This repository contains two deliberately different surfaces.
@@ -38,7 +39,9 @@ pip-audit --skip-editable
 Use the successful GitHub Actions run on the exact commit as the authoritative
 verification record.
 
-## Production configuration
+## Production-style configuration (release NOT approved)
+
+Examples in this section are configuration illustrations, **not a deployment authorization**. Do not expose the HTTP inspection API or real MCP tool server to untrusted networks. Review the exact runtime path and [production release requirements](PRODUCTION.md) first.
 
 The exports below configure a directly launched production API. For Docker Compose, use the separate `.env` procedure below instead; inherited shell variables take precedence over Compose file values.
 
@@ -112,7 +115,7 @@ file-backed WAL/audit store is single-writer state. See
 For controlled deployment, pin the released image by digest rather than using a
 mutable tag.
 
-## Production API
+## HTTP inspection API (development / review interface)
 
 Health and readiness are intentionally unauthenticated for orchestration.
 

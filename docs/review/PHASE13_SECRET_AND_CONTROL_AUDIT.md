@@ -1,5 +1,6 @@
 # Phase 13: credential exposure review and production-control evidence
 
+> **Integration-documentation review (2026-11-09):** Retiring a known demonstration credential in source is different from confirming live credential rotation at its issuer; historic searches are not a comprehensive secret inventory. The development integration is [draft PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167), **not a production-approved release**.
 **Decision: production NO-GO.** This is a source-level review and scoped, free CI exercise, not an incident closure, provider revocation certificate, penetration test or deployment authorization. Treat exposed candidate credentials as compromised until independently verified. Never publish actual credential values in reports or CI logs.
 
 ## Secret exposure review

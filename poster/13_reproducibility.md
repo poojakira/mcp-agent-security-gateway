@@ -16,3 +16,7 @@ Expected at this cited CI snapshot: **782 passed, 81.93% statement coverage**, 5
 **Archived October 4 historical run:** [37184196303](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303) at `008775c8878cc70c50247baa223da3256e093316`: 723 passed, 81.91% coverage, 55 named signatures. These values are not this active poster snapshot.
 
 Cerberus pilot evidence and detector effectiveness are separate and unchanged. GitHub Actions results are scoped to the cited commit and environment.
+
+## November 2026 verification and claim boundary
+
+These reproduction steps intentionally pin the October evidence source; running them at the active branch head tests a different code state and must not be reported as the 782/81.93% poster measurement. The [parity workflow](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42740787837) previously rerendered and matched the committed poster image. The development [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) remains production NO-GO.

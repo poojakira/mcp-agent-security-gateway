@@ -1,5 +1,6 @@
 > **READ [LICENSE](LICENSE) BEFORE COPYING OR CHANGING ANYTHING.** This is an owner-maintained, proprietary repository. **Unsolicited code/documentation contributions are not accepted.** The development instructions below apply **only to people who have received prior written authorization** from Pooja Kiran. Public viewing/forking under GitHub's Terms, applicable law, third-party rights, and prior valid licenses remain unaffected. Any accepted external work requires an agreed written copyright license or assignment; a PR alone does not transfer ownership. For permission contact poojakiranbhardwaj@gmail.com.
 
+> **Documentation alignment (2026-11-09):** Contributions must preserve exact-commit evidence, explicit trust-boundary language, reproducible offline tests and the distinction between protected adapters and external deployment. The [release gate](docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**; [draft integration PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is not a released deployment.
 # Contributing to mcp-agent-security-gateway
 
 Only specifically invited contributors may propose changes under prior written terms. Technical guidance follows.
@@ -58,3 +59,6 @@ Push your changes to your forked repository and open a pull request to the `main
 Use respectful, technical communication. Security reports should follow `SECURITY.md` rather than public issue threads when disclosure could increase risk.
 
 Thank you for contributing!
+## Security-sensitive contributions
+
+Open pull requests against the reviewed branch; do not merge or deploy draft candidates without authorization. Include affected threat boundary, a benign and an adversarial regression, the full command used and its exact commit/run, and explicit limitations. Never include live tokens, outside-system probing, customer data or paid-provider dependencies. A screenshot, passing sample fixture or successful poster render is not a production-security claim.

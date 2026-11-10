@@ -1,5 +1,6 @@
 # Kubernetes Deployment
 
+> **Evidence and release status (2026-11-09):** These manifests are deployment examples, not approved Kubernetes hardening. An in-cluster network policy, real identity boundary, durable state and tested failure/rollback path must be verified in the actual cluster before production. The [release review](../../docs/review/PHASE13_RELEASE_READINESS.md) remains **NO-GO**, and [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is a draft integration candidate.
 This directory contains a conservative single-replica deployment for the MCP
 Security Gateway.
 
@@ -68,3 +69,7 @@ The health and readiness endpoints are intentionally unauthenticated for orchest
 When deploying behind an ingress or load balancer, do not trust client-supplied `X-Forwarded-For` by default. Configure `MCP_TRUSTED_PROXY_CIDRS` only for infrastructure you control and that overwrites/sanitizes forwarded source headers. The gateway otherwise uses the socket peer address.
 
 Optional external-validation transport output also requires `MCP_IDENTITY_TELEMETRY_TENANT_SALT` and `MCP_IDENTITY_TELEMETRY_OUTPUT`. Keep the tenant salt in a Kubernetes Secret and mount the output on durable storage if you enable the local queue. Each NDJSON line is an immutable envelope with `schema_version: 1`, client `mcp-gateway/1.0.0`, `backfill: false`, an `events` array, and a positional `event_fps` array. Raw API credentials, raw source addresses, and internal event IDs are not written to the transport envelope.
+
+## Production gate
+
+Do not apply these example manifests to production without trusted workload identity, authorization, network ingress/egress isolation, persistent audit/effect state, image/SBOM review, tested rollback and explicit approval. Passing example syntax or smoke checks alone does not close these requirements.

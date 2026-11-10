@@ -1,5 +1,6 @@
 # Detection Latency Microbenchmark
 
+> **Review context (2026-11-09):** These figures describe a dated local microbenchmark only, not end-to-end MCP latency, service capacity, customer traffic or an SLO. The [integrated release-readiness gate](../../docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**.
 > LOCAL SYNTHETIC-LOAD MICROBENCHMARK. Single process, in-memory engine, synthetic events. NOT a production throughput or SLA measurement.
 
 - Generated: `2026-09-28T06:21:47Z`

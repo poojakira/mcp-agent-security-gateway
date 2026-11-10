@@ -1,5 +1,6 @@
 # Detection Engineering Lab
 
+> **Evidence and release status (2026-11-09):** This is an isolated detection and telemetry laboratory. CI uses a mandatory operator-supplied local key and loopback-bound published ports; this does not turn Kibana, Elasticsearch or the MCP gateway into a supported external production service. The [release review](../docs/review/PHASE13_RELEASE_READINESS.md) remains **NO-GO**, and [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is a draft integration candidate.
 Lab environment for practicing detection engineering against MCP agent security events.
 
 This is a **learning and practice environment**, not a production SIEM deployment. It demonstrates real detection engineering patterns (ECS formatting, correlation rules, log shipping, attack simulation, detection rule authoring) against the MCP security gateway's event stream.
@@ -246,3 +247,7 @@ Tests cover:
 - Session isolation and window expiry
 - File and stdout log shipping
 - Statistics tracking
+
+## Credential and exposure safety
+
+Supply a fresh local lab-only `MCP_API_KEY` when Compose requires it. Never reuse historical public demonstration credentials. The Compose release gate tests for loopback-published ports; verify the resolved configuration before starting services. Deleting a key from source does not rotate or revoke a credential at a service issuer.

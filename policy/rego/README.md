@@ -1,5 +1,6 @@
 # MCP Policy-as-Code (Rego / OPA)
 
+> **Evidence boundary (2026-11-09):** The Rego bundle is a policy-as-code research component; distinguish source-defined intent from separately verified OPA execution and actual enforced gateway behavior. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 This directory contains [Open Policy Agent](https://www.openpolicyagent.org/)
 Rego policies that express authorization and egress control for MCP
 `tools/call` requests.

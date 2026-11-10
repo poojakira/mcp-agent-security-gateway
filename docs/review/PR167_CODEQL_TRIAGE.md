@@ -1,5 +1,6 @@
 # PR #167 — security-code-scanning triage and release boundary
 
+> **Evidence boundary (2026-11-09):** Closed lint or CodeQL jobs do not automatically resolve every security review finding, historical alert, or disputed retired-key fingerprint triage. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 **Status: DRAFT / NOT APPROVED / PRODUCTION NO-GO.** This document is a code-review record, not an adjudication of live deployed security. Recheck every entry against the final exact-head GitHub checks and review comments before resolving alerts.
 
 ## Findings and engineering disposition
@@ -26,4 +27,4 @@ The Phase 9 sidecar returns a static health response and does not validate desti
 
 ## Decision
 
-**Phase 17 remains BLOCKED.** This triage is scoped engineering progress. It does not close P13-01 through P13-10, nor authorize any production deployment.
+**Production release remains blocked.** This triage is scoped engineering progress. It does not close P13-01 through P13-10, nor authorize any production deployment.

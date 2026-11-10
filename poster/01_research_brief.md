@@ -85,3 +85,7 @@ The cited GitHub Actions run reports **782 passed** and **81.93%** statement cov
 ## References
 
 Model Context Protocol specification; JSON-RPC 2.0; OWASP guidance for LLM applications; MITRE ATLAS; NIST AI RMF; Elastic Common Schema.
+
+## November 2026 verification and claim boundary
+
+This poster is a frozen October 14, 2026 scientific/research evidence snapshot at `f1f226feb0d527f27b90081806d7e9bd90ba0574`. The current phases 1–16 integration is a different draft tree; do not cite the poster's 782 tests or 81.93% coverage as an integrated-branch result. The [poster artifact parity workflow](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42740787837) successfully rerendered and verified the committed poster image before this documentation reconciliation. Passing poster parity does not certify production security.

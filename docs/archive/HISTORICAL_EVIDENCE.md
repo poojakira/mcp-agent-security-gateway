@@ -1,12 +1,13 @@
 # Historical Verification Evidence — October 4, 2026
 
+> **Review context (2026-11-09):** Archived results must retain their original commit, environment, denominator and date. They must not be silently promoted into current integrated release claims. The [integrated release-readiness gate](../../docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**.
 This page preserves the former `VERIFIED_METRICS.md` record verbatim below. The cited commit `008775c8878cc70c50247baa223da3256e093316` and CI run `37184196303` are from **October 4, 2026 UTC**, not September 30. It is dated historical evidence, **not** the latest verified test/coverage report. For the latest results, see [current verification](../../VERIFIED_METRICS.md).
 
 ---
 
 # Verified Metrics
 
-## Latest quantified verified code snapshot
+## Latest quantified snapshot within this historical archive
 
 **Code commit:** `008775c8878cc70c50247baa223da3256e093316`  
 **Successful full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303

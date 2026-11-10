@@ -91,6 +91,9 @@ The baseline [metrics file](VERIFIED_METRICS.md) reports **782 tests and 81.93% 
 
 ## Research poster
 
+The [Poster Artifact Parity workflow](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42740787837) successfully rerendered and confirmed the committed PNG matches the October evidence sources. That successful parity check is a **rendering/source consistency result**, not a validation of integrated-branch security or detector efficacy.
+
+
 [View existing research poster PDF](poster/poster_36x48.pdf). This older poster is **historical and does not verify the integrated phase 1–16 candidate**. Do not use its figures without their printed dates and source commits.
 
 ## Security and data handling

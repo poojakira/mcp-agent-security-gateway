@@ -1,11 +1,13 @@
-# Verified Metrics — Current Evidence
+# Verified Metrics — Dated October 2026 Baseline
+
+> **Evidence boundary (2026-11-09):** These test and coverage figures belong to the listed October source commits and runners, **not** to the unmerged phases 1–16 integration head or any deployed product. For integration validation, inspect [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) and its exact-head GitHub Actions. Passing CI is not production release authorization.
 
 ## Full Python suite
 
 | Run | Tests passed | Statement coverage | Evidence |
 |---|---:|---:|---|
 | Local Windows Python 3.12.10, October 12, 2026 *(for reproducibility reference)* | 782 | 81.47%: 5,657 statements / 1,048 missed | Local run at `b6d7122`; 26-statement gap due to Linux-only paths; see platform note below |
-| **Hosted Linux Python 3.12.15, October 13, 2026** | **782** | **81.93%**: 5,657 statements / 1,022 missed | [GitHub Actions run 38462601803](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803), commit `c75c52db` — **current authoritative result** |
+| **Hosted Linux Python 3.12.15, October 13, 2026** | **782** | **81.93%**: 5,657 statements / 1,022 missed | [GitHub Actions run 38462601803](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803), commit `c75c52db` — **authoritative for this dated October snapshot only** |
 
 **Platform boundary:** These are different environments and dates. Of the 26 additional missed Windows statements, 22 are in `defense10/network_monitor.py` (Windows 57 missed versus Linux 35) and 4 in `production/identity_shipper.py` (Windows 56 missed versus Linux 52). The source includes Linux-only `/proc/net` reading and POSIX-only directory fsync logic. Both complete Python suites passed; coverage is **not a detector effectiveness percentage**.
 
@@ -25,4 +27,3 @@ py -3.12 -m pytest tests -q -p pytest_cov -p no:cacheprovider --override-ini add
 ## Historical evidence
 
 The previous **723 tests / 81.91% coverage / 55-signature** snapshot at `008775c8878cc70c50247baa223da3256e093316` ([CI run 37184196303](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303)) is preserved in the [dated historical archive](docs/archive/HISTORICAL_EVIDENCE.md), not presented as the current result.
-

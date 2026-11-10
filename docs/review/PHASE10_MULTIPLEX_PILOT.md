@@ -1,5 +1,6 @@
 # Phase 10 — Bounded MCP stdio multiplexing and cancellation (pilot)
 
+> **Integration-documentation review (2026-11-09):** The stdio multiplexing pilot intentionally implements a subset of MCP/JSON-RPC behavior, not complete Streamable HTTP, notifications, cancellation rollback or full protocol interoperability. The development integration is [draft PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167), **not a production-approved release**.
 Opt-in `multiplexed=True` replaces the sequential receive wait with a
 single-reader request-ID broker. It permits multiple concurrent requests on
 one stdio connection and dispatches responses to their correct waiting calls.

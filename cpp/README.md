@@ -1,5 +1,6 @@
 # C++ port of the MCP stdio proxy inspection core
 
+> **Evidence and release status (2026-11-09):** The C++ component is an auxiliary implementation surface. Do not infer that it shares Python runtime policies, identity guarantees or production verification without separate integration evidence. The [release review](../docs/review/PHASE13_RELEASE_READINESS.md) remains **NO-GO**, and [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is a draft integration candidate.
 This directory re-implements the **security-critical decision logic** of the
 Python `src/mcp_monitor/proxy/stdio_proxy.py` (`inspect_message`) in C++17,
 alongside the Rust port in [`../rust`](../rust). It demonstrates a native,

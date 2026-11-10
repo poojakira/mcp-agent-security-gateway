@@ -1,5 +1,6 @@
 # Branch reduction assessment — 7 November 2026
 
+> **Integration-documentation review (2026-11-09):** This is a historical branch-inventory assessment, not a record that branch cleanup was performed or that only three branches remain. The development integration is [draft PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167), **not a production-approved release**.
 This document records a branch review before deletion. **No branches have been deleted.** Keep draft PR #148 unmerged. Branches are not interchangeable: several contain commits not reachable from `main`, and protected `main` must not be force-updated.
 
 ## Target arrangement (after reconciliation)
@@ -37,4 +38,4 @@ For each candidate branch: identify its open PR, compare commits and changed fil
 
 ## Current implementation limits
 
-The connected GitHub actions available for this review can inspect branches and update files but do not expose a safe branch-ref deletion action. The branch count therefore remains **14**. Do not claim the requested three-branch target has been reached.
+The connected GitHub actions available for this review can inspect branches and update files but do not expose a safe branch-ref deletion action. At the time of this dated assessment, the observed branch count was **14**; a fresh listing is required before reporting a current count. Do not claim the requested three-branch target has been reached.

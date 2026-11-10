@@ -23,3 +23,7 @@ The cited CI completed lint/format, type checking, Bandit, pip-audit, CodeQL, se
 - Production latency, throughput, uptime, or reliability SLOs.
 - A live SOC deployment.
 - Universal enforcement semantics outside traffic routed through the implemented integration paths.
+
+## November 2026 verification and claim boundary
+
+These are **October 14 source-commit metrics only**. The 69 signatures and 9 rules are inventory counts, not detection efficacy. The poster render/parity [run #42740787837](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42740787837) passed prior to this documentation reconciliation, but does not verify the current integration tests or production readiness.

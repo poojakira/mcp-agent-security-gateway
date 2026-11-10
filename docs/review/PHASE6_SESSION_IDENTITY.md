@@ -1,5 +1,6 @@
 # Phase 6 — Trusted local session assertion and tenant-scoped ACL pilot
 
+> **Evidence boundary (2026-11-09):** The local session/tenant claims assume trusted issuer provisioning. Their verification is a laboratory pilot, not a complete production IdP integration. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 ## Security objective
 
 Bind an *operator-provisioned* signed identity assertion to one gateway stdio

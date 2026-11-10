@@ -1,5 +1,6 @@
 # Step 4 — Security engineering assessment (scoped prototype validation verified)
 
+> **Evidence boundary (2026-11-09):** The cited prototype checks and attack controls are evidence of a bounded evaluation, not production or third-party certification. [Production release gate](../../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 **Branch:** `step4/egress-input-validation` (draft PR #149, stacked on draft PR #148).
 **Scope:** production-oriented *prototype hardening*, NOT production certification.
 

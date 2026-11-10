@@ -1,5 +1,6 @@
 # Detection Precision / Recall (synthetic fixtures)
 
+> **Review context (2026-11-09):** The stated perfect precision and recall are exclusively from the small curated fixture set. They are not estimates on unknown, independent or production traffic. The [integrated release-readiness gate](../../docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**.
 > SYNTHETIC FIXTURES ONLY. These sequences are hand-crafted to exercise specific rule logic and are NOT real-world MCP traffic. Metrics describe behaviour on these fixtures only and must not be read as real-world detection efficacy.
 
 - Generated: `2026-09-28T06:21:46Z`
@@ -18,7 +19,7 @@
 
 ## Micro-average (all rules)
 
-- Precision: **1.000**
-- Recall: **1.000**
+- Precision on these synthetic fixtures only: **1.000**
+- Recall on these synthetic fixtures only: **1.000**
 - F1: **1.000**
 - Confusion: TP=6 FP=0 FN=0 TN=48

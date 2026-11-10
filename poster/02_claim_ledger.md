@@ -24,3 +24,7 @@ Code `008775c8878cc70c50247baa223da3256e093316`, [run 37184196303](https://githu
 ## Poster policy
 
 Only combine values from the same cited execution, with source-inventory and curated-fixture results expressly labeled as separate evidence. The Cerberus integration/pilot configuration and its detector effectiveness are outside the poster verification.
+
+## November 2026 verification and claim boundary
+
+**No current release claim:** The values in this claim ledger are frozen at the October source SHA and must not be combined with November integration tests. The associated [poster render/parity run](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42740787837) passed on the reviewed README-update source. [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) remains a separate draft, production NO-GO candidate.

@@ -1,5 +1,6 @@
 # Policy-as-Code & Enforcement (Gap 2)
 
+> **Review context (2026-11-09):** Python policy decision tests and any experimental Rego bundles must be evaluated separately. Do not infer that an untested OPA policy is enabled or enforced end-to-end. The [integrated release-readiness gate](../../docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**.
 This gateway expresses MCP tool-call authorization as **policy-as-code** in two
 parallel implementations that are kept in parity:
 
