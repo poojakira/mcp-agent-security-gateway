@@ -19,10 +19,19 @@ from typing import Any, Protocol
 
 
 class TransportLike(Protocol):
-    async def start(self) -> None: ...
-    async def stop(self) -> None: ...
-    async def send(self, raw: bytes) -> None: ...
-    async def receive(self) -> bytes: ...
+    """Structural transport interface; methods have no default implementation."""
+
+    async def start(self) -> None:
+        raise NotImplementedError
+
+    async def stop(self) -> None:
+        raise NotImplementedError
+
+    async def send(self, raw: bytes) -> None:
+        raise NotImplementedError
+
+    async def receive(self) -> bytes:
+        raise NotImplementedError
 
 
 class ProtocolCancelled(Exception):
