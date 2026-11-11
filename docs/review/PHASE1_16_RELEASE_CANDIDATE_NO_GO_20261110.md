@@ -4,6 +4,32 @@
 
 **Verdict: NO-GO for production.** This is an evidence-bounded development assessment, **not** an approved release candidate or penetration-test certificate.
 
+## 2026-11-11 documentary reconciliation and current evidence
+
+This file is a living **NO-GO** register, not an assertion that the full system has been certified. Original 2026-11-10 tables below retain their dated PR evidence and are not the latest tested source revision.
+
+- Latest code-and-workflow exact-head baseline before the documentation rewrite: `43a72c8984bf9a472b9055d4f9e84cc759f61718` on [draft PR #178](https://github.com/poojakira/mcp-agent-security-gateway/pull/178). The [integrated three-version CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992) reported 1,211 passed and 6 skipped **per Python version** and 5/5 jobs green. This is not a coverage measurement.
+- On that same SHA, [Security Hygiene](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171965), [installed Python SBOM/pip-audit](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171775), and [real protected Docker startup](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171991) succeeded within their explicitly bounded test scope.
+- Later Markdown and poster-only commits are not proof of a new code security assessment. Poster source evidence and generator were revised in a separate draft review branch; generated binaries are provided as **read-only GitHub Actions review artifacts** and must not be confused with the older binary files still committed at the original repository paths.
+- All 68 existing `.md` files were touched in the documentation pass: four poster evidence sources were substantively rewritten, and 64 other files received a dated scope notice. These notices preserve legacy snapshots; they **do not constitute a line-by-line independent audit** or validate every prior claim.
+- **Costs/secrets:** The cited offline Python, Docker and poster workflows use free tools and do not require external model/payment-provider API keys. The HTTP production configuration still expects operator-owned authentication, and GitHub's source-pattern scanner does not inspect all deployed secret stores or demonstrate revocation of any live credential. No known active provider key was identified or revoked in this documentation pass.
+
+### Remaining independent release acceptance evidence
+
+| Severity | Requirement | Evidence-based disposition |
+|---|---|---|
+| Critical | Non-bypassable routing against host, direct process, browser and Docker-daemon access | **OPEN.** Offline container tests scope effects inside a container; host-level bypass remains possible if an actor has direct host privileges. |
+| High | Real identity, multi-tenant isolation and revocation across all configured entry points | **OPEN.** Local operators and synthetic identity pilots do not prove trusted remote end-user identity. |
+| High | DNS, IP, ports and redirects in network-enabled deployments | **OPEN.** The narrow offline-only production-flagged stdio profile denies networking; real general-purpose egress enforcement remains unverified. |
+| High | External side-effect outcome verification and rollback/reconciliation | **OPEN.** Local manifest effects are observed; remote ticket/payment/health outcomes are not. |
+| High | Physical power-loss, crash recovery and distributed consensus | **PARTIAL.** Three real process-termination scenarios and SQLite fencing tested; real power loss, cluster failover and remote providers untested. |
+| High | Independent pentest and representative blinded benign/malicious benchmark | **OPEN.** Existing synthetic cases are author-curated. Independent sign-off cannot be self-issued. |
+| Medium | Comprehensive dependency, container, license and artifact provenance | **PARTIAL.** Installed Python CycloneDX inventory and public vulnerability audit passed; other ecosystems and base-image/license review not certified. |
+| Medium | Complete secret inventory and verified active-credential revocation | **OPEN.** Known demo credential source mitigation merged as PR #150; live acceptance/revocation and external stores not verified. |
+| Medium | Comprehensive Markdown fact-check and independent release approval | **PARTIAL.** All 68 files now identify evidence scope, but internal historical details need source-by-source verification; no independent human GO. |
+
+**Final determination: PRODUCTION NO-GO.** Do not merge stacked security PRs or authorize real external actions solely from this documentation update.
+
 ## Exact source / CI provenance
 
 | Component | Reference | What has actually been verified |
