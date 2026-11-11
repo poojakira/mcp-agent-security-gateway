@@ -1,29 +1,36 @@
-# Reproducibility — MCP Gateway Integration Poster
+# Reproducibility — November 11, 2026 Phase 1–16 Poster
 
-**Reviewed PR #167 source head:** `25bc77445df5fa5fdcdff64478b0f63079dbb8ca`  
-**CI-tested synthetic merge commit:** `2ab3380d1457cdcb16c3ba143db9d8e339b057e2`  
-**GitHub Actions CI:** [42748742036](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42748742036), 2026-11-10 UTC.
+**Reviewed source SHA:** `43a72c8984bf9a472b9055d4f9e84cc759f61718` (stacked draft review branch).  
+**Release state:** **PRODUCTION NO-GO**, no approved production manifest.
 
-To inspect the source candidate and run the suite with local dependencies:
+## Exact-head test evidence
+
+- [Integrated 3-version matrix: 42971171992](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): per Python version 1,211 passed, 6 skipped; five integrated jobs passed.
+- [Security Hygiene: 42971171965](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171965): configured tracked-file/history checks and Bandit threshold passed.
+- [Python SBOM/advisories: 42971171775](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171775): CycloneDX installed-environment SBOM artifact and pip-audit public advisory check passed.
+- [Protected MCP real Docker smoke: 42971171991](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171991): real offline import and tools/list handshake passed.
+
+## Reproduce development source
 
 ```bash
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
 cd mcp-agent-security-gateway
-git fetch origin integration/phase1-16-remediation-20261109
-git checkout 25bc77445df5fa5fdcdff64478b0f63079dbb8ca
-python -m pip install -e ".[dev,server,oidc]"
-python -m pytest tests -q --cov=mcp_monitor --cov-report=term
+git fetch origin security/phase1-16-protected-image-deps-20261110
+git checkout 43a72c8984bf9a472b9055d4f9e84cc759f61718
+python -m pip install -e ".[dev,oidc]"
+python -m pytest tests -q
 ```
 
-The exact published measurements come from the GitHub PR **synthetic merge tree**, not a claim that a local checkout of the branch head is byte-identical to that merge. For exact archived PR-merge content, use CI run 42748742036 and the merge commit above; rerunning a moved PR ref can select newer code. Environment and dependency variation can change results.
+These commands describe reproduction; they are not proof of an additional local run. The workflow environments install publicly available dependencies, so a later resolution may differ. Real Docker and SBOM workflows must be run separately and have their own constraints.
 
-## Validated results
+## Poster generation
 
-- Python 3.12.16, hosted Linux: **1,158 passed, 6 skipped, 0 failed; 83.10% statement coverage; 7,327 statements and 1,238 missed**.
-- Python 3.10 / 3.11: each **1,158 passed, 6 skipped**, respective coverage **83.13% / 83.10%**.
-- Source inventories: **69** named injection signatures, **9** Elastic rules, **21** core SIEM tests, **7** SIEM scenario tests (confirmed, not 12).
-- The [security release gate](../docs/review/PHASE13_RELEASE_READINESS.md) remains **PRODUCTION NO-GO**.
+```bash
+POSTER_BROWSER="$(command -v chromium || command -v google-chrome)" python poster/render_poster.py
+```
 
-## Previous poster preserved as historical evidence
+The original poster binary files belong to their prior snapshot until regenerated and independently visually reviewed. The read-only poster workflow publishes new PNG/PDF **as CI artifacts**, not by rewriting GitHub source via a workflow token. Existing committed binaries should not be presented as current without parity validation.
 
-The October 14, 2026 [CI run 38502413461](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461) reported **782 passing tests and 81.93% statement coverage** from a separate source snapshot. Do not cite those as the active integration's metrics or claim detection accuracy from signature inventory.
+## Explicit exclusions
+
+No external provider API key, paid service, bank, booking site or healthcare platform is required in the cited offline tests. This does not mean the optional HTTP production service has no operator authentication, nor does it establish complete secret removal from remote systems. No field precision/recall, current coverage percentage, independent pentest or production certification is claimed.
