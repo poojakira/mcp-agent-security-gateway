@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - integration/phase1-16-remediation-20261109
+      - security/harden-tool-discovery-20261110
   pull_request:
     branches:
       - main
@@ -34,6 +35,12 @@ jobs:
           ruff check src/mcp_monitor/protocol/revocation_fence.py src/mcp_monitor/protected_repo_server.py tests/test_phase16_revocation_safe_commit.py tests/test_retired_demo_credential.py
           ruff format --diff src/mcp_monitor/protocol/revocation_fence.py src/mcp_monitor/protected_repo_server.py tests/test_phase16_revocation_safe_commit.py tests/test_retired_demo_credential.py
           ruff format --check src/mcp_monitor/protocol/revocation_fence.py src/mcp_monitor/protected_repo_server.py tests/test_phase16_revocation_safe_commit.py tests/test_retired_demo_credential.py
+      - name: Verify hardened tool discovery regression and formatting
+        run: |
+          ruff check tests/test_hardened_tool_discovery.py src/mcp_monitor/proxy/stdio_proxy.py
+          ruff format --diff tests/test_hardened_tool_discovery.py src/mcp_monitor/proxy/stdio_proxy.py
+          ruff format --check tests/test_hardened_tool_discovery.py src/mcp_monitor/proxy/stdio_proxy.py
+          python -m pytest tests/test_hardened_tool_discovery.py -q --tb=short
       - name: Full inherited regression suite
         run: python -m pytest tests/ -q --tb=short
       - name: Verify combined identity, effect, revocation and key-retirement boundaries

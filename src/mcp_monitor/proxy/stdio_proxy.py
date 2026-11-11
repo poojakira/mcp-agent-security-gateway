@@ -946,6 +946,56 @@ class StdioMCPProxy:
                     expected_ids
                 ):
                     raise ValueError("Downstream response IDs do not match requests")
+                # The caller must not discover tools it cannot invoke. In the
+                # hardened profile, reduce the untrusted downstream discovery
+                # response to the same trusted tool capabilities enforced at
+                # tools/call. Do not rewrite non-discovery responses.
+                if self._strict_mcp_methods:
+                    methods_by_id = {
+                        _response_id_key(message["id"]): message["method"]
+                        for message in messages
+                        if "method" in message and "id" in message
+                    }
+                    for item in results:
+                        if (
+                            methods_by_id.get(_response_id_key(item["id"])) != "tools/list"
+                            or "result" not in item
+                        ):
+                            continue
+                        allowed_tools = getattr(self._policy_engine, "allowed_tools", None)
+                        if not isinstance(allowed_tools, set | frozenset):
+                            raise ValueError("Hardened discovery requires a trusted tool allowlist")
+                        listing = item["result"]
+                        if not isinstance(listing, dict) or not isinstance(
+                            listing.get("tools"), list
+                        ):
+                            raise ValueError("Invalid MCP tool discovery response")
+                        seen: set[str] = set()
+                        visible: list[dict[str, Any]] = []
+                        for tool in listing["tools"]:
+                            if (
+                                not isinstance(tool, dict)
+                                or not isinstance(tool.get("name"), str)
+                                or not tool["name"]
+                                or tool["name"] in seen
+                            ):
+                                raise ValueError("Invalid or duplicate MCP tool discovery entry")
+                            seen.add(tool["name"])
+                            if tool["name"] not in allowed_tools:
+                                continue
+                            # Explicit deny rules still win even if an operator
+                            # accidentally adds a dangerous name to the allowlist.
+                            decision = self._policy_engine.evaluate(
+                                {
+                                    "name": tool["name"],
+                                    "server_id": self._server_id,
+                                    "arguments": {},
+                                }
+                            )
+                            if decision.allowed:
+                                visible.append(tool)
+                        listing["tools"] = visible
+                    response = json.dumps(payload, separators=(",", ":")).encode("utf-8")
                 for item in results:
                     detected, patterns = self._detector.detect(
                         {
