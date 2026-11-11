@@ -132,6 +132,7 @@ def test_hardened_proxy_accepts_explicit_empty_allowlist_and_denies_call() -> No
     response = json.loads(asyncio.run(proxy.handle_message(request)))
     assert response["error"]["code"] == proxy.SECURITY_BLOCK_CODE
 
+
 def test_legacy_discovery_behavior_not_silently_changed() -> None:
     original = {"tools": [{"name": "read_manifest"}, {"name": "other_tool"}]}
     answer, _ = _run(original, allowed={"read_manifest"}, strict=False)
