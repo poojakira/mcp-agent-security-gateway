@@ -90,9 +90,7 @@ def test_operator_approved_exact_effect_forwarded_once(tmp_path) -> None:
     assert "_gateway_operation_key" not in sent["params"]
     assert sent["params"]["arguments"] == ARGS
     assert (
-        journal.status(
-            principal=PRINCIPAL, server=SERVER, tool=TOOL, operation_key="permit-01"
-        )
+        journal.status(principal=PRINCIPAL, server=SERVER, tool=TOOL, operation_key="permit-01")
         == "COMPLETED"
     )
     denied = json.loads(asyncio.run(proxy.handle_message(request())))
@@ -114,9 +112,7 @@ def test_unapproved_or_spoofed_operation_denied_before_send(
     tmp_path, key: str, arguments: dict, principal: str
 ) -> None:
     proxy, transport, _ = gateway(tmp_path, approved=approval(), principal=principal)
-    result = json.loads(
-        asyncio.run(proxy.handle_message(request(key=key, arguments=arguments)))
-    )
+    result = json.loads(asyncio.run(proxy.handle_message(request(key=key, arguments=arguments))))
     assert result["error"]["code"] == proxy.SECURITY_BLOCK_CODE
     assert transport.sent == []
 
