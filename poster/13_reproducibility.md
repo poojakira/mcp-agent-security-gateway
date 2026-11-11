@@ -1,22 +1,29 @@
-# Reproduce the Work — MCP Gateway Poster 01
+# Reproducibility — MCP Gateway Integration Poster
 
-**Current code snapshot:** `f1f226feb0d527f27b90081806d7e9bd90ba0574`  
-**Successful Python 3.12 main CI:** [run 38502413461](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461) (October 14, 2026 UTC)
+**Reviewed PR #167 source head:** `25bc77445df5fa5fdcdff64478b0f63079dbb8ca`  
+**CI-tested synthetic merge commit:** `2ab3380d1457cdcb16c3ba143db9d8e339b057e2`  
+**GitHub Actions CI:** [42748742036](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42748742036), 2026-11-10 UTC.
+
+To inspect the source candidate and run the suite with local dependencies:
 
 ```bash
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
 cd mcp-agent-security-gateway
-git checkout f1f226feb0d527f27b90081806d7e9bd90ba0574
-python -m pip install -e ".[dev,server]"
-PYTHONPATH=src python -m pytest tests -q --cov=mcp_monitor --cov-report=term
+git fetch origin integration/phase1-16-remediation-20261109
+git checkout 25bc77445df5fa5fdcdff64478b0f63079dbb8ca
+python -m pip install -e ".[dev,server,oidc]"
+python -m pytest tests -q --cov=mcp_monitor --cov-report=term
 ```
 
-Expected at this cited CI snapshot: **782 passed, 81.93% statement coverage**, 5,657 statements / 1,022 missed. The code-source collection inventory contains **69 named signatures**, plus **9 Elastic rules**, **21 core SIEM tests**, and **12 SIEM scenario tests**; inventory counts are not population-level recall.
+The exact published measurements come from the GitHub PR **synthetic merge tree**, not a claim that a local checkout of the branch head is byte-identical to that merge. For exact archived PR-merge content, use CI run 42748742036 and the merge commit above; rerunning a moved PR ref can select newer code. Environment and dependency variation can change results.
 
-**Archived October 4 historical run:** [37184196303](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303) at `008775c8878cc70c50247baa223da3256e093316`: 723 passed, 81.91% coverage, 55 named signatures. These values are not this active poster snapshot.
+## Validated results
 
-Cerberus pilot evidence and detector effectiveness are separate and unchanged. GitHub Actions results are scoped to the cited commit and environment.
+- Python 3.12.16, hosted Linux: **1,158 passed, 6 skipped, 0 failed; 83.10% statement coverage; 7,327 statements and 1,238 missed**.
+- Python 3.10 / 3.11: each **1,158 passed, 6 skipped**, respective coverage **83.13% / 83.10%**.
+- Source inventories: **69** named injection signatures, **9** Elastic rules, **21** core SIEM tests, **7** SIEM scenario tests (confirmed, not 12).
+- The [security release gate](../docs/review/PHASE13_RELEASE_READINESS.md) remains **PRODUCTION NO-GO**.
 
-## November 2026 verification and claim boundary
+## Previous poster preserved as historical evidence
 
-These reproduction steps intentionally pin the October evidence source; running them at the active branch head tests a different code state and must not be reported as the 782/81.93% poster measurement. The [parity workflow](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42740787837) previously rerendered and matched the committed poster image. The development [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) remains production NO-GO.
+The October 14, 2026 [CI run 38502413461](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461) reported **782 passing tests and 81.93% statement coverage** from a separate source snapshot. Do not cite those as the active integration's metrics or claim detection accuracy from signature inventory.

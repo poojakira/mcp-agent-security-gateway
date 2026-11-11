@@ -151,9 +151,12 @@ def main() -> int:
         sections,
         "Current Verified Evidence",
         "Verified Evidence",
+        "Verified Evidence at Cited Snapshot",
         "Evidence at Poster Snapshot + Claim Ledger",
         "Evidence",
     )
+    validation = pick_section(sections, "Integration Validation", "Scoped Validation", "Security Evidence")
+    release_decision = pick_section(sections, "Release Decision", "Release Status")
     boundaries = pick_section(sections, "Honest Boundaries", "Boundaries", "Limitations")
     repro = pick_section(sections, "Reproducibility")
     sources = pick_section(sections, "Evidence Sources", "References")
@@ -185,10 +188,10 @@ def main() -> int:
     .col { display:flex; flex-direction:column; gap:22px; min-height:0; }
     section { background:white; border:2px solid #d8e1ea; border-radius:22px; padding:28px 30px 25px; }
     h2 { margin:0 0 14px; font-size:29px; color:#0b5f8a; line-height:1.1; }
-    p, li { font-size:18px; line-height:1.38; margin:0 0 10px; }
+    p, li { font-size:19px; line-height:1.38; margin:0 0 10px; }
     ul, ol { margin:0; padding-left:28px; }
     li { margin-bottom:8px; }
-    .evidence p, .evidence li { font-size:17px; }
+    .evidence p, .evidence li { font-size:18px; }
     footer { font-size:14px; color:#657789; margin-top:24px; text-align:center; }
     @media print {
       html, body { width:36in; height:48in; background:#f4f7fb; }
@@ -238,10 +241,12 @@ def main() -> int:
         </div>
         <div class="col">
           {sec("Current Verified Evidence", evidence, "evidence")}
+          {sec("Integration Validation", validation)}
           {sec("Reproducibility", repro)}
         </div>
         <div class="col">
           {sec("Honest Boundaries", boundaries)}
+          {sec("Release Decision", release_decision)}
           {sec("Evidence Sources & References", sources)}
         </div>
       </div>

@@ -24,7 +24,7 @@ dangerous ones.
 A stdlib-first Python base package with optional feature/development dependencies that provides:
 
 1. MCP/JSON-RPC parsing and inline stdio enforcement for supported `tools/call` requests
-2. Prompt-injection-oriented inspection with normalization and 55 compiled regex patterns
+2. Prompt-injection-oriented inspection with normalization and 69 named regex patterns
 3. Server registration/capability checks plus PII and exfiltration signals
 4. Hash-chained audit logging, optional HMAC protection, and write-ahead logging
 5. Rate limiting, circuit-breaker, telemetry, ECS/SIEM lab, Docker, and Kubernetes artifacts
@@ -57,7 +57,7 @@ changes behavior.
 | # | Objective | Achieved? | Honest Assessment |
 |---|-----------|-----------|-------------------|
 | 1 | Detect BCC injection in email tools | YES | Works for literal BCC field and 16 synonyms |
-| 2 | Detect prompt injection in tool arguments | YES | 55 compiled regex patterns plus normalization; deterministic/heuristic and still evadable |
+| 2 | Detect prompt injection in tool arguments | YES | 69 named regex patterns plus normalization (November source inventory); deterministic/heuristic and still evadable |
 | 3 | Block calls to unregistered MCP servers | YES | Effective; requires manual server registration |
 | 4 | Detect PII leakage in tool calls/outputs | YES | 9 patterns; misses semantic PII (described, not literal) |
 | 5 | Provide tamper-evident audit trail | YES | Hash chain with optional HMAC; integrity guarantees depend on key protection and storage trust |
@@ -273,7 +273,7 @@ every email sent through the server.
 | Literal BCC in MCP arguments | 10/10 | Catches immediately |
 | BCC synonym in MCP arguments | 8/10 | 16 synonyms covered, but not all |
 | BCC hidden server-side (not in MCP data) | 2/10 | Blind at MCP layer |
-| Prompt injection (known patterns) | 8/10 | 55 patterns; creative phrasing evades |
+| Prompt injection (known patterns) | 8/10 | 69 named patterns; creative phrasing evades |
 | Rogue MCP server | 9/10 | Registration check is solid |
 | Multi-step credential theft | 7/10 | Correlation works but has time-window limits |
 | Base64-encoded exfiltration | 6/10 | Catches email patterns; misses other data |

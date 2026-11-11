@@ -1,29 +1,29 @@
-# Verified Metrics - Poster 01
+# Verified Metrics — MCP Gateway Integration Poster
 
-> Main code snapshot: `f1f226feb0d527f27b90081806d7e9bd90ba0574` (October 14, 2026 UTC)
-> Successful CI: https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461
+> PR #167, CI merge commit `2ab3380d1457cdcb16c3ba143db9d8e339b057e2`, GitHub Actions [run 42748742036](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42748742036) (2026-11-10 UTC). **Development integration only · production NO-GO.**
 
 | Metric | Snapshot value | Scope |
 |---|---:|---|
-| Tests passed | **782** | Python 3.12 CI; Python 3.10/3.11 also green |
-| Tests failed | **0** | Cited CI run |
-| Statement coverage | **81.93%** | 5,657 statements, 1,022 missed |
-| Prompt-injection collection entries | **69** | Named runtime collection; current main-branch implementation |
-| Elastic rule records | **9** | `detection_rules/elastic_rules.toml` |
+| Tests passed | **1,158** | Python 3.12, reviewed PR merge commit |
+| Tests skipped | **6** | Python 3.12 CI; 0 failed |
+| Statement coverage | **83.10%** | Linux Python 3.12, not detector accuracy |
+| Statements measured | **7,327** | 1,238 missed; same CI job |
+| Prompt-injection signatures | **69** | Source inventory; not population recall |
+| Elastic Security rules | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
-| SIEM scenario tests | **12** | `tests/test_siem_scenarios.py` |
+| SIEM scenario tests | **7** | `tests/test_siem_scenarios.py`; corrected from 12 |
 
-## Verification gates
+## Additional measured checks
 
-The cited CI completed lint/format, type checking, Bandit, pip-audit, CodeQL, security scanning, Windows control-plane validation, Python 3.10/3.11/3.12 tests, SBOM work, and Docker build validation successfully.
+Python 3.10 / 3.11 each recorded 1,158 passed and 6 skipped, with 83.13% / 83.10% statement coverage. The focused combined security suite recorded 42 passing cases on Python 3.12. A real disposable filesystem MCP smoke test recorded one passing case; this is **not** a production deployment test.
 
 ## Not established
 
-- External population-level false-positive / false-negative rates.
-- Production latency, throughput, uptime, or reliability SLOs.
-- A live SOC deployment.
-- Universal enforcement semantics outside traffic routed through the implemented integration paths.
+- Independent, representative prompt-injection precision/recall.
+- Universal prevention of tool-server bypass or arbitrary host/OS access.
+- External identity assurance, complete transport interoperability and production-restricted outbound egress.
+- Customer deployments, SOC response SLOs, uptime or human production authorization.
 
-## November 2026 verification and claim boundary
+## Historical comparison (not a merged measurement)
 
-These are **October 14 source-commit metrics only**. The 69 signatures and 9 rules are inventory counts, not detection efficacy. The poster render/parity [run #42740787837](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42740787837) passed prior to this documentation reconciliation, but does not verify the current integration tests or production readiness.
+October 14, 2026 main CI [run 38502413461](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461) at `f1f226f`: **782 passed / 81.93%** statement coverage, 5,657 statements / 1,022 missed. Do not combine those measurements with the November run.

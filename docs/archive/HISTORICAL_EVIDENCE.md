@@ -29,7 +29,7 @@ The Python 3.10 and 3.11 test jobs also completed successfully.
 | Prompt-injection collection entries | **55** | Named collection at cited snapshot |
 | Elastic rule records | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
-| SIEM scenario tests | **12** | `tests/test_siem_scenarios.py` |
+| SIEM scenario tests | **7 confirmed in the October 14 and November 10 source trees** | `tests/test_siem_scenarios.py`; older claimed inventory of 12 was incorrect; do not infer the October 4 count without checking that historical commit |
 
 The cited CI also completed Ruff/format checks, Pyright, Bandit, pip-audit, CodeQL, Windows control-plane validation, security scanning, SBOM steps, and Docker build validation successfully.
 

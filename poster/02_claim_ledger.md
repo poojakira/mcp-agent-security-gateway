@@ -1,30 +1,28 @@
-# Claim Ledger - Poster 01
+# Claim Ledger — MCP Gateway Integration Poster
 
-> Current verified main snapshot: `f1f226feb0d527f27b90081806d7e9bd90ba0574`. [Python 3.12 CI run 38502413461](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461) (October 14, 2026 UTC); distinct from the archived October 4 poster values below.
+> Reviewed candidate: PR #167 head `25bc77445df5fa5fdcdff64478b0f63079dbb8ca`; CI checks ran synthetic PR merge `2ab3380d1457cdcb16c3ba143db9d8e339b057e2` on 2026-11-10 UTC. This is research/development evidence, **not a production-release certificate**.
 
-Classification key: VERIFIED_AT_SNAPSHOT / PARTIAL / UNVERIFIED / UNSUPPORTED.
+Classification key: CI_VERIFIED_AT_PR_MERGE / SOURCE_INVENTORY / LAB_VERIFIED / HISTORICAL / UNVERIFIED.
 
 | # | Claim | Classification | Evidence |
 |---|---|---|---|
-| 1 | **782 automated tests passed** | VERIFIED_AT_SNAPSHOT | Python 3.12 CI run `38502413461`; Python 3.10/3.11 also passed |
-| 2 | **81.93% statement coverage** | VERIFIED_AT_SNAPSHOT | 5,657 statements, 1,022 missed in the same Python 3.12 job |
-| 3 | **69 named runtime prompt-injection signatures** | VERIFIED_SOURCE_INVENTORY | Separate named collection inventory at the cited source snapshot; this is not a recall rate |
-| 4 | **9 Elastic Security rule records** | VERIFIED_SOURCE_INVENTORY | `detection_rules/elastic_rules.toml` |
-| 5 | **21 core SIEM tests + 12 SIEM scenario tests** | VERIFIED_SOURCE_INVENTORY | `tests/test_siem.py` and `tests/test_siem_scenarios.py` |
-| 6 | JSON-RPC validation rejects malformed and duplicate-key inputs | VERIFIED_AT_SNAPSHOT | Protocol tests in cited CI |
-| 7 | Hash-chained audit and WAL implementation exists | VERIFIED_AT_SNAPSHOT | Audit modules and tests at cited commit |
-| 8 | Policy enforcement is identical across every integration path | UNSUPPORTED | Paths differ in enforcement semantics |
-| 9 | Population-level detector precision or recall | UNVERIFIED | No independent representative labeled benchmark |
-| 10 | Production uptime, SLOs or live-SOC deployment | UNSUPPORTED | No field deployment evidence in cited run |
+| 1 | **1,158 passed, 6 skipped, 0 failed**, Python 3.12 | CI_VERIFIED_AT_PR_MERGE | [CI run 42748742036](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42748742036) |
+| 2 | **83.10% statement coverage**, Python 3.12, 7,327 statements, 1,238 missed | CI_VERIFIED_AT_PR_MERGE | Same full CI run, exact Python 3.12 job |
+| 3 | Python 3.10: 1,158 passed / 6 skipped / **83.13%** coverage | CI_VERIFIED_AT_PR_MERGE | Same full CI run, Python 3.10 job |
+| 4 | Python 3.11: 1,158 passed / 6 skipped / **83.10%** coverage | CI_VERIFIED_AT_PR_MERGE | Same full CI run, Python 3.11 job |
+| 5 | **69** named prompt-injection detector signatures | SOURCE_INVENTORY | `src/mcp_monitor/detectors/prompt_injection.py`; not a detection rate |
+| 6 | **9** Elastic rule records | SOURCE_INVENTORY | `detection_rules/elastic_rules.toml` |
+| 7 | **21** core SIEM test functions | SOURCE_INVENTORY | `tests/test_siem.py` |
+| 8 | **7** SIEM scenario test functions (not 12) | CI_VERIFIED_AT_PR_MERGE | `tests/test_siem_scenarios.py`, 7 passed in full CI |
+| 9 | Focused security regression: **42 passed** | LAB_VERIFIED | [Integrated CI run 42748741925](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42748741925), Python 3.12 |
+| 10 | Real pinned filesystem MCP smoke test: **1 passed** | LAB_VERIFIED | [Run 42748742254](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42748742254) |
+| 11 | **782 passed / 81.93%** statement coverage | HISTORICAL | October 14 run 38502413461 at `f1f226f`; this is not the November integrated result |
+| 12 | Independently measured production detector precision/recall, incident prevention or customer deployment | UNVERIFIED | No representative blind benchmark or live production deployment evidence |
 
-## Archived October 4, 2026 evidence (not this poster's current metric row)
+## Integrity rules
 
-Code `008775c8878cc70c50247baa223da3256e093316`, [run 37184196303](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303): **723 passed, 81.91% statement coverage, 55 named prompt-injection signatures**. These numbers remain historical and must not be paired with the current CI values as one run.
+Keep the PR merge commit, date, Python version and test denominator beside every numerical claim. A GitHub Actions workflow named `Production Gate` passing does **not** satisfy the human release gate. The production decision is **NO-GO** with open identity, egress, effect recovery, transport and independent validation requirements. No paid provider token or external target was used.
 
-## Poster policy
+## Historical poster correction
 
-Only combine values from the same cited execution, with source-inventory and curated-fixture results expressly labeled as separate evidence. The Cerberus integration/pilot configuration and its detector effectiveness are outside the poster verification.
-
-## November 2026 verification and claim boundary
-
-**No current release claim:** The values in this claim ledger are frozen at the October source SHA and must not be combined with November integration tests. The associated [poster render/parity run](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42740787837) passed on the reviewed README-update source. [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) remains a separate draft, production NO-GO candidate.
+The October poster's statement of **12 SIEM scenario tests** was incorrect: the cited old code and the reviewed new code each contain **7** scenario-runner `test_*` functions. The older 782-test and 81.93%-coverage values were valid for their own cited October CI; the revised poster replaces the active headline with verified November integration values.
