@@ -88,8 +88,7 @@ os._exit(83)
             arguments=ARGUMENTS,
         )
     assert (
-        json.loads(manifest.read_text(encoding="utf-8"))["dependencies"]["safe-package"]
-        == actual
+        json.loads(manifest.read_text(encoding="utf-8"))["dependencies"]["safe-package"] == actual
     )
 
 
