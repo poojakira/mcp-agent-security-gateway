@@ -6,6 +6,7 @@ on:
       - integration/phase1-16-remediation-20261109
       - security/harden-tool-discovery-20261110
       - security/phase1-16-egress-boundary-20261110
+      - security/phase1-16-strict-authority-20261110
   pull_request:
     branches:
       - main

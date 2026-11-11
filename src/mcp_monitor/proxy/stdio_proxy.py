@@ -22,6 +22,7 @@ import asyncio
 import json
 import logging
 import math
+import os
 import secrets
 import sys
 from collections import Counter
@@ -594,6 +595,11 @@ class StdioMCPProxy:
             allowed_servers={server_id},
             allowed_egress_hosts=allowed_egress_hosts,
         )
+        # Hardened mode must never silently downgrade to the legacy library
+        # policy where all non-denylisted tool names are implicitly allowed.
+        # Reject the configuration BEFORE any downstream process is started.
+        if self._strict_mcp_methods and self._policy_engine.allowed_tools is None:
+            raise ValueError("Hardened MCP proxy requires an explicit trusted tool allowlist")
         # Rate limit tool calls at the proxy layer (separate from production/ server rate limiter).
         # Default: 300 tool calls/minute, burst up to 300. Reduces DoS risk and
         # limits blast radius if an agent is compromised or stuck in a loop.
@@ -1268,6 +1274,8 @@ def main() -> None:
         options.offline_sandbox_image or options.internal_sandbox_image
     ):
         parser.error("--unsafe-local-dev cannot be combined with sandbox isolation")
+    if os.environ.get("MCP_ENV", "").strip().lower() == "production" and options.unsafe_local_dev:
+        parser.error("Production mode forbids --unsafe-local-dev and uncontained MCP execution")
 
     proxy = StdioMCPProxy(
         command,
