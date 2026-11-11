@@ -1,28 +1,23 @@
-# Claim Ledger — MCP Gateway Integration Poster
+# Claim Ledger — Phase 1–16 Gateway Poster
 
-> Reviewed candidate: PR #167 head `25bc77445df5fa5fdcdff64478b0f63079dbb8ca`; CI checks ran synthetic PR merge `2ab3380d1457cdcb16c3ba143db9d8e339b057e2` on 2026-11-10 UTC. This is research/development evidence, **not a production-release certificate**.
+> **Reviewed development source:** `43a72c8984bf9a472b9055d4f9e84cc759f61718`, November 11, 2026 UTC. **All references are to an unmerged review stack; PRODUCTION NO-GO.** This ledger replaces the former poster headline based on the older PR #167 synthetic merge.
 
-Classification key: CI_VERIFIED_AT_PR_MERGE / SOURCE_INVENTORY / LAB_VERIFIED / HISTORICAL / UNVERIFIED.
+| Claim | Evidence | Classification and boundary |
+|---|---|---|
+| 1,211 tests passed and 6 skipped per Python 3.10/3.11/3.12 | [Integration run 42971171992](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992) | CI_VERIFIED_EXACT_HEAD; 6 skips are exclusions, not passes |
+| 5/5 integrated jobs passed | Same integrated run | CI_VERIFIED_EXACT_HEAD, not production approval |
+| Security hygiene completed | [Hygiene run 42971171965](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171965) | CI_VERIFIED_EXACT_HEAD; tracked-file/history regex patterns and configured Bandit scope, not all secrets |
+| Installed Python CycloneDX SBOM generated; no known advisories reported | [Supply-chain run 42971171775](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171775) | CI_VERIFIED_EXACT_HEAD; public advisories at that time, not image/license/deployment certification |
+| Real restricted Docker import and MCP tool-list handshake | [Docker run 42971171991](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171991) | LAB_VERIFIED; no-network non-root test, not host-wide interception |
+| Three local process-kill effect-journal scenarios | `tests/test_phase16_crash_fencing_process.py` in the exact integrated run | LAB_VERIFIED; not power loss, external providers or distributed consensus |
+| Keyless, exact local side-effect permits | `src/mcp_monitor/protocol/effect_authority.py` and dedicated tests | SOURCE_AND_CI_VERIFIED; not independently authenticated human consent |
+| Offline production-flagged stdio profile rejects network modes | `src/mcp_monitor/proxy/stdio_proxy.py` and tests | SOURCE_AND_CI_VERIFIED; untrusted agents outside gateway remain out of scope |
+| 96-case detector synthetic benchmark, TP40/FN8/FP16/TN32 | `docs/review/PHASE12_BENCHMARK_PROTOCOL.md` | HISTORICAL_AUTHOR_CURATED, not independent or field-performance estimate |
+| Universal bypass prevention, verified external bookings, complete remote identity/revocation, TLS/IP/redirect egress, independent pentest or signed release | `PRODUCTION.md` / release candidate evidence document | **NOT VERIFIED — DO NOT CLAIM** |
+| No paid provider API key in the cited free offline workflows | Workflow source and reviewed repository configurations | SCOPED_DESIGN; does not prove the absence of all deployed secrets, or eliminate HTTP operator authentication |
+| Earlier 1,158-pass/83.10% merge-CI snapshot | [Historical run 42748742036](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42748742036) | HISTORICAL; do not attach its coverage rate to current 1,211-pass source |
+| Earlier October 782-pass/81.93% snapshot | [Historical run 38462601803](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803) | HISTORICAL; separate source and environment |
 
-| # | Claim | Classification | Evidence |
-|---|---|---|---|
-| 1 | **1,158 passed, 6 skipped, 0 failed**, Python 3.12 | CI_VERIFIED_AT_PR_MERGE | [CI run 42748742036](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42748742036) |
-| 2 | **83.10% statement coverage**, Python 3.12, 7,327 statements, 1,238 missed | CI_VERIFIED_AT_PR_MERGE | Same full CI run, exact Python 3.12 job |
-| 3 | Python 3.10: 1,158 passed / 6 skipped / **83.13%** coverage | CI_VERIFIED_AT_PR_MERGE | Same full CI run, Python 3.10 job |
-| 4 | Python 3.11: 1,158 passed / 6 skipped / **83.10%** coverage | CI_VERIFIED_AT_PR_MERGE | Same full CI run, Python 3.11 job |
-| 5 | **69** named prompt-injection detector signatures | SOURCE_INVENTORY | `src/mcp_monitor/detectors/prompt_injection.py`; not a detection rate |
-| 6 | **9** Elastic rule records | SOURCE_INVENTORY | `detection_rules/elastic_rules.toml` |
-| 7 | **21** core SIEM test functions | SOURCE_INVENTORY | `tests/test_siem.py` |
-| 8 | **7** SIEM scenario test functions (not 12) | CI_VERIFIED_AT_PR_MERGE | `tests/test_siem_scenarios.py`, 7 passed in full CI |
-| 9 | Focused security regression: **42 passed** | LAB_VERIFIED | [Integrated CI run 42748741925](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42748741925), Python 3.12 |
-| 10 | Real pinned filesystem MCP smoke test: **1 passed** | LAB_VERIFIED | [Run 42748742254](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42748742254) |
-| 11 | **782 passed / 81.93%** statement coverage | HISTORICAL | October 14 run 38502413461 at `f1f226f`; this is not the November integrated result |
-| 12 | Independently measured production detector precision/recall, incident prevention or customer deployment | UNVERIFIED | No representative blind benchmark or live production deployment evidence |
+## Document-integrity rule
 
-## Integrity rules
-
-Keep the PR merge commit, date, Python version and test denominator beside every numerical claim. A GitHub Actions workflow named `Production Gate` passing does **not** satisfy the human release gate. The production decision is **NO-GO** with open identity, egress, effect recovery, transport and independent validation requirements. No paid provider token or external target was used.
-
-## Historical poster correction
-
-The October poster's statement of **12 SIEM scenario tests** was incorrect: the cited old code and the reviewed new code each contain **7** scenario-runner `test_*` functions. The older 782-test and 81.93%-coverage values were valid for their own cited October CI; the revised poster replaces the active headline with verified November integration values.
+Release decision remains **NO-GO**, whatever a workflow or poster is named. Every active numerical claim must include a source commit, run and scope; when inputs change, regenerate the poster and update this ledger. Do not silently treat a historical document as current or confuse a hypothetical attack with an observed exploit.
