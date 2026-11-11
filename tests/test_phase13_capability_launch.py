@@ -135,6 +135,27 @@ def test_hardened_proxy_denies_non_tool_method(method: str) -> None:
     assert transport.sent == []
 
 
+def test_production_cli_refuses_unsafe_uncontained_launch(monkeypatch) -> None:
+    monkeypatch.setenv("MCP_ENV", "production")
+    with patch.object(
+        sys,
+        "argv",
+        [
+            "mcp-gateway",
+            "--allow-tool",
+            "read_manifest",
+            "--unsafe-local-dev",
+            "--",
+            "python",
+            "-m",
+            "mcp_monitor.protected_repo_server",
+        ],
+    ):
+        with pytest.raises(SystemExit) as exit_info:
+            main()
+    assert exit_info.value.code == 2
+
+
 def test_hardened_proxy_allows_protocol_handshake() -> None:
     class ValidToolListTransport(SpyTransport):
         async def receive(self) -> bytes:
