@@ -183,6 +183,50 @@ def test_production_stdio_refuses_uncontained_or_networked_profiles(
     assert expected in capsys.readouterr().err
 
 
+def test_production_library_constructor_rejects_unsandboxed_proxy(monkeypatch) -> None:
+    monkeypatch.setenv("MCP_ENV", "production")
+    with pytest.raises(ValueError, match="strict offline Docker isolation"):
+        StdioMCPProxy(
+            ["fake"],
+            transport=SpyTransport(),
+            strict_mcp_methods=True,
+            server_id="trusted",
+            policy_engine=PolicyEngine(
+                allowed_servers={"trusted"}, allowed_tools={"read_manifest"}
+            ),
+        )
+
+
+def test_production_library_constructor_rejects_legacy_methods(monkeypatch) -> None:
+    from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
+
+    monkeypatch.setenv("MCP_ENV", "production")
+    with pytest.raises(ValueError, match="strict offline Docker isolation"):
+        StdioMCPProxy(
+            ["fake"],
+            offline_sandbox=OfflineDockerSandbox("sha256:" + "a" * 64),
+            strict_mcp_methods=False,
+        )
+
+
+def test_production_library_constructor_rejects_egress_grant(monkeypatch) -> None:
+    from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
+
+    monkeypatch.setenv("MCP_ENV", "production")
+    with pytest.raises(ValueError, match="forbids network destination"):
+        StdioMCPProxy(
+            ["fake"],
+            offline_sandbox=OfflineDockerSandbox("sha256:" + "a" * 64),
+            strict_mcp_methods=True,
+            server_id="trusted",
+            policy_engine=PolicyEngine(
+                allowed_servers={"trusted"},
+                allowed_tools={"read_manifest"},
+                allowed_egress_hosts={"approved.example"},
+            ),
+        )
+
+
 def test_hardened_proxy_allows_protocol_handshake() -> None:
     class ValidToolListTransport(SpyTransport):
         async def receive(self) -> bytes:
