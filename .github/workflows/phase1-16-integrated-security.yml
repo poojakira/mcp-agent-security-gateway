@@ -5,6 +5,7 @@ on:
     branches:
       - integration/phase1-16-remediation-20261109
       - security/harden-tool-discovery-20261110
+      - security/phase1-16-egress-boundary-20261110
   pull_request:
     branches:
       - main
@@ -41,6 +42,12 @@ jobs:
           ruff format --diff tests/test_hardened_tool_discovery.py src/mcp_monitor/proxy/stdio_proxy.py
           ruff format --check tests/test_hardened_tool_discovery.py src/mcp_monitor/proxy/stdio_proxy.py
           python -m pytest tests/test_hardened_tool_discovery.py -q --tb=short
+      - name: Validate strict declared egress hints with no external network
+        run: |
+          ruff check tests/test_phase13_egress_authority_validation.py src/mcp_monitor/policy/policy_engine.py
+          ruff format --diff tests/test_phase13_egress_authority_validation.py src/mcp_monitor/policy/policy_engine.py
+          ruff format --check tests/test_phase13_egress_authority_validation.py src/mcp_monitor/policy/policy_engine.py
+          python -m pytest tests/test_phase13_egress_authority_validation.py -q --tb=short
       - name: Full inherited regression suite
         run: python -m pytest tests/ -q --tb=short
       - name: Verify combined identity, effect, revocation and key-retirement boundaries
