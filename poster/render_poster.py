@@ -155,7 +155,9 @@ def main() -> int:
         "Evidence at Poster Snapshot + Claim Ledger",
         "Evidence",
     )
-    validation = pick_section(sections, "Integration Validation", "Scoped Validation", "Security Evidence")
+    validation = pick_section(
+        sections, "Integration Validation", "Scoped Validation", "Security Evidence"
+    )
     release_decision = pick_section(sections, "Release Decision", "Release Status")
     boundaries = pick_section(sections, "Honest Boundaries", "Boundaries", "Limitations")
     repro = pick_section(sections, "Reproducibility")
