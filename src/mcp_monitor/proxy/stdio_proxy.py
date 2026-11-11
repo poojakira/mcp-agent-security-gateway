@@ -22,6 +22,7 @@ import asyncio
 import json
 import logging
 import math
+import os
 import secrets
 import sys
 from collections import Counter
@@ -1273,6 +1274,8 @@ def main() -> None:
         options.offline_sandbox_image or options.internal_sandbox_image
     ):
         parser.error("--unsafe-local-dev cannot be combined with sandbox isolation")
+    if os.environ.get("MCP_ENV", "").strip().lower() == "production" and options.unsafe_local_dev:
+        parser.error("Production mode forbids --unsafe-local-dev and uncontained MCP execution")
 
     proxy = StdioMCPProxy(
         command,
