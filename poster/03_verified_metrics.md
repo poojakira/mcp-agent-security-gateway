@@ -1,29 +1,35 @@
-# Verified Metrics — MCP Gateway Integration Poster
+# Poster Metrics — Exact-Head CI Evidence, Not Product Effectiveness
 
-> PR #167, CI merge commit `2ab3380d1457cdcb16c3ba143db9d8e339b057e2`, GitHub Actions [run 42748742036](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42748742036) (2026-11-10 UTC). **Development integration only · production NO-GO.**
+> **Source commit:** `43a72c8984bf9a472b9055d4f9e84cc759f61718` (draft Phase 1–16 stack). **PRODUCTION NO-GO.** All numerical claims are limited to cited workflows and dates; no deployment efficacy or independent security certification is inferred.
 
 | Metric | Snapshot value | Scope |
 |---|---:|---|
-| Tests passed | **1,158** | Python 3.12, reviewed PR merge commit |
-| Tests skipped | **6** | Python 3.12 CI; 0 failed |
-| Statement coverage | **83.10%** | Linux Python 3.12, not detector accuracy |
-| Statements measured | **7,327** | 1,238 missed; same CI job |
-| Prompt-injection signatures | **69** | Source inventory; not population recall |
-| Elastic Security rules | **9** | `detection_rules/elastic_rules.toml` |
-| Core SIEM tests | **21** | `tests/test_siem.py` |
-| SIEM scenario tests | **7** | `tests/test_siem_scenarios.py`; corrected from 12 |
+| Regression tests | **1,211** | Passing tests per Python version, not a sum across versions |
+| Skipped tests | **6** | Per Python version; skipped are not verified |
+| Python versions | **3** | 3.10 / 3.11 / 3.12 all passed |
+| Integrated CI jobs | **5/5** | [Run 42971171992](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992) |
+| Exact-head workflows | **4/4** | Integrated, hygiene, supply-chain and real protected Docker |
+| Local process-crash cases | **3** | Before reservation, post-reservation and post-effect/pre-ack |
+| Known Python advisories | **0 found** | Installed CI environment, public database at run time; not a promise |
+| Production status | **NO-GO** | No external deployment or independent approval established |
 
-## Additional measured checks
+## Scoped reproducibility
 
-Python 3.10 / 3.11 each recorded 1,158 passed and 6 skipped, with 83.13% / 83.10% statement coverage. The focused combined security suite recorded 42 passing cases on Python 3.12. A real disposable filesystem MCP smoke test recorded one passing case; this is **not** a production deployment test.
+- Python matrix: [42971171992](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992).
+- Tracked-file/history patterns and high-severity Bandit hygiene: [42971171965](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171965).
+- Installed Python CycloneDX and `pip-audit`: [42971171775](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171775).
+- Actual restricted Docker startup and MCP discovery: [42971171991](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171991).
 
-## Not established
+## Prior synthetic detection benchmark — NOT a poster headline
 
-- Independent, representative prompt-injection precision/recall.
-- Universal prevention of tool-server bypass or arbitrary host/OS access.
-- External identity assurance, complete transport interoperability and production-restricted outbound egress.
-- Customer deployments, SOC response SLOs, uptime or human production authorization.
+The earlier 96-case author-curated regex-only benchmark reported TP=40, FN=8, FP=16, TN=32. It is **not** an independent or representative measurement. Do not infer guaranteed safety or population precision/recall from it.
 
-## Historical comparison (not a merged measurement)
+## Metrics not claimed
 
-October 14, 2026 main CI [run 38502413461](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461) at `f1f226f`: **782 passed / 81.93%** statement coverage, 5,657 statements / 1,022 missed. Do not combine those measurements with the November run.
+- Latest statement coverage percentage: not measured in the cited 1,211-pass workflow.
+- Universal agent interception, distributed exactly-once execution, DNS/redirect enforcement for networked deployments, external authentication, booking/payment confirmation.
+- Zero vulnerabilities, zero leaked secrets in all history/deployments, confirmed live credential revocation, security certification, cost-free operation of all possible external systems.
+
+## Cost/credential boundary
+
+The cited local workflows use free development tooling and do not require provider-issued API keys for third-party model/payment services. The HTTP production service has a separate operator-authentication configuration; **the repository does not establish that every deployment is keyless**.
