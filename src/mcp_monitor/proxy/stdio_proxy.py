@@ -521,6 +521,16 @@ class StdioMCPProxy:
         if type(strict_mcp_methods) is not bool:
             raise ValueError("strict_mcp_methods must be boolean")
         self._strict_mcp_methods = strict_mcp_methods
+        if os.environ.get("MCP_ENV", "").strip().lower() == "production":
+            # Guard direct library construction, not only the CLI wrapper.
+            # This is a narrow offline-only safety profile, not OS-wide
+            # containment or an external identity guarantee.
+            if not strict_mcp_methods or offline_sandbox is None or internal_sandbox is not None:
+                raise ValueError("Production stdio proxy requires strict offline Docker isolation")
+            if allowed_egress_hosts or (
+                policy_engine is not None and policy_engine.allowed_egress_hosts
+            ):
+                raise ValueError("Production offline MCP forbids network destination grants")
         self._response_timeout_seconds = float(response_timeout_seconds)
         self._max_message_bytes = max_message_bytes
         if offline_sandbox is not None and internal_sandbox is not None:
