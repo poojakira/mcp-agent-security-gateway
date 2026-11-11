@@ -273,29 +273,70 @@ class PolicyEngine:
 
     @staticmethod
     def _host_from_destination(dest: str) -> str | None:
-        """Extract a hostname from a URL or bare host string.
+        """Extract a host only from a well-formed HTTP(S) URL or bare host.
 
-        Returns None if the destination cannot be parsed into a host.
+        This is argument validation, NOT socket egress enforcement. A real
+        egress proxy must still constrain DNS, resolved IP, port, redirects
+        and all downstream network paths.
         """
         dest = dest.strip()
-        if not dest:
+        if not dest or any(ord(char) <= 32 or ord(char) == 127 for char in dest):
             return None
-        # If it looks like a URL, parse it.
+        # Reject userinfo, non-HTTP schemes, malformed ports and ambiguous
+        # authority separators rather than approving by hostname alone.
         if "://" in dest:
-            parsed = urlparse(dest)
-            host = parsed.hostname
-            return host or None
-        # Bare host[:port] form.
-        # Strip a trailing :port if present (but keep IPv6 literals intact).
-        if dest.startswith("["):  # IPv6 literal e.g. [::1]:8080
-            end = dest.find("]")
-            if end != -1:
-                return dest[1:end]
+            try:
+                parsed = urlparse(dest)
+                if parsed.scheme.lower() not in {"http", "https"}:
+                    return None
+                if not parsed.netloc or parsed.username is not None or parsed.password is not None:
+                    return None
+                if "\\" in parsed.netloc:
+                    return None
+                port = parsed.port
+                host = parsed.hostname
+                if port is not None and not 1 <= port <= 65535:
+                    return None
+                if not host or "%" in host:
+                    return None
+                return host
+            except ValueError:
+                return None
+        # Bare host[:port] must not carry a path, query, fragment or
+        # credentials. Bracketed IPv6 is treated separately.
+        if any(char in dest for char in ("/", "?", "#", "@", "\\")):
             return None
-        if ":" in dest and dest.count(":") == 1:
-            host = dest.split(":", 1)[0]
-            return host or None
-        return dest
+        if dest.startswith("["):
+            end = dest.find("]")
+            if end == -1:
+                return None
+            host = dest[1:end]
+            try:
+                if ipaddress.ip_address(host).version != 6:
+                    return None
+            except ValueError:
+                return None
+            suffix = dest[end + 1 :]
+            if suffix:
+                if not suffix.startswith(":") or not suffix[1:].isdecimal():
+                    return None
+                if not 1 <= int(suffix[1:]) <= 65535:
+                    return None
+            return host
+        if dest.count(":") == 1:
+            host, port = dest.rsplit(":", 1)
+            if not host or not port.isdecimal() or not 1 <= int(port) <= 65535:
+                return None
+            return host
+        if ":" in dest:
+            # Unbracketed IPv6 is accepted only when it is a valid literal.
+            try:
+                if ipaddress.ip_address(dest).version == 6:
+                    return dest
+            except ValueError:
+                pass
+            return None
+        return dest if "%" not in dest else None
 
     def _evaluate_egress(self, pi: PolicyInput) -> PolicyDecision | None:
         """Deny if any declared egress destination is malformed or disallowed.
