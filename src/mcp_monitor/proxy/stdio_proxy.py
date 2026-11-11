@@ -594,6 +594,11 @@ class StdioMCPProxy:
             allowed_servers={server_id},
             allowed_egress_hosts=allowed_egress_hosts,
         )
+        # Hardened mode must never silently downgrade to the legacy library
+        # policy where all non-denylisted tool names are implicitly allowed.
+        # Reject the configuration BEFORE any downstream process is started.
+        if self._strict_mcp_methods and self._policy_engine.allowed_tools is None:
+            raise ValueError("Hardened MCP proxy requires an explicit trusted tool allowlist")
         # Rate limit tool calls at the proxy layer (separate from production/ server rate limiter).
         # Default: 300 tool calls/minute, burst up to 300. Reduces DoS risk and
         # limits blast radius if an agent is compromised or stuck in a loop.
