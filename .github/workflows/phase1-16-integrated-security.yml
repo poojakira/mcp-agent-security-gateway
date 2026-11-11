@@ -9,6 +9,7 @@ on:
       - security/phase1-16-strict-authority-20261110
       - security/phase1-16-operation-authority-20261110
       - security/phase1-16-offline-release-boundary-20261110
+      - security/phase1-16-crash-fault-evidence-20261110
   pull_request:
     branches:
       - main
@@ -57,6 +58,12 @@ jobs:
           ruff format --diff src/mcp_monitor/protocol/effect_authority.py src/mcp_monitor/proxy/stdio_proxy.py tests/test_phase13_trusted_effect_approval.py
           ruff format --check src/mcp_monitor/protocol/effect_authority.py src/mcp_monitor/proxy/stdio_proxy.py tests/test_phase13_trusted_effect_approval.py
           python -m pytest tests/test_phase13_trusted_effect_approval.py -q --tb=short
+      - name: Reconcile real child-process crashes before and after side effects
+        run: |
+          ruff check tests/test_phase16_crash_fencing_process.py
+          ruff format --diff tests/test_phase16_crash_fencing_process.py
+          ruff format --check tests/test_phase16_crash_fencing_process.py
+          python -m pytest tests/test_phase16_crash_fencing_process.py -q --tb=short
       - name: Full inherited regression suite
         run: python -m pytest tests/ -q --tb=short
       - name: Verify combined identity, effect, revocation and key-retirement boundaries
