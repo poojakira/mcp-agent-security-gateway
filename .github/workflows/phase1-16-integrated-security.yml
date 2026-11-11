@@ -38,6 +38,7 @@ jobs:
       - name: Verify hardened tool discovery regression and formatting
         run: |
           ruff check tests/test_hardened_tool_discovery.py src/mcp_monitor/proxy/stdio_proxy.py
+          ruff format --diff tests/test_hardened_tool_discovery.py src/mcp_monitor/proxy/stdio_proxy.py
           ruff format --check tests/test_hardened_tool_discovery.py src/mcp_monitor/proxy/stdio_proxy.py
           python -m pytest tests/test_hardened_tool_discovery.py -q --tb=short
       - name: Full inherited regression suite
