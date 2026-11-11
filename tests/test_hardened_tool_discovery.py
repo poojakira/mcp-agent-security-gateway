@@ -92,6 +92,46 @@ def test_hardened_discovery_refuses_missing_capability_allowlist() -> None:
     assert answer["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
 
 
+def test_hardened_proxy_rejects_missing_allowlist_at_construction() -> None:
+    with pytest.raises(ValueError, match="trusted tool allowlist"):
+        StdioMCPProxy(
+            ["fake"],
+            transport=DiscoveryTransport({"tools": []}),
+            strict_mcp_methods=True,
+            server_id="trusted",
+            policy_engine=PolicyEngine(allowed_servers={"trusted"}),
+        )
+
+
+def test_hardened_proxy_rejects_implicit_default_policy() -> None:
+    with pytest.raises(ValueError, match="trusted tool allowlist"):
+        StdioMCPProxy(
+            ["fake"],
+            transport=DiscoveryTransport({"tools": []}),
+            strict_mcp_methods=True,
+            server_id="trusted",
+        )
+
+
+def test_hardened_proxy_accepts_explicit_empty_allowlist_and_denies_call() -> None:
+    proxy = StdioMCPProxy(
+        ["fake"],
+        transport=DiscoveryTransport({"tools": []}),
+        strict_mcp_methods=True,
+        server_id="trusted",
+        policy_engine=PolicyEngine(allowed_servers={"trusted"}, allowed_tools=set()),
+    )
+    request = json.dumps(
+        {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {"name": "read_manifest", "arguments": {}},
+        }
+    ).encode()
+    response = json.loads(asyncio.run(proxy.handle_message(request)))
+    assert response["error"]["code"] == proxy.SECURITY_BLOCK_CODE
+
 def test_legacy_discovery_behavior_not_silently_changed() -> None:
     original = {"tools": [{"name": "read_manifest"}, {"name": "other_tool"}]}
     answer, _ = _run(original, allowed={"read_manifest"}, strict=False)
