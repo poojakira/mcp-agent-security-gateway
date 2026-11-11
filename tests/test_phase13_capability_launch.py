@@ -156,6 +156,33 @@ def test_production_cli_refuses_unsafe_uncontained_launch(monkeypatch) -> None:
     assert exit_info.value.code == 2
 
 
+@pytest.mark.parametrize(
+    ("options", "expected"),
+    [
+        (["--unsafe-local-dev"], "pinned offline Docker"),
+        (["--internal-sandbox-image", "sha256:" + "a" * 64,
+          "--internal-network-id", "b" * 64,
+          "--internal-proxy-id", "c" * 64,
+          "--internal-proxy-name", "mcp-egress-test"], "pinned offline Docker"),
+        (["--offline-sandbox-image", "sha256:" + "a" * 64,
+          "--allow-egress-host", "approved.example"], "forbids outbound"),
+    ],
+)
+def test_production_stdio_refuses_uncontained_or_networked_profiles(
+    monkeypatch, options: list[str], expected: str, capsys
+) -> None:
+    monkeypatch.setenv("MCP_ENV", "production")
+    with patch.object(
+        sys,
+        "argv",
+        ["mcp-gateway", "--allow-tool", "read_manifest", *options, "--", "python", "-V"],
+    ):
+        with pytest.raises(SystemExit) as exception:
+            main()
+    assert exception.value.code == 2
+    assert expected in capsys.readouterr().err
+
+
 def test_hardened_proxy_allows_protocol_handshake() -> None:
     class ValidToolListTransport(SpyTransport):
         async def receive(self) -> bytes:

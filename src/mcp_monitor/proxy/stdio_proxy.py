@@ -1293,8 +1293,17 @@ def main() -> None:
         options.offline_sandbox_image or options.internal_sandbox_image
     ):
         parser.error("--unsafe-local-dev cannot be combined with sandbox isolation")
-    if os.environ.get("MCP_ENV", "").strip().lower() == "production" and options.unsafe_local_dev:
-        parser.error("Production mode forbids --unsafe-local-dev and uncontained MCP execution")
+    if os.environ.get("MCP_ENV", "").strip().lower() == "production":
+        # The only presently demonstrated production-flagged foundation is
+        # an offline, pinned, no-network subprocess. The internal sidecar
+        # attests topology but does NOT attest a complete egress policy.
+        if not options.offline_sandbox_image:
+            parser.error(
+                "Production MCP stdio requires a pinned offline Docker image; "
+                "internal-network and unsafe-local-dev profiles are not release approved"
+            )
+        if options.allow_egress_host:
+            parser.error("Offline production MCP forbids outbound destination grants")
 
     proxy = StdioMCPProxy(
         command,
