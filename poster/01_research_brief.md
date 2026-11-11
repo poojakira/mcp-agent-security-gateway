@@ -1,80 +1,81 @@
-# Research Brief — MCP Agent Security Gateway
+# Research Brief — Offline MCP Agent Security Gateway (Phase 1–16)
 
-> Evidence status: **Development integration candidate, NOT a production release.** Python CI results are from PR #167's synthetic merge commit `2ab3380d1457cdcb16c3ba143db9d8e339b057e2`, GitHub Actions run `42748742036` (2026-11-10 UTC). Source-implementation branch head was `25bc77445df5fa5fdcdff64478b0f63079dbb8ca`. Results must not be generalized to deployments, new commits or external traffic.
+> **Evidence cutoff: 2026-11-11 UTC. DEVELOPMENT RESEARCH ONLY — PRODUCTION NO-GO.** Source: stacked draft PRs #167 and #169–#178; exact verified integration head `43a72c8984bf9a472b9055d4f9e84cc759f61718`. The four named workflows below passed on that head. This does not certify a merged release, a live environment, or safety for ticketing, payments or healthcare.
 
 ## Repository
 
-github.com/poojakira/mcp-agent-security-gateway · experimental PR #167 against main
+github.com/poojakira/mcp-agent-security-gateway · unmerged Phase 1–16 development stack
 
 ## Academic Project Title
 
-Runtime Policy Enforcement at the AI Agent-to-Tool Boundary
+Constrained MCP Agent-to-Tool Enforcement with Explicit Release Boundaries
 
 ## Technical Subtitle
 
-Validated MCP/JSON-RPC Development Gateway · Integration CI, November 2026
+Local Offline Research Gateway · Exact-Head CI Evidence · November 2026
 
 ## One-Sentence Contribution
 
-A bounded agent-to-tool inspection and authorization gateway combining JSON-RPC framing checks, capability and policy decisions, normalization and heuristic detection, hash-chained audit records, and selected protected MCP execution adapters.
+A constrained agent-to-tool gateway demonstrating explicit MCP capability decisions, scoped untrusted-input inspection, operator-approved local file effects, durable uncertain-outcome tracking and offline Docker containment, with all production claims held behind an unpassed release gate.
 
 ## Problem and Threat Model
 
-- LLM agents can transform malicious or untrusted content into structured calls with filesystem, process, or network consequences.
-- Tool arguments and results may carry prompt injection, exfiltration instructions, spoofed identity claims, or ambiguous JSON-RPC frames.
-- Only requests forced through a supported gateway or separately protected downstream adapter are within the enforcement boundary.
+- Untrusted documents, prompts and tool metadata can influence an agent toward unauthorized actions.
+- MCP JSON-RPC tool calls can cause effects, while source inspection cannot stop a separate direct host, browser or network path.
+- An allowed tool's success response is not proof of an independently observed external effect.
+- The verified target is a disposable local manifest adapter, not arbitrary external websites or paid providers.
 
 ## Method
 
-1. Parse JSON-RPC and reject malformed input and ambiguous duplicate keys in tested paths.
-2. Normalize selected Unicode and encoded content before heuristic injection checks.
-3. Evaluate server trust, identity/capability and tool-specific policy.
-4. Block disallowed actions before forwarding where the supported adapter enforces this.
-5. Record decision, correlated audit information, and bounded side-effect/revocation evidence.
+1. Parse supported JSON-RPC framing and reject ambiguous or unauthorized requests in hardened mode.
+2. Intersect tool discovery and calls with exact, trusted capability allowlists.
+3. Inspect selected untrusted inputs with signatures; do not treat detection as the authorization boundary.
+4. Require a trusted local exact-operation permit before configured side-effect tools in hardened mode.
+5. Restrict production-flagged stdio startup to a pinned, offline Docker image; verify a real protected server Docker handshake.
+6. Reserve an operation durably and report uncertain outcomes on interrupted effects; independently inspect a local manifest, not remote-provider results.
 
 ## Current Verified Evidence
 
-- **1,158 passed, 6 skipped**, Python 3.12 CI, **0 failed** at reviewed PR merge commit.
-- **83.10% statement coverage** on Linux/Python 3.12: **7,327 statements, 1,238 missed**.
-- Python 3.10 / 3.11 also each passed 1,158 tests and skipped 6; statement coverage was **83.13% / 83.10%** respectively.
-- Focused identity, effect journal, retired-key, revocation and protected-MCP regression suite: **42 passed** on Python 3.12.
-- Real disposable filesystem MCP smoke workflow: **1 passed**. This does not establish a non-bypassable production deployment.
+- **1,211 passed, 6 skipped** per Python version (3.10, 3.11, 3.12), exact source commit `43a72c8984bf9a472b9055d4f9e84cc759f61718`; 5/5 integration jobs passed.
+- **Four workflows passed on the same commit**: integrated security, Security Hygiene, Python supply-chain evidence, protected Docker import/handshake.
+- Real child-process termination tests exercised before reservation, after reservation and after a local approved file change but before acknowledgment. This is not physical power-loss testing.
+- A CycloneDX SBOM for the installed Python CI environment was generated and retained as an Actions artifact; `pip-audit` reported no known advisories in that environment at that time.
+- Real protected-server Docker import and `tools/list` handshake passed under a no-network, non-root, read-only-root profile.
 
 ## Integration Validation
 
-- Source inventory: **69 named prompt-injection regex signatures**; a count, not precision, recall or guaranteed bypass prevention.
-- Elastic Security inventory: **9** `[[rule]]` records; core SIEM module: **21** `test_*` functions.
-- SIEM scenario runner: **7** `test_*` functions, verified in source and the November pytest log. Earlier poster text incorrectly listed 12.
-- CI included lint, typing, CodeQL, build, security hygiene, targeted AppSec, local lab configuration, real MCP smoke and poster parity; every check has its own scope.
-- The poster source is not evidence of external SOC adoption, incident prevention, live egress containment, or response-time improvement.
+- Selected focused tests exercise tool-discovery filtering, malformed egress hints, strict constructor mode, trusted local effect permits and synthetic process-crash reconciliation.
+- The prior 96-case author-curated regex benchmark recorded TP=40, FN=8, FP=16, TN=32. No independent field efficacy is claimed.
+- Prior inventory counted 69 named injection signatures and 9 Elastic rule records. These are source counts, **not** protection rates or production deployments.
+- The cited CI checks use free tooling and no operator-provided paid provider API keys; this cannot prove that every external deployment contains no credentials.
 
 ## Honest Boundaries
 
-- **PRODUCTION NO-GO:** controlled integration tests and green workflows do not meet the release acceptance requirements.
-- Direct access to a tool server can bypass a gateway that is not enforced by the actual deployment.
-- Production principal binding, broad MCP protocol/transport interoperability and authentic network destination fencing are not independently established.
-- SQLite-coordinated revocation and effect logging are local proofs, not distributed exactly-once execution or rollback.
-- Heuristic prompt-injection detection has unknown representative false-positive and false-negative rates; no independent blind benchmark is claimed.
+- **PRODUCTION NO-GO.** Draft PRs remain unmerged; a passing CI check is necessary but not sufficient.
+- No general non-bypassability against a host/Docker administrator or unrelated browser/process is established.
+- Network-enabled DNS/IP/port/redirect enforcement is not certified. The tested offline profile denies networking instead.
+- Local identity pilots and operator permits are not independently authenticated external tenant/user consent.
+- External bookings, payments and remote side effects are not verified or reconciled. Process-kill tests are not real power-loss/distributed tests.
+- No independent penetration test, blinded representative benchmark, deployed-secret inventory, confirmed live revocation or human release sign-off exists.
 
 ## Release Decision
 
-- **Research prototype / draft integration candidate.** Do not merge or deploy on the strength of test counts.
-- Release authority remains the security review and its open mandatory gates, including external identity, restricted outbound networking, crash recovery, full protocol compatibility, independent red teaming and human approval.
-- The earlier October 14 poster snapshot of **782 passed / 81.93%** remains historical and is not mixed with this November CI measurement.
+- **NO-GO for production; APPROVED USE CLAIM LIMITED TO disposable, offline, non-sensitive development experiments.**
+- A production decision requires deployment-specific routing, identity, egress and recovery testing; independent adversarial review; complete supply-chain and secret lifecycle assurance; and accountable human authorization.
+- Do not combine historical October or November test counts with the latest source head.
 
 ## Reproducibility
 
-`PR #167, CI run 42748742036, Python 3.12.16, synthetic merge 2ab3380d`; see reproducibility companion for exact commands and evidence boundaries.
+Exact source `43a72c8984bf9a472b9055d4f9e84cc759f61718`; [full matrix](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992), [hygiene](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171965), [SBOM](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171775), [Docker](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171991). See poster/13_reproducibility.md.
 
 ## Evidence Sources
 
-- GitHub Actions full CI run 42748742036, Python 3.10/3.11/3.12.
-- Integration security checks run 42748741925; real MCP smoke run 42748742254.
-- `src/mcp_monitor/detectors/prompt_injection.py`.
-- `detection_rules/elastic_rules.toml`.
-- `tests/test_siem.py` and `tests/test_siem_scenarios.py`.
-- `docs/review/PHASE13_RELEASE_READINESS.md`, release decision NO-GO.
+- GitHub Actions exact-head runs: 42971171992, 42971171965, 42971171775 and 42971171991.
+- `src/mcp_monitor/proxy/stdio_proxy.py`, `src/mcp_monitor/protocol/effect_authority.py`, `src/mcp_monitor/protocol/effect_journal.py`.
+- `src/mcp_monitor/protected_repo_server.py` and `Dockerfile.protected-mcp`.
+- `docs/review/PHASE1_16_RELEASE_CANDIDATE_NO_GO_20261110.md`, `PRODUCTION.md`.
+- `poster/02_claim_ledger.md` with claim-level status and limitations.
 
 ## References
 
-Model Context Protocol specification; JSON-RPC 2.0; OWASP LLM security guidance; MITRE ATLAS; NIST AI RMF; Elastic Common Schema.
+Model Context Protocol; JSON-RPC 2.0; OWASP guidance for LLM applications; NIST AI RMF. Reference names alone are not compliance certifications.
