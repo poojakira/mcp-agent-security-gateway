@@ -38,6 +38,16 @@ jobs:
       - name: Fail on publicly reported Python dependency vulnerabilities
         run: |
           python -m pip_audit --format json --output /tmp/mcp-pip-audit.json
+      - name: Preserve SBOM and audit report as GitHub Actions evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: phase1-16-python-sbom-audit
+          path: |
+            /tmp/mcp-sbom.json
+            /tmp/mcp-pip-audit.json
+          if-no-files-found: warn
+          retention-days: 7
       - name: Record exact workflow source and residual limits
         if: always()
         run: |
