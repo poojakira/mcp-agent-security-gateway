@@ -39,6 +39,7 @@ class ReasonCode(str, Enum):
     DENY_DEFAULT = "DENY_DEFAULT"
     DENY_MALFORMED_INPUT = "DENY_MALFORMED_INPUT"
     DENY_DANGEROUS_TOOL = "DENY_DANGEROUS_TOOL"
+    DENY_TOOL_NOT_ALLOWED = "DENY_TOOL_NOT_ALLOWED"
     DENY_SERVER_NOT_ALLOWED = "DENY_SERVER_NOT_ALLOWED"
     DENY_EGRESS_NOT_ALLOWED = "DENY_EGRESS_NOT_ALLOWED"
     DENY_EGRESS_MALFORMED = "DENY_EGRESS_MALFORMED"
@@ -148,8 +149,17 @@ class PolicyEngine:
         allowed_servers: set[str] | frozenset[str],
         allowed_egress_hosts: set[str] | frozenset[str] | None = None,
         dangerous_tools: set[str] | frozenset[str] | None = None,
+        allowed_tools: set[str] | frozenset[str] | None = None,
     ) -> None:
         # Copy into frozen sets so config cannot be mutated after construction.
+        if allowed_tools is not None and (
+            not isinstance(allowed_tools, set | frozenset)
+            or any(not isinstance(name, str) or not name for name in allowed_tools)
+        ):
+            raise ValueError("allowed_tools must be a trusted set of nonempty tool names")
+        self.allowed_tools: frozenset[str] | None = (
+            frozenset(allowed_tools) if allowed_tools is not None else None
+        )
         self.allowed_servers: frozenset[str] = frozenset(allowed_servers)
         self.allowed_egress_hosts: frozenset[str] = frozenset(allowed_egress_hosts or set())
         self.dangerous_tools: frozenset[str] = (
@@ -199,6 +209,16 @@ class PolicyEngine:
                 matched_rule="tool_authorization.server_allowlist",
             )
 
+        # Explicit tool capabilities are required by the hardened CLI. Library
+        # callers must opt in to this control until the legacy API is migrated.
+        if self.allowed_tools is not None and pi.tool_name not in self.allowed_tools:
+            return PolicyDecision(
+                allowed=False,
+                reason_code=ReasonCode.DENY_TOOL_NOT_ALLOWED,
+                message="Tool is not in the trusted capability allowlist",
+                matched_rule="tool_authorization.tool_allowlist",
+            )
+
         # 4. Egress check (only when a destination is present).
         egress_decision = self._evaluate_egress(pi)
         if egress_decision is not None:
@@ -216,16 +236,40 @@ class PolicyEngine:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _extract_destination(self, pi: PolicyInput) -> str | None:
-        """Return the raw egress destination string, or None if none present."""
-        if pi.egress_destination:
-            return pi.egress_destination
-        args = pi.arguments
-        for key in ("url", "host", "endpoint", "target"):
-            val = args.get(key)
-            if isinstance(val, str) and val:
-                return val
-        return None
+    def _extract_destinations(self, pi: PolicyInput) -> list[Any]:
+        """Inspect recognized destinations throughout bounded JSON arguments.
+
+        Only destination-shaped keys are interpreted as URLs or hosts.
+        Arbitrary free-form text and opaque tool schemas remain out of scope.
+        """
+        if not isinstance(pi.arguments, dict):
+            raise ValueError("Invalid egress argument object")
+        destinations: list[Any] = []
+        if pi.egress_destination is not None:
+            destinations.append(pi.egress_destination)
+
+        keys = frozenset({"url", "host", "endpoint", "target", "destination"})
+        pending: list[tuple[Any, int]] = [(pi.arguments, 0)]
+        nodes = 0
+        while pending:
+            node, depth = pending.pop()
+            nodes += 1
+            if nodes > 4096 or depth > 16:
+                raise ValueError("Egress argument inspection limit exceeded")
+            if isinstance(node, dict):
+                if len(node) + len(pending) > 4096:
+                    raise ValueError("Egress argument inspection limit exceeded")
+                for key, value in node.items():
+                    if not isinstance(key, str):
+                        raise ValueError("Invalid egress argument key")
+                    if key.lower() in keys and value is not None:
+                        destinations.append(value)
+                    pending.append((value, depth + 1))
+            elif isinstance(node, list):
+                if len(node) + len(pending) > 4096:
+                    raise ValueError("Egress argument inspection limit exceeded")
+                pending.extend((value, depth + 1) for value in node)
+        return destinations
 
     @staticmethod
     def _host_from_destination(dest: str) -> str | None:
@@ -254,45 +298,55 @@ class PolicyEngine:
         return dest
 
     def _evaluate_egress(self, pi: PolicyInput) -> PolicyDecision | None:
-        """Evaluate the egress allowlist.
+        """Deny if any declared egress destination is malformed or disallowed.
 
-        Returns a DENY decision if egress is disallowed/malformed, or ``None`` if
-        there is nothing to enforce (no destination, or destination allowed).
+        Tool arguments are not authoritative egress metadata. This inspects
+        only recognized fields; OS/network policies must restrict real sockets.
         """
-        dest = self._extract_destination(pi)
-        if dest is None:
-            # No network destination in this call -> egress control not applicable.
-            return None
-
-        host = self._host_from_destination(dest)
-        if host is None:
+        try:
+            destinations = self._extract_destinations(pi)
+        except (TypeError, ValueError):
             return PolicyDecision(
                 allowed=False,
                 reason_code=ReasonCode.DENY_EGRESS_MALFORMED,
-                message=f"Could not parse egress destination '{dest}', denied fail-closed",
+                message="Unable to inspect egress arguments safely",
                 matched_rule="egress.malformed",
             )
+        for dest in destinations:
+            if not isinstance(dest, str):
+                return PolicyDecision(
+                    allowed=False,
+                    reason_code=ReasonCode.DENY_EGRESS_MALFORMED,
+                    message="Invalid egress destination type",
+                    matched_rule="egress.malformed",
+                )
+            try:
+                host = self._host_from_destination(dest)
+            except ValueError:
+                host = None
+            if host is None:
+                return PolicyDecision(
+                    allowed=False,
+                    reason_code=ReasonCode.DENY_EGRESS_MALFORMED,
+                    message="Could not parse egress destination, denied fail-closed",
+                    matched_rule="egress.malformed",
+                )
 
-        host = host.lower()
-
-        # Loopback / link-local are treated as disallowed egress unless explicitly
-        # allowlisted, to avoid SSRF-style pivots.
-        if self._is_blocked_ip(host) and host not in self.allowed_egress_hosts:
-            return PolicyDecision(
-                allowed=False,
-                reason_code=ReasonCode.DENY_EGRESS_NOT_ALLOWED,
-                message=f"Egress to internal/loopback address '{host}' is not allowed",
-                matched_rule="egress.blocked_internal",
-            )
-
-        if host not in self.allowed_egress_hosts:
-            return PolicyDecision(
-                allowed=False,
-                reason_code=ReasonCode.DENY_EGRESS_NOT_ALLOWED,
-                message=f"Egress destination '{host}' is not on the allowlist",
-                matched_rule="egress.allowlist",
-            )
-
+            host = host.lower()
+            if self._is_blocked_ip(host) and host not in self.allowed_egress_hosts:
+                return PolicyDecision(
+                    allowed=False,
+                    reason_code=ReasonCode.DENY_EGRESS_NOT_ALLOWED,
+                    message=f"Egress to internal/loopback address '{host}' is not allowed",
+                    matched_rule="egress.blocked_internal",
+                )
+            if host not in self.allowed_egress_hosts:
+                return PolicyDecision(
+                    allowed=False,
+                    reason_code=ReasonCode.DENY_EGRESS_NOT_ALLOWED,
+                    message=f"Egress destination '{host}' is not on the allowlist",
+                    matched_rule="egress.allowlist",
+                )
         return None
 
     @staticmethod

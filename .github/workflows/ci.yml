@@ -45,7 +45,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -q ruff==${{ env.RUFF_VERSION }} pyright==${{ env.PYRIGHT_VERSION }} bandit==${{ env.BANDIT_VERSION }} pip-audit==${{ env.PIP_AUDIT_VERSION }}
-          pip install -e ".[dev]" 2>&1 | tail -5
+          pip install -e ".[dev,oidc]" 2>&1 | tail -5
 
       - name: Lint with Ruff
         run: ruff check src/ tests/ poster/render_poster.py scripts/recruiter_demo.py --output-format=github
@@ -115,9 +115,9 @@ jobs:
           pip install pytest pytest-cov
           if [ -d "attack-v19-core" ]; then
             pip install -e ./attack-v19-core
-            pip install -e ".[dev,attack]"
+            pip install -e ".[dev,attack,oidc]"
           else
-            pip install -e ".[dev]"
+            pip install -e ".[dev,oidc]"
           fi 2>&1 | tail -5
 
       - name: Run tests with coverage
@@ -258,9 +258,9 @@ jobs:
           pip install pyright==${{ env.PYRIGHT_VERSION }}
           if [ -d "attack-v19-core" ]; then
             pip install -e ./attack-v19-core
-            pip install -e ".[dev,attack]"
+            pip install -e ".[dev,attack,oidc]"
           else
-            pip install -e ".[dev]"
+            pip install -e ".[dev,oidc]"
           fi 2>&1 | tail -5
       - name: Run Pyright
         run: |

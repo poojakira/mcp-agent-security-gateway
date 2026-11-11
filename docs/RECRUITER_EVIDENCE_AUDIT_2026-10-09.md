@@ -1,5 +1,6 @@
 # Recruiting evidence audit, 2026-10-09
 
+> **Review context (2026-11-09):** Recruiting metrics are dated verification snapshots, not cumulative results from all unmerged phase branches. Keep each count paired with its originating commit and workflow. The [integrated release-readiness gate](../docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**.
 This document separates bounded repository evidence from unverified production impact.
 
 | Project | Verified 2026 CI snapshot | Boundary |
@@ -15,4 +16,3 @@ MCP CI growth: 622 to 782 tests; 78.41% to 81.93% statement coverage; measured s
 AEROSEC's $120K is a proposed first-year commercialization scenario, not funded revenue. ASU teaching workload figures, experience dates and project development dates are candidate-supplied, not independently verified by GitHub. Portfolio notes original project start dates predate public GitHub commit history.
 
 Authoritative files: each repository's VERIFIED_METRICS.md; MCP docs/ENFORCEMENT_BENCHMARK_2026-10-09.md; HF evidence/DETECTION_PROOF.md; and the portfolio's tracked LaTeX/TypeScript resume.
-

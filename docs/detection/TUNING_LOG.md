@@ -1,5 +1,6 @@
 # Detection Rule Tuning Log
 
+> **Review context (2026-11-09):** Rule-tuning results and synthetic fixtures are internal research data. They do not establish representative false-positive rates, held-out robustness or external threat-detection performance. The [integrated release-readiness gate](../../docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**.
 This log records deliberate tuning decisions for the correlation rules in
 `src/mcp_monitor/siem/correlation.py`. Each entry states the parameter, the
 before/after value, and the rationale that can be traced directly to the rule

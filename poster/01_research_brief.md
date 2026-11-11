@@ -1,87 +1,80 @@
-# Research Brief - Poster 01
+# Research Brief — MCP Agent Security Gateway
 
-> Evidence status: Refreshed against code snapshot `f1f226feb0d527f27b90081806d7e9bd90ba0574` and successful GitHub Actions CI run `38502413461` on 2026-10-14 UTC. The quantitative claims below are tied to that code snapshot. Do not generalize benchmark or test results beyond their stated scope.
+> Evidence status: **Development integration candidate, NOT a production release.** Python CI results are from PR #167's synthetic merge commit `2ab3380d1457cdcb16c3ba143db9d8e339b057e2`, GitHub Actions run `42748742036` (2026-11-10 UTC). Source-implementation branch head was `25bc77445df5fa5fdcdff64478b0f63079dbb8ca`. Results must not be generalized to deployments, new commits or external traffic.
 
 ## Repository
 
-`github.com/poojakira/mcp-agent-security-gateway` - public, default branch `main`.
+github.com/poojakira/mcp-agent-security-gateway · experimental PR #167 against main
 
 ## Academic Project Title
 
-**Runtime Policy Enforcement at the AI Agent-to-Tool Boundary**
+Runtime Policy Enforcement at the AI Agent-to-Tool Boundary
 
 ## Technical Subtitle
 
-Design and Validation of an Inline MCP/JSON-RPC Security Gateway
+Validated MCP/JSON-RPC Development Gateway · Integration CI, November 2026
 
 ## One-Sentence Contribution
 
-An application-layer inspection and authorization point for agent-generated MCP `tools/call` requests that combines JSON-RPC validation, normalization, trust/capability checks, heuristic content detection, policy evaluation, and tamper-evident audit telemetry before downstream tool execution.
+A bounded agent-to-tool inspection and authorization gateway combining JSON-RPC framing checks, capability and policy decisions, normalization and heuristic detection, hash-chained audit records, and selected protected MCP execution adapters.
 
 ## Problem and Threat Model
 
-LLM agents can turn untrusted natural-language context into structured tool calls with file, process, network, or privileged-service effects. The gateway protects the agent-to-tool boundary only when traffic is routed through it. Attackers may craft malicious tool arguments, malformed JSON-RPC, obfuscated prompt-injection strings, exfiltration payloads, or abusive request patterns.
+- LLM agents can transform malicious or untrusted content into structured calls with filesystem, process, or network consequences.
+- Tool arguments and results may carry prompt injection, exfiltration instructions, spoofed identity claims, or ambiguous JSON-RPC frames.
+- Only requests forced through a supported gateway or separately protected downstream adapter are within the enforcement boundary.
 
 ## Method
 
-1. Parse and validate JSON-RPC, including duplicate-key and malformed-input rejection.
-2. Normalize potentially obfuscated content before inspection.
-3. Evaluate server trust, capabilities, and content/policy signals.
-4. Return allow/block decisions using path-specific enforcement semantics.
-5. Record hash-chained audit evidence and SIEM-oriented telemetry.
+1. Parse JSON-RPC and reject malformed input and ambiguous duplicate keys in tested paths.
+2. Normalize selected Unicode and encoded content before heuristic injection checks.
+3. Evaluate server trust, identity/capability and tool-specific policy.
+4. Block disallowed actions before forwarding where the supported adapter enforces this.
+5. Record decision, correlated audit information, and bounded side-effect/revocation evidence.
 
-## Verified Evidence at Cited Snapshot
+## Current Verified Evidence
 
-GitHub Actions CI on Python 3.12 at the poster snapshot `f1f226feb0d527f27b90081806d7e9bd90ba0574` (CI run `38502413461`) reports:
+- **1,158 passed, 6 skipped**, Python 3.12 CI, **0 failed** at reviewed PR merge commit.
+- **83.10% statement coverage** on Linux/Python 3.12: **7,327 statements, 1,238 missed**.
+- Python 3.10 / 3.11 also each passed 1,158 tests and skipped 6; statement coverage was **83.13% / 83.10%** respectively.
+- Focused identity, effect journal, retired-key, revocation and protected-MCP regression suite: **42 passed** on Python 3.12.
+- Real disposable filesystem MCP smoke workflow: **1 passed**. This does not establish a non-bypassable production deployment.
 
-- **782 tests passed**, 0 failed.
-- **81.93% statement coverage** - 5,657 statements, 1,022 missed.
-- The Python 3.10 and 3.11 test jobs also completed successfully.
-- Ruff/format, Pyright, Bandit, pip-audit, CodeQL, Windows control-plane validation, container build, Trivy/Grype/SBOM jobs completed successfully.
-- **69** entries remain in the named prompt-injection pattern collection.
-- **9** Elastic `[[rule]]` records.
-- **21** core SIEM tests plus **12** SIEM scenario-runner tests.
+## Integration Validation
 
-## October 2026 detector update (now merged into main)
-
-The 69-entry named runtime prompt-injection signature list is the current main-branch implementation at commit `f1f226feb0d527f27b90081806d7e9bd90ba0574`. The full CI run `38502413461` validates all 782 tests against this implementation. A small development-only probe exercised attack and benign text, but the committed assertions do **not** establish a reproducible benign-positive count for the cited CI snapshot. Accordingly, this poster does **not** claim a numerical detection rate or false-positive rate from that probe. Neither CI test completion nor signature inventory establishes held-out recall, population-level precision, or customer-deployment efficacy.
-
-A separate five-case synthetic policy-enforcement check denied 5/5 disallowed calls against a deliberately pass-through comparator, **not** a measured reduction in incidents or unauthorized execution attempts in the field. A comparison of the earlier 12-signature and 55-signature detectors on 15 familiar positive fixtures found **0 percentage-point recall difference**, because both detected all 15. The 14 additional signatures (beyond the earlier 55) have not been independently validated against unseen data. The IAM Guard's five-case synthetic check detected 5/5 deliberately vulnerable cases, but also produced a finding on one nominally benign read policy (AIG007); it is **not** evidence of general IAM recall or precision.
-
-The Cerberus pilot, persistent identities, baseline, deployment and transport configuration are not involved in these measurements. Do not combine the 69-entry runtime detector count with older snapshot counts, and do not combine coverage figures across different CI runs.
+- Source inventory: **69 named prompt-injection regex signatures**; a count, not precision, recall or guaranteed bypass prevention.
+- Elastic Security inventory: **9** `[[rule]]` records; core SIEM module: **21** `test_*` functions.
+- SIEM scenario runner: **7** `test_*` functions, verified in source and the November pytest log. Earlier poster text incorrectly listed 12.
+- CI included lint, typing, CodeQL, build, security hygiene, targeted AppSec, local lab configuration, real MCP smoke and poster parity; every check has its own scope.
+- The poster source is not evidence of external SOC adoption, incident prevention, live egress containment, or response-time improvement.
 
 ## Honest Boundaries
 
-- No external population-level false-positive/false-negative rate is established.
-- Synthetic correlation fixtures and local microbenchmarks are not production efficacy or SLO evidence.
-- Enforcement semantics are not identical across every integration path.
-- Only traffic routed through the gateway can be inspected or blocked.
-- A successful CI suite is not evidence of a live production SOC deployment.
+- **PRODUCTION NO-GO:** controlled integration tests and green workflows do not meet the release acceptance requirements.
+- Direct access to a tool server can bypass a gateway that is not enforced by the actual deployment.
+- Production principal binding, broad MCP protocol/transport interoperability and authentic network destination fencing are not independently established.
+- SQLite-coordinated revocation and effect logging are local proofs, not distributed exactly-once execution or rollback.
+- Heuristic prompt-injection detection has unknown representative false-positive and false-negative rates; no independent blind benchmark is claimed.
+
+## Release Decision
+
+- **Research prototype / draft integration candidate.** Do not merge or deploy on the strength of test counts.
+- Release authority remains the security review and its open mandatory gates, including external identity, restricted outbound networking, crash recovery, full protocol compatibility, independent red teaming and human approval.
+- The earlier October 14 poster snapshot of **782 passed / 81.93%** remains historical and is not mixed with this November CI measurement.
 
 ## Reproducibility
 
-```powershell
-git clone https://github.com/poojakira/mcp-agent-security-gateway.git
-cd mcp-agent-security-gateway
-git checkout c75c52db
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -e ".[dev,server]"
-$env:PYTHONPATH="src"
-python -m pytest tests -q --cov=mcp_monitor --cov-report=term
-```
-
-Expected at the cited snapshot: **782 passed**, **81.93%** statement coverage.
+`PR #167, CI run 42748742036, Python 3.12.16, synthetic merge 2ab3380d`; see reproducibility companion for exact commands and evidence boundaries.
 
 ## Evidence Sources
 
-- GitHub Actions CI run `38502413461`
-- `VERIFIED_METRICS.md`
-- `evidence/mcp_replay_evidence.json`
-- `detection_rules/elastic_rules.toml`
-- `tests/test_siem.py`
-- `tests/test_siem_scenarios.py`
+- GitHub Actions full CI run 42748742036, Python 3.10/3.11/3.12.
+- Integration security checks run 42748741925; real MCP smoke run 42748742254.
+- `src/mcp_monitor/detectors/prompt_injection.py`.
+- `detection_rules/elastic_rules.toml`.
+- `tests/test_siem.py` and `tests/test_siem_scenarios.py`.
+- `docs/review/PHASE13_RELEASE_READINESS.md`, release decision NO-GO.
 
 ## References
 
-Model Context Protocol specification; JSON-RPC 2.0; OWASP guidance for LLM applications; MITRE ATLAS; NIST AI RMF; Elastic Common Schema.
+Model Context Protocol specification; JSON-RPC 2.0; OWASP LLM security guidance; MITRE ATLAS; NIST AI RMF; Elastic Common Schema.

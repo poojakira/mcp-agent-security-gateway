@@ -1,5 +1,6 @@
 # Docker build validation
 
+> **Evidence and release status (2026-11-09):** Recorded container results are tied to the cited source and runner; an image build, non-root runtime or local smoke test is insufficient for production egress, host isolation or complete dependency provenance. The [release review](../docs/review/PHASE13_RELEASE_READINESS.md) remains **NO-GO**, and [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is a draft integration candidate.
 ## Recorded failure boundary
 
 On October 9, 2026, [main CI run 37993212614](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37993212614), Docker job 114033388917, failed while resolving `python:3.11-slim`: Docker Hub returned HTTP 429. [PR 121 CI run 37994335824](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37994335824), Docker job 114040836865, timed out while pulling `moby/buildkit:buildx-stable-1` from Docker Hub. Neither recorded failure demonstrates a failing application test or defective runtime image; both happened before application build execution.

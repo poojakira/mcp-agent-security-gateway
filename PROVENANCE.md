@@ -1,5 +1,6 @@
 # Project History and Repository Provenance
 
+> **Documentation alignment (2026-11-09):** Preserve the original dated commit and authorship evidence. The current integration branch is a draft code-review candidate, distinct from merged main-branch snapshots and the October poster. The [release gate](docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**; [draft integration PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is not a released deployment.
 ## Timeline distinction
 
 This document deliberately separates **project development history** from **public GitHub repository history**.

@@ -1,5 +1,6 @@
 # Operational incident response measurement
 
+> **Evidence and release status (2026-11-09):** This is a measurement design and scoped development exercise. Gateway decision latency and simulated blocking are not human incident response time or production MTTR. The [release review](../docs/review/PHASE13_RELEASE_READINESS.md) remains **NO-GO**, and [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is a draft integration candidate.
 Run `python scripts/measure_incident_response.py evidence/incident_timestamps.csv` with an **actual** exported, non-secret CSV file. Required columns:
 `incident_id,cohort,scenario_id,occurred_at,acknowledged_at,contained_at,source,synthetic`.
 

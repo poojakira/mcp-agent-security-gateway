@@ -1,5 +1,6 @@
 # Controlled enforcement benchmark (2026-10-09)
 
+> **Evidence and release status (2026-11-09):** This benchmark is frozen synthetic-fixture evidence and does not establish population-level precision, recall, enforcement success or live incident reduction. The [release review](../docs/review/PHASE13_RELEASE_READINESS.md) remains **NO-GO**, and [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is a draft integration candidate.
 The regression benchmark is executed by `python benchmarks/enforcement_regression.py` and compares fixed attack and benign fixtures. It intentionally disables the optional ML second pass for deterministic testing.
 
 **Claim boundary:** This is a small, previously used, hand-picked fixture set. It cannot demonstrate real-world prompt-injection recall, high-confidence precision, production reliability, or reduced incident-response time. The local detection execution time does **not** measure incident response (MTTD/MTTR). A zero false-positive count on eight clean fixtures is not evidence of a population-level false-positive rate below 1%.

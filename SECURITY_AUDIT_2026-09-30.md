@@ -1,5 +1,6 @@
 # Security Audit — 2026-09-30
 
+> **Documentation alignment (2026-11-09):** This is a **September 30 assessment snapshot**, not an up-to-date, exhaustive vulnerability scan or production approval. Revalidate each finding and control on the exact reviewed commit. The [release gate](docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**; [draft integration PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is not a released deployment.
 ## Scope
 Initial pre-remediation review of the current `main` branch.
 

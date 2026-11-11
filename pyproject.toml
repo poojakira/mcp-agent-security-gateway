@@ -26,6 +26,7 @@ dev = [
     "uvicorn[standard]>=0.20",
     "ruff==0.8.4",
 ]
+oidc = ["PyJWT[crypto]>=2.10.1,<3"]
 ml = ["scikit-learn>=1.4"]
 dpi = ["mitmproxy>=10"]
 attack = ["attack-v19-core>=19.1,<20"]
