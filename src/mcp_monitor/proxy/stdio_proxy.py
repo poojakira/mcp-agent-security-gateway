@@ -963,7 +963,7 @@ class StdioMCPProxy:
                         ):
                             continue
                         allowed_tools = getattr(self._policy_engine, "allowed_tools", None)
-                        if not isinstance(allowed_tools, (set, frozenset)):
+                        if not isinstance(allowed_tools, set | frozenset):
                             raise ValueError("Hardened discovery requires a trusted tool allowlist")
                         listing = item["result"]
                         if not isinstance(listing, dict) or not isinstance(
