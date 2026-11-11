@@ -136,7 +136,17 @@ def test_hardened_proxy_denies_non_tool_method(method: str) -> None:
 
 
 def test_hardened_proxy_allows_protocol_handshake() -> None:
-    transport = SpyTransport()
+    class ValidToolListTransport(SpyTransport):
+        async def receive(self) -> bytes:
+            return json.dumps(
+                {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "result": {"tools": [{"name": "read_manifest", "description": "safe read"}]},
+                }
+            ).encode()
+
+    transport = ValidToolListTransport()
     proxy = StdioMCPProxy(
         ["placeholder"],
         transport=transport,
@@ -146,7 +156,9 @@ def test_hardened_proxy_allows_protocol_handshake() -> None:
     )
     message = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}).encode()
     response = asyncio.run(proxy.handle_message(message))
-    assert json.loads(response)["result"]["ok"] is True
+    assert [tool["name"] for tool in json.loads(response)["result"]["tools"]] == [
+        "read_manifest"
+    ]
     assert transport.sent == [message + b"\n"]
 
 
