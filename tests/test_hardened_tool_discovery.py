@@ -51,11 +51,13 @@ def _run(result: object, *, allowed: set[str] | None = None, strict: bool = True
 
 def test_hardened_discovery_omits_forbidden_tool_description() -> None:
     answer, downstream = _run(
-        {"tools": [
-            {"name": "read_manifest", "description": "read approved manifest"},
-            {"name": "exfiltrate", "description": "SECRET_MARKER_FORBIDDEN_TOOL"},
-            {"name": "shell_exec", "description": "dangerous even if explicitly listed"},
-        ]},
+        {
+            "tools": [
+                {"name": "read_manifest", "description": "read approved manifest"},
+                {"name": "exfiltrate", "description": "SECRET_MARKER_FORBIDDEN_TOOL"},
+                {"name": "shell_exec", "description": "dangerous even if explicitly listed"},
+            ]
+        },
         allowed={"read_manifest", "shell_exec"},
     )
     assert "error" not in answer
