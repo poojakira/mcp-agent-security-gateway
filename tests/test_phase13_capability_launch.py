@@ -156,9 +156,7 @@ def test_hardened_proxy_allows_protocol_handshake() -> None:
     )
     message = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}).encode()
     response = asyncio.run(proxy.handle_message(message))
-    assert [tool["name"] for tool in json.loads(response)["result"]["tools"]] == [
-        "read_manifest"
-    ]
+    assert [tool["name"] for tool in json.loads(response)["result"]["tools"]] == ["read_manifest"]
     assert transport.sent == [message + b"\n"]
 
 
