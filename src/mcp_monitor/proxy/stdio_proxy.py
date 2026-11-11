@@ -34,6 +34,7 @@ from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
 from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard
 from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
+from mcp_monitor.protocol.effect_authority import TrustedEffectAuthority
 from mcp_monitor.protocol.effect_journal import DurableEffectJournal, EffectJournalError
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
 from mcp_monitor.protocol.multiplex import MultiplexedTransport
@@ -499,6 +500,7 @@ class StdioMCPProxy:
         multiplexed: bool = False,
         effect_journal: DurableEffectJournal | None = None,
         effect_tools: set[str] | frozenset[str] | None = None,
+        effect_authority: TrustedEffectAuthority | None = None,
         response_timeout_seconds: float = 120.0,
         max_message_bytes: int = 1048576,
         strict_mcp_methods: bool = False,
@@ -571,6 +573,15 @@ class StdioMCPProxy:
             raise ValueError("effect_tools require a durable effect journal")
         if effect_journal is not None and not self._effect_tools:
             raise ValueError("effect journal requires explicitly selected effect tools")
+        if effect_authority is not None and not isinstance(
+            effect_authority, TrustedEffectAuthority
+        ):
+            raise ValueError("effect_authority must be a trusted operator approval registry")
+        if effect_authority is not None and not self._effect_tools:
+            raise ValueError("effect authority requires explicitly selected effect tools")
+        if self._strict_mcp_methods and self._effect_tools and effect_authority is None:
+            raise ValueError("Hardened side effects require exact trusted operator approval")
+        self._effect_authority = effect_authority
         # The gateway operator assigns server identity, not the AI agent.
         # Outbound destinations are denied unless explicitly allowlisted.
         if not isinstance(server_id, str) or not server_id:
@@ -814,6 +825,14 @@ class StdioMCPProxy:
                     effect_key = params.get("_gateway_operation_key")
                     if not isinstance(effect_key, str):
                         raise EffectJournalError("Stable operation key required")
+                    if self._effect_authority is not None:
+                        self._effect_authority.authorize(
+                            principal=self._authenticated_principal,
+                            server=self._server_id,
+                            tool=params["name"],
+                            operation_key=effect_key,
+                            arguments=params.get("arguments"),
+                        )
                     sanitized = dict(params)
                     sanitized.pop("_gateway_operation_key", None)
                     outbound = dict(current)
