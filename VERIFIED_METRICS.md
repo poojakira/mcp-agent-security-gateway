@@ -1,3 +1,5 @@
+> **Evidence reconciliation (2026-11-11; historical phase/snapshot):** Historical results below retain their original dates and denominators. Latest tested Phase 1–16 development SHA is `43a72c8984bf9a472b9055d4f9e84cc759f61718` ([CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): 1,211 passed, 6 skipped per Python version), **not** a merged or production-approved release. Offline research tests require no paid provider or provider-issued API keys; deployed HTTP authentication and unverified real credential revocation remain separate. See [operating restrictions](PRODUCTION.md) and [release evidence](docs/review/PHASE1_16_RELEASE_CANDIDATE_NO_GO_20261110.md).
+
 # Verified Metrics — Dated October 2026 Baseline
 
 > **Evidence boundary (2026-11-09):** These test and coverage figures belong to the listed October source commits and runners, **not** to the unmerged phases 1–16 integration head or any deployed product. For integration validation, inspect [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) and its exact-head GitHub Actions. Passing CI is not production release authorization.
