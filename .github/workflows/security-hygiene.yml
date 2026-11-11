@@ -168,3 +168,7 @@ jobs:
           if failures:
               raise SystemExit("\n".join(sorted(set(failures))))
           print("reachable Git history secret scan verified")
+      - name: High-severity Python static security scan
+        run: |
+          python -m pip install 'bandit>=1.8,<2'
+          bandit -r src/mcp_monitor -q -lll -iii
