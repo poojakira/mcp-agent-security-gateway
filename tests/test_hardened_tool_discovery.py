@@ -88,8 +88,8 @@ def test_invalid_discovery_is_rejected(bad_result: object) -> None:
 
 
 def test_hardened_discovery_refuses_missing_capability_allowlist() -> None:
-    answer, _ = _run({"tools": [{"name": "read_manifest"}]}, allowed=None)
-    assert answer["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
+    with pytest.raises(ValueError, match="trusted tool allowlist"):
+        _run({"tools": [{"name": "read_manifest"}]}, allowed=None)
 
 
 def test_hardened_proxy_rejects_missing_allowlist_at_construction() -> None:
