@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - security/phase1-16-sbom-audit-20261110
+      - security/phase1-16-protected-image-deps-20261110
   workflow_dispatch:
 
 permissions:
