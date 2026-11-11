@@ -14,7 +14,7 @@
 
 | ID | Priority | Evidence / mechanism | Repair and acceptance |
 |---|---|---|---|
-| MCP-001 | High | Hardened `tools/list` historically returned descriptions of non-authorized tools, even while `tools/call` blocked them. This is an instruction/tool-poisoning exposure, not proof of unauthorized execution. | Draft PR #169 filters tool discovery to policy-authorized capabilities, rejects malformed/duplicate listings and adds focused tests. **OPEN until exact-head CI and adversarial review pass.** |
+| MCP-001 | High | Hardened `tools/list` historically returned descriptions of non-authorized tools, even while `tools/call` blocked them. This is an instruction/tool-poisoning exposure, not proof of unauthorized execution. | Draft PR #169 filters tool discovery to policy-authorized capabilities, rejects malformed/duplicate listings and adds focused tests. **Exact-head CI PASSED** for PR #169 head `7f62c0a5c9cb4d896bdb3c4cbc883483cf076066` ([run #42962274335](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42962274335)); independent adversarial review and merge remain OPEN. |
 | MCP-002 | Critical release blocker | `PRODUCTION.md` and Phase 14 record that users or agents with direct host/subprocess privileges can bypass the gateway. A middle-layer check is not an OS boundary. | Prove enforced routing and deployment isolation with direct-server, direct-network and host-credential bypass attempts. |
 | MCP-003 | High | In `StdioMCPProxy`, `strict_mcp_methods=False` and a `PolicyEngine` without a tool allowlist remain supported library defaults. The hardened CLI opts into strictness. Safety therefore depends on the deployment entry point. | Explicit production-only constructor/profile that refuses permissive defaults; all configured entry points tested. |
 | MCP-004 | High | The optional effect journal accepts `_gateway_operation_key` from MCP parameters. The journal reserves before sending, but key issuance is not by itself a verified trusted authority. | Bind operation IDs to authenticated user, approved intent and immutable request digest in a separate trusted issuer. Test forgery, reuse and restart. |
@@ -23,7 +23,7 @@
 | MCP-007 | High | Regex-only Phase 12 benchmark is 96 author-curated synthetic cases: TP40/FN8/FP16/TN32. It is not representative deployment evidence. | Independent threat-and-benign fixtures, measure missed attacks, false alarms, latency and workload impact; re-test after changes. |
 | MCP-008 | High | `PRODUCTION.md` explicitly leaves identity lifecycle, revocation races, crash/restart recovery, broad protocol interoperability and independent deployment sign-off open. | Run a combined exact-commit acceptance matrix with fault injection and human release approval. |
 | MCP-009 | Medium | `.gitleaksignore` contains historical narrowly scoped suppressions and `security-hygiene.yml` implements regex-based tracked-file/history checks. These do not establish a complete secret inventory or actual credential revocation. | Reconcile suppressions, scan Git history, artifacts and deployment secret stores; any confirmed live credential must be disabled at its issuer and reissued outside Git. |
-| MCP-010 | Medium | Phase 13 review text still says PR #150 is unmerged although previously verified GitHub PR state was merged. This creates stale evidence risk. | Make provenance statements source-linked and update against the live PR state. |
+| MCP-010 | Medium | Historical Phase 13 documentation contained the stale claim that PR #150 was unmerged, although GitHub shows a merge on 2026-11-09. | Corrected the two current audit/release documents in the stacked documentation review branch; verify the remaining historical Markdown and release evidence before closure. |
 
 ## Claim-to-evidence matrix
 
@@ -49,7 +49,7 @@
 
 ## Test matrix remaining
 
-- Exact-head lint/format/pytest matrix and Docker smoke on draft PR #169.
+- PR #169 exact-head lint/format/pytest matrix and scoped Docker tests passed ([run #42962274335](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42962274335)); independent red-team testing and merge review remain open.
 - Static scanners: secret scanning (including history), Bandit/Semgrep where installed, SBOM, dependency/license and image provenance. Review false positives manually.
 - Property-based: JSON-RPC ID preservation, allowlist monotonicity, byte limits, unknown methods, duplicate keys.
 - Mutation/fuzz: change deny/allow branches and assert negative tests fail.
