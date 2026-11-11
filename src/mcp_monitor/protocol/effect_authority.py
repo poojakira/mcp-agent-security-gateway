@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hmac
 from dataclasses import dataclass
+from types import MappingProxyType
 
 from mcp_monitor.protocol.effect_journal import EffectJournalError, _fingerprint, _label
 
@@ -69,7 +70,7 @@ class TrustedEffectAuthority:
             approved[key] = permit.argument_hash
         # The trusted operator may replace the authority instance, but an MCP
         # client cannot mutate permitted operations through request arguments.
-        self._approved = approved
+        self._approved = MappingProxyType(approved)
 
     def authorize(
         self,
