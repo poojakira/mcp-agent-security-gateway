@@ -2,7 +2,7 @@ name: Security Hygiene
 
 on:
   push:
-    branches: [main, docs/phase1-16-release-evidence-20261110]
+    branches: [main, docs/phase1-16-release-evidence-20261110, security/phase1-16-operation-authority-20261110]
   pull_request:
     branches: [main]
   workflow_dispatch:
