@@ -39,7 +39,8 @@ jobs:
           echo "External corpus integrity verified against upstream Git blob: $actual"
       - name: Measure confusion matrix without retuning detector
         run: |
-          python -m benchmark.external_public_eval /tmp/mcp-external-corpus.csv --output /tmp/mcp-external-evaluation.json
+          python -m benchmark.external_public_eval /tmp/mcp-external-corpus.csv --mode regex_only --output /tmp/mcp-external-evaluation.json
+          python -m benchmark.external_public_eval /tmp/mcp-external-corpus.csv --mode local_hybrid --output /tmp/mcp-external-hybrid-evaluation.json
           python - <<'PY'
           import json
           from pathlib import Path
@@ -54,6 +55,8 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: third-party-regex-benchmark
-          path: /tmp/mcp-external-evaluation.json
+          path: |
+            /tmp/mcp-external-evaluation.json
+            /tmp/mcp-external-hybrid-evaluation.json
           if-no-files-found: warn
           retention-days: 7
