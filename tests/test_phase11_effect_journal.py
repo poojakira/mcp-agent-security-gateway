@@ -77,7 +77,8 @@ def test_success_acknowledged_but_not_independently_verified(journal):
         transport = ControlledTransport()
         gateway = proxy(journal, transport)
         raw = await gateway.handle_message(make_request())
-        assert json.loads(raw)["result"] == {"ok": True}
+        assert json.loads(raw)["error"]["code"] == gateway.SECURITY_BLOCK_CODE
+        assert "outcome remains unverified" in json.loads(raw)["error"]["message"]
         assert status(journal) == "UNCERTAIN"
         forwarded = json.loads(transport.sent[0])
         assert "_gateway_operation_key" not in forwarded["params"]

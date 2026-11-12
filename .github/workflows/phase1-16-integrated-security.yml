@@ -14,6 +14,7 @@ on:
       - security/phase1-16-protected-image-deps-20261110
       - docs/phase1-16-evidence-and-poster-20261111
       - security/phase1-16-pin-image-20261111
+      - release/phase1-16-offline-rc-20261111
       - security/phase1-16-effect-verification-20261111
   pull_request:
     branches:

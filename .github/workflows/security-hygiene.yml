@@ -2,7 +2,7 @@ name: Security Hygiene
 
 on:
   push:
-    branches: [main, docs/phase1-16-release-evidence-20261110, security/phase1-16-operation-authority-20261110 , security/phase1-16-protected-image-deps-20261110, docs/phase1-16-evidence-and-poster-20261111]
+    branches: [main, docs/phase1-16-release-evidence-20261110, security/phase1-16-operation-authority-20261110 , security/phase1-16-protected-image-deps-20261110, release/phase1-16-offline-rc-20261111, docs/phase1-16-evidence-and-poster-20261111]
   pull_request:
     branches: [main]
   workflow_dispatch:
