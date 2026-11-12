@@ -5,6 +5,7 @@ on:
     branches:
       - security/phase1-16-protected-image-deps-20261110
       - docs/phase1-16-evidence-and-poster-20261111
+      - security/phase1-16-pin-image-20261111
   workflow_dispatch:
 
 permissions:
