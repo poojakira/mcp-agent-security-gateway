@@ -96,9 +96,7 @@ def test_mixed_batch_denies_every_member_without_forwarding() -> None:
         ]
     ).encode()
     answer, sent = invoke(message, allowed={"read_manifest"})
-    assert all(
-        item["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE for item in answer
-    )
+    assert all(item["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE for item in answer)
     assert sent == []
 
 
@@ -125,9 +123,7 @@ def test_policy_does_not_trust_agent_server_identity() -> None:
         ["fake"],
         server_id="unapproved",
         transport=transport,
-        policy_engine=PolicyEngine(
-            allowed_servers={"authorized"}, allowed_tools={"read_manifest"}
-        ),
+        policy_engine=PolicyEngine(allowed_servers={"authorized"}, allowed_tools={"read_manifest"}),
     )
     answer = json.loads(asyncio.run(proxy.handle_message(json.dumps(payload).encode())))
     assert "DENY_SERVER_NOT_ALLOWED" in answer["error"]["message"]
