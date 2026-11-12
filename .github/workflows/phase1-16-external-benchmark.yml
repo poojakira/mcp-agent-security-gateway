@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - benchmark/phase1-16-public-corpus-20261111
+      - research/phase1-16-adversarial-20261111
   workflow_dispatch:
 
 permissions:
