@@ -108,9 +108,7 @@ def test_mixed_batch_denies_every_member_without_forwarding() -> None:
         (["mcp-gateway", "--allow-tool", "read_manifest", "python", "-V"], 2),
     ],
 )
-def test_cli_denies_unconfigured_or_missing_downstream(
-    argv: list[str], expected_exit: int
-) -> None:
+def test_cli_denies_unconfigured_or_missing_downstream(argv: list[str], expected_exit: int) -> None:
     with patch.object(sys, "argv", argv):
         with pytest.raises(SystemExit) as exc:
             main()
