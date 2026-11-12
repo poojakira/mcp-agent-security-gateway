@@ -35,9 +35,7 @@ class FakeRules:
     tool: bool = True
     fail: bool = False
 
-    def evaluate(
-        self, stage: str, event: Event, proposal: Proposal | None
-    ) -> GateDecision:
+    def evaluate(self, stage: str, event: Event, proposal: Proposal | None) -> GateDecision:
         if self.fail:
             raise RuntimeError("synthetic rules outage")
         allowed = self.ingress if stage == "ingress" else self.tool
@@ -97,9 +95,7 @@ def test_d1_has_labels_but_no_gate(event, policy, prompts):
 
 def test_d2_tool_denial_preserves_stub_state(event, policy, prompts):
     model = FakeModel(Proposal("mock_set", {"key": "x", "value": 1}, "try"))
-    harness = HarnessSkeleton(
-        model, GatewaySkeleton(policy, FakeRules(tool=False)), prompts
-    )
+    harness = HarnessSkeleton(model, GatewaySkeleton(policy, FakeRules(tool=False)), prompts)
     row = harness.run_one(event, Lane.ONTOLOGY_GATE)
     assert row.model_called and not row.stub_executed
     assert row.tool_decision["rule_id"] == "test_only.tool"
@@ -109,9 +105,7 @@ def test_d2_tool_denial_preserves_stub_state(event, policy, prompts):
 
 def test_d2_allow_requires_both_rule_and_existing_pdp(event, policy, prompts):
     model = FakeModel(Proposal("mock_set", {"key": "x", "value": 1}, "try"))
-    harness = HarnessSkeleton(
-        model, GatewaySkeleton(policy, FakeRules()), prompts
-    )
+    harness = HarnessSkeleton(model, GatewaySkeleton(policy, FakeRules()), prompts)
     row = harness.run_one(event, Lane.ONTOLOGY_GATE)
     assert row.stub_executed and row.state_after == {"x": 1}
     assert row.tool_decision["rule_id"] == "test_only.tool"
@@ -120,9 +114,7 @@ def test_d2_allow_requires_both_rule_and_existing_pdp(event, policy, prompts):
 
 def test_dangerous_tool_denied_even_by_permissive_fake_rules(event, policy, prompts):
     model = FakeModel(Proposal("delete_file", {}, "bad test"))
-    harness = HarnessSkeleton(
-        model, GatewaySkeleton(policy, FakeRules()), prompts
-    )
+    harness = HarnessSkeleton(model, GatewaySkeleton(policy, FakeRules()), prompts)
     row = harness.run_one(event, Lane.ONTOLOGY_GATE)
     assert row.tool_decision["allowed"] is False
     assert not row.stub_executed
@@ -131,9 +123,7 @@ def test_dangerous_tool_denied_even_by_permissive_fake_rules(event, policy, prom
 
 def test_ingress_failure_does_not_call_model(event, policy, prompts):
     model = FakeModel(Proposal("mock_set", {"key": "x", "value": 1}, "try"))
-    harness = HarnessSkeleton(
-        model, GatewaySkeleton(policy, FakeRules(fail=True)), prompts
-    )
+    harness = HarnessSkeleton(model, GatewaySkeleton(policy, FakeRules(fail=True)), prompts)
     row = harness.run_one(event, Lane.ONTOLOGY_GATE)
     assert row.ingress_decision["rule_id"] == "rule_error"
     assert model.seen == [] and not row.stub_executed
@@ -148,9 +138,7 @@ def test_tool_rule_failure_fails_closed(event, policy, prompts):
             return GateDecision(True, "test_only.ingress", "test")
 
     model = FakeModel(Proposal("mock_set", {"key": "x", "value": 1}, "try"))
-    harness = HarnessSkeleton(
-        model, GatewaySkeleton(policy, ToolFailureRules()), prompts
-    )
+    harness = HarnessSkeleton(model, GatewaySkeleton(policy, ToolFailureRules()), prompts)
     row = harness.run_one(event, Lane.ONTOLOGY_GATE)
     assert row.tool_decision["rule_id"] == "rule_error"
     assert not row.stub_executed
@@ -158,9 +146,7 @@ def test_tool_rule_failure_fails_closed(event, policy, prompts):
 
 def test_d1_and_d2_share_exact_governed_prompt(event, policy, prompts):
     model = FakeModel(Proposal(None, {}, "no tool needed"))
-    harness = HarnessSkeleton(
-        model, GatewaySkeleton(policy, FakeRules()), prompts
-    )
+    harness = HarnessSkeleton(model, GatewaySkeleton(policy, FakeRules()), prompts)
     harness.run_one(event, Lane.ONTOLOGY)
     harness.run_one(event, Lane.ONTOLOGY_GATE)
     assert model.seen[0] == model.seen[1]
@@ -168,9 +154,7 @@ def test_d1_and_d2_share_exact_governed_prompt(event, policy, prompts):
 
 def test_no_action_proposal_never_executes(event, policy, prompts):
     model = FakeModel(Proposal(None, {}, "decline"))
-    harness = HarnessSkeleton(
-        model, GatewaySkeleton(policy, FakeRules()), prompts
-    )
+    harness = HarnessSkeleton(model, GatewaySkeleton(policy, FakeRules()), prompts)
     row = harness.run_one(event, Lane.ONTOLOGY_GATE)
     assert row.model_called and not row.stub_executed
     assert row.tool_decision is None
