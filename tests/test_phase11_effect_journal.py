@@ -72,13 +72,13 @@ def status(journal, key="operation-01"):
     return journal.status(principal=PRINCIPAL, server="local", tool=TOOL, operation_key=key)
 
 
-def test_success_reserved_before_dispatch_and_exactly_one_forward(journal):
+def test_success_acknowledged_but_not_independently_verified(journal):
     async def scenario():
         transport = ControlledTransport()
         gateway = proxy(journal, transport)
         raw = await gateway.handle_message(make_request())
         assert json.loads(raw)["result"] == {"ok": True}
-        assert status(journal) == "COMPLETED"
+        assert status(journal) == "UNCERTAIN"
         forwarded = json.loads(transport.sent[0])
         assert "_gateway_operation_key" not in forwarded["params"]
         assert len(transport.sent) == 1
