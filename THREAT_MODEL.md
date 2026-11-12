@@ -1,6 +1,8 @@
+> **Evidence reconciliation (2026-11-11; living reference):** Historical results below retain their original dates and denominators. Latest tested Phase 1–16 development SHA is `43a72c8984bf9a472b9055d4f9e84cc759f61718` ([CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): 1,211 passed, 6 skipped per Python version), **not** a merged or production-approved release. Offline research tests require no paid provider or provider-issued API keys; deployed HTTP authentication and unverified real credential revocation remain separate. See [operating restrictions](PRODUCTION.md) and [release evidence](docs/review/PHASE1_16_RELEASE_CANDIDATE_NO_GO_20261110.md).
+
 # Threat Model — MCP Agent Security Gateway
 
-This document describes the threat model for the MCP Agent Security Gateway. It identifies the adversaries, attack surfaces, trust boundaries, and mitigations implemented.
+This document records attack assumptions, implemented controls and unresolved security properties across multiple research and gateway integration paths. **Production status: NO-GO**; controls differ by entry point, and a passing local test is not proof of non-bypassable deployment. See [release gate](docs/review/PHASE13_RELEASE_READINESS.md).
 
 ---
 
@@ -49,7 +51,7 @@ This document describes the threat model for the MCP Agent Security Gateway. It 
 **Threat**: Adversary embeds instructions in tool arguments that manipulate downstream behavior or bypass security controls.
 
 **Mitigations**:
-- 55 prompt-injection detection patterns (see `INJECTION_PATTERNS` in `src/mcp_monitor/detectors/prompt_injection.py`)
+- Pattern-based prompt-injection inspection (the October 14 poster source snapshot inventories **69 named signatures**; verify the collection on the exact branch/commit under review). Signature count is not a measurement of recall or bypass resistance.
 - Unicode normalization (zero-width removal, homoglyph handling, BiDi control stripping)
 - Base64/ROT13 decoding attempts before inspection
 - Multi-layer policy evaluation
@@ -70,7 +72,7 @@ This document describes the threat model for the MCP Agent Security Gateway. It 
 **Mitigations**:
 - PII detection (SSN, credit card, API keys, etc.)
 - Exfiltration indicator checks (hidden recipients, oversized payloads, raw-IP destinations)
-- Network egress policy engine
+- Application-layer network destination policy signals (not packet-level outbound enforcement)
 - Tool-output inspection (bidirectional boundary)
 
 ### 4. Process Execution via Tool Arguments
@@ -87,7 +89,7 @@ This document describes the threat model for the MCP Agent Security Gateway. It 
 **Threat**: Attacker floods detectors to trigger circuit breaker, then sends malicious requests while detectors are unavailable.
 
 **Mitigations**:
-- Circuit breaker fallback produces DENY (fail-closed on this specific path)
+- Circuit breaker fallback produces DENY in the specifically tested inspection path; do not generalize to every adapter
 - Rate limiting on inspection endpoints
 - Separate circuit breakers for call and output inspection
 
@@ -105,7 +107,7 @@ This document describes the threat model for the MCP Agent Security Gateway. It 
 **Threat**: Attacker obtains one configured gateway credential and submits unauthorized inspection requests.
 
 **Mitigations**:
-- API credential required on protected endpoints by default
+- API credential required on protected HTTP endpoints by default; other adapters require separate identity/routing review
 - Legacy single-key and stable multi-key configurations are supported; compromised credentials can be rotated independently of code
 - Anonymous mode requires explicit opt-in
 - Rate limiting bounds abuse potential
@@ -150,12 +152,19 @@ This document describes the threat model for the MCP Agent Security Gateway. It 
 |---|---|---|---|
 | Detector | Unavailable | Requests uninspected | Circuit breaker → DENY |
 | Policy engine | Unavailable | No policy decision | Circuit breaker → DENY |
-| Audit logger | Unavailable | Audit gap | Inspection continues, gap logged |
+| Audit logger | Unavailable | Missing or incomplete evidence | Behavior is path/configuration dependent; a continued inspection must not be mistaken for a fail-closed, auditable production operation. Release gate remains open |
 | Downstream MCP server | Crash | Connection error | Error propagates to caller |
 | Rate limiter | Exhausted | Requests rejected | Operational endpoints exempt |
 | Configuration | Missing API credentials | Auth bypass risk | Protected requests rejected; production config fails validation when no valid credential set is configured |
 
 ---
+
+## Additional unresolved threats
+
+- A client or local principal can bypass the gateway when it can connect to an unfenced downstream server, invoke another transport or modify host files directly. Legacy first-party mode and operator/daemon capabilities are outside the protected laboratory contract.
+- Cooperative SQLite revocation and effect journaling do not supply distributed authorization freshness, cross-host exactly-once execution or recovery of arbitrary external side effects.
+- A compromised operator, host root or Docker daemon can override process and mount restrictions; a hash chain alone does not provide tamper-proof off-host retention.
+- Production TLS/authentication, trusted policy custody, DNS/redirect fencing, cancellation and unsolicited-message handling require end-to-end verification in the deployment topology.
 
 ## Scope Limitations
 

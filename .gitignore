@@ -38,8 +38,6 @@ srv_test_err.log
 # Local secrets and credentials
 .env
 .env.*
-!.env.example
-!.env.sample
 *.pem
 *.p12
 *.pfx
@@ -74,3 +72,23 @@ terraform.tfvars
 *.jks
 *.keystore
 *.pkcs12
+
+# Never track environment templates or local credential material
+**/.env
+**/.env.*
+**/.envrc
+**/.secrets/
+**/secrets.local.*
+**/secret.local.*
+**/*credentials*.local.*
+**/*token*.local.*
+**/*.tfvars
+**/*.tfvars.json
+*.asc
+*.gpg
+*.kdbx
+*.ovpn
+*.sqlite
+*.sqlite3
+*.db
+*.bak

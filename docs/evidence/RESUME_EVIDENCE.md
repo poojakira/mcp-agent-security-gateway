@@ -1,5 +1,8 @@
+> **Evidence reconciliation (2026-11-11; living reference):** Historical results below retain their original dates and denominators. Latest tested Phase 1–16 development SHA is `43a72c8984bf9a472b9055d4f9e84cc759f61718` ([CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): 1,211 passed, 6 skipped per Python version), **not** a merged or production-approved release. Offline research tests require no paid provider or provider-issued API keys; deployed HTTP authentication and unverified real credential revocation remain separate. See [operating restrictions](../../PRODUCTION.md) and [release evidence](../../docs/review/PHASE1_16_RELEASE_CANDIDATE_NO_GO_20261110.md).
+
 # Resume Evidence
 
+> **Review context (2026-11-09):** Claims about test counts, coverage and signature inventories apply only to the indicated October commits. The phases 1–16 candidate has different scope and a separate release gate. The [integrated release-readiness gate](../../docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**.
 This file preserves the quantitative snapshot used in previously submitted application material without confusing it with the repository's newer state.
 
 ## Frozen application snapshot

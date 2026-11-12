@@ -1,5 +1,8 @@
+> **Evidence reconciliation (2026-11-11; living reference):** Historical results below retain their original dates and denominators. Latest tested Phase 1–16 development SHA is `43a72c8984bf9a472b9055d4f9e84cc759f61718` ([CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): 1,211 passed, 6 skipped per Python version), **not** a merged or production-approved release. Offline research tests require no paid provider or provider-issued API keys; deployed HTTP authentication and unverified real credential revocation remain separate. See [operating restrictions](../PRODUCTION.md) and [release evidence](../docs/review/PHASE1_16_RELEASE_CANDIDATE_NO_GO_20261110.md).
+
 # Rust port of the MCP stdio proxy inspection core (Gap 5)
 
+> **Evidence boundary (2026-11-09):** The Rust component has its own test and integration boundary; do not infer complete Python control parity or production release evidence solely from the shared repository. [Production release gate](../docs/review/PHASE13_RELEASE_READINESS.md): **NO-GO**. [Integration candidate](https://github.com/poojakira/mcp-agent-security-gateway/pull/167): draft, unmerged.
 This crate re-implements the **security-critical decision logic** of the Python
 `src/mcp_monitor/proxy/stdio_proxy.py` (`inspect_message`) in Rust, to
 demonstrate systems-programming capability and a memory-safe, dependency-light

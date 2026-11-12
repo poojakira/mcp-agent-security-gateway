@@ -1,0 +1,30 @@
+name: Resolve Python base image digest for protected MCP
+
+on:
+  push:
+    branches:
+      - security/phase1-16-pin-image-20261111
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  resolve-public-base:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Resolve official public multi-architecture image manifest digest
+        run: |
+          set -euo pipefail
+          docker buildx imagetools inspect docker.io/library/python:3.12-slim | tee /tmp/python-image-manifest.txt
+          digest="$(sed -n -E 's/^Digest:[[:space:]]*(sha256:[a-f0-9]{64})$/\1/p' /tmp/python-image-manifest.txt | head -n 1)"
+          if [[ ! "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]; then
+            echo "No valid official image digest discovered"
+            exit 1
+          fi
+          echo "Resolved public docker.io/library/python:3.12-slim@$digest"
+          echo "Exact source commit: $GITHUB_SHA"

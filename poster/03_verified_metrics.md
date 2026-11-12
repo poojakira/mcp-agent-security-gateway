@@ -1,25 +1,35 @@
-# Verified Metrics - Poster 01
+# Poster Metrics — Exact-Head CI Evidence, Not Product Effectiveness
 
-> Main code snapshot: `f1f226feb0d527f27b90081806d7e9bd90ba0574` (October 14, 2026 UTC)
-> Successful CI: https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461
+> **Source commit:** `43a72c8984bf9a472b9055d4f9e84cc759f61718` (draft Phase 1–16 stack). **PRODUCTION NO-GO.** All numerical claims are limited to cited workflows and dates; no deployment efficacy or independent security certification is inferred.
 
 | Metric | Snapshot value | Scope |
 |---|---:|---|
-| Tests passed | **782** | Python 3.12 CI; Python 3.10/3.11 also green |
-| Tests failed | **0** | Cited CI run |
-| Statement coverage | **81.93%** | 5,657 statements, 1,022 missed |
-| Prompt-injection collection entries | **69** | Named runtime collection; current main-branch implementation |
-| Elastic rule records | **9** | `detection_rules/elastic_rules.toml` |
-| Core SIEM tests | **21** | `tests/test_siem.py` |
-| SIEM scenario tests | **12** | `tests/test_siem_scenarios.py` |
+| Regression tests | **1,211** | Passing tests per Python version, not a sum across versions |
+| Skipped tests | **6** | Per Python version; skipped are not verified |
+| Python versions | **3** | 3.10 / 3.11 / 3.12 all passed |
+| Integrated CI jobs | **5/5** | [Run 42971171992](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992) |
+| Exact-head workflows | **4/4** | Integrated, hygiene, supply-chain and real protected Docker |
+| Local process-crash cases | **3** | Before reservation, post-reservation and post-effect/pre-ack |
+| Known Python advisories | **0 found** | Installed CI environment, public database at run time; not a promise |
+| Production status | **NO-GO** | No external deployment or independent approval established |
 
-## Verification gates
+## Scoped reproducibility
 
-The cited CI completed lint/format, type checking, Bandit, pip-audit, CodeQL, security scanning, Windows control-plane validation, Python 3.10/3.11/3.12 tests, SBOM work, and Docker build validation successfully.
+- Python matrix: [42971171992](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992).
+- Tracked-file/history patterns and high-severity Bandit hygiene: [42971171965](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171965).
+- Installed Python CycloneDX and `pip-audit`: [42971171775](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171775).
+- Actual restricted Docker startup and MCP discovery: [42971171991](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171991).
 
-## Not established
+## Prior synthetic detection benchmark — NOT a poster headline
 
-- External population-level false-positive / false-negative rates.
-- Production latency, throughput, uptime, or reliability SLOs.
-- A live SOC deployment.
-- Universal enforcement semantics outside traffic routed through the implemented integration paths.
+The earlier 96-case author-curated regex-only benchmark reported TP=40, FN=8, FP=16, TN=32. It is **not** an independent or representative measurement. Do not infer guaranteed safety or population precision/recall from it.
+
+## Metrics not claimed
+
+- Latest statement coverage percentage: not measured in the cited 1,211-pass workflow.
+- Universal agent interception, distributed exactly-once execution, DNS/redirect enforcement for networked deployments, external authentication, booking/payment confirmation.
+- Zero vulnerabilities, zero leaked secrets in all history/deployments, confirmed live credential revocation, security certification, cost-free operation of all possible external systems.
+
+## Cost/credential boundary
+
+The cited local workflows use free development tooling and do not require provider-issued API keys for third-party model/payment services. The HTTP production service has a separate operator-authentication configuration; **the repository does not establish that every deployment is keyless**.

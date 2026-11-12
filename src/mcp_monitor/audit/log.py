@@ -87,6 +87,7 @@ class AuditLog:
         self._log_file = Path(log_file)
         self._entries: list[AuditEntry] = []
         self._hmac_key: bytes | None = self._resolve_key(hmac_key)
+        self._healthy = True
         self._load()
 
     @staticmethod
@@ -106,6 +107,8 @@ class AuditLog:
 
     def append(self, event_type: str, data: dict[str, Any]) -> AuditEntry:
         """Append a new entry to the log, chaining its hash to the previous."""
+        if not self._healthy:
+            raise OSError("Audit ledger is not healthy after a persistence failure")
         prev_hash = self._entries[-1].entry_hash if self._entries else "0" * 64
 
         entry = AuditEntry(
@@ -114,8 +117,16 @@ class AuditLog:
             prev_hash=prev_hash,
         )
         entry.entry_hash = entry.compute_hash(self._hmac_key)
+        # Never claim an audit event was committed until the durable append
+        # succeeded; an I/O failure must not silently advance the memory chain.
+        try:
+            self._persist(entry)
+        except Exception:
+            # A partial append may be present on disk. Never build another
+            # chain link against stale memory without a trusted restart/review.
+            self._healthy = False
+            raise
         self._entries.append(entry)
-        self._persist(entry)
         return entry
 
     def verify_chain(self) -> tuple[bool, int | None]:
@@ -161,6 +172,8 @@ class AuditLog:
         self._log_file.parent.mkdir(parents=True, exist_ok=True)
         with self._log_file.open("a", encoding="utf-8") as f:
             f.write(json.dumps(asdict(entry)) + "\n")
+            f.flush()
+            os.fsync(f.fileno())
 
     def _load(self) -> None:
         """Load existing entries from the log file."""
@@ -181,3 +194,7 @@ class AuditLog:
                     entry_hash=raw["entry_hash"],
                 )
                 self._entries.append(entry)
+        intact, broken_at = self.verify_chain()
+        if not intact:
+            self._entries.clear()
+            raise ValueError(f"Audit chain integrity failed at entry {broken_at}")

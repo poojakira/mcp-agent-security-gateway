@@ -1,5 +1,8 @@
+> **Evidence reconciliation (2026-11-11; living reference):** Historical results below retain their original dates and denominators. Latest tested Phase 1–16 development SHA is `43a72c8984bf9a472b9055d4f9e84cc759f61718` ([CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): 1,211 passed, 6 skipped per Python version), **not** a merged or production-approved release. Offline research tests require no paid provider or provider-issued API keys; deployed HTTP authentication and unverified real credential revocation remain separate. See [operating restrictions](PRODUCTION.md) and [release evidence](docs/review/PHASE1_16_RELEASE_CANDIDATE_NO_GO_20261110.md).
+
 # Incident Runbook — mcp-agent-security-gateway
 
+> **Documentation alignment (2026-11-09):** This is a response procedure template for maintainers and operators, not evidence of a staffed on-call rotation, production incident program, tested live paging, SLO or real deployment. Verify contacts, credentials and containment authority before operational use. The [release gate](docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**; [draft integration PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is not a released deployment.
 > Reference incident-response procedures for teams that choose to operate the
 > gateway. This is a template, not a record of an operated production service:
 > the project has no on-call rotation, SLA, or live deployment. Adapt the

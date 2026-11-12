@@ -1,0 +1,50 @@
+name: Phase 12 Frozen Synthetic Evaluation
+
+on:
+  pull_request:
+    branches:
+      - phase11/durable-effect-journal
+    paths:
+      - "benchmark/phase12_holdout.jsonl"
+      - "benchmark/phase12_eval.py"
+      - "benchmark/__init__.py"
+      - "tests/test_phase12_benchmark.py"
+      - ".github/workflows/phase12-benchmark.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-benchmark:
+    name: Synthetic regression Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install free, local test dependencies
+        run: python -m pip install -e ".[dev,oidc]"
+      - name: Lint and format benchmark
+        run: |
+          ruff check benchmark/phase12_eval.py tests/test_phase12_benchmark.py
+          ruff format --check benchmark/phase12_eval.py tests/test_phase12_benchmark.py
+      - name: Evaluate frozen benchmark and publish exact metrics
+        run: |
+          python -m benchmark.phase12_eval | tee "${RUNNER_TEMP}/phase12_result.json"
+          echo "### Frozen synthetic, author-curated benchmark (not real-world efficacy)" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`\`\`json" >> "$GITHUB_STEP_SUMMARY"
+          cat "${RUNNER_TEMP}/phase12_result.json" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`\`\`" >> "$GITHUB_STEP_SUMMARY"
+      - name: Benchmark tests and full repository regressions
+        run: |
+          python -m pytest tests/test_phase12_benchmark.py -q --tb=short
+          python -m pytest tests/ -q --tb=short --cov=mcp_monitor --cov-report=term --cov-fail-under=77

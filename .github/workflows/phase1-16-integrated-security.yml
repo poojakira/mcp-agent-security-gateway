@@ -1,0 +1,143 @@
+name: Phase 1-16 integrated security candidate
+
+on:
+  push:
+    branches:
+      - integration/phase1-16-remediation-20261109
+      - security/harden-tool-discovery-20261110
+      - security/phase1-16-egress-boundary-20261110
+      - security/phase1-16-strict-authority-20261110
+      - security/phase1-16-operation-authority-20261110
+      - security/phase1-16-offline-release-boundary-20261110
+      - security/phase1-16-crash-fault-evidence-20261110
+      - security/phase1-16-constructor-profile-20261110
+      - security/phase1-16-protected-image-deps-20261110
+      - docs/phase1-16-evidence-and-poster-20261111
+      - security/phase1-16-pin-image-20261111
+      - release/phase1-16-offline-rc-20261111
+      - security/phase1-16-effect-verification-20261111
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrated-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install free dependencies without provider keys
+        run: python -m pip install -e ".[dev,oidc]"
+      - name: Lint integration-specific security files
+        run: |
+          ruff check src/mcp_monitor/protocol/revocation_fence.py src/mcp_monitor/protected_repo_server.py tests/test_phase16_revocation_safe_commit.py tests/test_retired_demo_credential.py
+          ruff format --diff src/mcp_monitor/protocol/revocation_fence.py src/mcp_monitor/protected_repo_server.py tests/test_phase16_revocation_safe_commit.py tests/test_retired_demo_credential.py
+          ruff format --check src/mcp_monitor/protocol/revocation_fence.py src/mcp_monitor/protected_repo_server.py tests/test_phase16_revocation_safe_commit.py tests/test_retired_demo_credential.py
+      - name: Verify hardened tool discovery regression and formatting
+        run: |
+          ruff check tests/test_hardened_tool_discovery.py src/mcp_monitor/proxy/stdio_proxy.py
+          ruff format --diff tests/test_hardened_tool_discovery.py src/mcp_monitor/proxy/stdio_proxy.py
+          ruff format --check tests/test_hardened_tool_discovery.py src/mcp_monitor/proxy/stdio_proxy.py
+          python -m pytest tests/test_hardened_tool_discovery.py -q --tb=short
+      - name: Validate strict declared egress hints with no external network
+        run: |
+          ruff check tests/test_phase13_egress_authority_validation.py src/mcp_monitor/policy/policy_engine.py
+          ruff format --diff tests/test_phase13_egress_authority_validation.py src/mcp_monitor/policy/policy_engine.py
+          ruff format --check tests/test_phase13_egress_authority_validation.py src/mcp_monitor/policy/policy_engine.py
+          python -m pytest tests/test_phase13_egress_authority_validation.py -q --tb=short
+      - name: Verify keyless trusted operator approval for effects
+        run: |
+          ruff check src/mcp_monitor/protocol/effect_authority.py src/mcp_monitor/proxy/stdio_proxy.py tests/test_phase13_trusted_effect_approval.py
+          ruff format --diff src/mcp_monitor/protocol/effect_authority.py src/mcp_monitor/proxy/stdio_proxy.py tests/test_phase13_trusted_effect_approval.py
+          ruff format --check src/mcp_monitor/protocol/effect_authority.py src/mcp_monitor/proxy/stdio_proxy.py tests/test_phase13_trusted_effect_approval.py
+          python -m pytest tests/test_phase13_trusted_effect_approval.py -q --tb=short
+      - name: Reconcile real child-process crashes before and after side effects
+        run: |
+          ruff check tests/test_phase16_crash_fencing_process.py
+          ruff format --diff tests/test_phase16_crash_fencing_process.py
+          ruff format --check tests/test_phase16_crash_fencing_process.py
+          python -m pytest tests/test_phase16_crash_fencing_process.py -q --tb=short
+      - name: Full inherited regression suite
+        run: python -m pytest tests/ -q --tb=short
+      - name: Verify combined identity, effect, revocation and key-retirement boundaries
+        run: |
+          python -m pytest tests/test_retired_demo_credential.py tests/test_phase16_revocation_safe_commit.py tests/test_phase15_consequence_verification.py tests/test_phase11_effect_journal.py tests/test_first_party_protected_mcp.py -q --tb=short
+  integrated-lab-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+      - name: Install free local dependencies
+        run: python -m pip install -e ".[dev,oidc]"
+      - name: Verify lab configuration and retired demo key guard
+        run: |
+          python -m pytest tests/test_retired_demo_credential.py -q --tb=short
+          python - <<'PY'
+          from pathlib import Path
+          content = Path("docker-compose.detection-lab.yml").read_text()
+          for port in (8000, 8080, 9200, 5601):
+              assert f'127.0.0.1:{port}:{port}' in content
+          assert "MCP_API_KEY=${MCP_API_KEY:?" in content
+          assert 'MCP_DEMO_MODE=0' in content
+          print("Local lab port and credential configuration gates passed")
+          PY
+      - name: Check release must stay NO-GO
+        run: |
+          test -f docs/review/PHASE13_RELEASE_READINESS.md
+          grep -q 'NO-GO' docs/review/PHASE13_RELEASE_READINESS.md
+
+  phase9-real-docker-network:
+    name: Phase 9 isolated Docker sidecar / private listener
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Install free local test dependencies
+        run: python -m pip install -e ".[dev,oidc]"
+      - name: Validate sidecar address and source lint
+        run: |
+          ruff check tests/fixtures/phase9_sidecar_fixture.py tests/test_phase9_sidecar_bind.py tests/test_phase9_internal_sandbox.py
+          ruff format --check tests/fixtures/phase9_sidecar_fixture.py tests/test_phase9_sidecar_bind.py tests/test_phase9_internal_sandbox.py
+          python -m pytest tests/test_phase9_sidecar_bind.py tests/test_phase9_internal_sandbox.py -q --tb=short
+      - name: Build disposable internal-network fixture
+        run: |
+          set -euo pipefail
+          docker build -f tests/fixtures/Dockerfile.phase9 -t phase9-synthetic:integrated .
+          image_id="$(docker image inspect --format '{{.Id}}' phase9-synthetic:integrated)"
+          network_id="$(docker network create --internal --driver bridge phase9-int-${{ github.run_id }}-${{ github.run_attempt }})"
+          echo "PHASE9_NETWORK_ID=$network_id" >> "$GITHUB_ENV"
+          proxy_name="mcp-egress-int-${{ github.run_id }}-${{ github.run_attempt }}"
+          proxy_id="$(docker run -d --rm --network "$network_id" --name "$proxy_name" phase9-synthetic:integrated python -u /opt/phase9/sidecar.py)"
+          echo "PHASE9_IMAGE_ID=$image_id" >> "$GITHUB_ENV"
+          echo "PHASE9_PROXY_ID=$proxy_id" >> "$GITHUB_ENV"
+          echo "PHASE9_PROXY_NAME=$proxy_name" >> "$GITHUB_ENV"
+      - name: Assert end-to-end gateway restriction against real Docker
+        run: python -m pytest tests/test_phase9_internal_docker.py -v --tb=short
+      - name: Remove disposable sidecar and network
+        if: always()
+        run: |
+          if [ -n "${PHASE9_PROXY_ID:-}" ]; then docker rm -f "$PHASE9_PROXY_ID" || true; fi
+          if [ -n "${PHASE9_NETWORK_ID:-}" ]; then docker network rm "$PHASE9_NETWORK_ID" || true; fi

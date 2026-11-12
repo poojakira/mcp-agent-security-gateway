@@ -1,0 +1,82 @@
+name: Phase 1-16 real protected MCP Docker import and handshake
+
+on:
+  push:
+    branches:
+      - security/phase1-16-protected-image-deps-20261110
+      - docs/phase1-16-evidence-and-poster-20261111
+      - security/phase1-16-pin-image-20261111
+      - release/phase1-16-offline-rc-20261111
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  protected-image-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Build reproducible local protected MCP image without provider keys
+        run: |
+          docker build -f Dockerfile.protected-mcp --pull=false -t protected-mcp:review .
+          image_id="$(docker image inspect --format '{{.Id}}' protected-mcp:review)"
+          case "$image_id" in sha256:*) ;; *) echo "Image ID unavailable"; exit 1;; esac
+          echo "PROTECTED_IMAGE_ID=$image_id" >> "$GITHUB_ENV"
+      - name: Test actual pinned Docker runtime can import first-party protected MCP
+        run: |
+          docker run --rm --pull=never --network=none --read-only \
+            --cap-drop=ALL --security-opt=no-new-privileges --user=65534:65534 \
+            --entrypoint=python "$PROTECTED_IMAGE_ID" -c \
+            'from mcp_monitor.protected_repo_server import ProtectedRepo; from mcp_monitor.protocol.revocation_fence import RevocationFence; print("isolated imports verified")'
+      - name: Negative boundary check for host secret, Docker socket and outbound network
+        run: |
+          set -euo pipefail
+          sandbox_root="$(mktemp -d)"
+          trap 'rm -rf "$sandbox_root"' EXIT
+          printf '%s' 'HOST_ONLY_SENTINEL_NO_API_KEYS' > "$sandbox_root/host-only-sentinel"
+          docker run --rm --pull=never --network=none --read-only \
+            --cap-drop=ALL --security-opt=no-new-privileges --user=65534:65534 \
+            --pids-limit=64 --memory=256m --cpus=1 \
+            --entrypoint=python "$PROTECTED_IMAGE_ID" -c '
+          import os
+          import socket
+          from pathlib import Path
+          assert not Path("/var/run/docker.sock").exists(), "Host Docker socket exposed"
+          assert not Path("/tmp/host-only-sentinel").exists(), "Host secret leaked"
+          sock = socket.socket()
+          sock.settimeout(2)
+          try:
+              sock.connect(("192.0.2.1", 443))
+          except OSError:
+              print("No direct route to TEST-NET-1 address (expected)")
+          else:
+              raise AssertionError("Network-none container unexpectedly connected")
+          finally:
+              sock.close()
+          assert os.geteuid() != 0, "Container is unexpectedly root"
+          '
+      - name: Real stdio MCP tool-discovery handshake in restricted Docker container
+        run: |
+          set -euo pipefail
+          workspace="$(mktemp -d)"
+          trap 'rm -rf "$workspace"' EXIT
+          printf '%s\n' '{"dependencies":{"safe-package":"1.0.0"}}' > "$workspace/package.json"
+          response="$(printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' |
+            docker run --rm -i --pull=never --network=none --read-only \
+              --cap-drop=ALL --security-opt=no-new-privileges --user=65534:65534 \
+              --mount "type=bind,source=$workspace,target=/workspace,readonly" \
+              --env MCP_PROTECTED_REPO_ROOT=/workspace \
+              --env 'MCP_APPROVED_DEPENDENCY_UPDATES={"safe-package":"1.1.0"}' \
+              "$PROTECTED_IMAGE_ID")"
+          printf '%s\n' "$response" | python -c '
+          import json, sys
+          value = json.load(sys.stdin)
+          assert value["id"] == 1
+          names = {item["name"] for item in value["result"]["tools"]}
+          assert names == {"read_manifest", "update_dependency"}, names
+          print("real restricted-container MCP discovery verified")
+          '

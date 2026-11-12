@@ -1,0 +1,16 @@
+# Research-only isolated MCP server, no cloud access, no credentials.
+# CI validates the resulting image ID before running it with --pull=never.
+# Official multiarch base image pinned to the manifest digest resolved by free CI.
+# Pinning prevents tag drift; it does NOT itself prove package safety or provenance.
+FROM docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
+
+WORKDIR /app
+COPY src/mcp_monitor/protected_repo_server.py /app/mcp_monitor/protected_repo_server.py
+COPY src/mcp_monitor/protocol/revocation_fence.py /app/mcp_monitor/protocol/revocation_fence.py
+
+# The trusted launcher supplies a non-root UID/GID, fixed bind mount and scope.
+CMD ["python", "-m", "mcp_monitor.protected_repo_server"]

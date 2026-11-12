@@ -1,5 +1,8 @@
+> **Evidence reconciliation (2026-11-11; living reference):** Historical results below retain their original dates and denominators. Latest tested Phase 1–16 development SHA is `43a72c8984bf9a472b9055d4f9e84cc759f61718` ([CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): 1,211 passed, 6 skipped per Python version), **not** a merged or production-approved release. Offline research tests require no paid provider or provider-issued API keys; deployed HTTP authentication and unverified real credential revocation remain separate. See [operating restrictions](../PRODUCTION.md) and [release evidence](../docs/review/PHASE1_16_RELEASE_CANDIDATE_NO_GO_20261110.md).
+
 # Application Security Case Study: MCP Agent-to-Tool Boundary
 
+> **Evidence and release status (2026-11-09):** This case study documents a review method and selected tested controls; it must not be interpreted as complete non-bypassable gateway protection. The [release review](../docs/review/PHASE13_RELEASE_READINESS.md) remains **NO-GO**, and [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is a draft integration candidate.
 **Assessment date:** 2026-10-05  
 **System:** MCP Agent Security Gateway  
 **Scope:** White-box review of the repository's production HTTP control plane, JSON-RPC inspection path, policy enforcement boundary, and security telemetry.  
@@ -103,4 +106,3 @@ Prompt-injection, PII, and exfiltration signals are heuristic and can have false
 The reviewed implementation shows a defensible application-security boundary for an agent-to-tool gateway: strict protocol parsing, authenticated control-plane access, default-deny authorization, egress restrictions, abuse controls, and reviewable telemetry. The main remaining risks are architectural/deployment boundaries rather than undocumented claims of perfect detection.
 
 For recruiters and hiring teams, the useful evidence is the review method itself: **threat model → attack surface → control → verification → limitation**, not only the raw test count.
-

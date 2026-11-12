@@ -1,12 +1,15 @@
+> **Evidence reconciliation (2026-11-11; historical phase/snapshot):** Historical results below retain their original dates and denominators. Latest tested Phase 1–16 development SHA is `43a72c8984bf9a472b9055d4f9e84cc759f61718` ([CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): 1,211 passed, 6 skipped per Python version), **not** a merged or production-approved release. Offline research tests require no paid provider or provider-issued API keys; deployed HTTP authentication and unverified real credential revocation remain separate. See [operating restrictions](../../PRODUCTION.md) and [release evidence](../../docs/review/PHASE1_16_RELEASE_CANDIDATE_NO_GO_20261110.md).
+
 # Historical Verification Evidence — October 4, 2026
 
+> **Review context (2026-11-09):** Archived results must retain their original commit, environment, denominator and date. They must not be silently promoted into current integrated release claims. The [integrated release-readiness gate](../../docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**.
 This page preserves the former `VERIFIED_METRICS.md` record verbatim below. The cited commit `008775c8878cc70c50247baa223da3256e093316` and CI run `37184196303` are from **October 4, 2026 UTC**, not September 30. It is dated historical evidence, **not** the latest verified test/coverage report. For the latest results, see [current verification](../../VERIFIED_METRICS.md).
 
 ---
 
 # Verified Metrics
 
-## Latest quantified verified code snapshot
+## Latest quantified snapshot within this historical archive
 
 **Code commit:** `008775c8878cc70c50247baa223da3256e093316`  
 **Successful full CI:** https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303
@@ -28,7 +31,7 @@ The Python 3.10 and 3.11 test jobs also completed successfully.
 | Prompt-injection collection entries | **55** | Named collection at cited snapshot |
 | Elastic rule records | **9** | `detection_rules/elastic_rules.toml` |
 | Core SIEM tests | **21** | `tests/test_siem.py` |
-| SIEM scenario tests | **12** | `tests/test_siem_scenarios.py` |
+| SIEM scenario tests | **7 confirmed in the October 14 and November 10 source trees** | `tests/test_siem_scenarios.py`; older claimed inventory of 12 was incorrect; do not infer the October 4 count without checking that historical commit |
 
 The cited CI also completed Ruff/format checks, Pyright, Bandit, pip-audit, CodeQL, Windows control-plane validation, security scanning, SBOM steps, and Docker build validation successfully.
 

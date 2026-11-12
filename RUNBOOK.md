@@ -1,5 +1,8 @@
+> **Evidence reconciliation (2026-11-11; living reference):** Historical results below retain their original dates and denominators. Latest tested Phase 1–16 development SHA is `43a72c8984bf9a472b9055d4f9e84cc759f61718` ([CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): 1,211 passed, 6 skipped per Python version), **not** a merged or production-approved release. Offline research tests require no paid provider or provider-issued API keys; deployed HTTP authentication and unverified real credential revocation remain separate. See [operating restrictions](PRODUCTION.md) and [release evidence](docs/review/PHASE1_16_RELEASE_CANDIDATE_NO_GO_20261110.md).
+
 # Runbook — MCP Agent Security Gateway
 
+> **Documentation alignment (2026-11-09):** The commands below are local development and prospective operating procedures; they do not imply that the experimental gateway is approved for production. Identity, network egress and effect reconciliation remain gated. The [release gate](docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**; [draft integration PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is not a released deployment.
 ## Runtime roles
 
 This repository contains two deliberately different surfaces.
@@ -38,7 +41,11 @@ pip-audit --skip-editable
 Use the successful GitHub Actions run on the exact commit as the authoritative
 verification record.
 
-## Production configuration
+## Production-style configuration (release NOT approved)
+
+Examples in this section are configuration illustrations, **not a deployment authorization**. Do not expose the HTTP inspection API or real MCP tool server to untrusted networks. Review the exact runtime path and [production release requirements](PRODUCTION.md) first.
+
+The exports below configure a directly launched production API. For Docker Compose, use the separate `.env` procedure below instead; inherited shell variables take precedence over Compose file values.
 
 Production mode validates security-critical settings at startup.
 
@@ -65,14 +72,34 @@ Production startup fails when:
 
 ## Docker Compose
 
-Copy the example environment and replace its values:
+Create a local-only environment file on first setup. The repository does **not** track an `.env` template. This command refuses to replace an existing file or symlink and restricts new-file permissions:
 
 ```bash
-cp .env.example .env
-# edit .env with MCP_API_KEY or MCP_API_KEYS and the exact MCP_ALLOWED_SERVERS set
-docker compose config >/dev/null
-docker compose up -d --build
+if [ -e .env ] || [ -L .env ]; then
+  printf '%s\n' 'Existing .env not changed. Review it before continuing.' >&2
+else
+  (umask 077; set -C; printf 'MCP_API_KEY=%s\nMCP_ALLOWED_SERVERS=github,filesystem\n' "$(openssl rand -hex 32)" > .env)
+fi
 ```
+
+If `.env` already exists, **do not run the creation command to rotate the key**. Open the existing file in a local editor and change only the intended entries, keeping telemetry and other deployment settings intact. Change `MCP_API_KEY` only as part of an explicit credential rotation, and update clients before restarting. Review the allowed-server list and restrict file permissions to the operator (`chmod 600 .env` on Unix). Never commit the file.
+
+For Compose, clear the overlapping variables exported in the preceding standalone-API example. Otherwise the shell values override entries in `.env`. Keep the file as the source of truth for this documented deployment:
+
+```bash
+unset MCP_API_KEY MCP_API_KEYS MCP_ALLOWED_SERVERS
+docker compose --env-file .env config >/dev/null
+docker compose --env-file .env up -d --build
+```
+
+Before the authenticated `curl` examples below, load the single-key value into the current shell **without printing it**:
+
+```bash
+MCP_API_KEY="$(sed -n 's/^MCP_API_KEY=//p' .env | head -n 1)"
+: "${MCP_API_KEY:?MCP_API_KEY is missing; choose a configured key before running authenticated requests}"
+```
+
+For a multi-key deployment using `MCP_API_KEYS`, choose one of the already configured client credentials instead; do not generate a new one for each check. Prefer a deployment secret manager over local `.env` files in shared or production environments.
 
 The Compose contract:
 
@@ -90,7 +117,7 @@ file-backed WAL/audit store is single-writer state. See
 For controlled deployment, pin the released image by digest rather than using a
 mutable tag.
 
-## Production API
+## HTTP inspection API (development / review interface)
 
 Health and readiness are intentionally unauthenticated for orchestration.
 

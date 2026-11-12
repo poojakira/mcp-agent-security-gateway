@@ -1,5 +1,8 @@
+> **Evidence reconciliation (2026-11-11; living reference):** Historical results below retain their original dates and denominators. Latest tested Phase 1–16 development SHA is `43a72c8984bf9a472b9055d4f9e84cc759f61718` ([CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): 1,211 passed, 6 skipped per Python version), **not** a merged or production-approved release. Offline research tests require no paid provider or provider-issued API keys; deployed HTTP authentication and unverified real credential revocation remain separate. See [operating restrictions](../PRODUCTION.md) and [release evidence](../docs/review/PHASE1_16_RELEASE_CANDIDATE_NO_GO_20261110.md).
+
 # Detection Engineering Lab
 
+> **Evidence and release status (2026-11-09):** This is an isolated detection and telemetry laboratory. CI uses a mandatory operator-supplied local key and loopback-bound published ports; this does not turn Kibana, Elasticsearch or the MCP gateway into a supported external production service. The [release review](../docs/review/PHASE13_RELEASE_READINESS.md) remains **NO-GO**, and [PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is a draft integration candidate.
 Lab environment for practicing detection engineering against MCP agent security events.
 
 This is a **learning and practice environment**, not a production SIEM deployment. It demonstrates real detection engineering patterns (ECS formatting, correlation rules, log shipping, attack simulation, detection rule authoring) against the MCP security gateway's event stream.
@@ -246,3 +249,7 @@ Tests cover:
 - Session isolation and window expiry
 - File and stdout log shipping
 - Statistics tracking
+
+## Credential and exposure safety
+
+Supply a fresh local lab-only `MCP_API_KEY` when Compose requires it. Never reuse historical public demonstration credentials. The Compose release gate tests for loopback-published ports; verify the resolved configuration before starting services. Deleting a key from source does not rotate or revoke a credential at a service issuer.

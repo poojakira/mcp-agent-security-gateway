@@ -1,18 +1,36 @@
-# Reproduce the Work — MCP Gateway Poster 01
+# Reproducibility — November 11, 2026 Phase 1–16 Poster
 
-**Current code snapshot:** `f1f226feb0d527f27b90081806d7e9bd90ba0574`  
-**Successful Python 3.12 main CI:** [run 38502413461](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461) (October 14, 2026 UTC)
+**Reviewed source SHA:** `43a72c8984bf9a472b9055d4f9e84cc759f61718` (stacked draft review branch).  
+**Release state:** **PRODUCTION NO-GO**, no approved production manifest.
+
+## Exact-head test evidence
+
+- [Integrated 3-version matrix: 42971171992](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): per Python version 1,211 passed, 6 skipped; five integrated jobs passed.
+- [Security Hygiene: 42971171965](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171965): configured tracked-file/history checks and Bandit threshold passed.
+- [Python SBOM/advisories: 42971171775](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171775): CycloneDX installed-environment SBOM artifact and pip-audit public advisory check passed.
+- [Protected MCP real Docker smoke: 42971171991](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171991): real offline import and tools/list handshake passed.
+
+## Reproduce development source
 
 ```bash
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
 cd mcp-agent-security-gateway
-git checkout f1f226feb0d527f27b90081806d7e9bd90ba0574
-python -m pip install -e ".[dev,server]"
-PYTHONPATH=src python -m pytest tests -q --cov=mcp_monitor --cov-report=term
+git fetch origin security/phase1-16-protected-image-deps-20261110
+git checkout 43a72c8984bf9a472b9055d4f9e84cc759f61718
+python -m pip install -e ".[dev,oidc]"
+python -m pytest tests -q
 ```
 
-Expected at this cited CI snapshot: **782 passed, 81.93% statement coverage**, 5,657 statements / 1,022 missed. The code-source collection inventory contains **69 named signatures**, plus **9 Elastic rules**, **21 core SIEM tests**, and **12 SIEM scenario tests**; inventory counts are not population-level recall.
+These commands describe reproduction; they are not proof of an additional local run. The workflow environments install publicly available dependencies, so a later resolution may differ. Real Docker and SBOM workflows must be run separately and have their own constraints.
 
-**Archived October 4 historical run:** [37184196303](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303) at `008775c8878cc70c50247baa223da3256e093316`: 723 passed, 81.91% coverage, 55 named signatures. These values are not this active poster snapshot.
+## Poster generation
 
-Cerberus pilot evidence and detector effectiveness are separate and unchanged. GitHub Actions results are scoped to the cited commit and environment.
+```bash
+POSTER_BROWSER="$(command -v chromium || command -v google-chrome)" python poster/render_poster.py
+```
+
+The original poster binary files belong to their prior snapshot until regenerated and independently visually reviewed. The read-only poster workflow publishes new PNG/PDF **as CI artifacts**, not by rewriting GitHub source via a workflow token. Existing committed binaries should not be presented as current without parity validation.
+
+## Explicit exclusions
+
+No external provider API key, paid service, bank, booking site or healthcare platform is required in the cited offline tests. This does not mean the optional HTTP production service has no operator authentication, nor does it establish complete secret removal from remote systems. No field precision/recall, current coverage percentage, independent pentest or production certification is claimed.

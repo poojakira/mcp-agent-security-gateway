@@ -18,20 +18,30 @@ Usage (Claude Desktop config):
 
 from __future__ import annotations
 
-import argparse
 import asyncio
 import json
 import logging
+import math
 import os
+import secrets
 import sys
+from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Protocol
 
 from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
+from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard
 from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
+from mcp_monitor.protocol.effect_authority import TrustedEffectAuthority
+from mcp_monitor.protocol.effect_journal import DurableEffectJournal, EffectJournalError
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
+from mcp_monitor.protocol.multiplex import MultiplexedTransport
+from mcp_monitor.proxy.internal_sandbox import InternalDockerSandbox
+from mcp_monitor.proxy.oidc_identity import OIDCSessionBinding
+from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
+from mcp_monitor.proxy.session_identity import BoundSession, SessionVerificationError
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +54,24 @@ def _unique_json_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
             raise ValueError(f"Duplicate JSON key: {key}")
         result[key] = value
     return result
+
+
+def _reject_json_constant(value: str) -> None:
+    """Reject non-standard JSON constants such as NaN and Infinity."""
+    raise ValueError(f"Invalid JSON constant: {value}")
+
+
+def _response_id_key(value: Any) -> tuple[str, str | int | float | None]:
+    """Use type-safe, hashable JSON-RPC IDs when matching downstream replies."""
+    if value is None:
+        return ("null", None)
+    if isinstance(value, str):
+        return ("string", value)
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        raise ValueError("Invalid JSON-RPC response ID type")
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError("Non-finite JSON-RPC response ID")
+    return ("number", value)
 
 
 # ---------------------------------------------------------------------------
@@ -107,8 +135,13 @@ class Transport(Protocol):
 class SubprocessTransport:
     """Real transport that launches a subprocess and communicates via stdio."""
 
-    def __init__(self, command: list[str]) -> None:
+    def __init__(self, command: list[str], *, max_response_bytes: int = 1048576) -> None:
+        if isinstance(max_response_bytes, bool) or not isinstance(max_response_bytes, int):
+            raise ValueError("max_response_bytes must be a positive integer")
+        if max_response_bytes <= 0:
+            raise ValueError("max_response_bytes must be positive")
         self.command = command
+        self._max_response_bytes = max_response_bytes
         self._process: asyncio.subprocess.Process | None = None
         self._read_buffer: bytes = b""
 
@@ -118,17 +151,28 @@ class SubprocessTransport:
             *self.command,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
+            # An untrusted child can flood stderr and deadlock if its pipe is
+            # not drained. Discard stderr rather than buffer it indefinitely.
+            stderr=asyncio.subprocess.DEVNULL,
         )
 
     async def stop(self) -> None:
-        """Terminate the downstream server."""
-        if self._process and self._process.returncode is None:
-            self._process.terminate()
-            try:
-                await asyncio.wait_for(self._process.wait(), timeout=5.0)
-            except asyncio.TimeoutError:
-                self._process.kill()
+        """Stop the child and drain its stdio pipes before the event loop closes."""
+        process = self._process
+        if process is None:
+            return
+        if process.returncode is None:
+            process.terminate()
+        try:
+            # wait() alone leaves asyncio pipe transports open after child exit.
+            await asyncio.wait_for(process.communicate(), timeout=5.0)
+        except asyncio.TimeoutError:
+            if process.returncode is None:
+                process.kill()
+            await asyncio.wait_for(process.communicate(), timeout=5.0)
+        finally:
+            self._process = None
+            self._read_buffer = b""
 
     async def send(self, data: bytes) -> None:
         """Send raw bytes to the downstream server's stdin."""
@@ -148,17 +192,124 @@ class SubprocessTransport:
             # Check if we have a complete line in buffer
             newline_pos = self._read_buffer.find(b"\n")
             if newline_pos != -1:
+                if newline_pos > self._max_response_bytes:
+                    raise ValueError("Downstream MCP response exceeds size limit")
                 line = self._read_buffer[:newline_pos]
                 self._read_buffer = self._read_buffer[newline_pos + 1 :]
                 if line.strip():
                     return line.strip()
                 continue
 
+            if len(self._read_buffer) > self._max_response_bytes:
+                raise ValueError("Downstream MCP response exceeds size limit")
             # Read more data
             chunk = await self._process.stdout.read(8192)
             if not chunk:
                 raise RuntimeError("Downstream server closed stdout")
             self._read_buffer += chunk
+
+
+class OfflineDockerTransport(SubprocessTransport):
+    """Track a uniquely named local Docker container and prove cleanup.
+
+    The Docker CLI is a child process, not the actual container process.
+    Killing that CLI alone may leave a running container behind. Cleanup
+    therefore targets the exact random name on the local Docker daemon.
+    """
+
+    def __init__(
+        self,
+        sandbox: OfflineDockerSandbox,
+        server_command: list[str],
+        *,
+        max_response_bytes: int = 1048576,
+    ) -> None:
+        self.container_name = "mcp-offline-" + secrets.token_hex(12)
+        super().__init__(
+            sandbox.build_command(server_command, container_name=self.container_name),
+            max_response_bytes=max_response_bytes,
+        )
+
+    async def _docker_call(self, *args: str) -> tuple[int, bytes]:
+        process = await asyncio.create_subprocess_exec(
+            "docker",
+            "--host",
+            "unix:///var/run/docker.sock",
+            *args,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.DEVNULL,
+        )
+        try:
+            stdout, _ = await asyncio.wait_for(process.communicate(), timeout=6.0)
+        except asyncio.TimeoutError:
+            process.kill()
+            await process.communicate()
+            raise RuntimeError("Offline Docker cleanup timed out") from None
+        return process.returncode or 0, stdout
+
+    async def stop(self) -> None:
+        """Force-remove and verify the exact sandbox container, then close stdio."""
+        cleanup_error: Exception | None = None
+        try:
+            await self._docker_call("rm", "--force", self.container_name)
+            rc, remaining = await self._docker_call(
+                "ps",
+                "--all",
+                "--filter",
+                f"name=^/{self.container_name}$",
+                "--format",
+                "{{.Names}}",
+            )
+            if rc != 0 or remaining.strip():
+                raise RuntimeError("Could not verify removal of offline Docker container")
+        except Exception as exc:
+            cleanup_error = exc
+        finally:
+            await super().stop()
+        if cleanup_error is not None:
+            raise RuntimeError("Offline Docker container cleanup could not be verified") from (
+                cleanup_error
+            )
+
+
+class InternalDockerTransport(OfflineDockerTransport):
+    """Attest a sole-proxy internal Docker network before any MCP launch.
+
+    Ordinary host execution is never used when this profile was selected.
+    The inherited stop() force-removes and verifies the exact container.
+    """
+
+    def __init__(
+        self,
+        sandbox: InternalDockerSandbox,
+        server_command: list[str],
+        *,
+        max_response_bytes: int = 1048576,
+    ) -> None:
+        self._sandbox = sandbox
+        # Reuse the parent constructor so container identity and cleanup state
+        # are initialized once for both offline and internal Docker profiles.
+        super().__init__(
+            sandbox,
+            server_command,
+            max_response_bytes=max_response_bytes,
+        )
+
+    async def start(self) -> None:
+        try:
+            rc, raw = await self._docker_call(
+                "network",
+                "inspect",
+                self._sandbox.network_id,
+                "--format",
+                "{{json .}}",
+            )
+            if rc != 0 or len(raw) > 131072:
+                raise ValueError("Invalid internal network inspection result")
+            self._sandbox.validate_network_inspection(json.loads(raw))
+        except (ValueError, RuntimeError, OSError, asyncio.TimeoutError) as exc:
+            raise RuntimeError("Internal Docker network attestation failed closed") from exc
+        await super().start()
 
 
 # ---------------------------------------------------------------------------
@@ -189,8 +340,12 @@ def inspect_message(raw_message: str | bytes | dict) -> InspectionResult:
     # Parse the message
     if isinstance(raw_message, str | bytes):
         try:
-            parsed_data = json.loads(raw_message, object_pairs_hook=_unique_json_pairs)
-        except (json.JSONDecodeError, ValueError) as e:
+            parsed_data = json.loads(
+                raw_message,
+                object_pairs_hook=_unique_json_pairs,
+                parse_constant=_reject_json_constant,
+            )
+        except (json.JSONDecodeError, UnicodeDecodeError, RecursionError, ValueError) as e:
             return InspectionResult(
                 decision=Decision.BLOCK,
                 reason=f"Invalid JSON: {e}",
@@ -334,26 +489,138 @@ class StdioMCPProxy:
         rate_limiter: RateLimiter | None = None,
         tool_calls_per_minute: int = 300,
         server_id: str = "local",
+        allowed_egress_hosts: set[str] | frozenset[str] | None = None,
         policy_engine: PolicyEngine | None = None,
+        acl_guard: ACLGuard | None = None,
+        authenticated_principal: str | None = None,
+        session_binding: BoundSession | OIDCSessionBinding | None = None,
+        protected_resource_tools: dict[str, str] | None = None,
+        offline_sandbox: OfflineDockerSandbox | None = None,
+        internal_sandbox: InternalDockerSandbox | None = None,
+        multiplexed: bool = False,
+        effect_journal: DurableEffectJournal | None = None,
+        effect_tools: set[str] | frozenset[str] | None = None,
+        effect_authority: TrustedEffectAuthority | None = None,
+        response_timeout_seconds: float = 120.0,
+        max_message_bytes: int = 1048576,
         strict_mcp_methods: bool = False,
     ) -> None:
-        if os.environ.get("MCP_ENV", "").strip().lower() == "production":
-            raise ValueError(
-                "Legacy stdio proxy cannot enforce host isolation; production construction refused"
-            )
-        if not isinstance(server_id, str) or not server_id:
-            raise ValueError("Trusted server_id must be a nonempty string")
-        self._server_id = server_id
-        self._policy_engine = policy_engine or PolicyEngine(allowed_servers={server_id})
-        if not isinstance(strict_mcp_methods, bool):
-            raise ValueError("strict_mcp_methods must be a boolean")
-        if strict_mcp_methods and getattr(self._policy_engine, "allowed_tools", None) is None:
-            raise ValueError("Strict MCP methods require a trusted tool allowlist")
+        if (
+            isinstance(response_timeout_seconds, bool)
+            or not isinstance(response_timeout_seconds, int | float)
+            or not math.isfinite(response_timeout_seconds)
+            or response_timeout_seconds <= 0
+        ):
+            raise ValueError("response_timeout_seconds must be finite and positive")
+        if (
+            isinstance(max_message_bytes, bool)
+            or not isinstance(max_message_bytes, int)
+            or max_message_bytes <= 0
+        ):
+            raise ValueError("max_message_bytes must be a positive integer")
+        if type(strict_mcp_methods) is not bool:
+            raise ValueError("strict_mcp_methods must be boolean")
         self._strict_mcp_methods = strict_mcp_methods
+        if os.environ.get("MCP_ENV", "").strip().lower() == "production":
+            # Guard direct library construction, not only the CLI wrapper.
+            # This is a narrow offline-only safety profile, not OS-wide
+            # containment or an external identity guarantee.
+            if not strict_mcp_methods or offline_sandbox is None or internal_sandbox is not None:
+                raise ValueError("Production stdio proxy requires strict offline Docker isolation")
+            if allowed_egress_hosts or (
+                policy_engine is not None and policy_engine.allowed_egress_hosts
+            ):
+                raise ValueError("Production offline MCP forbids network destination grants")
+        self._response_timeout_seconds = float(response_timeout_seconds)
+        self._max_message_bytes = max_message_bytes
+        if offline_sandbox is not None and internal_sandbox is not None:
+            raise ValueError("Offline and internal Docker modes cannot be combined")
+        if internal_sandbox is not None:
+            if not isinstance(internal_sandbox, InternalDockerSandbox):
+                raise ValueError("internal_sandbox must be InternalDockerSandbox")
+            if transport is not None:
+                raise ValueError("Cannot override the trusted internal Docker transport")
+            isolated = InternalDockerTransport(
+                internal_sandbox, command, max_response_bytes=max_message_bytes
+            )
+            command = isolated.command
+            transport = isolated
+        if offline_sandbox is not None:
+            if not isinstance(offline_sandbox, OfflineDockerSandbox):
+                raise ValueError("offline_sandbox must be an OfflineDockerSandbox")
+            if transport is not None:
+                raise ValueError("Cannot override the isolated transport in offline sandbox mode")
+            isolated = OfflineDockerTransport(
+                offline_sandbox, command, max_response_bytes=max_message_bytes
+            )
+            command = isolated.command
+            transport = isolated
+        self._offline_sandbox = offline_sandbox
+        self._internal_sandbox = internal_sandbox
         self.command = command
-        self._transport = transport or SubprocessTransport(command)
+        selected_transport = transport or SubprocessTransport(
+            command, max_response_bytes=max_message_bytes
+        )
+        if type(multiplexed) is not bool:
+            raise ValueError("multiplexed must be a boolean")
+        self._transport = (
+            MultiplexedTransport(selected_transport, max_message_bytes=max_message_bytes)
+            if multiplexed
+            else selected_transport
+        )
+        # Prevent responses from being cross-delivered on sequential stdio transports.
+        self._exchange_lock = asyncio.Lock()
         self._detector = detector or PromptInjectionDetector(enable_ml=False)
         self._adapter = MCPJSONRPCAdapter()
+        self._effect_journal = effect_journal
+        if effect_tools is not None and (
+            not isinstance(effect_tools, set | frozenset)
+            or any(not isinstance(name, str) or not name for name in effect_tools)
+        ):
+            raise ValueError("effect_tools must be a trusted set of nonempty names")
+        self._effect_tools = frozenset(effect_tools or ())
+        if self._effect_tools and not isinstance(effect_journal, DurableEffectJournal):
+            raise ValueError("effect_tools require a durable effect journal")
+        if effect_journal is not None and not self._effect_tools:
+            raise ValueError("effect journal requires explicitly selected effect tools")
+        if effect_authority is not None and not isinstance(
+            effect_authority, TrustedEffectAuthority
+        ):
+            raise ValueError("effect_authority must be a trusted operator approval registry")
+        if effect_authority is not None and not self._effect_tools:
+            raise ValueError("effect authority requires explicitly selected effect tools")
+        if self._strict_mcp_methods and self._effect_tools and effect_authority is None:
+            raise ValueError("Hardened side effects require exact trusted operator approval")
+        self._effect_authority = effect_authority
+        # The gateway operator assigns server identity, not the AI agent.
+        # Outbound destinations are denied unless explicitly allowlisted.
+        if not isinstance(server_id, str) or not server_id:
+            raise ValueError("server_id must be a non-empty string")
+        self._server_id = server_id
+        self._acl_guard = acl_guard
+        if session_binding is not None:
+            if not isinstance(session_binding, BoundSession | OIDCSessionBinding):
+                raise ValueError("session_binding must be a verified session binding")
+            if authenticated_principal is not None:
+                raise ValueError("Cannot mix signed session with legacy principal")
+            try:
+                authenticated_principal = session_binding.verify().principal
+            except SessionVerificationError as exc:
+                raise ValueError("Signed session verification failed") from exc
+        self._session_binding = session_binding
+        self._authenticated_principal = authenticated_principal
+        self._protected_resource_tools = dict(protected_resource_tools or {})
+        if self._protected_resource_tools and self._acl_guard is None:
+            raise ValueError("protected resource tools require an ACLGuard")
+        self._policy_engine = policy_engine or PolicyEngine(
+            allowed_servers={server_id},
+            allowed_egress_hosts=allowed_egress_hosts,
+        )
+        # Hardened mode must never silently downgrade to the legacy library
+        # policy where all non-denylisted tool names are implicitly allowed.
+        # Reject the configuration BEFORE any downstream process is started.
+        if self._strict_mcp_methods and self._policy_engine.allowed_tools is None:
+            raise ValueError("Hardened MCP proxy requires an explicit trusted tool allowlist")
         # Rate limit tool calls at the proxy layer (separate from production/ server rate limiter).
         # Default: 300 tool calls/minute, burst up to 300. Reduces DoS risk and
         # limits blast radius if an agent is compromised or stuck in a loop.
@@ -373,13 +640,40 @@ class StdioMCPProxy:
         """Start the proxy: launch downstream server."""
         await self._transport.start()
         self._running = True
-        logger.info("MCP proxy started, downstream: %s", self.command)
+        logger.info(
+            "MCP proxy started, downstream: %s",
+            (
+                "attested internal Docker sandbox"
+                if self._internal_sandbox is not None
+                else "offline Docker sandbox"
+                if self._offline_sandbox is not None
+                else self.command
+            ),
+        )
 
     async def stop(self) -> None:
         """Stop the proxy and downstream server."""
         self._running = False
         await self._transport.stop()
         logger.info("MCP proxy stopped. Stats: %s", self._stats)
+
+    def _blocked_requests(
+        self,
+        messages: list[dict[str, Any]],
+        is_batch: bool,
+        code: int,
+        reason: str,
+        data: dict[str, Any] | None = None,
+    ) -> bytes:
+        """Return a denial for each request ID, never for notifications or responses."""
+        errors = [
+            _build_error_response(message["id"], code, reason, data).rstrip(b"\n")
+            for message in messages
+            if "id" in message and "method" in message
+        ]
+        if not errors:
+            return b""
+        return b"[" + b",".join(errors) + b"]" if is_batch else errors[0]
 
     async def handle_message(self, raw_message: bytes) -> bytes:
         """Process a single JSON-RPC message from the client.
@@ -395,9 +689,18 @@ class StdioMCPProxy:
             The response bytes to send back to the client.
             Either an error (if blocked) or the real server response.
         """
+        if len(raw_message) > self._max_message_bytes:
+            self._stats["blocked"] += 1
+            return _build_error_response(
+                None, self.SECURITY_BLOCK_CODE, "Security: MCP request size limit exceeded"
+            ).rstrip(b"\n")
         try:
-            parsed = json.loads(raw_message, object_pairs_hook=_unique_json_pairs)
-        except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as exc:
+            parsed = json.loads(
+                raw_message,
+                object_pairs_hook=_unique_json_pairs,
+                parse_constant=_reject_json_constant,
+            )
+        except (json.JSONDecodeError, UnicodeDecodeError, RecursionError, ValueError) as exc:
             self._stats["blocked"] += 1
             return _build_error_response(None, -32700, f"Invalid JSON: {exc}").rstrip(b"\n")
 
@@ -407,8 +710,33 @@ class StdioMCPProxy:
             self._stats["blocked"] += 1
             return _build_error_response(None, -32600, "Invalid JSON-RPC request").rstrip(b"\n")
 
-        # Under the hardened CLI, unsupported MCP methods must never bypass
-        # tools/call policy through resources, prompts or custom methods.
+        request_ids: list[tuple[str, str | int | float | None]] = []
+        try:
+            for message in messages:
+                if message.get("jsonrpc") != "2.0":
+                    raise ValueError("Invalid JSON-RPC version")
+                if "method" in message:
+                    if not isinstance(message["method"], str) or not message["method"]:
+                        raise ValueError("Invalid JSON-RPC method")
+                    if "result" in message or "error" in message:
+                        raise ValueError("Request cannot contain a result or error")
+                    if "params" in message and not isinstance(message["params"], dict | list):
+                        raise ValueError("Invalid JSON-RPC params")
+                    if "id" in message:
+                        request_ids.append(_response_id_key(message["id"]))
+                elif "id" not in message or ("result" in message) == ("error" in message):
+                    raise ValueError("Invalid JSON-RPC response envelope")
+                else:
+                    _response_id_key(message["id"])
+            if len(request_ids) != len(set(request_ids)):
+                raise ValueError("Duplicate JSON-RPC request ID")
+        except (TypeError, ValueError):
+            self._stats["blocked"] += 1
+            return _build_error_response(None, -32600, "Invalid JSON-RPC envelope").rstrip(b"\n")
+
+        # In the hardened CLI, reject all methods that are not explicitly
+        # supported. In particular resources/read and prompts/get must not
+        # bypass tools/call capability checks by taking a passthrough path.
         if self._strict_mcp_methods:
             supported = {
                 "initialize",
@@ -419,22 +747,36 @@ class StdioMCPProxy:
                 "notifications/cancelled",
             }
             if any(
-                not isinstance(message.get("method"), str) or message["method"] not in supported
+                "method" not in message or message["method"] not in supported
                 for message in messages
             ):
                 self._stats["blocked"] += 1
-                responses = [
-                    _build_error_response(
-                        message["id"],
-                        self.SECURITY_BLOCK_CODE,
-                        "Security: Unsupported MCP method denied",
-                    ).rstrip(b"\n")
-                    for message in messages
-                    if "id" in message
-                ]
-                if not responses:
-                    return b""
-                return b"[" + b",".join(responses) + b"]" if is_batch else responses[0]
+                return self._blocked_requests(
+                    messages,
+                    is_batch,
+                    self.SECURITY_BLOCK_CODE,
+                    "Security: MCP method not enabled by the hardened gateway",
+                    {"patterns": ["DENY_METHOD_NOT_ALLOWED"]},
+                )
+
+        # A verified session protects the full request surface, not just
+        # tools/call. Otherwise resources/read and prompts/get would bypass it.
+        # The entire batch fails closed before forwarding if the session
+        # expires, is revoked, or no longer maps to the bound tenant.
+        if self._session_binding is not None and any("method" in item for item in messages):
+            try:
+                current = self._session_binding.verify()
+                if current.principal != self._authenticated_principal:
+                    raise SessionVerificationError("Session principal changed")
+            except SessionVerificationError:
+                self._stats["blocked"] += 1
+                return self._blocked_requests(
+                    messages,
+                    is_batch,
+                    self.SECURITY_BLOCK_CODE,
+                    "Security: signed session invalid before request forwarding",
+                    {"patterns": ["DENY_SESSION_AUTH"]},
+                )
 
         denial: tuple[int, str, dict[str, Any]] | None = None
         tool_count = 0
@@ -449,11 +791,15 @@ class StdioMCPProxy:
             result = self._inspect(message)
             if result.decision != Decision.ALLOW:
                 self._stats["blocked"] += 1
-                reason = (
-                    "Security: Detector failure - failing closed"
-                    if result.decision == Decision.INDETERMINATE
-                    else f"Security: {result.reason}"
-                )
+                if result.decision == Decision.INDETERMINATE:
+                    failure = (
+                        "Policy engine"
+                        if "policy_engine_failure" in result.matched_patterns
+                        else "Detector"
+                    )
+                    reason = f"Security: {failure} failure - failing closed"
+                else:
+                    reason = f"Security: {result.reason}"
                 denial = (
                     self.SECURITY_BLOCK_CODE,
                     reason,
@@ -463,27 +809,316 @@ class StdioMCPProxy:
 
         if denial is not None:
             code, reason, data = denial
-            # A batch is atomic here: no member is forwarded if any tool call fails.
-            # Return one error for each request so clients do not wait for omitted IDs.
-            responses = [
-                _build_error_response(message["id"], code, reason, data).rstrip(b"\n")
-                for message in messages
-                if "id" in message
-            ]
-            if not responses:
-                return b""  # Notifications have no JSON-RPC response.
-            return b"[" + b",".join(responses) + b"]" if is_batch else responses[0]
+            # Deny the batch atomically; clients need a reply for each request ID.
+            return self._blocked_requests(messages, is_batch, code, reason, data)
 
-        await self._transport.send(raw_message + b"\n")
+        # Side-effect protection is opt-in and strict. No batch of effects is
+        # forwarded because one downstream action could succeed while another
+        # fails. A journal reservation is durable BEFORE downstream send.
+        outbound_raw = raw_message
+        effect_key: str | None = None
+        if self._effect_tools and any(
+            message.get("method") == "tools/call" for message in messages
+        ):
+            try:
+                if len(messages) != 1 or messages[0].get("method") != "tools/call":
+                    raise EffectJournalError("Effect journal supports one tool call at a time")
+                current = messages[0]
+                params = current.get("params")
+                if not isinstance(params, dict):
+                    raise EffectJournalError("Malformed tool parameters")
+                if params.get("name") in self._effect_tools:
+                    if "id" not in current:
+                        raise EffectJournalError("Side-effect notification cannot be journaled")
+                    if not self._authenticated_principal:
+                        raise EffectJournalError("Authenticated principal required")
+                    effect_key = params.get("_gateway_operation_key")
+                    if not isinstance(effect_key, str):
+                        raise EffectJournalError("Stable operation key required")
+                    if self._effect_authority is not None:
+                        self._effect_authority.authorize(
+                            principal=self._authenticated_principal,
+                            server=self._server_id,
+                            tool=params["name"],
+                            operation_key=effect_key,
+                            arguments=params.get("arguments"),
+                        )
+                    sanitized = dict(params)
+                    sanitized.pop("_gateway_operation_key", None)
+                    outbound = dict(current)
+                    outbound["params"] = sanitized
+                    outbound_raw = json.dumps(outbound, separators=(",", ":")).encode()
+                    assert self._effect_journal is not None
+                    self._effect_journal.reserve(
+                        principal=self._authenticated_principal,
+                        server=self._server_id,
+                        tool=params["name"],
+                        operation_key=effect_key,
+                        arguments=sanitized.get("arguments"),
+                    )
+            except Exception:
+                self._stats["blocked"] += 1
+                return self._blocked_requests(
+                    messages,
+                    is_batch,
+                    self.SECURITY_BLOCK_CODE,
+                    "Security: effect journal denied duplicate, unsafe, or uncertain operation",
+                    {"patterns": ["DENY_EFFECT_JOURNAL"]},
+                )
+
+        try:
+            expects_reply = any("id" in message and "method" in message for message in messages)
+            if isinstance(self._transport, MultiplexedTransport):
+                if len(messages) == 1 and messages[0].get("method") == "notifications/cancelled":
+                    params = messages[0].get("params")
+                    if not isinstance(params, dict) or "requestId" not in params:
+                        raise ValueError("Invalid cancellation notification")
+                    self._transport.cancel(params["requestId"])
+                response = await self._transport.exchange(
+                    outbound_raw + b"\n",
+                    request_ids=request_ids,
+                    timeout=self._response_timeout_seconds,
+                    is_batch=is_batch,
+                )
+            else:
+                async with self._exchange_lock:
+                    await self._transport.send(outbound_raw + b"\n")
+                    if not expects_reply:
+                        self._stats["allowed" if tool_count else "passthrough"] += 1
+                        return b""  # Notifications and client responses are one-way.
+                    response = await asyncio.wait_for(
+                        self._transport.receive(), timeout=self._response_timeout_seconds
+                    )
+            if not expects_reply:
+                self._stats["allowed" if tool_count else "passthrough"] += 1
+                return b""
+            if not isinstance(response, bytes) or len(response) > self._max_message_bytes:
+                raise ValueError("Invalid or oversized downstream MCP response")
+        except Exception:
+            logger.exception("Downstream MCP transport failure; suppressing response")
+            self._stats["blocked"] += 1
+            return self._blocked_requests(
+                messages,
+                is_batch,
+                self.SECURITY_BLOCK_CODE,
+                "Security: downstream transport failure - failing closed",
+            )
         self._stats["allowed" if tool_count else "passthrough"] += 1
-        if not any("id" in message and "method" in message for message in messages):
-            return b""  # Notifications and client responses are one-way.
-        return await self._transport.receive()
+        if request_ids:
+            # An already-forwarded call must not release a result if its
+            # gateway-bound authentication expires or fails meanwhile.
+            if self._session_binding is not None:
+                try:
+                    session = self._session_binding.verify()
+                    if session.principal != self._authenticated_principal:
+                        raise SessionVerificationError("Session principal changed")
+                except SessionVerificationError:
+                    self._stats["blocked"] += 1
+                    return self._blocked_requests(
+                        messages,
+                        is_batch,
+                        self.SECURITY_BLOCK_CODE,
+                        "Security: signed session invalid before response release",
+                        {"patterns": ["DENY_SESSION_AUTH"]},
+                    )
+            # All server replies are untrusted, including tool discovery,
+            # resources/read, prompts/get, and initialization responses.
+            # Revocation may occur after a tool request was sent.
+            # Check the current trusted ACL again before releasing its response.
+            # A denial suppresses the entire batch rather than leaking a
+            # previously authorized result alongside a revoked result.
+            for message in messages:
+                if message.get("method") != "tools/call":
+                    continue
+                try:
+                    tool_calls = self._adapter.parse_message(message)
+                    for tool_call in tool_calls:
+                        resource_key = self._protected_resource_tools.get(tool_call.name)
+                        if resource_key is None:
+                            continue
+                        resource_id = tool_call.arguments.get(resource_key)
+                        if not isinstance(resource_id, str) or self._acl_guard is None:
+                            raise AccessDenied("Missing protected resource or ACL guard")
+                        self._acl_guard.check(self._authenticated_principal or "", resource_id)
+                except Exception:
+                    logger.warning("Suppressed downstream response after ACL recheck")
+                    self._stats["blocked"] += 1
+                    return self._blocked_requests(
+                        messages,
+                        is_batch,
+                        self.SECURITY_BLOCK_CODE,
+                        "Security: resource access revoked before response release",
+                        {"patterns": ["DENY_RESOURCE_ACL"]},
+                    )
+            # Every downstream MCP response is untrusted, including tool
+            # descriptions, resources, prompts and non-tool protocol results.
+            try:
+                payload = json.loads(
+                    response,
+                    object_pairs_hook=_unique_json_pairs,
+                    parse_constant=_reject_json_constant,
+                )
+                results = payload if isinstance(payload, list) else [payload]
+                if not results or any(
+                    not isinstance(item, dict)
+                    or item.get("jsonrpc") != "2.0"
+                    or ("result" in item) == ("error" in item)
+                    or "method" in item
+                    or "id" not in item
+                    for item in results
+                ):
+                    raise ValueError("Invalid downstream JSON-RPC response")
+                # Never release data attributed to another request ID. A
+                # downstream response can arrive out of order within a batch,
+                # but must have exactly the expected unique IDs.
+                expected_ids = [
+                    _response_id_key(message["id"])
+                    for message in messages
+                    if "id" in message and "method" in message
+                ]
+                received_ids = [_response_id_key(item["id"]) for item in results]
+                if len(expected_ids) != len(set(expected_ids)) or Counter(received_ids) != Counter(
+                    expected_ids
+                ):
+                    raise ValueError("Downstream response IDs do not match requests")
+                # The caller must not discover tools it cannot invoke. In the
+                # hardened profile, reduce the untrusted downstream discovery
+                # response to the same trusted tool capabilities enforced at
+                # tools/call. Do not rewrite non-discovery responses.
+                if self._strict_mcp_methods:
+                    methods_by_id = {
+                        _response_id_key(message["id"]): message["method"]
+                        for message in messages
+                        if "method" in message and "id" in message
+                    }
+                    for item in results:
+                        if (
+                            methods_by_id.get(_response_id_key(item["id"])) != "tools/list"
+                            or "result" not in item
+                        ):
+                            continue
+                        allowed_tools = getattr(self._policy_engine, "allowed_tools", None)
+                        if not isinstance(allowed_tools, set | frozenset):
+                            raise ValueError("Hardened discovery requires a trusted tool allowlist")
+                        listing = item["result"]
+                        if not isinstance(listing, dict) or not isinstance(
+                            listing.get("tools"), list
+                        ):
+                            raise ValueError("Invalid MCP tool discovery response")
+                        seen: set[str] = set()
+                        visible: list[dict[str, Any]] = []
+                        for tool in listing["tools"]:
+                            if (
+                                not isinstance(tool, dict)
+                                or not isinstance(tool.get("name"), str)
+                                or not tool["name"]
+                                or tool["name"] in seen
+                            ):
+                                raise ValueError("Invalid or duplicate MCP tool discovery entry")
+                            seen.add(tool["name"])
+                            if tool["name"] not in allowed_tools:
+                                continue
+                            # Explicit deny rules still win even if an operator
+                            # accidentally adds a dangerous name to the allowlist.
+                            decision = self._policy_engine.evaluate(
+                                {
+                                    "name": tool["name"],
+                                    "server_id": self._server_id,
+                                    "arguments": {},
+                                }
+                            )
+                            if decision.allowed:
+                                visible.append(tool)
+                        listing["tools"] = visible
+                    response = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+                for item in results:
+                    detected, patterns = self._detector.detect(
+                        {
+                            "name": "mcp_tool_response",
+                            "arguments": {
+                                "result": item.get("result"),
+                                "error": item.get("error"),
+                            },
+                        }
+                    )
+                    if detected:
+                        logger.warning("Blocked suspicious downstream MCP result: %s", patterns)
+                        self._stats["blocked"] += 1
+                        return self._blocked_requests(
+                            messages,
+                            is_batch,
+                            self.SECURITY_BLOCK_CODE,
+                            "Security: downstream MCP response failed inspection",
+                            {"patterns": patterns},
+                        )
+            except Exception:
+                logger.exception("Downstream MCP result inspection failed closed")
+                self._stats["blocked"] += 1
+                return self._blocked_requests(
+                    messages,
+                    is_batch,
+                    self.SECURITY_BLOCK_CODE,
+                    "Security: downstream MCP response validation failed",
+                )
+        if effect_key is not None:
+            # A downstream JSON-RPC success proves ONLY an acknowledgement.
+            # It is NOT independent evidence that a side effect occurred.
+            # Keep the durable reservation UNCERTAIN after any generic MCP
+            # success; an authorized independent consequence verifier must
+            # perform a separately observed reconciliation. A duplicate call
+            # with the same operation key remains blocked in all cases.
+            try:
+                payload = json.loads(response)
+                if not isinstance(payload, dict) or "result" not in payload or "error" in payload:
+                    raise EffectJournalError("Effect outcome not independently confirmed")
+                assert self._effect_journal is not None
+                recorded = self._effect_journal.status(
+                    principal=self._authenticated_principal or "",
+                    server=self._server_id,
+                    tool=messages[0]["params"]["name"],
+                    operation_key=effect_key,
+                )
+                if recorded != "UNCERTAIN":
+                    raise EffectJournalError("Effect reservation is missing or has changed")
+            except Exception:
+                self._stats["blocked"] += 1
+                return self._blocked_requests(
+                    messages,
+                    is_batch,
+                    self.SECURITY_BLOCK_CODE,
+                    "Security: side-effect outcome uncertain; no automatic retry",
+                    {"patterns": ["DENY_EFFECT_UNCERTAIN"]},
+                )
+            # A positive acknowledgement is not a verified side effect.
+            # Never return the downstream success as though the action
+            # actually completed. The intent must be independently reconciled
+            # by an authorized observer before any completion is asserted.
+            return self._blocked_requests(
+                messages,
+                is_batch,
+                self.SECURITY_BLOCK_CODE,
+                "Security: downstream acknowledged an effect but outcome remains unverified; do not retry",
+                {"patterns": ["EFFECT_OUTCOME_UNVERIFIED"]},
+            )
+        return response
 
     def _inspect(self, parsed: dict[str, Any]) -> InspectionResult:
         """Run security inspection on a parsed JSON-RPC tools/call message."""
         request_id = parsed.get("id")
         detector_errors: list[str] = []
+
+        if self._session_binding is not None:
+            try:
+                session = self._session_binding.verify()
+                if session.principal != self._authenticated_principal:
+                    raise SessionVerificationError("Session principal changed")
+            except SessionVerificationError:
+                return InspectionResult(
+                    decision=Decision.BLOCK,
+                    reason="Signed session expired or invalid",
+                    matched_patterns=["DENY_SESSION_AUTH"],
+                    request_id=request_id,
+                )
 
         try:
             tool_calls = self._adapter.parse_message(parsed)
@@ -497,30 +1132,49 @@ class StdioMCPProxy:
 
         all_matched: list[str] = []
         for tool_call in tool_calls:
+            internal = tool_call.to_internal_format()
+            # The authenticated principal is supplied by gateway configuration,
+            # never by the agent's MCP arguments.
+            if tool_call.name in self._protected_resource_tools:
+                resource_key = self._protected_resource_tools[tool_call.name]
+                try:
+                    resource_id = tool_call.arguments.get(resource_key)
+                    if not isinstance(resource_id, str):
+                        raise AccessDenied("Missing resource identifier")
+                    assert self._acl_guard is not None
+                    self._acl_guard.check(self._authenticated_principal or "", resource_id)
+                except Exception:
+                    return InspectionResult(
+                        decision=Decision.BLOCK,
+                        reason="ACL denied protected resource access",
+                        matched_patterns=["DENY_RESOURCE_ACL"],
+                        request_id=request_id,
+                    )
+            # Apply policy before forwarding. Policy errors fail closed.
             try:
-                decision = self._policy_engine.evaluate(
+                policy_decision = self._policy_engine.evaluate(
                     {
                         "name": tool_call.name,
                         "server_id": self._server_id,
                         "arguments": tool_call.arguments,
                     }
                 )
-                if not decision.allowed:
-                    return InspectionResult(
-                        decision=Decision.BLOCK,
-                        reason=f"Policy denied: {decision.reason_code.value}",
-                        matched_patterns=[decision.reason_code.value],
-                        request_id=request_id,
-                    )
-            except Exception:
-                logger.exception("Policy evaluation failed closed")
+            except Exception as exc:
+                logger.exception("Authorization policy engine failed")
                 return InspectionResult(
                     decision=Decision.INDETERMINATE,
-                    reason="Policy engine failure",
+                    reason="Policy engine failed",
                     matched_patterns=["policy_engine_failure"],
                     request_id=request_id,
+                    detector_errors=[f"policy: {exc}"],
                 )
-            internal = tool_call.to_internal_format()
+            if not policy_decision.allowed:
+                return InspectionResult(
+                    decision=Decision.BLOCK,
+                    reason=f"Policy denied: {policy_decision.reason_code.value}",
+                    matched_patterns=[policy_decision.reason_code.value],
+                    request_id=request_id,
+                )
             try:
                 detected, patterns = self._detector.detect(internal)
             except Exception as exc:
@@ -594,33 +1248,115 @@ def main() -> None:
 
     Usage: python -m mcp_monitor.proxy.stdio_proxy -- <server_command> [args...]
     """
-    parser = argparse.ArgumentParser(description="Policy-enforced MCP stdio proxy")
-    parser.add_argument("--server-id", default="local", help="Operator-trusted server identity")
-    parser.add_argument(
-        "--allow-tool", action="append", default=[], help="Exact allowed tool name (repeatable)"
-    )
-    parser.add_argument(
-        "--allow-egress-host", action="append", default=[], help="Explicit allowed destination host"
-    )
     args = sys.argv[1:]
-    if "--" not in args:
-        parser.error("Specify explicit tool allowlist and downstream command after --")
-    separator = args.index("--")
-    options = parser.parse_args(args[:separator])
-    command = args[separator + 1 :]
-    if not command or not options.allow_tool:
-        parser.error("A downstream command and at least one --allow-tool are required")
-    if os.environ.get("MCP_ENV", "").strip().lower() == "production":
-        parser.error(
-            "Legacy stdio CLI has no OS containment; use reviewed offline sandbox integration"
-        )
-    policy = PolicyEngine(
-        allowed_servers={options.server_id},
-        allowed_tools=set(options.allow_tool),
-        allowed_egress_hosts=set(options.allow_egress_host),
+
+    # Flags before '--' configure this gateway; after '--' is the server.
+    import argparse
+
+    if "--" in args:
+        sep_idx = args.index("--")
+        gateway_args, command = args[:sep_idx], args[sep_idx + 1 :]
+    else:
+        gateway_args, command = [], args
+
+    parser = argparse.ArgumentParser(description="Inline MCP security gateway")
+    parser.add_argument("--server-id", default="local")
+    parser.add_argument(
+        "--allow-tool",
+        action="append",
+        default=[],
+        help="Trusted exact MCP tool capability; repeat per tool",
     )
+    parser.add_argument(
+        "--unsafe-local-dev",
+        action="store_true",
+        help="Explicitly opt out of container isolation for local testing only",
+    )
+    parser.add_argument("--allow-egress-host", action="append", default=[])
+    parser.add_argument(
+        "--offline-sandbox-image",
+        help="Preloaded Docker image digest or ID (sha256:...) for offline network-none isolation",
+    )
+    parser.add_argument("--internal-sandbox-image")
+    parser.add_argument("--internal-network-id")
+    parser.add_argument("--internal-proxy-id")
+    parser.add_argument("--internal-proxy-name")
+    parser.add_argument("--internal-proxy-port", type=int, default=3128)
+    options = parser.parse_args(gateway_args)
+
+    if not command:
+        print(
+            "Usage: python -m mcp_monitor.proxy.stdio_proxy -- <command> [args...]",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    internal_options = (
+        options.internal_sandbox_image,
+        options.internal_network_id,
+        options.internal_proxy_id,
+        options.internal_proxy_name,
+    )
+    if any(item is not None for item in internal_options) and not all(
+        item is not None for item in internal_options
+    ):
+        parser.error("All internal sandbox and trusted proxy identity options are required")
+    if options.offline_sandbox_image and options.internal_sandbox_image:
+        parser.error("Offline and internal Docker profiles are mutually exclusive")
+
+    if not options.allow_tool or any(not item.strip() for item in options.allow_tool):
+        parser.error(
+            "Provide at least one trusted --allow-tool; unrestricted tool execution is forbidden"
+        )
+    if not (
+        options.offline_sandbox_image or options.internal_sandbox_image or options.unsafe_local_dev
+    ):
+        parser.error(
+            "Select --offline-sandbox-image or internal Docker isolation; "
+            "--unsafe-local-dev is for disposable testing only"
+        )
+    if options.unsafe_local_dev and (
+        options.offline_sandbox_image or options.internal_sandbox_image
+    ):
+        parser.error("--unsafe-local-dev cannot be combined with sandbox isolation")
+    if os.environ.get("MCP_ENV", "").strip().lower() == "production":
+        # The only presently demonstrated production-flagged foundation is
+        # an offline, pinned, no-network subprocess. The internal sidecar
+        # attests topology but does NOT attest a complete egress policy.
+        if not options.offline_sandbox_image:
+            parser.error(
+                "Production MCP stdio requires a pinned offline Docker image; "
+                "internal-network and unsafe-local-dev profiles are not release approved"
+            )
+        if options.allow_egress_host:
+            parser.error("Offline production MCP forbids outbound destination grants")
+
     proxy = StdioMCPProxy(
-        command, server_id=options.server_id, policy_engine=policy, strict_mcp_methods=True
+        command,
+        server_id=options.server_id,
+        allowed_egress_hosts=set(options.allow_egress_host),
+        strict_mcp_methods=True,
+        policy_engine=PolicyEngine(
+            allowed_servers={options.server_id},
+            allowed_tools=set(options.allow_tool),
+            allowed_egress_hosts=set(options.allow_egress_host),
+        ),
+        offline_sandbox=(
+            OfflineDockerSandbox(options.offline_sandbox_image)
+            if options.offline_sandbox_image
+            else None
+        ),
+        internal_sandbox=(
+            InternalDockerSandbox(
+                image=options.internal_sandbox_image,
+                network_id=options.internal_network_id,
+                proxy_container_id=options.internal_proxy_id,
+                proxy_name=options.internal_proxy_name,
+                proxy_port=options.internal_proxy_port,
+            )
+            if options.internal_sandbox_image
+            else None
+        ),
     )
     asyncio.run(proxy.run())
 

@@ -1,6 +1,16 @@
+> **Evidence reconciliation (2026-11-11; living reference):** Historical results below retain their original dates and denominators. Latest tested Phase 1–16 development SHA is `43a72c8984bf9a472b9055d4f9e84cc759f61718` ([CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): 1,211 passed, 6 skipped per Python version), **not** a merged or production-approved release. Offline research tests require no paid provider or provider-issued API keys; deployed HTTP authentication and unverified real credential revocation remain separate. See [operating restrictions](PRODUCTION.md) and [release evidence](docs/review/PHASE1_16_RELEASE_CANDIDATE_NO_GO_20261110.md).
+
 # Changelog
 
+> **Documentation alignment (2026-11-09):** The integration candidate combines bounded research controls through phase 16; this changelog is not a claim that the candidate has been merged into main. The [release gate](docs/review/PHASE13_RELEASE_READINESS.md) is **PRODUCTION NO-GO**; [draft integration PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) is not a released deployment.
 ## Unreleased
+
+### Documentation review — 2026-11-09
+
+- Reconciled security policy, trust boundaries, runbooks, operating contract, dated metrics, poster evidence, and research assessment documents with the draft integration candidate.
+- Preserved historical test and benchmark snapshots rather than treating them as results of the new branch.
+- Explicitly retained NO-GO for deployment; green CI and poster parity do not close the mandatory security release gate.
+
 
 - added direct smoke CLI tests for runtime configuration, successful redacted responses, and exception redaction
 - added a vendor-neutral three-credential live smoke sender that selects one queued event per distinct credential fingerprint, sends a single HTTPS Bearer-authenticated batch, and redacts runtime secrets from status output
@@ -30,4 +40,3 @@
 - added exfiltration detection for BCC abuse, payload anomalies, and suspicious URLs
 - added SHA-256 hash-chained audit log and WAL persistence
 - added monitor orchestration, docs, CI, and 105 tests
-

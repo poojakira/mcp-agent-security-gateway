@@ -151,9 +151,14 @@ def main() -> int:
         sections,
         "Current Verified Evidence",
         "Verified Evidence",
+        "Verified Evidence at Cited Snapshot",
         "Evidence at Poster Snapshot + Claim Ledger",
         "Evidence",
     )
+    validation = pick_section(
+        sections, "Integration Validation", "Scoped Validation", "Security Evidence"
+    )
+    release_decision = pick_section(sections, "Release Decision", "Release Status")
     boundaries = pick_section(sections, "Honest Boundaries", "Boundaries", "Limitations")
     repro = pick_section(sections, "Reproducibility")
     sources = pick_section(sections, "Evidence Sources", "References")
@@ -170,49 +175,49 @@ def main() -> int:
     * { box-sizing: border-box; }
     html, body { margin:0; padding:0; background:#f4f7fb; font-family: Arial, Helvetica, sans-serif; color:#111827; }
     body { width:1800px; height:2400px; overflow:hidden; }
-    .page { width:1800px; height:2400px; padding:78px 86px 64px; background:#f4f7fb; display:flex; flex-direction:column; }
-    header { background:#0b1f33; color:white; padding:54px 64px 48px; border-radius:28px; }
+    .page { width:1800px; height:2400px; padding:62px 72px 45px; background:#f4f7fb; display:flex; flex-direction:column; }
+    header { background:#0b1f33; color:white; padding:40px 52px 35px; border-radius:28px; }
     .repo { font-size:23px; letter-spacing:1.4px; text-transform:uppercase; opacity:.78; margin-bottom:14px; }
     h1 { font-size:66px; line-height:1.05; margin:0 0 16px; font-weight:800; }
     .subtitle { font-size:31px; line-height:1.25; color:#d9e8f5; margin:0; }
     .status { margin-top:20px; font-size:18px; color:#b9d3e7; }
-    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin:28px 0; }
-    .metric { background:white; border:2px solid #d8e1ea; border-radius:22px; padding:24px 25px; min-height:150px; box-shadow:0 4px 16px rgba(11,31,51,.05); }
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin:22px 0; }
+    .metric { background:white; border:2px solid #d8e1ea; border-radius:22px; padding:19px 22px; min-height:124px; box-shadow:0 4px 16px rgba(11,31,51,.05); }
     .mval { font-size:42px; font-weight:800; color:#0b5f8a; line-height:1; margin-bottom:8px; }
     .mname { font-size:19px; font-weight:700; line-height:1.15; }
     .mscope { font-size:15px; line-height:1.25; color:#556575; margin-top:7px; }
-    .columns { display:grid; grid-template-columns:1fr 1fr 1fr; gap:26px; flex:1; min-height:0; }
-    .col { display:flex; flex-direction:column; gap:22px; min-height:0; }
-    section { background:white; border:2px solid #d8e1ea; border-radius:22px; padding:28px 30px 25px; }
-    h2 { margin:0 0 14px; font-size:29px; color:#0b5f8a; line-height:1.1; }
-    p, li { font-size:18px; line-height:1.38; margin:0 0 10px; }
+    .columns { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; flex:1; min-height:0; }
+    .col { display:flex; flex-direction:column; gap:14px; min-height:0; }
+    section { background:white; border:2px solid #d8e1ea; border-radius:22px; padding:21px 22px 19px; }
+    h2 { margin:0 0 10px; font-size:27px; color:#0b5f8a; line-height:1.1; }
+    p, li { font-size:17px; line-height:1.30; margin:0 0 7px; }
     ul, ol { margin:0; padding-left:28px; }
-    li { margin-bottom:8px; }
-    .evidence p, .evidence li { font-size:17px; }
+    li { margin-bottom:5px; }
+    .evidence p, .evidence li { font-size:16.5px; }
     footer { font-size:14px; color:#657789; margin-top:24px; text-align:center; }
     @media print {
       html, body { width:36in; height:48in; background:#f4f7fb; }
       body { overflow:hidden; }
-      .page { width:36in; height:48in; padding:1.56in 1.72in 1.28in; }
-      header { padding:1.08in 1.28in .96in; border-radius:.56in; }
+      .page { width:36in; height:48in; padding:1.24in 1.44in .90in; }
+      header { padding:.80in 1.04in .70in; border-radius:.56in; }
       .repo { font-size:.46in; margin-bottom:.28in; }
       h1 { font-size:1.32in; margin-bottom:.32in; }
       .subtitle { font-size:.62in; }
       .status { margin-top:.4in; font-size:.36in; }
-      .metrics { gap:.4in; margin:.56in 0; }
-      .metric { border-width:.04in; border-radius:.44in; padding:.48in .5in; min-height:3in; }
+      .metrics { gap:.36in; margin:.44in 0; }
+      .metric { border-width:.04in; border-radius:.44in; padding:.38in .44in; min-height:2.48in; }
       .mval { font-size:.84in; margin-bottom:.16in; }
       .mname { font-size:.38in; }
       .mscope { font-size:.3in; margin-top:.14in; }
-      .columns { gap:.52in; }
-      .col { gap:.44in; }
-      section { border-width:.04in; border-radius:.44in; padding:.56in .6in .5in; }
-      h2 { margin-bottom:.28in; font-size:.58in; }
-      p, li { font-size:.36in; margin-bottom:.2in; }
+      .columns { gap:.40in; }
+      .col { gap:.28in; }
+      section { border-width:.04in; border-radius:.44in; padding:.42in .44in .38in; }
+      h2 { margin-bottom:.20in; font-size:.52in; }
+      p, li { font-size:.30in; line-height:1.28; margin-bottom:.14in; }
       ul, ol { padding-left:.56in; }
-      li { margin-bottom:.16in; }
-      .evidence p, .evidence li { font-size:.34in; }
-      footer { font-size:.28in; margin-top:.48in; }
+      li { margin-bottom:.10in; }
+      .evidence p, .evidence li { font-size:.29in; }
+      footer { font-size:.24in; margin-top:.30in; }
     }
     """
 
@@ -238,10 +243,12 @@ def main() -> int:
         </div>
         <div class="col">
           {sec("Current Verified Evidence", evidence, "evidence")}
+          {sec("Integration Validation", validation)}
           {sec("Reproducibility", repro)}
         </div>
         <div class="col">
           {sec("Honest Boundaries", boundaries)}
+          {sec("Release Decision", release_decision)}
           {sec("Evidence Sources & References", sources)}
         </div>
       </div>
