@@ -1061,20 +1061,25 @@ class StdioMCPProxy:
                     "Security: downstream MCP response validation failed",
                 )
         if effect_key is not None:
-            # Only a valid, fully inspected downstream success is recorded as
-            # completed. Any crash, timeout, cancellation, error response, or
-            # journal storage failure remains UNKNOWN and cannot be retried.
+            # A downstream JSON-RPC success proves ONLY an acknowledgement.
+            # It is NOT independent evidence that a side effect occurred.
+            # Keep the durable reservation UNCERTAIN after any generic MCP
+            # success; an authorized independent consequence verifier must
+            # perform a separately observed reconciliation. A duplicate call
+            # with the same operation key remains blocked in all cases.
             try:
                 payload = json.loads(response)
                 if not isinstance(payload, dict) or "result" not in payload or "error" in payload:
-                    raise EffectJournalError("Effect outcome not confirmed")
+                    raise EffectJournalError("Effect outcome not independently confirmed")
                 assert self._effect_journal is not None
-                self._effect_journal.mark_completed(
+                recorded = self._effect_journal.status(
                     principal=self._authenticated_principal or "",
                     server=self._server_id,
                     tool=messages[0]["params"]["name"],
                     operation_key=effect_key,
                 )
+                if recorded != "UNCERTAIN":
+                    raise EffectJournalError("Effect reservation is missing or has changed")
             except Exception:
                 self._stats["blocked"] += 1
                 return self._blocked_requests(
