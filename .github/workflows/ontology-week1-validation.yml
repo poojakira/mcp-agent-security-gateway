@@ -1,0 +1,22 @@
+name: Ontology Week1 Validation
+on:
+  push:
+    branches: [research/ontology-week1-skeleton-20261111]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolated-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: pip install 'ruff==0.8.4' 'pytest>=8.2'
+      - name: Print exact formatting diff
+        run: ruff format --diff src/mcp_monitor/experiments/ontology_pilot.py tests/test_ontology_pilot_week1.py
+      - name: Focused test
+        run: PYTHONPATH=src pytest -q tests/test_ontology_pilot_week1.py
