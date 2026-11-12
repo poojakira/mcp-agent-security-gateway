@@ -22,6 +22,7 @@ import argparse
 import asyncio
 import json
 import logging
+import os
 import sys
 from dataclasses import dataclass
 from enum import Enum
@@ -570,6 +571,10 @@ def main() -> None:
     command = args[separator + 1 :]
     if not command or not options.allow_tool:
         parser.error("A downstream command and at least one --allow-tool are required")
+    if os.environ.get("MCP_ENV", "").strip().lower() == "production":
+        parser.error(
+            "Legacy stdio CLI has no OS containment; use reviewed offline sandbox integration"
+        )
     policy = PolicyEngine(
         allowed_servers={options.server_id},
         allowed_tools=set(options.allow_tool),
