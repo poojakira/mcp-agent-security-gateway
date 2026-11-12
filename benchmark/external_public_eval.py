@@ -22,10 +22,15 @@ def score(records: list[dict[str, object]]) -> dict[str, float | int | None]:
     fn = sum(x["label"] == "injection" and not x["detected"] for x in records)
     fp = sum(x["label"] == "benign" and x["detected"] for x in records)
     tn = sum(x["label"] == "benign" and not x["detected"] for x in records)
+
     def ratio(numerator: int, denominator: int) -> float | None:
         return numerator / denominator if denominator else None
+
     return {
-        "tp": tp, "fn": fn, "fp": fp, "tn": tn,
+        "tp": tp,
+        "fn": fn,
+        "fp": fp,
+        "tn": tn,
         "precision": ratio(tp, tp + fp),
         "recall": ratio(tp, tp + fn),
         "false_positive_rate": ratio(fp, fp + tn),
@@ -35,7 +40,11 @@ def score(records: list[dict[str, object]]) -> dict[str, float | int | None]:
 
 
 def evaluate(csv_path: Path) -> dict[str, object]:
-    if not isinstance(csv_path, Path) or not csv_path.is_file() or csv_path.stat().st_size > 1_000_000:
+    if (
+        not isinstance(csv_path, Path)
+        or not csv_path.is_file()
+        or csv_path.stat().st_size > 1_000_000
+    ):
         raise ValueError("Benchmark must be a local, bounded, pinned CSV file")
     with csv_path.open("r", encoding="utf-8", newline="") as stream:
         reader = csv.DictReader(stream)
@@ -45,9 +54,11 @@ def evaluate(csv_path: Path) -> dict[str, object]:
     if not cases or len(cases) > 1000:
         raise ValueError("Invalid external corpus size")
     if any(
-        not isinstance(c["text"], str) or not c["text"]
+        not isinstance(c["text"], str)
+        or not c["text"]
         or c["label"] not in {"benign", "injection"}
-        or not c["category"] or not c["severity"]
+        or not c["category"]
+        or not c["severity"]
         for c in cases
     ):
         raise ValueError("Invalid external corpus case")
