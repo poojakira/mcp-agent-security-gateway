@@ -53,6 +53,7 @@ jobs:
       - name: Run Ruff Formatter Check
         run: |
           ruff format --diff tests/test_live_stdio_policy_backport.py
+          ruff format --diff src/mcp_monitor/proxy/stdio_proxy.py
           ruff format --check src/ tests poster/render_poster.py scripts/recruiter_demo.py
 
       - name: Focused Pyright gate
