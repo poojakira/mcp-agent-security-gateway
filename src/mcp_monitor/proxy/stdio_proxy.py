@@ -407,16 +407,21 @@ class StdioMCPProxy:
         # tools/call policy through resources, prompts or custom methods.
         if self._strict_mcp_methods:
             supported = {
-                "initialize", "ping", "tools/list", "tools/call",
-                "notifications/initialized", "notifications/cancelled",
+                "initialize",
+                "ping",
+                "tools/list",
+                "tools/call",
+                "notifications/initialized",
+                "notifications/cancelled",
             }
             if any(message.get("method") not in supported for message in messages):
                 self._stats["blocked"] += 1
                 responses = [
                     _build_error_response(
-                        message["id"], self.SECURITY_BLOCK_CODE,
+                        message["id"],
+                        self.SECURITY_BLOCK_CODE,
                         "Security: Unsupported MCP method denied",
-                    ).rstrip(b"\\n")
+                    ).rstrip(b"\n")
                     for message in messages
                     if "id" in message
                 ]
