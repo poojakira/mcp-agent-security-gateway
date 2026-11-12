@@ -414,7 +414,11 @@ class StdioMCPProxy:
                 "notifications/initialized",
                 "notifications/cancelled",
             }
-            if any(message.get("method") not in supported for message in messages):
+            if any(
+                not isinstance(message.get("method"), str)
+                or message["method"] not in supported
+                for message in messages
+            ):
                 self._stats["blocked"] += 1
                 responses = [
                     _build_error_response(
