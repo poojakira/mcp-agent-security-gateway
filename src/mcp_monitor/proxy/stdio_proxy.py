@@ -337,6 +337,10 @@ class StdioMCPProxy:
         policy_engine: PolicyEngine | None = None,
         strict_mcp_methods: bool = False,
     ) -> None:
+        if os.environ.get("MCP_ENV", "").strip().lower() == "production":
+            raise ValueError(
+                "Legacy stdio proxy cannot enforce host isolation; production construction refused"
+            )
         if not isinstance(server_id, str) or not server_id:
             raise ValueError("Trusted server_id must be a nonempty string")
         self._server_id = server_id
