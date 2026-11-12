@@ -335,11 +335,17 @@ class StdioMCPProxy:
         tool_calls_per_minute: int = 300,
         server_id: str = "local",
         policy_engine: PolicyEngine | None = None,
+        strict_mcp_methods: bool = False,
     ) -> None:
         if not isinstance(server_id, str) or not server_id:
             raise ValueError("Trusted server_id must be a nonempty string")
         self._server_id = server_id
         self._policy_engine = policy_engine or PolicyEngine(allowed_servers={server_id})
+        if not isinstance(strict_mcp_methods, bool):
+            raise ValueError("strict_mcp_methods must be a boolean")
+        if strict_mcp_methods and getattr(self._policy_engine, "allowed_tools", None) is None:
+            raise ValueError("Strict MCP methods require a trusted tool allowlist")
+        self._strict_mcp_methods = strict_mcp_methods
         self.command = command
         self._transport = transport or SubprocessTransport(command)
         self._detector = detector or PromptInjectionDetector(enable_ml=False)
@@ -396,6 +402,27 @@ class StdioMCPProxy:
         if not messages or any(not isinstance(message, dict) for message in messages):
             self._stats["blocked"] += 1
             return _build_error_response(None, -32600, "Invalid JSON-RPC request").rstrip(b"\n")
+
+        # Under the hardened CLI, unsupported MCP methods must never bypass
+        # tools/call policy through resources, prompts or custom methods.
+        if self._strict_mcp_methods:
+            supported = {
+                "initialize", "ping", "tools/list", "tools/call",
+                "notifications/initialized", "notifications/cancelled",
+            }
+            if any(message.get("method") not in supported for message in messages):
+                self._stats["blocked"] += 1
+                responses = [
+                    _build_error_response(
+                        message["id"], self.SECURITY_BLOCK_CODE,
+                        "Security: Unsupported MCP method denied",
+                    ).rstrip(b"\\n")
+                    for message in messages
+                    if "id" in message
+                ]
+                if not responses:
+                    return b""
+                return b"[" + b",".join(responses) + b"]" if is_batch else responses[0]
 
         denial: tuple[int, str, dict[str, Any]] | None = None
         tool_count = 0
@@ -580,7 +607,9 @@ def main() -> None:
         allowed_tools=set(options.allow_tool),
         allowed_egress_hosts=set(options.allow_egress_host),
     )
-    proxy = StdioMCPProxy(command, server_id=options.server_id, policy_engine=policy)
+    proxy = StdioMCPProxy(
+        command, server_id=options.server_id, policy_engine=policy, strict_mcp_methods=True
+    )
     asyncio.run(proxy.run())
 
 
