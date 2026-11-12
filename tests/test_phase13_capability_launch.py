@@ -160,12 +160,28 @@ def test_production_cli_refuses_unsafe_uncontained_launch(monkeypatch) -> None:
     ("options", "expected"),
     [
         (["--unsafe-local-dev"], "pinned offline Docker"),
-        (["--internal-sandbox-image", "sha256:" + "a" * 64,
-          "--internal-network-id", "b" * 64,
-          "--internal-proxy-id", "c" * 64,
-          "--internal-proxy-name", "mcp-egress-test"], "pinned offline Docker"),
-        (["--offline-sandbox-image", "sha256:" + "a" * 64,
-          "--allow-egress-host", "approved.example"], "forbids outbound"),
+        (
+            [
+                "--internal-sandbox-image",
+                "sha256:" + "a" * 64,
+                "--internal-network-id",
+                "b" * 64,
+                "--internal-proxy-id",
+                "c" * 64,
+                "--internal-proxy-name",
+                "mcp-egress-test",
+            ],
+            "pinned offline Docker",
+        ),
+        (
+            [
+                "--offline-sandbox-image",
+                "sha256:" + "a" * 64,
+                "--allow-egress-host",
+                "approved.example",
+            ],
+            "forbids outbound",
+        ),
     ],
 )
 def test_production_stdio_refuses_uncontained_or_networked_profiles(
