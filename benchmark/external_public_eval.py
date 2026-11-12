@@ -39,7 +39,7 @@ def score(records: list[dict[str, object]]) -> dict[str, float | int | None]:
     }
 
 
-def evaluate(csv_path: Path) -> dict[str, object]:
+def evaluate(csv_path: Path, *, mode: str = "regex_only") -> dict[str, object]:
     if (
         not isinstance(csv_path, Path)
         or not csv_path.is_file()
@@ -62,7 +62,9 @@ def evaluate(csv_path: Path) -> dict[str, object]:
         for c in cases
     ):
         raise ValueError("Invalid external corpus case")
-    detector = PromptInjectionDetector(enable_ml=False)
+    if mode not in {"regex_only", "local_hybrid"}:
+        raise ValueError("Unsupported local detector evaluation mode")
+    detector = PromptInjectionDetector(enable_ml=mode == "local_hybrid")
     cases_out: list[dict[str, object]] = []
     for index, case in enumerate(cases):
         detected, patterns = detector.detect(
@@ -83,7 +85,7 @@ def evaluate(csv_path: Path) -> dict[str, object]:
         grouped[str(case["category"])].append(case)
     label_counts = Counter(str(c["label"]) for c in cases_out)
     return {
-        "mode": "regex_only_public_external_corpus",
+        "mode": mode + "_public_external_corpus",
         "source": "stef41/prompt-injection-benchmark",
         "source_commit": "dc0072ad6af8d1be049cdb60959e3ff51df4bcae",
         "source_blob_sha1": "17d2c521a6b7a5ebd7f68e768fd334cd97897a4e",
@@ -101,7 +103,7 @@ def evaluate(csv_path: Path) -> dict[str, object]:
         "limitations": [
             "External dataset is independently authored, not an independent penetration test",
             "Contains curated prompts, not necessarily MCP tool-response injection in the wild",
-            "Regex-only verdicts are not authorization or actual attack-success rates",
+            "Local regex/ML verdicts are not authorization or actual attack-success rates",
             "Never use this corpus as both tuning data and an untouched test set",
         ],
     }
@@ -111,8 +113,9 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("corpus", type=Path)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--mode", choices=("regex_only", "local_hybrid"), default="regex_only")
     options = parser.parse_args()
-    result = evaluate(options.corpus)
+    result = evaluate(options.corpus, mode=options.mode)
     output = json.dumps(result, sort_keys=True, indent=2)
     if options.output is None:
         print(output)
