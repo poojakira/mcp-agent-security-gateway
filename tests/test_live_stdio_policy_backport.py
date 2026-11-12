@@ -127,6 +127,28 @@ def test_cli_refuses_uncontained_production_launch(monkeypatch) -> None:
     assert exc.value.code == 2
 
 
+@pytest.mark.parametrize("method", ["resources/read", "prompts/get", "custom/run"])
+def test_strict_methods_block_alternate_access_paths(method: str) -> None:
+    transport = FakeTransport()
+    proxy = StdioMCPProxy(
+        ["fake"],
+        transport=transport,
+        strict_mcp_methods=True,
+        policy_engine=PolicyEngine(allowed_servers={"local"}, allowed_tools={"read_manifest"}),
+    )
+    message = json.dumps(
+        {"jsonrpc": "2.0", "id": 1, "method": method, "params": {"uri": "private"}}
+    ).encode()
+    response = json.loads(asyncio.run(proxy.handle_message(message)))
+    assert response["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
+    assert transport.sent == []
+
+
+def test_strict_methods_require_operator_tool_allowlist() -> None:
+    with pytest.raises(ValueError, match="trusted tool allowlist"):
+        StdioMCPProxy(["fake"], transport=FakeTransport(), strict_mcp_methods=True)
+
+
 def test_policy_does_not_trust_agent_server_identity() -> None:
     payload = json.loads(call("read_manifest"))
     payload["params"]["server_id"] = "authorized"
