@@ -115,6 +115,18 @@ def test_cli_denies_unconfigured_or_missing_downstream(argv: list[str]) -> None:
     assert exc.value.code == 2
 
 
+def test_cli_refuses_uncontained_production_launch(monkeypatch) -> None:
+    monkeypatch.setenv("MCP_ENV", "production")
+    with patch.object(
+        sys,
+        "argv",
+        ["mcp-gateway", "--allow-tool", "read_manifest", "--", "python", "-V"],
+    ):
+        with pytest.raises(SystemExit) as exc:
+            main()
+    assert exc.value.code == 2
+
+
 def test_policy_does_not_trust_agent_server_identity() -> None:
     payload = json.loads(call("read_manifest"))
     payload["params"]["server_id"] = "authorized"
