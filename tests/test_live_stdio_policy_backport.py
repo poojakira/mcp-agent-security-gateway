@@ -164,6 +164,18 @@ def test_strict_methods_require_operator_tool_allowlist() -> None:
         StdioMCPProxy(["fake"], transport=FakeTransport(), strict_mcp_methods=True)
 
 
+def test_production_direct_constructor_refuses_uncontained_transport(monkeypatch) -> None:
+    monkeypatch.setenv("MCP_ENV", "production")
+    with pytest.raises(ValueError, match="production construction refused"):
+        StdioMCPProxy(
+            ["fake"], transport=FakeTransport(),
+            policy_engine=PolicyEngine(
+                allowed_servers={"local"}, allowed_tools={"read_manifest"}
+            ),
+            strict_mcp_methods=True,
+        )
+
+
 def test_policy_does_not_trust_agent_server_identity() -> None:
     payload = json.loads(call("read_manifest"))
     payload["params"]["server_id"] = "authorized"
