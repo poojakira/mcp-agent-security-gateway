@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, fix/main-live-stdio-policy-20261111]
   pull_request:
     branches: [main]
   schedule:
