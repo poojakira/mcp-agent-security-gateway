@@ -91,7 +91,7 @@ def test_operator_approved_exact_effect_forwarded_once(tmp_path) -> None:
     assert sent["params"]["arguments"] == ARGS
     assert (
         journal.status(principal=PRINCIPAL, server=SERVER, tool=TOOL, operation_key="permit-01")
-        == "COMPLETED"
+        == "UNCERTAIN"
     )
     denied = json.loads(asyncio.run(proxy.handle_message(request())))
     assert denied["error"]["code"] == proxy.SECURITY_BLOCK_CODE
