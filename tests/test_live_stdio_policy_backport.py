@@ -168,10 +168,9 @@ def test_production_direct_constructor_refuses_uncontained_transport(monkeypatch
     monkeypatch.setenv("MCP_ENV", "production")
     with pytest.raises(ValueError, match="production construction refused"):
         StdioMCPProxy(
-            ["fake"], transport=FakeTransport(),
-            policy_engine=PolicyEngine(
-                allowed_servers={"local"}, allowed_tools={"read_manifest"}
-            ),
+            ["fake"],
+            transport=FakeTransport(),
+            policy_engine=PolicyEngine(allowed_servers={"local"}, allowed_tools={"read_manifest"}),
             strict_mcp_methods=True,
         )
 
