@@ -118,8 +118,10 @@ python -m pytest tests -q
 
 Run a downstream stdio MCP server through the proxy:
 
+> **Security requirement:** Select and review each trusted tool explicitly with repeatable `--allow-tool NAME` flags; CLI startup without an allowlist fails closed. This guards traffic routed through the proxy only. The default-branch stdio proxy is **not an OS sandbox** and cannot prevent independently privileged clients or browsers from accessing a server directly. The Phase 1–16 offline Docker review stack remains unmerged and production NO-GO.
+
 ```bash
-python -m mcp_monitor.proxy.stdio_proxy -- <server-command> [args...]
+python -m mcp_monitor.proxy.stdio_proxy --allow-tool read_file -- <server-command> [args...]
 ```
 
 Run the local FastAPI control plane (default `127.0.0.1:8000`):

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, fix/main-live-stdio-policy-20261111]
   pull_request:
     branches: [main]
   schedule:
@@ -51,7 +51,10 @@ jobs:
         run: ruff check src/ tests/ poster/render_poster.py scripts/recruiter_demo.py --output-format=github
 
       - name: Run Ruff Formatter Check
-        run: ruff format --check src/ tests poster/render_poster.py scripts/recruiter_demo.py
+        run: |
+          ruff format --diff tests/test_live_stdio_policy_backport.py
+          ruff format --diff src/mcp_monitor/proxy/stdio_proxy.py
+          ruff format --check src/ tests poster/render_poster.py scripts/recruiter_demo.py
 
       - name: Focused Pyright gate
         run: PYTHONPATH=src pyright src/mcp_monitor/detectors src/mcp_monitor/audit tests/test_prompt_injection.py tests/test_pii_detector.py tests/test_audit_log.py

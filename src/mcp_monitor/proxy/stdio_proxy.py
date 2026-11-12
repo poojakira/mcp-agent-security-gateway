@@ -18,15 +18,18 @@ Usage (Claude Desktop config):
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import json
 import logging
+import os
 import sys
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Protocol
 
 from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
+from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
 
@@ -330,7 +333,23 @@ class StdioMCPProxy:
         detector: PromptInjectionDetector | None = None,
         rate_limiter: RateLimiter | None = None,
         tool_calls_per_minute: int = 300,
+        server_id: str = "local",
+        policy_engine: PolicyEngine | None = None,
+        strict_mcp_methods: bool = False,
     ) -> None:
+        if os.environ.get("MCP_ENV", "").strip().lower() == "production":
+            raise ValueError(
+                "Legacy stdio proxy cannot enforce host isolation; production construction refused"
+            )
+        if not isinstance(server_id, str) or not server_id:
+            raise ValueError("Trusted server_id must be a nonempty string")
+        self._server_id = server_id
+        self._policy_engine = policy_engine or PolicyEngine(allowed_servers={server_id})
+        if not isinstance(strict_mcp_methods, bool):
+            raise ValueError("strict_mcp_methods must be a boolean")
+        if strict_mcp_methods and getattr(self._policy_engine, "allowed_tools", None) is None:
+            raise ValueError("Strict MCP methods require a trusted tool allowlist")
+        self._strict_mcp_methods = strict_mcp_methods
         self.command = command
         self._transport = transport or SubprocessTransport(command)
         self._detector = detector or PromptInjectionDetector(enable_ml=False)
@@ -387,6 +406,35 @@ class StdioMCPProxy:
         if not messages or any(not isinstance(message, dict) for message in messages):
             self._stats["blocked"] += 1
             return _build_error_response(None, -32600, "Invalid JSON-RPC request").rstrip(b"\n")
+
+        # Under the hardened CLI, unsupported MCP methods must never bypass
+        # tools/call policy through resources, prompts or custom methods.
+        if self._strict_mcp_methods:
+            supported = {
+                "initialize",
+                "ping",
+                "tools/list",
+                "tools/call",
+                "notifications/initialized",
+                "notifications/cancelled",
+            }
+            if any(
+                not isinstance(message.get("method"), str) or message["method"] not in supported
+                for message in messages
+            ):
+                self._stats["blocked"] += 1
+                responses = [
+                    _build_error_response(
+                        message["id"],
+                        self.SECURITY_BLOCK_CODE,
+                        "Security: Unsupported MCP method denied",
+                    ).rstrip(b"\n")
+                    for message in messages
+                    if "id" in message
+                ]
+                if not responses:
+                    return b""
+                return b"[" + b",".join(responses) + b"]" if is_batch else responses[0]
 
         denial: tuple[int, str, dict[str, Any]] | None = None
         tool_count = 0
@@ -449,6 +497,29 @@ class StdioMCPProxy:
 
         all_matched: list[str] = []
         for tool_call in tool_calls:
+            try:
+                decision = self._policy_engine.evaluate(
+                    {
+                        "name": tool_call.name,
+                        "server_id": self._server_id,
+                        "arguments": tool_call.arguments,
+                    }
+                )
+                if not decision.allowed:
+                    return InspectionResult(
+                        decision=Decision.BLOCK,
+                        reason=f"Policy denied: {decision.reason_code.value}",
+                        matched_patterns=[decision.reason_code.value],
+                        request_id=request_id,
+                    )
+            except Exception:
+                logger.exception("Policy evaluation failed closed")
+                return InspectionResult(
+                    decision=Decision.INDETERMINATE,
+                    reason="Policy engine failure",
+                    matched_patterns=["policy_engine_failure"],
+                    request_id=request_id,
+                )
             internal = tool_call.to_internal_format()
             try:
                 detected, patterns = self._detector.detect(internal)
@@ -523,23 +594,34 @@ def main() -> None:
 
     Usage: python -m mcp_monitor.proxy.stdio_proxy -- <server_command> [args...]
     """
+    parser = argparse.ArgumentParser(description="Policy-enforced MCP stdio proxy")
+    parser.add_argument("--server-id", default="local", help="Operator-trusted server identity")
+    parser.add_argument(
+        "--allow-tool", action="append", default=[], help="Exact allowed tool name (repeatable)"
+    )
+    parser.add_argument(
+        "--allow-egress-host", action="append", default=[], help="Explicit allowed destination host"
+    )
     args = sys.argv[1:]
-
-    # Split on -- to get the downstream command
-    if "--" in args:
-        sep_idx = args.index("--")
-        command = args[sep_idx + 1 :]
-    else:
-        command = args
-
-    if not command:
-        print(
-            "Usage: python -m mcp_monitor.proxy.stdio_proxy -- <command> [args...]",
-            file=sys.stderr,
+    if "--" not in args:
+        parser.error("Specify explicit tool allowlist and downstream command after --")
+    separator = args.index("--")
+    options = parser.parse_args(args[:separator])
+    command = args[separator + 1 :]
+    if not command or not options.allow_tool:
+        parser.error("A downstream command and at least one --allow-tool are required")
+    if os.environ.get("MCP_ENV", "").strip().lower() == "production":
+        parser.error(
+            "Legacy stdio CLI has no OS containment; use reviewed offline sandbox integration"
         )
-        sys.exit(1)
-
-    proxy = StdioMCPProxy(command)
+    policy = PolicyEngine(
+        allowed_servers={options.server_id},
+        allowed_tools=set(options.allow_tool),
+        allowed_egress_hosts=set(options.allow_egress_host),
+    )
+    proxy = StdioMCPProxy(
+        command, server_id=options.server_id, policy_engine=policy, strict_mcp_methods=True
+    )
     asyncio.run(proxy.run())
 
 

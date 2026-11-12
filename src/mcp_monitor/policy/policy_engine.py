@@ -39,6 +39,7 @@ class ReasonCode(str, Enum):
     DENY_DEFAULT = "DENY_DEFAULT"
     DENY_MALFORMED_INPUT = "DENY_MALFORMED_INPUT"
     DENY_DANGEROUS_TOOL = "DENY_DANGEROUS_TOOL"
+    DENY_TOOL_NOT_ALLOWED = "DENY_TOOL_NOT_ALLOWED"
     DENY_SERVER_NOT_ALLOWED = "DENY_SERVER_NOT_ALLOWED"
     DENY_EGRESS_NOT_ALLOWED = "DENY_EGRESS_NOT_ALLOWED"
     DENY_EGRESS_MALFORMED = "DENY_EGRESS_MALFORMED"
@@ -148,9 +149,18 @@ class PolicyEngine:
         allowed_servers: set[str] | frozenset[str],
         allowed_egress_hosts: set[str] | frozenset[str] | None = None,
         dangerous_tools: set[str] | frozenset[str] | None = None,
+        allowed_tools: set[str] | frozenset[str] | None = None,
     ) -> None:
         # Copy into frozen sets so config cannot be mutated after construction.
         self.allowed_servers: frozenset[str] = frozenset(allowed_servers)
+        if allowed_tools is not None and (
+            not isinstance(allowed_tools, set | frozenset)
+            or any(not isinstance(name, str) or not name for name in allowed_tools)
+        ):
+            raise ValueError("allowed_tools must be a trusted set of nonempty tool names")
+        self.allowed_tools: frozenset[str] | None = (
+            frozenset(allowed_tools) if allowed_tools is not None else None
+        )
         self.allowed_egress_hosts: frozenset[str] = frozenset(allowed_egress_hosts or set())
         self.dangerous_tools: frozenset[str] = (
             frozenset(dangerous_tools) if dangerous_tools is not None else DEFAULT_DANGEROUS_TOOLS
@@ -190,7 +200,16 @@ class PolicyEngine:
                 matched_rule="tool_authorization.dangerous_tool",
             )
 
-        # 3. Enforce server allowlist.
+        # 3. Enforce explicit allowlist when provisioned; denylist always wins.
+        if self.allowed_tools is not None and pi.tool_name not in self.allowed_tools:
+            return PolicyDecision(
+                allowed=False,
+                reason_code=ReasonCode.DENY_TOOL_NOT_ALLOWED,
+                message="Tool is not on the trusted allowlist",
+                matched_rule="tool_authorization.tool_allowlist",
+            )
+
+        # 4. Enforce server allowlist.
         if pi.server_id not in self.allowed_servers:
             return PolicyDecision(
                 allowed=False,
@@ -199,12 +218,12 @@ class PolicyEngine:
                 matched_rule="tool_authorization.server_allowlist",
             )
 
-        # 4. Egress check (only when a destination is present).
+        # 5. Egress check (only when a destination is present).
         egress_decision = self._evaluate_egress(pi)
         if egress_decision is not None:
             return egress_decision
 
-        # 5. All checks passed -> explicit allow.
+        # 6. All checks passed -> explicit allow.
         return PolicyDecision(
             allowed=True,
             reason_code=ReasonCode.ALLOWED,
