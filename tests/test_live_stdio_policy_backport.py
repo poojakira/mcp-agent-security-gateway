@@ -101,18 +101,20 @@ def test_mixed_batch_denies_every_member_without_forwarding() -> None:
 
 
 @pytest.mark.parametrize(
-    "argv",
+    ("argv", "expected_exit"),
     [
-        ["mcp-gateway", "--", "python", "-V"],
-        ["mcp-gateway", "--allow-tool", "read_manifest", "--"],
-        ["mcp-gateway", "--allow-tool", "read_manifest", "python", "-V"],
+        (["mcp-gateway", "--", "python", "-V"], 2),
+        (["mcp-gateway", "--allow-tool", "read_manifest", "--"], 1),
+        (["mcp-gateway", "--allow-tool", "read_manifest", "python", "-V"], 2),
     ],
 )
-def test_cli_denies_unconfigured_or_missing_downstream(argv: list[str]) -> None:
+def test_cli_denies_unconfigured_or_missing_downstream(
+    argv: list[str], expected_exit: int
+) -> None:
     with patch.object(sys, "argv", argv):
         with pytest.raises(SystemExit) as exc:
             main()
-    assert exc.value.code == 2
+    assert exc.value.code == expected_exit
 
 
 def test_cli_refuses_uncontained_production_launch(monkeypatch) -> None:
@@ -155,7 +157,9 @@ def test_strict_methods_fail_closed_on_malformed_names(method: object) -> None:
     )
     raw = json.dumps({"jsonrpc": "2.0", "id": 1, "method": method, "params": {}}).encode()
     response = json.loads(asyncio.run(proxy.handle_message(raw)))
-    assert response["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
+    # JSON-RPC malformed method names are invalid requests (-32600),
+    # distinct from correctly formed but disallowed methods (-32001).
+    assert response["error"]["code"] == -32600
     assert transport.sent == []
 
 
@@ -166,7 +170,7 @@ def test_strict_methods_require_operator_tool_allowlist() -> None:
 
 def test_production_direct_constructor_refuses_uncontained_transport(monkeypatch) -> None:
     monkeypatch.setenv("MCP_ENV", "production")
-    with pytest.raises(ValueError, match="production construction refused"):
+    with pytest.raises(ValueError, match="strict offline Docker isolation"):
         StdioMCPProxy(
             ["fake"],
             transport=FakeTransport(),
