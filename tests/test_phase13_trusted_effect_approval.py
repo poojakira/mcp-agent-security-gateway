@@ -84,7 +84,8 @@ def gateway(tmp_path, *, approved=None, principal: str = PRINCIPAL):
 def test_operator_approved_exact_effect_forwarded_once(tmp_path) -> None:
     proxy, transport, journal = gateway(tmp_path, approved=approval())
     result = json.loads(asyncio.run(proxy.handle_message(request())))
-    assert result["result"]["status"] == "synthetic"
+    assert result["error"]["code"] == proxy.SECURITY_BLOCK_CODE
+    assert "outcome remains unverified" in result["error"]["message"]
     assert len(transport.sent) == 1
     sent = json.loads(transport.sent[0])
     assert "_gateway_operation_key" not in sent["params"]

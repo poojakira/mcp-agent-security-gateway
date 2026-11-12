@@ -1089,6 +1089,17 @@ class StdioMCPProxy:
                     "Security: side-effect outcome uncertain; no automatic retry",
                     {"patterns": ["DENY_EFFECT_UNCERTAIN"]},
                 )
+            # A positive acknowledgement is not a verified side effect.
+            # Never return the downstream success as though the action
+            # actually completed. The intent must be independently reconciled
+            # by an authorized observer before any completion is asserted.
+            return self._blocked_requests(
+                messages,
+                is_batch,
+                self.SECURITY_BLOCK_CODE,
+                "Security: downstream acknowledged an effect but outcome remains unverified; do not retry",
+                {"patterns": ["EFFECT_OUTCOME_UNVERIFIED"]},
+            )
         return response
 
     def _inspect(self, parsed: dict[str, Any]) -> InspectionResult:
