@@ -62,17 +62,13 @@ class GateDecision:
 
 
 class RulePort(Protocol):
-    def evaluate(
-        self, stage: str, event: Event, proposal: Proposal | None
-    ) -> GateDecision: ...
+    def evaluate(self, stage: str, event: Event, proposal: Proposal | None) -> GateDecision: ...
 
 
 class GatewaySkeleton:
     """Research-only bridge to the existing PDP; no invented L1/L2 rules."""
 
-    def __init__(
-        self, policy: PolicyEngine, rules: RulePort | None = None
-    ) -> None:
+    def __init__(self, policy: PolicyEngine, rules: RulePort | None = None) -> None:
         self._policy = policy
         self._rules = rules
 
@@ -80,9 +76,7 @@ class GatewaySkeleton:
     def _deny(rule_id: str, reason: str) -> GateDecision:
         return GateDecision(False, rule_id, reason)
 
-    def check(
-        self, stage: str, event: Event, proposal: Proposal | None = None
-    ) -> GateDecision:
+    def check(self, stage: str, event: Event, proposal: Proposal | None = None) -> GateDecision:
         if stage not in {"ingress", "tool"}:
             return self._deny("invalid_stage", "Unknown enforcement stage")
         if self._rules is None:
@@ -203,14 +197,10 @@ class HarnessSkeleton:
             request = ModelRequest(
                 event_text=event.text,
                 system_prompt=(
-                    self.prompts.ungoverned
-                    if lane is Lane.UNGOVERNED
-                    else self.prompts.governed
+                    self.prompts.ungoverned if lane is Lane.UNGOVERNED else self.prompts.governed
                 ),
                 actor_id=None if lane is Lane.UNGOVERNED else event.actor_id,
-                authority_basis=(
-                    None if lane is Lane.UNGOVERNED else event.authority_basis
-                ),
+                authority_basis=(None if lane is Lane.UNGOVERNED else event.authority_basis),
             )
             called = True
             try:
@@ -227,9 +217,7 @@ class HarnessSkeleton:
                     if lane is Lane.ONTOLOGY_GATE:
                         tool = self.gateway.check("tool", event, proposal)
                     if tool is None or tool.allowed:
-                        result = self.tools.execute(
-                            proposal.tool_name, proposal.arguments
-                        )
+                        result = self.tools.execute(proposal.tool_name, proposal.arguments)
                         executed = True
             except Exception as exc:
                 error = f"{type(exc).__name__}: {exc}"
