@@ -459,7 +459,11 @@ class StdioMCPProxy:
         for tool_call in tool_calls:
             try:
                 decision = self._policy_engine.evaluate(
-                    {"name": tool_call.name, "server_id": self._server_id, "arguments": tool_call.arguments}
+                    {
+                        "name": tool_call.name,
+                        "server_id": self._server_id,
+                        "arguments": tool_call.arguments,
+                    }
                 )
                 if not decision.allowed:
                     return InspectionResult(
@@ -552,14 +556,18 @@ def main() -> None:
     """
     parser = argparse.ArgumentParser(description="Policy-enforced MCP stdio proxy")
     parser.add_argument("--server-id", default="local", help="Operator-trusted server identity")
-    parser.add_argument("--allow-tool", action="append", default=[], help="Exact allowed tool name (repeatable)")
-    parser.add_argument("--allow-egress-host", action="append", default=[], help="Explicit allowed destination host")
+    parser.add_argument(
+        "--allow-tool", action="append", default=[], help="Exact allowed tool name (repeatable)"
+    )
+    parser.add_argument(
+        "--allow-egress-host", action="append", default=[], help="Explicit allowed destination host"
+    )
     args = sys.argv[1:]
     if "--" not in args:
         parser.error("Specify explicit tool allowlist and downstream command after --")
     separator = args.index("--")
     options = parser.parse_args(args[:separator])
-    command = args[separator + 1:]
+    command = args[separator + 1 :]
     if not command or not options.allow_tool:
         parser.error("A downstream command and at least one --allow-tool are required")
     policy = PolicyEngine(
