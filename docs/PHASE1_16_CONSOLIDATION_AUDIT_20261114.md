@@ -3,6 +3,15 @@
 Date: 2026-11-14
 Status: OPEN — NOT PRODUCTION APPROVED
 
+## 2026-11-14 post-deletion recovery and verification update
+
+- Public `integration/phase1-16-verified` was deleted manually and recreated from `security/phase1-16-audit`. A subsequent GitHub comparison returned **identical** (0 ahead / 0 behind). This confirms equality at recovery time, **not** recovery of the integration branch's former SHA or independent verification of its contents.
+- The private repository's integration branch was present when checked and was not recreated.
+- The public audit branch was 384 commits ahead of `main` and 0 behind when compared. This is commit ancestry only, not security validation.
+- The exact audit-head pull-request workflow lookup for `4d37d68330b79cde36376272f47d007d234681fd` returned no runs. This API only returns PR-triggered runs on its first page; absence does not prove no other Actions runs exist.
+- Historical 1,211 passed / 6 skipped per Python version belongs exclusively to SHA `43a72c8984bf9a472b9055d4f9e84cc759f61718`. The five newly authored revocation tests have **not** been observed passing on the latest audit head.
+- Open PRs and divergent branches must be reconciled before further cleanup or promotion. **Production NO-GO.**
+
 ## Repository policy
 - Preserve `main` as the stable branch; do not fast-forward or merge to main without a verified release gate.
 - Candidate integration branch: `integration/phase1-16-verified`.
