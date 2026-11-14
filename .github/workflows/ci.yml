@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, integration/phase1-16-remediation-20261109]
   pull_request:
     branches: [main]
   schedule:
