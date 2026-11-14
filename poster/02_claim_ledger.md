@@ -1,3 +1,5 @@
+> **2026-11-14 audit-branch delta (not CI-verified):** Protected manifest reads and tool discovery now check the configured revocation authority, with five new regression tests in `tests/test_phase16_revocation_safe_commit.py`. No new pass count, coverage, or efficacy claim is authorized. Direct downstream invocation remains a confirmed isolation bypass. The animation is an explanatory architecture diagram, not runtime proof. **PRODUCTION NO-GO.**
+
 # Claim Ledger — Phase 1–16 Gateway Poster
 
 > **Reviewed development source:** `43a72c8984bf9a472b9055d4f9e84cc759f61718`, November 11, 2026 UTC. **All references are to an unmerged review stack; PRODUCTION NO-GO.** This ledger replaces the former poster headline based on the older PR #167 synthetic merge.
