@@ -144,6 +144,23 @@ class TestConfig:
         assert cfg.environment == "production"
         assert cfg.allowed_servers == {"github", "filesystem"}
 
+    def test_production_requires_authenticated_audit_hash_chain(self):
+        base = {
+            "MCP_ENV": "production",
+            "MCP_API_KEY": "a" * 40,
+            "MCP_WAL_PATH": "/var/lib/mcp/wal.jsonl",
+            "MCP_AUDIT_PATH": "/var/lib/mcp/audit.jsonl",
+            "MCP_ALLOWED_SERVERS": "filesystem",
+        }
+        with patch.dict(os.environ, base, clear=True):
+            with pytest.raises(ValueError, match="MCP_AUDIT_HMAC_KEY"):
+                Config()
+        with patch.dict(os.environ, {**base, "MCP_AUDIT_HMAC_KEY": "short"}, clear=True):
+            with pytest.raises(ValueError, match="MCP_AUDIT_HMAC_KEY"):
+                Config()
+        with patch.dict(os.environ, {**base, "MCP_AUDIT_HMAC_KEY": "H" * 48}, clear=True):
+            assert Config().environment == "production"
+
     def test_repr(self):
         """Config has a useful repr."""
         env = {"MCP_LISTEN_PORT": "8080", "MCP_SHADOW_MODE": "false"}

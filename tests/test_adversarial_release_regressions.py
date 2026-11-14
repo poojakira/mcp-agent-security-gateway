@@ -133,6 +133,7 @@ def test_production_library_accepts_explicit_isolation_and_capabilities(monkeypa
     )
     assert proxy is not None
 
+
 def test_authenticated_keys_have_separate_inspection_budgets(tmp_path) -> None:
     """One configured key cannot consume a different key's inspection quota."""
     env = {
