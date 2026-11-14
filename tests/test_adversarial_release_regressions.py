@@ -72,6 +72,11 @@ def test_unauthenticated_requests_cannot_exhaust_authenticated_quota(tmp_path) -
             return 401, {"error": "Unauthorized"}
         return 200, {"allowed": True}
 
+    server._authorize = lambda headers: (
+        None
+        if headers.get("x-test-authorization") == "yes"
+        else (401, {"error": "Unauthorized"})
+    )
     server._route = fake_route
 
     async def exercise() -> tuple[bytes, bytes]:

@@ -594,6 +594,18 @@ class StdioMCPProxy:
             allowed_servers={server_id},
             allowed_egress_hosts=allowed_egress_hosts,
         )
+        # Enforce the same production contract for direct Python API callers
+        # as for the CLI. Otherwise a caller can bypass command-line checks
+        # and launch a fully privileged subprocess with unrestricted tools.
+        if os.environ.get("MCP_ENV", "").strip().lower() == "production":
+            if self._offline_sandbox is None and self._internal_sandbox is None:
+                raise ValueError("Production MCP stdio requires Docker sandbox isolation")
+            if not self._strict_mcp_methods:
+                raise ValueError("Production MCP stdio requires strict MCP method gating")
+            trusted_tools = getattr(self._policy_engine, "allowed_tools", None)
+            if not isinstance(trusted_tools, frozenset) or not trusted_tools:
+                raise ValueError("Production MCP stdio requires trusted tool allowlist")
+
         # Rate limit tool calls at the proxy layer (separate from production/ server rate limiter).
         # Default: 300 tool calls/minute, burst up to 300. Reduces DoS risk and
         # limits blast radius if an agent is compromised or stuck in a loop.

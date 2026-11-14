@@ -262,6 +262,21 @@ class ProductionServer:
                 await self._send_response(writer, 503, {"error": "Server shutting down"})
                 return
 
+
+            # Authenticate before the shared inspection quota is charged.
+            # An unauthenticated request must not exhaust a legitimate
+            # client's rate budget. The route repeats this authorization
+            # check, which is harmless and preserves endpoint-level defense.
+            if method == "POST" and path in {
+                "/v1/inspect_call",
+                "/v1/inspect_output",
+                "/api/scan",
+            }:
+                auth_status = self._authorize(headers)
+                if auth_status is not None:
+                    await self._send_response(writer, *auth_status)
+                    return
+
             # Determine if this is an operational endpoint that should
             # bypass rate limiting (health probes, readiness checks,
             # metrics scrapes). These must remain available even under
