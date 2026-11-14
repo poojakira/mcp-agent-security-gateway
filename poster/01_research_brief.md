@@ -1,3 +1,5 @@
+> **2026-11-14 consolidated audit update:** Five authored but unexecuted revocation regression tests now cover protected manifest reads and tool discovery; direct same-user server invocation remains a documented critical bypass. Poster animation source: [animated MCP architecture](../docs/poster/mcp-gateway-animated-architecture.svg). Numerical CI results below belong exclusively to historical commit `43a72c8984bf9a472b9055d4f9e84cc759f61718`, not this branch. **PRODUCTION NO-GO.**
+
 > **2026-11-14 audit update:** The current audit branch adds unverified regression fixes for revocation of `read_manifest` and `tools/list`. Historical **1,211 passed / 6 skipped** is evidence only for commit `43a72c8984bf9a472b9055d4f9e84cc759f61718`, not the new audit head. A same-user direct-server bypass is demonstrated by existing tests and remains open. The digital poster now embeds an animated architecture diagram; print/PDF renders a static frame. **PRODUCTION NO-GO.**
 
 # Research Brief — Offline MCP Agent Security Gateway (Phase 1–16)
