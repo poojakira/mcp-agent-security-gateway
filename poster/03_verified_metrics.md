@@ -1,3 +1,5 @@
+> **2026-11-14 recovery check:** The public integration branch was recreated from the security-audit branch after accidental deletion; its original head was not recovered. The branches compared identical at recovery time. Current audit-head PR workflow lookup returned no runs; historical CI results below do not validate the latest audit code or poster binaries. **PRODUCTION NO-GO.**
+
 > **2026-11-14 consolidated audit update:** Five authored but unexecuted revocation regression tests now cover protected manifest reads and tool discovery; direct same-user server invocation remains a documented critical bypass. Poster animation source: [animated MCP architecture](../docs/poster/mcp-gateway-animated-architecture.svg). Numerical CI results below belong exclusively to historical commit `43a72c8984bf9a472b9055d4f9e84cc759f61718`, not this branch. **PRODUCTION NO-GO.**
 
 > **2026-11-14 evidence cutoff:** Numerical metrics below are historical, sourced to the November 11 tested commit, **not** to the current security audit branch. Five additional regression tests have been authored but are not counted as passed. **PRODUCTION NO-GO.**
