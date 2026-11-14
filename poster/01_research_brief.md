@@ -1,3 +1,5 @@
+> **2026-11-14 audit update:** The current audit branch adds unverified regression fixes for revocation of `read_manifest` and `tools/list`. Historical **1,211 passed / 6 skipped** is evidence only for commit `43a72c8984bf9a472b9055d4f9e84cc759f61718`, not the new audit head. A same-user direct-server bypass is demonstrated by existing tests and remains open. The digital poster now embeds an animated architecture diagram; print/PDF renders a static frame. **PRODUCTION NO-GO.**
+
 # Research Brief — Offline MCP Agent Security Gateway (Phase 1–16)
 
 > **Evidence cutoff: 2026-11-11 UTC. DEVELOPMENT RESEARCH ONLY — PRODUCTION NO-GO.** Source: stacked draft PRs #167 and #169–#178; exact verified integration head `43a72c8984bf9a472b9055d4f9e84cc759f61718`. The four named workflows below passed on that head. This does not certify a merged release, a live environment, or safety for ticketing, payments or healthcare.
