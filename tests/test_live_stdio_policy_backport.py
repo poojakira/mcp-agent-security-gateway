@@ -155,7 +155,9 @@ def test_strict_methods_fail_closed_on_malformed_names(method: object) -> None:
     )
     raw = json.dumps({"jsonrpc": "2.0", "id": 1, "method": method, "params": {}}).encode()
     response = json.loads(asyncio.run(proxy.handle_message(raw)))
-    assert response["error"]["code"] == StdioMCPProxy.SECURITY_BLOCK_CODE
+    # JSON-RPC rejects malformed method fields as invalid requests before
+    # dispatch; -32600 is the correct protocol-level denial for this case.
+    assert response["error"]["code"] == -32600
     assert transport.sent == []
 
 
