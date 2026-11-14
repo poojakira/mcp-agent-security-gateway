@@ -73,9 +73,7 @@ def test_unauthenticated_requests_cannot_exhaust_authenticated_quota(tmp_path) -
         return 200, {"allowed": True}
 
     server._authorize = lambda headers: (
-        None
-        if headers.get("x-test-authorization") == "yes"
-        else (401, {"error": "Unauthorized"})
+        None if headers.get("x-test-authorization") == "yes" else (401, {"error": "Unauthorized"})
     )
     server._route = fake_route
 
@@ -120,9 +118,7 @@ def test_production_library_denies_nonstrict_methods(monkeypatch) -> None:
         StdioMCPProxy(
             ["local-test-command-never-executed"],
             offline_sandbox=sandbox,
-            policy_engine=PolicyEngine(
-                allowed_servers={"local"}, allowed_tools={"read_manifest"}
-            ),
+            policy_engine=PolicyEngine(allowed_servers={"local"}, allowed_tools={"read_manifest"}),
         )
 
 
@@ -133,8 +129,6 @@ def test_production_library_accepts_explicit_isolation_and_capabilities(monkeypa
         ["local-test-command-never-executed"],
         offline_sandbox=OfflineDockerSandbox("sha256:" + "c" * 64),
         strict_mcp_methods=True,
-        policy_engine=PolicyEngine(
-            allowed_servers={"local"}, allowed_tools={"read_manifest"}
-        ),
+        policy_engine=PolicyEngine(allowed_servers={"local"}, allowed_tools={"read_manifest"}),
     )
     assert proxy is not None

@@ -50,9 +50,6 @@ jobs:
       - name: Lint with Ruff
         run: ruff check src/ tests/ poster/render_poster.py scripts/recruiter_demo.py --output-format=github
 
-      - name: Show exact formatter corrections for adversarial security changes
-        run: ruff format --diff src/mcp_monitor/production/server.py tests/test_adversarial_release_regressions.py
-
       - name: Run Ruff Formatter Check
         run: ruff format --check src/ tests poster/render_poster.py scripts/recruiter_demo.py
 

@@ -262,7 +262,6 @@ class ProductionServer:
                 await self._send_response(writer, 503, {"error": "Server shutting down"})
                 return
 
-
             # Authenticate before the shared inspection quota is charged.
             # An unauthenticated request must not exhaust a legitimate
             # client's rate budget. The route repeats this authorization
