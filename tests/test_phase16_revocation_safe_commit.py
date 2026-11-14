@@ -196,3 +196,30 @@ def test_production_cannot_explicitly_disable_revocation(protected, monkeypatch)
     with pytest.raises(SystemExit, match="Invalid protected workspace configuration"):
         main()
     assert version(workspace) == "1.0.0"
+
+
+def test_revoked_principal_cannot_read_manifest(protected):
+    repo, authority, workspace = protected
+    authority.revoke(principal="operator")
+    with pytest.raises(ProtectedOperationError, match="Revocation authority denied protected read"):
+        repo.read({})
+    assert version(workspace) == "1.0.0"
+
+
+def test_unprovisioned_principal_cannot_read_manifest(protected):
+    _, authority, workspace = protected
+    stranger = ProtectedRepo(
+        workspace,
+        {"safe-package": "1.1.0"},
+        revocation_fence=authority,
+        operator_principal="unknown",
+    )
+    with pytest.raises(ProtectedOperationError, match="Revocation authority denied protected read"):
+        stranger.read({})
+
+
+def test_authority_failure_denies_manifest_read(protected):
+    repo, authority, _ = protected
+    authority._path.unlink()
+    with pytest.raises(ProtectedOperationError, match="Revocation authority denied protected read"):
+        repo.read({})
