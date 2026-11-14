@@ -99,3 +99,7 @@ Two concrete weaknesses in the integration branch were reproduced through five n
 ## Main-branch reconciliation record (2026-11-14)
 
 Git merge parents: protected `main` security hotfix and the review integration branch. The integration code retains the retired demonstration-key guard, restricted detection-lab Compose, explicit tool allowlisting, strict MCP method deny and the stronger experimental sandbox/identity/journal features. The main-only `tests/test_live_stdio_policy_backport.py` suite was brought into the integration branch. Its malformed-method expectation was correctly scoped to JSON-RPC `-32600` (invalid request), which still rejects without forwarding. The result is a **source reconciliation**, not a go-live approval. Review merged-tree CI and the independent production release gate before any actual merge into `main`.
+
+## Further fail-closed behavior (pending exact-commit CI)
+
+Production stdio execution is restricted to an offline, network-none Docker sandbox: internal-network sidecar membership is not a verified destination filter. The HTTP readiness endpoint now reports degraded local SIEM delivery after an append failure, and clears that health condition only after a subsequent successful local write. This is observable queue health, **not** proof of downstream Elasticsearch ingestion or incident response. No real production egress/telemetry deployment has been exercised.

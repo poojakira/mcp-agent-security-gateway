@@ -92,6 +92,8 @@ class Config:
             errors.append("MCP_API_KEY or MCP_API_KEYS must configure at least one credential")
         elif any(len(key) < 32 for key in self.api_keys):
             errors.append("All configured MCP API credentials must contain at least 32 characters")
+        if self.siem_enabled and not self.siem_output:
+            errors.append("MCP_SIEM_OUTPUT is required when MCP_SIEM_ENABLED=true")
         if self.identity_telemetry_enabled and not self.identity_telemetry_tenant_salt:
             errors.append(
                 "MCP_IDENTITY_TELEMETRY_TENANT_SALT is required when identity telemetry is enabled"

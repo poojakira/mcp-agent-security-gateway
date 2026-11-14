@@ -15,6 +15,7 @@ from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.config import Config
 from mcp_monitor.production.rate_limiter import RateLimiter
 from mcp_monitor.production.server import ProductionServer
+from mcp_monitor.proxy.internal_sandbox import InternalDockerSandbox
 from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
 from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy
 
@@ -176,3 +177,44 @@ def test_authenticated_keys_have_separate_inspection_budgets(tmp_path) -> None:
     assert first.startswith(b"HTTP/1.1 200")
     assert throttled.startswith(b"HTTP/1.1 429")
     assert other.startswith(b"HTTP/1.1 200")
+
+
+def test_internal_sidecar_not_sufficient_for_production_egress(monkeypatch) -> None:
+    """A declared proxy is not proof of outbound destination enforcement."""
+    monkeypatch.setenv("MCP_ENV", "production")
+    internal = InternalDockerSandbox(
+        image="sha256:" + "d" * 64,
+        network_id="e" * 64,
+        proxy_container_id="f" * 64,
+        proxy_name="mcp-egress-synthetic",
+    )
+    with pytest.raises(ValueError, match="not independently fenced"):
+        StdioMCPProxy(
+            ["never-executed"],
+            internal_sandbox=internal,
+            strict_mcp_methods=True,
+            policy_engine=PolicyEngine(allowed_servers={"local"}, allowed_tools={"read_manifest"}),
+        )
+
+
+def test_siem_write_failure_degrades_readiness_until_recovered(tmp_path) -> None:
+    """A dropped local SIEM event must become observable through readiness."""
+    env = {
+        "MCP_ENV": "development",
+        "MCP_WAL_PATH": str(tmp_path / "wal.jsonl"),
+        "MCP_AUDIT_PATH": str(tmp_path / "audit.jsonl"),
+        "MCP_SIEM_ENABLED": "true",
+        "MCP_SIEM_OUTPUT": str(tmp_path),
+    }
+    with patch.dict("os.environ", env, clear=True):
+        server = ProductionServer(Config())
+
+    server._write_siem_event({"allowed": False, "findings": ["synthetic"]}, "t", "s")
+    status, body = server._handle_ready()
+    assert status == 503
+    assert body["reason"] == "siem_delivery_degraded"
+
+    server.config.siem_output = str(tmp_path / "events.ndjson")
+    server._write_siem_event({"allowed": False, "findings": ["synthetic"]}, "t", "s")
+    status, _ = server._handle_ready()
+    assert status == 200

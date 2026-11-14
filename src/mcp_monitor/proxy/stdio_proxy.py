@@ -606,6 +606,10 @@ class StdioMCPProxy:
         # as for the CLI. Otherwise a caller can bypass command-line checks
         # and launch a fully privileged subprocess with unrestricted tools.
         if os.environ.get("MCP_ENV", "").strip().lower() == "production":
+            # The internal proxy network attests sidecar membership, not its
+            # destination policy. Only offline network-none is eligible here.
+            if self._internal_sandbox is not None:
+                raise ValueError("Production internal egress proxy is not independently fenced")
             if self._offline_sandbox is None and self._internal_sandbox is None:
                 raise ValueError("Production MCP stdio requires Docker sandbox isolation")
             if not self._strict_mcp_methods:

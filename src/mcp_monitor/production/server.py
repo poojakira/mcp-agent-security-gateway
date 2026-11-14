@@ -101,6 +101,7 @@ class ProductionServer:
             on_shutdown=self._flush_wal,
         )
 
+        self._siem_delivery_healthy = True
         self._server: asyncio.Server | None = None
 
     def _flush_wal(self) -> None:
@@ -568,8 +569,10 @@ class ProductionServer:
         }
 
     def _handle_ready(self) -> tuple[int, dict[str, Any]]:
-        """GET /v1/ready - Require both forensic persistence paths to be writable."""
+        """GET /v1/ready - Check forensic persistence and local telemetry queue."""
         try:
+            if self.config.siem_enabled and not self._siem_delivery_healthy:
+                return 503, {"status": "not_ready", "reason": "siem_delivery_degraded"}
             paths = {
                 "WAL": self.config.wal_path
                 or os.path.join(tempfile.gettempdir(), "mcp_monitor_wal.jsonl"),
@@ -702,7 +705,9 @@ class ProductionServer:
             os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
             with open(output_path, "a", encoding="utf-8") as fh:
                 fh.write(json.dumps(event, default=str) + "\n")
+            self._siem_delivery_healthy = True
         except Exception as exc:  # noqa: BLE001 - SIEM export is best-effort
+            self._siem_delivery_healthy = False
             self._logger.error(f"SIEM event write failed: {exc}")
 
     def _handle_inspect_output(
