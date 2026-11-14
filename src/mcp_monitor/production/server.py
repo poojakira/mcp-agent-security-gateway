@@ -8,6 +8,7 @@ tracing, shadow mode, and graceful shutdown.
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import os
 import tempfile
@@ -71,6 +72,14 @@ class ProductionServer:
 
         # Production components
         self._rate_limiter = RateLimiter(tokens_per_minute=self.config.rate_limit_rpm)
+        # Independent quotas for finite, operator-configured service credentials.
+        # Token fingerprints are not logged and keys are never used in metrics.
+        self._credential_limiters = {
+            hashlib.sha256(key.encode("utf-8")).digest(): RateLimiter(
+                tokens_per_minute=self.config.rate_limit_rpm
+            )
+            for key in self.config.api_keys
+        }
         self._metrics = MetricsCollector()
         self._tracer = Tracer()
         self._alerting = AlertingHook(
@@ -282,8 +291,18 @@ class ProductionServer:
             # load to prevent Kubernetes from marking pods as unready.
             _RATE_LIMIT_EXEMPT_PATHS = {"/v1/health", "/v1/ready", "/v1/metrics"}
             if path not in _RATE_LIMIT_EXEMPT_PATHS:
-                # Rate limiting (only for non-operational endpoints)
-                if not self._rate_limiter.allow():
+                # Rate limiting (only for non-operational endpoints).
+                # A single authenticated key cannot exhaust the quota of
+                # unrelated configured keys. Anonymous lab mode uses the
+                # original shared limiter; edge protections are still needed.
+                limiter = self._rate_limiter
+                if self._credential_limiters and not self.config.allow_anonymous:
+                    verified = self._match_api_key(headers)
+                    if verified is not None:
+                        limiter = self._credential_limiters[
+                            hashlib.sha256(verified.encode("utf-8")).digest()
+                        ]
+                if not limiter.allow():
                     self._metrics.inc_error()
                     await self._send_response(writer, 429, {"error": "Rate limit exceeded"})
                     return

@@ -42,6 +42,7 @@ class Config:
         self.max_payload_kb: float = float(os.environ.get("MCP_MAX_PAYLOAD_KB", "100"))
         self.wal_path: str | None = os.environ.get("MCP_WAL_PATH")
         self.audit_path: str | None = os.environ.get("MCP_AUDIT_PATH")
+        self.audit_hmac_key: str | None = os.environ.get("MCP_AUDIT_HMAC_KEY")
         self.api_key: str | None = os.environ.get("MCP_API_KEY")
         self.api_keys: tuple[str, ...] = self._parse_api_keys(
             self.api_key,
@@ -103,6 +104,8 @@ class Config:
             errors.append("MCP_WAL_PATH must point to durable storage")
         if not self.audit_path:
             errors.append("MCP_AUDIT_PATH must point to durable storage")
+        if not self.audit_hmac_key or len(self.audit_hmac_key.encode("utf-8")) < 32:
+            errors.append("MCP_AUDIT_HMAC_KEY must contain at least 32 UTF-8 bytes")
         if not self.allowed_servers:
             errors.append("MCP_ALLOWED_SERVERS must contain at least one approved server")
         if self.rate_limit_rpm <= 0:

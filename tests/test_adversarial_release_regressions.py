@@ -132,3 +132,46 @@ def test_production_library_accepts_explicit_isolation_and_capabilities(monkeypa
         policy_engine=PolicyEngine(allowed_servers={"local"}, allowed_tools={"read_manifest"}),
     )
     assert proxy is not None
+
+def test_authenticated_keys_have_separate_inspection_budgets(tmp_path) -> None:
+    """One configured key cannot consume a different key's inspection quota."""
+    env = {
+        "MCP_ENV": "development",
+        "MCP_WAL_PATH": str(tmp_path / "wal2.jsonl"),
+        "MCP_AUDIT_PATH": str(tmp_path / "audit2.jsonl"),
+        "MCP_ALLOWED_SERVERS": "dummy",
+        "MCP_RATE_LIMIT_RPM": "1",
+        "MCP_API_KEYS": "a" * 32 + "," + "b" * 32,
+    }
+    with patch.dict("os.environ", env, clear=True):
+        server = ProductionServer(Config())
+
+    async def fake_route(method, path, body, headers, trace_id, span_id, source_event_id=None):
+        return 200, {"allowed": True}
+
+    server._route = fake_route
+
+    async def request(key: str) -> bytes:
+        reader = asyncio.StreamReader()
+        reader.feed_data(
+            b"POST /v1/inspect_call HTTP/1.1\r\n"
+            b"Host: test.invalid\r\n"
+            + f"X-API-Key: {key}\r\n".encode()
+            + b"Content-Length: 2\r\n\r\n{}"
+        )
+        reader.feed_eof()
+        writer = _Writer()
+        await server._handle_connection(reader, writer)
+        return bytes(writer.data)
+
+    async def exercise() -> tuple[bytes, bytes, bytes]:
+        return (
+            await request("a" * 32),
+            await request("a" * 32),
+            await request("b" * 32),
+        )
+
+    first, throttled, other = asyncio.run(exercise())
+    assert first.startswith(b"HTTP/1.1 200")
+    assert throttled.startswith(b"HTTP/1.1 429")
+    assert other.startswith(b"HTTP/1.1 200")

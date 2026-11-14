@@ -133,6 +133,7 @@ class TestConfig:
             "MCP_API_KEY": "a" * 32,
             "MCP_WAL_PATH": "/var/lib/mcp/wal.jsonl",
             "MCP_AUDIT_PATH": "/var/lib/mcp/audit.jsonl",
+            "MCP_AUDIT_HMAC_KEY": "a" * 48,
             "MCP_ALLOWED_SERVERS": "github,filesystem",
             "MCP_ALLOW_ANONYMOUS": "false",
             "MCP_RATE_LIMIT_RPM": "600",

@@ -89,3 +89,9 @@ Two concrete weaknesses in the integration branch were reproduced through five n
 - Exact code, tests, CI evidence and release register referenced above.
 
 **Interpretation standard:** `reproduced` means an executable negative test observed a concrete unintended outcome at an exact code revision; `source-grounded` means the logic or missing assurance was seen in source but no operational exploit is proven; `open` means a mandatory real-world property has no sufficient validation. A zero-findings or production-safe claim is explicitly not made.
+
+## Additional first-party hardening under review
+
+- Production configuration now requires a minimum 32-byte `MCP_AUDIT_HMAC_KEY`; this changes the default from an unkeyed, locally recomputable digest to keyed hashes when the production config is used. This **does not** establish off-host immutability or independent key custody.
+- The HTTP inspection service now allocates a separate in-process token bucket to each configured service API key, while still requiring authentication before quota charging. This is **not** tenant identity, global distributed quota enforcement or network flood protection.
+- These protections are pending exact-commit CI and do not change the formal production NO-GO.
