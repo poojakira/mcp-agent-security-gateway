@@ -595,6 +595,13 @@ class StdioMCPProxy:
             allowed_servers={server_id},
             allowed_egress_hosts=allowed_egress_hosts,
         )
+        # Strict method gating without a trusted capability set would leave
+        # a direct-library construction weaker than the hardened CLI.
+        if self._strict_mcp_methods:
+            trusted_tools = getattr(self._policy_engine, "allowed_tools", None)
+            if not isinstance(trusted_tools, frozenset) or not trusted_tools:
+                raise ValueError("Strict MCP methods require a trusted tool allowlist")
+
         # Enforce the same production contract for direct Python API callers
         # as for the CLI. Otherwise a caller can bypass command-line checks
         # and launch a fully privileged subprocess with unrestricted tools.
