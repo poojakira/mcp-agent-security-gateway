@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - docs/phase1-16-evidence-and-poster-20261111
+      - security/phase1-16-audit
   pull_request:
     branches: [main]
     paths:
@@ -15,6 +16,7 @@ on:
       - "poster/03_verified_metrics.md"
       - "poster/13_reproducibility.md"
       - "poster/render_poster.py"
+      - "docs/poster/mcp-gateway-animated-architecture.svg"
   workflow_dispatch:
 
 permissions:
