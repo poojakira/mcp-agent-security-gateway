@@ -82,6 +82,7 @@ def test_valid_health_request_reaches_router():
     assert response.startswith(b"HTTP/1.1 200")
     assert b'"status": "healthy"' in response
 
+
 def test_duplicate_auth_header_is_rejected_before_any_route() -> None:
     response = _request(
         b"POST /v1/inspect_call HTTP/1.1\r\n"

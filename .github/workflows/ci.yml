@@ -50,9 +50,6 @@ jobs:
       - name: Lint with Ruff
         run: ruff check src/ tests/ poster/render_poster.py scripts/recruiter_demo.py --output-format=github
 
-      - name: Show Ruff diff for current HTTP framing hardening
-        run: ruff format --diff src/mcp_monitor/production/server.py tests/test_http_framing.py || true
-
       - name: Run Ruff Formatter Check
         run: ruff format --check src/ tests poster/render_poster.py scripts/recruiter_demo.py
 

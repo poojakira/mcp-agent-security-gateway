@@ -240,7 +240,8 @@ class ProductionServer:
                     await self._send_response(writer, 400, {"error": "Malformed header name"})
                     return
                 if (
-                    normalized_key in {
+                    normalized_key
+                    in {
                         "content-length",
                         "transfer-encoding",
                         "host",
