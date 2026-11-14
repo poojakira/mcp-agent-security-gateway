@@ -8,6 +8,7 @@ on:
     branches:
       - docs/phase1-16-evidence-and-poster-20261111
       - security/phase1-16-audit
+      - security/phase1-16-audit
   pull_request:
     branches: [main]
     paths:
@@ -16,6 +17,7 @@ on:
       - "poster/03_verified_metrics.md"
       - "poster/13_reproducibility.md"
       - "poster/render_poster.py"
+      - "docs/poster/mcp-gateway-animated-architecture.svg"
       - "docs/poster/mcp-gateway-animated-architecture.svg"
   workflow_dispatch:
 
@@ -67,6 +69,7 @@ jobs:
           for phrase in ("1,211", "NO-GO", "Docker"):
               assert phrase in text, (phrase, text[:350])
           assert Path("poster/poster.png").stat().st_size > 10000
+          assert Path("docs/poster/mcp-gateway-animated-architecture.svg").exists()
           print("Poster dimension, content and PNG checks passed")
           PY
       - name: Store rendered posterior artifacts for visual review
