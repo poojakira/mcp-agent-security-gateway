@@ -1,4 +1,4 @@
-name: Production Gate
+name: Development package gate (production NO-GO)
 
 on:
   push:
@@ -30,6 +30,10 @@ jobs:
         run: python -m pip install --upgrade pip build
       - name: Install
         run: python -m pip install -e ".[dev,server,oidc]"
+      - name: Verify human production release still blocked
+        run: |
+          grep -q 'NO-GO' docs/review/PHASE13_RELEASE_READINESS.md
+          grep -q 'PRODUCTION NO-GO' docs/review/ADVERSARIAL_AUTOPSY_2026-11-14.md
       - name: Unit and integration tests
         run: python -m pytest -q
       - name: Static quality gate
