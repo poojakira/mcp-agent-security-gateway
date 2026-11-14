@@ -1,6 +1,13 @@
 name: Real MCP Filesystem Smoke Test
 
 on:
+  push:
+    branches: [integration/phase1-16-remediation-20261109]
+    paths:
+      - "src/mcp_monitor/**"
+      - "tests/test_live_filesystem_mcp.py"
+      - "tests/test_adversarial_release_regressions.py"
+      - ".github/workflows/real-mcp-smoke.yml"
   pull_request:
     branches: [main]
     paths:
@@ -32,4 +39,5 @@ jobs:
       - name: Test real filesystem server with disposable files
         env:
           MCP_RUN_REAL_SERVER: "1"
-        run: python -m pytest tests/test_live_filesystem_mcp.py -v -s --tb=short
+        run: |
+          python -m pytest tests/test_live_filesystem_mcp.py tests/test_adversarial_release_regressions.py tests/test_stdio_adversarial_responses.py tests/test_http_framing.py -v -s --tb=short
