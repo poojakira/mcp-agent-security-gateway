@@ -30,3 +30,15 @@ The generator checks `/api/tags` for exactly `gemma4:31b` and records its digest
 5. Report failures and false positives by case and family, plus model revision, hardware, seeds, inference settings and provenance. **Do not infer production detection performance from this dataset alone.**
 
 This workflow is tested in CI with a mocked local model; GitHub runners do **not** execute actual Gemma 31B inference and no candidate corpus is claimed to exist until someone runs it on a suitable local machine.
+
+## End-to-end offline guardrail replay
+
+To test an **existing locally generated** Gemma candidate file against the actual Python stdio gateway enforcement code (real policy engine + regex detector + a fake downstream transport), run:
+
+```bash
+python -m benchmark.gemma31b_guardrail_eval --input benchmark/generated/gemma31b_candidates.jsonl
+```
+
+This prints a report of candidate-labeled adversarial responses blocked, benign responses released, per-family outcomes, and an independent check that `write_file` is denied **before** the synthetic transport's `send`. Untrusted tool output and untrusted tool descriptions use separate MCP response surfaces. **Authorized reads and tool discovery are forwarded to the *synthetic* downstream before inspection of the response; blocking a result is not reversing downstream side effects.** The replay does not contact Ollama, execute tools or run the Gemma model.
+
+The automated `tests/test_gemma31b_guardrail_eval.py` generates paired *mock model responses* and checks this same gateway path; its 6/6 blocked fixture attacks are test scaffolding, **not empirical attack resistance for Gemma 31B**. Real Gemma inference remains an explicit separate step on suitable local hardware, and generated cases must receive independent review before performance claims.

@@ -107,3 +107,5 @@ See [LICENSE](LICENSE) and the [historical license terms](docs/license-history/L
 ## Local Gemma 4 31B security evaluation data
 
 The optional [Gemma 31B candidate-data generator](docs/review/GEMMA31B_DATA_PROTOCOL.md) can produce benign and adversarial MCP text via **locally running** `gemma4:31b` through Ollama, with a pinned model digest and no paid API keys. All generated examples are **unreviewed candidates** and are excluded from the frozen holdout and production-release claims. CI mocks the model; no actual Gemma inference or independent benchmark is claimed.
+
+**Replay test:** `python -m benchmark.gemma31b_guardrail_eval --input benchmark/generated/gemma31b_candidates.jsonl` compares generated *candidate labels* with observed guardrail responses on an in-memory downstream; it is not a real-Gemma or live-execution benchmark.
