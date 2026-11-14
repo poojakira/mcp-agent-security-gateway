@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 600" role="img" aria-labelledby="title desc">
 <title id="title">MCP Agent Security Gateway request lifecycle</title>
-<desc id="desc">An agent sends a request through trusted identity, JSON-RPC validation, policy and detection. Denied calls stop before tools execute. Allowed calls reach an MCP server; execution and side effects are independently verified and recorded in an audit ledger.</desc>
+<desc id="desc">An agent sends a request through trusted identity, JSON-RPC validation, policy and detection. Denied calls stop before tools execute. Allowed calls reach an MCP server; the gateway records its decision and available downstream evidence. Independent side-effect verification is limited to tested local scenarios, not all tools.</desc>
 <style>
 svg{background:#0b1220;font:19px system-ui,sans-serif}text{fill:#eef5ff}.small{font-size:15px;fill:#b8c9e4}.box{fill:#16253b;stroke:#7aa7e6;stroke-width:2;rx:16}.ok{stroke:#54d7a4}.no{stroke:#ff8e9b}.path{fill:none;stroke:#7aa7e6;stroke-width:4;stroke-linecap:round;stroke-dasharray:12 12;animation:flow 2s linear infinite}.pulse{animation:pulse 2s ease-in-out infinite}@keyframes flow{to{stroke-dashoffset:-48}}@keyframes pulse{50%{opacity:.4}}@media(prefers-reduced-motion:reduce){.path,.pulse{animation:none}}
 </style>
@@ -16,6 +16,6 @@ svg{background:#0b1220;font:19px system-ui,sans-serif}text{fill:#eef5ff}.small{f
 <rect class="box ok" x="470" y="345" width="210" height="85"/><text x="575" y="380" text-anchor="middle">ALLOW</text><text class="small" x="575" y="407" text-anchor="middle">Downstream MCP tool</text>
 <rect class="box no" x="830" y="345" width="220" height="85"/><text x="940" y="380" text-anchor="middle">BLOCK</text><text class="small" x="940" y="407" text-anchor="middle">No tool invocation</text>
 <path class="path" d="M575 430V480H440 M940 430V480H660"/>
-<rect class="box" x="255" y="480" width="590" height="85"/><text x="550" y="514" text-anchor="middle">Evidence ledger + independent effect verification</text><text class="small" x="550" y="542" text-anchor="middle">Decision • downstream outcome • side effect • crash recovery status</text>
+<rect class="box" x="255" y="480" width="590" height="85"/><text x="550" y="514" text-anchor="middle">Audit ledger + scoped effect checks</text><text class="small" x="550" y="542" text-anchor="middle">Decision • reported outcome • local effect evidence • recovery state</text>
 <circle class="pulse" cx="890" cy="235" r="8" fill="#54d7a4"/>
 </svg>
