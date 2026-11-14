@@ -109,8 +109,16 @@ class ProtectedRepo:
     def read(self, arguments: dict[str, Any]) -> dict[str, Any]:
         if arguments:
             raise ProtectedOperationError("Unexpected read arguments")
-        _, data = self._manifest()
-        return {"dependencies": data["dependencies"]}
+        if self.revocation_fence is None:
+            # Legacy local laboratory mode does not claim revocation safety.
+            _, data = self._manifest()
+            return {"dependencies": data["dependencies"]}
+        try:
+            with self.revocation_fence.authorize_effect(self.operator_principal):
+                _, data = self._manifest()
+                return {"dependencies": data["dependencies"]}
+        except RevocationFenceError as exc:
+            raise ProtectedOperationError("Revocation authority denied protected read") from exc
 
     def update(self, arguments: dict[str, Any]) -> dict[str, Any]:
         if self.revocation_fence is None:
