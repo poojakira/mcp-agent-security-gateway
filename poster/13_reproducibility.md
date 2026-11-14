@@ -1,3 +1,5 @@
+> **2026-11-14 rendering and validation note:** The poster generator embeds `docs/poster/mcp-gateway-animated-architecture.svg`. Animation is for digital viewing only; PDF and PNG show a static frame. The current audit branch contains unverified revocation patches and five new tests. Run full CI and poster parity against the exact audit commit before replacing historical poster binaries. **PRODUCTION NO-GO.**
+
 # Reproducibility — November 11, 2026 Phase 1–16 Poster
 
 **Reviewed source SHA:** `43a72c8984bf9a472b9055d4f9e84cc759f61718` (stacked draft review branch).  
