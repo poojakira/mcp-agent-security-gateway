@@ -81,3 +81,24 @@ def test_valid_health_request_reaches_router():
     response = _request(b"GET /v1/health HTTP/1.1\r\nHost: gateway\r\n\r\n")
     assert response.startswith(b"HTTP/1.1 200")
     assert b'"status": "healthy"' in response
+
+def test_duplicate_auth_header_is_rejected_before_any_route() -> None:
+    response = _request(
+        b"POST /v1/inspect_call HTTP/1.1\r\n"
+        b"Host: gateway\r\n"
+        b"X-API-Key: synthetic-one\r\n"
+        b"X-API-Key: synthetic-two\r\n"
+        b"Content-Length: 2\r\n\r\n{}"
+    )
+    assert response.startswith(b"HTTP/1.1 400")
+
+
+def test_http_request_rejects_noncanonical_framing() -> None:
+    for raw in (
+        b"GET /v1/health HTTP/1.1\nHost: gateway\n\n",
+        b"GET\t/v1/health HTTP/1.1\r\nHost: gateway\r\n\r\n",
+        b"GET /v1/health HTTP/1.1\r\nHost : gateway\r\n\r\n",
+        b"POST /v1/inspect_call HTTP/1.1\r\nHost: gateway\r\nContent-Length: +2\r\n\r\n{}",
+    ):
+        response = _request(raw)
+        assert response.startswith(b"HTTP/1.1 400"), raw

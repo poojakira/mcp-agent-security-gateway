@@ -171,24 +171,26 @@ class ProductionServer:
             if not request_line:
                 writer.close()
                 return
-            if len(request_line) > _MAX_REQUEST_LINE_BYTES or not request_line.endswith(b"\n"):
+            if len(request_line) > _MAX_REQUEST_LINE_BYTES:
                 await self._send_response(writer, 414, {"error": "Request line too long"})
+                return
+            if not request_line.endswith(b"\r\n"):
+                await self._send_response(writer, 400, {"error": "Invalid request line ending"})
                 return
 
             # Parse a strict origin-form HTTP request line. The gateway does not
             # support proxy-form absolute URIs or ambiguous HTTP framing.
             try:
-                request_str = request_line.decode("ascii").strip()
+                request_str = request_line[:-2].decode("ascii")
             except UnicodeDecodeError:
                 await self._send_response(writer, 400, {"error": "Invalid request line"})
                 return
-            parts = request_str.split()
-            if len(parts) != 3:
+            parts = request_str.split(" ")
+            if len(parts) != 3 or any(not part for part in parts):
                 await self._send_response(writer, 400, {"error": "Bad request"})
                 return
 
             method, path, http_version = parts
-            method = method.upper()
             if method not in {"GET", "POST"}:
                 await self._send_response(writer, 405, {"error": "Method not allowed"})
                 return
@@ -216,8 +218,11 @@ class ProductionServer:
                 if total_header_bytes > _MAX_HEADER_BYTES or header_count > _MAX_HEADER_COUNT:
                     await self._send_response(writer, 431, {"error": "Request headers too large"})
                     return
-                if header_line in {b"\r\n", b"\n"}:
+                if header_line == b"\r\n":
                     break
+                if not header_line.endswith(b"\r\n"):
+                    await self._send_response(writer, 400, {"error": "Invalid header line ending"})
+                    return
                 try:
                     header_str = header_line.decode("ascii").rstrip("\r\n")
                 except UnicodeDecodeError:
@@ -227,12 +232,22 @@ class ProductionServer:
                     await self._send_response(writer, 400, {"error": "Malformed header"})
                     return
                 key, value = header_str.split(":", 1)
-                normalized_key = key.strip().lower()
-                if not normalized_key or any(ch.isspace() for ch in normalized_key):
+                normalized_key = key.lower()
+                legal_punctuation = "!#$%&\u0027*+-.^_`|~"
+                if not normalized_key or any(
+                    not (ch.isalnum() or ch in legal_punctuation) for ch in normalized_key
+                ):
                     await self._send_response(writer, 400, {"error": "Malformed header name"})
                     return
                 if (
-                    normalized_key in {"content-length", "transfer-encoding"}
+                    normalized_key in {
+                        "content-length",
+                        "transfer-encoding",
+                        "host",
+                        "x-api-key",
+                        "authorization",
+                        "x-forwarded-for",
+                    }
                     and normalized_key in headers
                 ):
                     await self._send_response(writer, 400, {"error": "Ambiguous request framing"})
@@ -249,6 +264,9 @@ class ProductionServer:
             # Read body if content-length specified.
             body = b""
             raw_content_length = headers.get("content-length", "0")
+            if not raw_content_length.isascii() or not raw_content_length.isdigit():
+                await self._send_response(writer, 400, {"error": "Invalid Content-Length"})
+                return
             try:
                 content_length = int(raw_content_length)
             except ValueError:
