@@ -223,3 +223,22 @@ def test_authority_failure_denies_manifest_read(protected):
     authority._path.unlink()
     with pytest.raises(ProtectedOperationError, match="Revocation authority denied protected read"):
         repo.read({})
+
+
+def test_revoked_principal_cannot_discover_tools(protected):
+    from mcp_monitor.protected_repo_server import handle
+
+    repo, authority, _ = protected
+    authority.revoke(principal="operator")
+    reply = handle({"jsonrpc": "2.0", "id": 77, "method": "tools/list"}, repo)
+    assert reply["error"]["code"] == -32003
+    assert "tools" not in reply
+
+
+def test_authority_failure_denies_tool_discovery(protected):
+    from mcp_monitor.protected_repo_server import handle
+
+    repo, authority, _ = protected
+    authority._path.unlink()
+    reply = handle({"jsonrpc": "2.0", "id": 78, "method": "tools/list"}, repo)
+    assert reply["error"]["code"] == -32003
