@@ -1,3 +1,5 @@
+> **2026-11-14 consolidated audit update:** Five authored but unexecuted revocation regression tests now cover protected manifest reads and tool discovery; direct same-user server invocation remains a documented critical bypass. Poster animation source: [animated MCP architecture](../docs/poster/mcp-gateway-animated-architecture.svg). Numerical CI results below belong exclusively to historical commit `43a72c8984bf9a472b9055d4f9e84cc759f61718`, not this branch. **PRODUCTION NO-GO.**
+
 > **2026-11-14 audit-branch delta (not CI-verified):** Protected manifest reads and tool discovery now check the configured revocation authority, with five new regression tests in `tests/test_phase16_revocation_safe_commit.py`. No new pass count, coverage, or efficacy claim is authorized. Direct downstream invocation remains a confirmed isolation bypass. The animation is an explanatory architecture diagram, not runtime proof. **PRODUCTION NO-GO.**
 
 # Claim Ledger — Phase 1–16 Gateway Poster
