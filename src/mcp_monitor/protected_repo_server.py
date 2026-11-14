@@ -218,6 +218,15 @@ def handle(request: Any, repo: ProtectedRepo) -> dict[str, Any] | None:
     if method == "ping":
         return _result(identity, {})
     if method == "tools/list":
+        if repo.revocation_fence is not None:
+            try:
+                allowed, _epoch = repo.revocation_fence.status(
+                    principal=repo.operator_principal
+                )
+                if not allowed:
+                    raise RevocationFenceError("Operator authorization revoked")
+            except RevocationFenceError:
+                return _error(identity, -32003, "Revocation authority denied tool discovery")
         return _result(identity, {"tools": list(TOOLS)})
     if method != "tools/call":
         return _error(identity, -32601, "MCP method not supported")
