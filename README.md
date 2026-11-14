@@ -103,3 +103,7 @@ Never commit credentials or real user data. Obtain keys only from operator-contr
 ## License
 
 See [LICENSE](LICENSE) and the [historical license terms](docs/license-history/LICENSE-BEFORE-2026-10-13.txt).
+
+## Local Gemma 4 31B security evaluation data
+
+The optional [Gemma 31B candidate-data generator](docs/review/GEMMA31B_DATA_PROTOCOL.md) can produce benign and adversarial MCP text via **locally running** `gemma4:31b` through Ollama, with a pinned model digest and no paid API keys. All generated examples are **unreviewed candidates** and are excluded from the frozen holdout and production-release claims. CI mocks the model; no actual Gemma inference or independent benchmark is claimed.

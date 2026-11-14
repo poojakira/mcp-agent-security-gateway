@@ -92,3 +92,6 @@ terraform.tfvars
 *.sqlite3
 *.db
 *.bak
+
+# Local Gemma 31B generated candidates and provenance (not independently reviewed)
+benchmark/generated/
