@@ -14,6 +14,7 @@ BRIEF = POSTER / "01_research_brief.md"
 METRICS = POSTER / "03_verified_metrics.md"
 OUT_PDF = POSTER / "poster_36x48.pdf"
 OUT_PNG = POSTER / "poster.png"
+ARCHITECTURE = ROOT / "docs/poster/mcp-gateway-animated-architecture.svg"
 
 BROWSERS = [
     Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"),
@@ -164,6 +165,7 @@ def main() -> int:
     sources = pick_section(sections, "Evidence Sources", "References")
     status = pick_section(sections, "Evidence Status")
 
+    architecture_svg = ARCHITECTURE.read_text(encoding="utf-8") if ARCHITECTURE.exists() else ""
     metric_cards = "".join(
         f"<div class='metric'><div class='mval'>{html.escape(value)}</div>"
         f"<div class='mname'>{html.escape(name)}</div><div class='mscope'>{html.escape(scope)}</div></div>"
@@ -186,7 +188,7 @@ def main() -> int:
     .mval { font-size:42px; font-weight:800; color:#0b5f8a; line-height:1; margin-bottom:8px; }
     .mname { font-size:19px; font-weight:700; line-height:1.15; }
     .mscope { font-size:15px; line-height:1.25; color:#556575; margin-top:7px; }
-    .columns { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; flex:1; min-height:0; }
+    .architecture { background:#0b1220; border-radius:22px; padding:12px 20px; margin:0 0 18px; height:240px; overflow:hidden; }\n    .architecture svg { width:100%; height:100%; display:block; }\n    .columns { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; flex:1; min-height:0; }
     .col { display:flex; flex-direction:column; gap:14px; min-height:0; }
     section { background:white; border:2px solid #d8e1ea; border-radius:22px; padding:21px 22px 19px; }
     h2 { margin:0 0 10px; font-size:27px; color:#0b5f8a; line-height:1.1; }
@@ -209,7 +211,7 @@ def main() -> int:
       .mval { font-size:.84in; margin-bottom:.16in; }
       .mname { font-size:.38in; }
       .mscope { font-size:.3in; margin-top:.14in; }
-      .columns { gap:.40in; }
+      .architecture { height:4.80in; margin-bottom:.36in; padding:.24in .40in; }\n      .columns { gap:.40in; }
       .col { gap:.28in; }
       section { border-width:.04in; border-radius:.44in; padding:.42in .44in .38in; }
       h2 { margin-bottom:.20in; font-size:.52in; }
@@ -234,7 +236,7 @@ def main() -> int:
         <p class="subtitle">{html.escape(subtitle)}</p>
         <div class="status">{html.escape(clean_inline(" ".join(status)))}</div>
       </header>
-      <div class="metrics">{metric_cards}</div>
+      <div class="metrics">{metric_cards}</div>\n      <div class="architecture" aria-label="Animated architecture for digital poster; static diagram when printed">{architecture_svg}</div>
       <div class="columns">
         <div class="col">
           {sec("Contribution", contribution)}
