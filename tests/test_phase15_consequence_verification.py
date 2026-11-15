@@ -189,14 +189,14 @@ def test_independent_verified_effect_can_reconcile_without_replay(
     journal.reserve(**identity, arguments=args)
     observer = _observer(workspace)
     with pytest.raises(EffectJournalError, match="not independently verified"):
-        journal.reconcile_verified_effect(**identity, report=observer.inspect())
+        journal.reconcile_verified_effect(**identity, verifier=observer)
     assert journal.status(**identity) == "UNCERTAIN"
 
     manifest = workspace / "package.json"
     data = json.loads(manifest.read_text())
     data["dependencies"]["safe-package"] = "1.1.0"
     manifest.write_text(json.dumps(data), encoding="utf-8")
-    journal.reconcile_verified_effect(**identity, report=observer.inspect())
+    journal.reconcile_verified_effect(**identity, verifier=observer)
     assert DurableEffectJournal(tmp_path / "reconcile.sqlite").status(**identity) == "COMPLETED"
     with pytest.raises(EffectJournalError, match="Duplicate or unresolved"):
         journal.reserve(**identity, arguments=args)
@@ -220,5 +220,5 @@ def test_unexpected_external_effect_never_reconciles_as_success(
     manifest.write_text(json.dumps(data), encoding="utf-8")
     assert observer.inspect().state is Consequence.UNEXPECTED_EFFECT
     with pytest.raises(EffectJournalError, match="not independently verified"):
-        journal.reconcile_verified_effect(**identity, report=observer.inspect())
+        journal.reconcile_verified_effect(**identity, verifier=observer)
     assert journal.status(**identity) == "UNCERTAIN"
