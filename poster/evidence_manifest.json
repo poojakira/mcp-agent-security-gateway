@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "decision": "NO-GO",
+  "source_sha": "a24f92c17f93d5c150eafe4ba7dce507ecb534b6",
+  "integrated_run_id": 43657370973,
+  "poster_run_id": 43657370960,
+  "tests_passed_per_python": 1245,
+  "tests_skipped_per_python": 6,
+  "python_versions": [
+    "3.10",
+    "3.11",
+    "3.12"
+  ],
+  "integrated_jobs_passed": 5,
+  "integrated_jobs_total": 5,
+  "coverage_percent": null,
+  "scope": "development research only; no production authorization"
+}
