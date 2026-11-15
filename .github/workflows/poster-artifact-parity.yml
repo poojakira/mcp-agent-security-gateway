@@ -8,6 +8,7 @@ on:
     branches:
       - docs/phase1-16-evidence-and-poster-20261111
       - security/phase1-16-audit
+      - fix/evidence-provenance-20261114
       - integration/phase1-16-verified
   pull_request:
     branches: [main]
@@ -15,6 +16,8 @@ on:
       - "poster/01_research_brief.md"
       - "poster/02_claim_ledger.md"
       - "poster/03_verified_metrics.md"
+      - "poster/evidence_manifest.json"
+      - ".github/workflows/poster-artifact-parity.yml"
       - "poster/13_reproducibility.md"
       - "poster/render_poster.py"
       - "docs/poster/mcp-gateway-animated-architecture.svg"
@@ -32,17 +35,36 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - name: Verify source distinguishes CI from release
+      - name: Verify provenance manifest against actual successful GitHub runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
         run: |
           python - <<'PY'
+          import json, os, re, urllib.request
           from pathlib import Path
-          brief = Path("poster/01_research_brief.md").read_text()
-          metrics = Path("poster/03_verified_metrics.md").read_text()
-          ledger = Path("poster/02_claim_ledger.md").read_text()
-          for content in (brief, metrics, ledger):
-              assert "NO-GO" in content
-              assert "a24f92c17f93d5c150eafe4ba7dce507ecb534b6" in content
-          print("Poster source provenance and NO-GO assertions verified")
+          m = json.loads(Path("poster/evidence_manifest.json").read_text())
+          assert m["schema_version"] == 1 and m["decision"] == "NO-GO"
+          sha = m["source_sha"]
+          assert re.fullmatch(r"[0-9a-f]{40}", sha)
+          assert m["tests_passed_per_python"] == 1245 and m["tests_skipped_per_python"] == 6
+          assert m["integrated_jobs_passed"] == m["integrated_jobs_total"] == 5
+          assert m["coverage_percent"] is None
+          def get_run(run_id):
+              url = f"https://api.github.com/repos/{os.environ['GH_REPOSITORY']}/actions/runs/{run_id}"
+              req = urllib.request.Request(url, headers={"Authorization": f"Bearer {os.environ['GH_TOKEN']}", "Accept": "application/vnd.github+json", "User-Agent": "poster-provenance-check"})
+              with urllib.request.urlopen(req, timeout=20) as response:
+                  return json.load(response)
+          for key, expected_name in (("integrated_run_id", "Phase 1-16 integrated security candidate"), ("poster_run_id", "Poster Artifact Parity")):
+              run = get_run(m[key])
+              assert run["head_sha"] == sha, (key, run["head_sha"], sha)
+              assert run["status"] == "completed" and run["conclusion"] == "success", key
+              assert run["name"] == expected_name, (key, run["name"])
+          for path in ("poster/01_research_brief.md", "poster/02_claim_ledger.md", "poster/03_verified_metrics.md"):
+              content = Path(path).read_text()
+              assert "NO-GO" in content and sha in content
+              assert str(m["integrated_run_id"]) in content and str(m["poster_run_id"]) in content
+          print(f"Verified historical poster evidence for {sha}; current checkout is not automatically certified")
           PY
       - name: Render 36x48 PDF and PNG without APIs or paid services
         run: |
