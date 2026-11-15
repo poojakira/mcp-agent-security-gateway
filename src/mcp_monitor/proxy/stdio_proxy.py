@@ -522,13 +522,6 @@ class StdioMCPProxy:
             raise ValueError("strict_mcp_methods must be boolean")
         self._strict_mcp_methods = strict_mcp_methods
         if os.environ.get("MCP_ENV", "").strip().lower() == "production":
-            # A local HMAC assertion, a caller-supplied principal, or an
-            # anonymous CLI session is not an authenticated production channel.
-            # Require operator-provisioned, issuer-verified session binding.
-            if not isinstance(session_binding, OIDCSessionBinding):
-                raise ValueError("Production stdio requires trusted OIDC session binding")
-            if acl_guard is None:
-                raise ValueError("Production stdio requires a trusted ACL guard")
             # Guard direct library construction, not only the CLI wrapper.
             # This is a narrow offline-only safety profile, not OS-wide
             # containment or an external identity guarantee.
@@ -616,6 +609,13 @@ class StdioMCPProxy:
                 raise ValueError("Signed session verification failed") from exc
         self._session_binding = session_binding
         self._authenticated_principal = authenticated_principal
+        if os.environ.get("MCP_ENV", "").strip().lower() == "production":
+            # Validate containment and transport first, then identity. This
+            # preserves specific fail-closed errors for unsafe configurations.
+            if not isinstance(session_binding, OIDCSessionBinding):
+                raise ValueError("Production stdio requires trusted OIDC session binding")
+            if acl_guard is None:
+                raise ValueError("Production stdio requires a trusted ACL guard")
         self._protected_resource_tools = dict(protected_resource_tools or {})
         if self._protected_resource_tools and self._acl_guard is None:
             raise ValueError("protected resource tools require an ACLGuard")
