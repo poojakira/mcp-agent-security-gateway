@@ -532,3 +532,35 @@ class TestKubernetesFailClosedNetworkPolicy:
         assert spec["podSelector"]["matchLabels"]["app.kubernetes.io/name"] == "mcp-monitor"
         assert spec["ingress"] == []
         assert spec["egress"] == []
+
+
+def test_gateway_pod_has_no_host_namespace_or_implicit_api_credentials():
+    """Static guard only: actual CNI and node isolation require deployment testing."""
+    with open(os.path.join(K8S_DIR, "deployment.yaml"), encoding="utf-8") as fh:
+        deployment = yaml.safe_load(fh)
+    pod = deployment["spec"]["template"]["spec"]
+    assert pod.get("hostNetwork") is False
+    assert pod.get("hostPID") is False
+    assert pod.get("hostIPC") is False
+    assert pod.get("automountServiceAccountToken") is False
+    assert pod["securityContext"]["runAsNonRoot"] is True
+    assert pod["securityContext"]["seccompProfile"]["type"] == "RuntimeDefault"
+    for container in pod["containers"]:
+        context = container["securityContext"]
+        assert context["allowPrivilegeEscalation"] is False
+        assert context["readOnlyRootFilesystem"] is True
+        assert "ALL" in context["capabilities"]["drop"]
+        assert container.get("privileged") is not True
+
+
+def test_gateway_deny_all_policy_selects_gateway_and_both_directions():
+    """Policy declaration is not evidence that a cluster CNI enforces it."""
+    with open(os.path.join(K8S_DIR, "networkpolicy-deny-all.yaml"), encoding="utf-8") as fh:
+        policy = yaml.safe_load(fh)
+    assert policy["kind"] == "NetworkPolicy"
+    assert policy["metadata"]["namespace"] == "mcp-monitor"
+    spec = policy["spec"]
+    assert spec["podSelector"]["matchLabels"]["app.kubernetes.io/name"] == "mcp-monitor"
+    assert set(spec["policyTypes"]) == {"Ingress", "Egress"}
+    assert spec["ingress"] == []
+    assert spec["egress"] == []
