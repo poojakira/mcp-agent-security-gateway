@@ -317,7 +317,7 @@ class TestKubernetesDeployment:
         return (
             isinstance(image, str)
             and re.fullmatch(
-                r"ghcr\\.io/poojakira/mcp-agent-security-gateway@sha256:[0-9a-f]{64}",
+                r"ghcr\.io/poojakira/mcp-agent-security-gateway@sha256:[0-9a-f]{64}",
                 image,
             )
             is not None
