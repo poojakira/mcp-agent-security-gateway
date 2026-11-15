@@ -2,12 +2,12 @@
 
 # Claim Ledger — Phase 1–16 Gateway Poster
 
-> **Reviewed development source:** `43a72c8984bf9a472b9055d4f9e84cc759f61718`, November 11, 2026 UTC. **All references are to an unmerged review stack; PRODUCTION NO-GO.** This ledger replaces the former poster headline based on the older PR #167 synthetic merge.
+> **Historical November 11 reviewed development source:** `43a72c8984bf9a472b9055d4f9e84cc759f61718`, November 11, 2026 UTC. **All references are to an unmerged review stack; PRODUCTION NO-GO.** This ledger replaces the former poster headline based on the older PR #167 synthetic merge.
 
 | Claim | Evidence | Classification and boundary |
 |---|---|---|
-| 1,245 tests passed and 6 skipped per Python 3.10/3.11/3.12 | [Latest run 43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973) | CI_VERIFIED_EXACT_HEAD; 6 skips are exclusions, not passes |
-| 5/5 integrated jobs passed | [Latest run 43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973) | CI_VERIFIED_EXACT_HEAD, not production approval |
+| 1,245 tests passed and 6 skipped per Python 3.10/3.11/3.12 | [Pinned historical run 43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973) | CI_VERIFIED_EXACT_HEAD; 6 skips are exclusions, not passes |
+| 5/5 integrated jobs passed | [Pinned historical run 43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973) | CI_VERIFIED_EXACT_HEAD, not production approval |
 | Security hygiene completed | [Hygiene run 42971171965](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171965) | HISTORICAL_CI_VERIFIED; tracked-file/history regex patterns and configured Bandit scope, not all secrets |
 | Installed Python CycloneDX SBOM generated; no known advisories reported | [Supply-chain run 42971171775](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171775) | HISTORICAL_CI_VERIFIED; public advisories at that time, not image/license/deployment certification |
 | Real restricted Docker import and MCP tool-list handshake | [Docker run 42971171991](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171991) | LAB_VERIFIED; no-network non-root test, not host-wide interception |
