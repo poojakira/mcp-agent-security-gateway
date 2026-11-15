@@ -15,3 +15,53 @@ Dependency audit initially found 12 advisory records in pip 25.0.1 (including du
 Secret triage: initial scan of **1,691 reachable blobs** reported seven blobs; all matched one published AWS documentation example fingerprint `1a5d44a2dca19669d72edf4c4f1c27c4c1ca4b4408fbb17f6ce4ad452d78ddb3`, used in attack fixtures and detector tests. The exact-byte fingerprint is exempted; nearby EXAMPLE/PLACEHOLDER text never exempts a token. No credential values are recorded here. Final count changes when commits are added. This bounded scan is not proof of absent credentials and does not establish issuer revocation.
 
 Independent verification limit: this agent performed a separate adversarial code-path pass and tests, not an independent human assessment. Production acceptance and issuer actions remain blocked.
+
+## Frozen remediation verification — 206f195
+
+Implementation commit: `206f1955aabf6e7d5dc428e22f773fc4b35877ec`. Subsequent evidence-only documentation commits do not silently inherit exact-head certification. This is an engineering candidate, not an approved release.
+
+| Verification | Exact evidence | Observed result |
+|---|---|---|
+| Integrated security | [43762146901](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43762146901) | All nine jobs succeeded |
+| Python 3.10 | Job 132959110472, logs retrieved through GitHub connector | 1,305 passed, 6 skipped; 71.47 s |
+| Python 3.11 | Job 132959110755, logs retrieved through GitHub connector | 1,305 passed, 6 skipped; 66.31 s |
+| Python 3.12 | Job 132959110414, logs retrieved through GitHub connector | 1,305 passed, 6 skipped; 56.95 s |
+| Dedicated runtime integrations | Same integrated run: Phase 5, Phase 9, Phase 14, official filesystem server, pinned public manifest | All succeeded; local dedicated runs also passed 1, 1, 2, 1 and 1 cases respectively |
+| Security Hygiene | [43762147038](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43762147038) | Succeeded |
+| Python supply chain | [43762146921](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43762146921), job 132959110082 | Succeeded; 87-component installed-environment SBOM; no known vulnerabilities found |
+| Poster parity | [43762147045](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43762147045) | Succeeded; historical poster metrics were not relabeled as current |
+| Local lint/format | Ruff 0.8.4, `src tests scripts` | Passed |
+| Local types | Existing detector/audit/test scope plus all protocol/proxy modules, webhook transport and durable authority | Zero errors; verification config names the workspace virtual environment |
+| Local static security | Bandit `-r src/mcp_monitor -q -lll -iii` | Exit 0 at high-severity/high-confidence threshold; not a clean bill for every lower-severity warning |
+| Local dependency audit | Stored [pip-audit report](evidence/206f195/pip-audit.json) | No known vulnerabilities after local pip upgrade |
+| Local SBOM | [CycloneDX verification environment](evidence/206f195/verification-environment.cdx.json) | 91 components including verification tooling; distinct from CI's 87-component environment and any runtime image |
+
+CI aggregate general matrix: **3,915 passing executions, 0 failures, 18 fixture skips** across three Python versions, not 3,915 unique tests. The six unique skipped fixture cases each ran in dedicated same-SHA jobs; the generic matrix still records those skips. Focused reruns are not added to the unique-test denominator.
+
+CI coverage text on 3.10: 7,625 statements, 1,258 missed; 2,560 branches, 363 partial branches; combined report rounded to 81%. On 3.11/3.12: 7,625 statements, 1,260 missed; 2,560 branches, 363 partial branches; rounded combined report 81%. Statement-only fractions are 6,367/7,625 (3.10) and 6,365/7,625 (3.11/3.12). Do not derive branch coverage from partial-branch count; XML artifacts are needed for that value. [Redacted extracted CI summaries](CI_206f195_SUMMARY.json) preserve exact log lines. Earlier local XML numbers belong to pre-freeze runs and are not substituted for CI coverage.
+
+Access limitation: direct CLI redirects to Actions log/artifact blob storage returned HTTP 403. The connected GitHub log tool successfully retrieved and confirmed job summaries. CI SBOM generation/audit success was verified in logs; the CI artifact archive was not downloaded by that CLI attempt. A separately generated local SBOM is explicitly labeled as local evidence.
+
+Local failure retention: initial matrix attempts had disk/fixture errors; a later frozen-source local run had 1,298 passed, 6 skipped and 7 errors during another Docker-induced disk exhaustion. These are not represented as clean runs. The same frozen SHA's three clean remote matrix results above are independently identified. VFS Docker snapshots, obsolete task images and completed task environments were cleaned up; no security check was weakened. General Docker build/smoke completion is recorded separately once observed.
+
+Release-settings API read for environment `release` returned HTTP 404. This does not prove absence rather than insufficient visibility. Required reviewers, administrator bypass controls and protected tags remain unverified; no settings were changed.
+
+## Exact local image and storage fault evidence
+
+The frozen implementation's local gateway image build completed successfully: `sha256:097726441b40d945f90c8bc0f45131c0419685a7c21fd8b49e3b3f77859105a5`. Builder-stage regression: **1,305 passed, 6 skipped**. All **83 installed Python source files** matched commit `206f1955aabf6e7d5dc428e22f773fc4b35877ec` byte-for-byte by SHA256; [hash manifest and smoke results](evidence/206f195/image-verification.json). This is a local image ID, not an approved registry manifest, signed provenance statement or deployment authorization. The default Python 3.11 base manifest is pinned; package installation used an operator CA through a builder-only secret mount, without disabling TLS verification.
+
+Actual runtime smoke used `--network=none --read-only --cap-drop=ALL --security-opt=no-new-privileges` and a disposable `/tmp` tmpfs: non-root, only loopback interface, Docker socket absent, root write denied, health HTTP 200. With no credential configured, protected inspection correctly failed closed with **HTTP 503**. The initial smoke incorrectly expected 401 (appropriate to a configured but unauthorized credential); the assertion was corrected against the existing missing-configuration contract, not by changing authentication behavior. Reproducible [smoke script](evidence/206f195/image-smoke.py) and [results](evidence/206f195/image-smoke.json).
+
+Storage exhaustion was then injected only into a dedicated **1 MiB container tmpfs**, avoiding host-wide exhaustion. A full journal denied reservation; the real proxy made **zero dispatches** and the independently checked downstream fixture file remained unchanged. [Script](evidence/206f195/journal-storage-full.py), [results](evidence/206f195/journal-storage-full.jsonl). This does not prove power-loss durability or provider atomicity.
+
+After build completion and stable storage, the frozen-source local Python 3.12 run also completed: **1,305 passed, 6 skipped, zero failures/errors**, 60.94 seconds. Earlier failed infrastructure attempts remain recorded above.
+
+The local environment CycloneDX 1.6 SBOM passed strict `JsonStrictValidator(SchemaVersion.V1_6)` validation. License metadata was inventoried: permissive BSD/MIT/Apache/Python/ISC and MPL-2.0 labels occur, including multi-license expressions. The two installed representations of this editable project lack resolved SBOM license metadata; the source `LICENSE` remains authoritative. This is an inventory, not a legal license approval. A runtime-image SBOM/advisory check is recorded separately from installed verification-environment dependencies.
+
+## Image advisory failure and follow-up remediation
+
+Checksum-verified Syft 1.57.1 generated the actual local runtime image's CycloneDX **1.7** inventory (2,940 components including file-level entries). Checksum-verified Grype 0.121.3 then completed an advisory scan, and the **high-severity gate FAILED**: 409 matches — 16 Critical, 139 High, 104 Medium, 19 Low, 91 Negligible and 40 Unknown. These are scanner matches, not 409 proven exploitable distinct CVEs. [Original image SBOM](evidence/206f195/gateway-image.cdx.json), [full advisory report](evidence/206f195/gateway-image-vulnerabilities.json), [summary](evidence/206f195/image-audit-summary.json). Database download initially exhausted disk; a later completed scan produced the above results. No clean image result is inferred from the Python-only audit.
+
+The original runtime unnecessarily installed curl and its dependency stack, and retained setuptools vendored packages with fixable advisories. Follow-up Docker changes remove curl, use a proxy-independent stdlib health check, update installed distro packages, install application wheels offline, and remove pip/setuptools/ensurepip from runtime after installation. A new `P0 exact-image acceptance` workflow builds the exact SHA, records its image identity, generates a real SBOM and fails on High/Critical advisories while retaining artifacts. It must remain red if unresolved advisories persist. A successful build/smoke does not supersede this advisory gate.
+
+The final adversarial pass also reproduced one remaining response-inspection exception traceback leak on the first frozen commit; the new regression now checks response suppression and log redaction. This follow-up is a new source revision and needs its own complete CI. Historical 1,305-pass results above remain tied to 206f195; after this additional regression the expected suite inventory changes, and only observed new results may be recorded.

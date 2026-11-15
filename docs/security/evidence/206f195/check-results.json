@@ -1,0 +1,108 @@
+{
+  "source_sha": "206f1955aabf6e7d5dc428e22f773fc4b35877ec",
+  "checks": {
+    "ruff": {
+      "command": [
+        "/workspace/p0-venv/bin/ruff",
+        "check",
+        "src",
+        "tests",
+        "scripts"
+      ],
+      "exit_code": 0
+    },
+    "format": {
+      "command": [
+        "/workspace/p0-venv/bin/ruff",
+        "format",
+        "--check",
+        "src",
+        "tests",
+        "scripts"
+      ],
+      "exit_code": 0
+    },
+    "critical_typecheck": {
+      "command": [
+        "/workspace/p0-venv/bin/pyright",
+        "--project",
+        "/tmp/p0-pyright-critical.json"
+      ],
+      "exit_code": 0
+    },
+    "standard_typecheck": {
+      "command": [
+        "/workspace/p0-venv/bin/pyright",
+        "--project",
+        "/tmp/p0-pyrightconfig.json"
+      ],
+      "exit_code": 0
+    },
+    "workflow_policy": {
+      "command": [
+        "python",
+        "scripts/workflow_security_scan.py"
+      ],
+      "exit_code": 0
+    },
+    "secret_tree": {
+      "command": [
+        "python",
+        "scripts/p0_secret_scan.py"
+      ],
+      "exit_code": 0,
+      "report": {
+        "scope": "tracked working tree",
+        "scanned": 349,
+        "findings": []
+      }
+    },
+    "secret_history": {
+      "command": [
+        "python",
+        "scripts/p0_secret_scan.py",
+        "--history"
+      ],
+      "exit_code": 0,
+      "report": {
+        "scope": "reachable blobs",
+        "scanned": 1734,
+        "findings": []
+      }
+    },
+    "bandit_high": {
+      "command": [
+        "/workspace/p0-venv/bin/bandit",
+        "-r",
+        "src/mcp_monitor",
+        "-q",
+        "-lll",
+        "-iii"
+      ],
+      "exit_code": 0
+    }
+  },
+  "typecheck_configurations": {
+    "standard": {
+      "venvPath": "/workspace",
+      "venv": "p0-venv",
+      "include": [
+        "../workspace/mcp-agent-security-gateway/src/mcp_monitor/detectors",
+        "../workspace/mcp-agent-security-gateway/src/mcp_monitor/audit",
+        "../workspace/mcp-agent-security-gateway/tests/test_prompt_injection.py",
+        "../workspace/mcp-agent-security-gateway/tests/test_pii_detector.py",
+        "../workspace/mcp-agent-security-gateway/tests/test_audit_log.py"
+      ]
+    },
+    "critical": {
+      "venvPath": "/workspace",
+      "venv": "p0-venv",
+      "include": [
+        "../workspace/mcp-agent-security-gateway/src/mcp_monitor/protocol",
+        "../workspace/mcp-agent-security-gateway/src/mcp_monitor/proxy",
+        "../workspace/mcp-agent-security-gateway/src/mcp_monitor/production/webhook_transport.py",
+        "../workspace/mcp-agent-security-gateway/src/mcp_monitor/policy/durable_authority.py"
+      ]
+    }
+  }
+}

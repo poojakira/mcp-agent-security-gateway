@@ -19,3 +19,5 @@ Required acceptance owners and artifacts:
 | Independent reviewer | Frozen exact RC, complete evidence and residual-risk acceptance, protected environment/tag settings and human approval |
 
 No cluster, issuer, production tenant, external effect provider or protected-environment settings were changed. Local proxy CA trust failure is a build-environment dependency; never disable TLS verification to bypass it.
+
+Local image acceptance evidence now includes non-root/no-network/read-only smoke, bytewise verification of all 83 installed Python files against the frozen source, and actual journal exhaustion with zero proxy dispatch and unchanged downstream state. These bounded results do not establish hostile OS-user containment, TLS edge identity, cluster CNI enforcement, registry provenance or rollback acceptance.

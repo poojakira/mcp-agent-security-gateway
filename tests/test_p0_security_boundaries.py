@@ -314,3 +314,39 @@ def test_stale_preflight_cannot_be_reserved(tmp_path):
     with pytest.raises(EffectJournalError, match="Preflight"):
         journal.reserve(**IDENTITY, arguments=ARGS, consequence_verifier=observer)
     assert journal.status(**IDENTITY) is None
+
+
+def test_downstream_inspection_exception_is_redacted(caplog, monkeypatch):
+    marker = "SYNTHETIC-DOWNSTREAM-EXCEPTION-SECRET"
+
+    class Target:
+        sent = 0
+
+        async def send(self, raw):
+            self.sent += 1
+
+        async def receive(self):
+            return b'{"jsonrpc":"2.0","id":1,"result":{"content":"safe"}}'
+
+    target = Target()
+    gateway = StdioMCPProxy(["synthetic"], transport=target)
+
+    def inspect(payload):
+        if payload.get("name") == "mcp_tool_response":
+            raise RuntimeError(marker)
+        return False, []
+
+    monkeypatch.setattr(gateway._detector, "detect", inspect)
+    request = json.dumps(
+        dict(
+            jsonrpc="2.0",
+            id=1,
+            method="tools/call",
+            params=dict(name="read_file", arguments=dict(path="safe")),
+        )
+    ).encode()
+    response = asyncio.run(gateway.handle_message(request))
+    assert "error" in json.loads(response)
+    assert target.sent == 1
+    assert marker not in response.decode()
+    assert marker not in caplog.text

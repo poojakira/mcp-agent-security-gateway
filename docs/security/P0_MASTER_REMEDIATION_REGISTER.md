@@ -253,3 +253,11 @@ This review confirms specific defects and separately records missing guarantees.
 - Regression references: `test_release_authorization.py; scripts/workflow_security_scan.py`. Execution results, exact code SHA and CI URLs: [CI evidence](P0_CI_EVIDENCE.md). A reference alone is not a passing result.
 - External acceptance dependency / owner: Accountable human reviewer: approve exact tested RC only after all mandatory findings close.
 - Residual risk: acceptance remains open until the above deployment-level criteria pass. No VERIFIED FIXED claim.
+
+## Implementation provenance and observed validation
+
+All implementation changes in this series are in commit `206f1955aabf6e7d5dc428e22f773fc4b35877ec`; exact changed paths are available in that commit. It passed [nine-job integrated CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43762146901), including the complete 1,305-pass/6-skip matrix on each supported Python version and the dedicated runtime fixtures. New adversarial tests live in `tests/test_p0_security_boundaries.py`, `tests/test_p0_webhook_transport.py`, `tests/test_p0_secret_scan.py` and `tests/test_release_authorization.py`; all are included in the full suite. No complete P0 closure follows from those results.
+
+Second-pass remediation also binds workspace identity and preflight hash before dispatch, rejects stale preflight and unbound legacy reconciliation, sanitizes policy/detector exception contents, and separates development audit/WAL directories. Remaining provider/distributed observation semantics and hostile deployment acceptance stay open.
+
+P0-18 has a concrete failing acceptance check, not merely missing evidence: the first exact runtime artifact produced 16 Critical and 139 High advisory matches. Follow-up removes unnecessary runtime curl/package installers and applies available distro updates, but unresolved base advisories still require exact-image verification and triage. No suppression, exception or production artifact approval is granted. Later commits also close the separately reproduced response-inspection log leak; their source and workflow provenance is appended in the CI record.

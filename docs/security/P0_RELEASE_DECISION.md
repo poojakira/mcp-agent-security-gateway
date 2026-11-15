@@ -9,3 +9,5 @@ No production deployment, merge to main, package publication, issuer revocation 
 Required approval: an accountable independent human reviewer approves the frozen exact tested release candidate after complete evidence, operational controls, incident/rollback exercises and all mandatory closures. Protected release environment/tag settings require separate owner verification; an administrator can modify repository gates and is outside their enforcement boundary.
 
 Baseline CI and new execution evidence are recorded separately in P0_CI_EVIDENCE.md. Historical green runs never certify subsequent source edits. Development supported paths remain documented local research profiles. Networked multi-tenant production remains unaccepted.
+
+A completed advisory scan of the first frozen runtime image **failed** the High/Critical threshold. This is an additional concrete supply-chain blocker beyond missing deployment approval. The exact-image workflow retains a failing gate while any mandatory advisory remains; no exception or suppression has been approved.

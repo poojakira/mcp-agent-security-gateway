@@ -26,19 +26,21 @@ RUN --mount=type=secret,id=pip_ca \
     if [ -f /run/secrets/pip_ca ]; then export PIP_CERT=/run/secrets/pip_ca; fi; \
     pip install --no-cache-dir -e ".[dev,oidc]" \
     && python -m pytest tests/ -q \
-    && pip wheel --wheel-dir=/wheels --no-deps .
+    && pip wheel --wheel-dir=/wheels .
 
 FROM ${PYTHON_BASE_IMAGE} AS runtime
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libffi8 libssl3 curl \
+RUN apt-get update && apt-get upgrade -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /wheels /wheels
 COPY --from=builder --chmod=0555 /app/detection_rules /app/detection_rules
-RUN pip install --no-cache-dir /wheels/*.whl && rm -rf /wheels
+RUN pip install --no-index --no-cache-dir /wheels/*.whl \
+    && python -m pip uninstall -y pip setuptools \
+    && python -c "import pathlib, shutil, sysconfig; shutil.rmtree(pathlib.Path(sysconfig.get_path('stdlib')) / 'ensurepip')" \
+    && rm -rf /wheels
 
 RUN groupadd -r mlsec && useradd -r -g mlsec mlsec
 
@@ -67,6 +69,6 @@ ENV MCP_LISTEN_HOST=0.0.0.0 \
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8080/v1/health || exit 1
+    CMD python -c "import urllib.request; urllib.request.build_opener(urllib.request.ProxyHandler({})).open('http://127.0.0.1:8080/v1/health', timeout=5).close()"
 
 CMD ["python", "-c", "from mcp_monitor.production.server import run_server; run_server()"]

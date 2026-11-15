@@ -74,7 +74,7 @@ class TestDockerfile:
         content = Path(ROOT, "Dockerfile").read_text(encoding="utf-8")
         assert "COPY --from=builder /wheels /wheels" in content
         assert "pip wheel" in content
-        assert "pip install --no-cache-dir /wheels/*.whl" in content
+        assert "pip install --no-index --no-cache-dir /wheels/*.whl" in content
 
 
 class TestDockerCompose:

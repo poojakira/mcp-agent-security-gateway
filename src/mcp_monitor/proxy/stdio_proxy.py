@@ -1094,7 +1094,7 @@ class StdioMCPProxy:
                             {"patterns": patterns},
                         )
             except Exception:
-                logger.exception("Downstream MCP result inspection failed closed")
+                logger.warning("Downstream MCP result inspection failed closed")
                 self._stats["blocked"] += 1
                 return self._blocked_requests(
                     messages,

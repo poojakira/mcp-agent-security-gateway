@@ -1,0 +1,52 @@
+name: P0 exact-image acceptance
+
+on:
+  push:
+    branches: [fix/evidence-provenance-20261114]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Build the exact source with inherited regression gates
+        run: |
+          docker build --label "org.opencontainers.image.revision=$GITHUB_SHA" -t mcp-p0-audit:tested .
+          docker image inspect mcp-p0-audit:tested > image-inspect.json
+      - name: Install checksum-pinned free image scanners
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/p0-tools"
+          curl --fail --location --proto '=https' --tlsv1.2 https://github.com/anchore/syft/releases/download/v1.57.1/syft_1.57.1_linux_amd64.tar.gz -o /tmp/syft.tgz
+          echo 'bf52519eb57f675d47c07d43213cb6dff6449f3d6d1147ff6701ed91f44eef0c  /tmp/syft.tgz' | sha256sum --check
+          tar -xzf /tmp/syft.tgz -C "$RUNNER_TEMP/p0-tools" syft
+          curl --fail --location --proto '=https' --tlsv1.2 https://github.com/anchore/grype/releases/download/v0.121.3/grype_0.121.3_linux_amd64.tar.gz -o /tmp/grype.tgz
+          echo 'e9da18cc1429e786722e32161288103600efffd8e483c90761f90485bd1bec85  /tmp/grype.tgz' | sha256sum --check
+          tar -xzf /tmp/grype.tgz -C "$RUNNER_TEMP/p0-tools" grype
+          echo "$RUNNER_TEMP/p0-tools" >> "$GITHUB_PATH"
+      - name: Generate exact runtime image SBOM
+        run: syft scan docker:mcp-p0-audit:tested -o cyclonedx-json=gateway-image.cdx.json
+      - name: Fail on high or critical runtime advisories
+        env:
+          GRYPE_DB_CACHE_DIR: ${{ runner.temp }}/p0-grype-db
+        run: grype sbom:gateway-image.cdx.json --fail-on high --output json --file gateway-image-vulnerabilities.json
+      - name: Preserve image identity, SBOM and advisory evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: p0-image-${{ github.sha }}
+          path: |
+            image-inspect.json
+            gateway-image.cdx.json
+            gateway-image-vulnerabilities.json
+          if-no-files-found: warn
+          retention-days: 14
