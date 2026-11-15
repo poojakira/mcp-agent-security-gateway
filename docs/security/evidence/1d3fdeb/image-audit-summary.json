@@ -1,0 +1,139 @@
+{
+  "source_sha": "1d3fdeb8e9af742a4178c0b23da0ea99cbd4de52",
+  "workflow_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43763660302",
+  "image_id": "sha256:e20778f3a51c262619be7a40f4656f40325aa09e0d07d49f3f8ef66ae4eb715d",
+  "matches": 210,
+  "severity": {
+    "High": 59,
+    "Medium": 68,
+    "Negligible": 50,
+    "Low": 17,
+    "Unknown": 16
+  },
+  "high_gate": "FAILED",
+  "smoke": {
+    "non_root": true,
+    "readonly_root": true,
+    "docker_socket_absent": true,
+    "network_interfaces": [
+      "lo"
+    ],
+    "health": 200,
+    "unconfigured_auth_inspection": 503
+  },
+  "database": {
+    "status": {
+      "schemaVersion": "v6.1.10",
+      "from": "https://grype.anchore.io/databases/v6/vulnerability-db_v6.1.10_2026-11-15T00:23:02Z_1794723579.tar.zst?checksum=sha256%3A96ada30f3287fd04be595a8f419df98efdf19955e7bfa28eae80ef7c5fe27eb7",
+      "built": "2026-11-15T06:19:39Z",
+      "path": "/home/runner/work/_temp/p0-grype-db/6/vulnerability.db",
+      "valid": true
+    },
+    "providers": {
+      "alma": {
+        "captured": "2026-11-15T00:23:05Z",
+        "input": "xxh64:66787c2858efc7ff"
+      },
+      "alpine": {
+        "captured": "2026-11-15T00:23:02Z",
+        "input": "xxh64:e0e44e3a641d785d"
+      },
+      "amazon": {
+        "captured": "2026-11-15T00:23:08Z",
+        "input": "xxh64:8c07f49d395f5562"
+      },
+      "arch": {
+        "captured": "2026-11-15T00:23:13Z",
+        "input": "xxh64:db8b4998ab00141d"
+      },
+      "bitnami": {
+        "captured": "2026-11-15T00:23:15Z",
+        "input": "xxh64:86509bf68da90029"
+      },
+      "chainguard": {
+        "captured": "2026-11-15T00:23:10Z",
+        "input": "xxh64:4f46ad6f59b73e74"
+      },
+      "chainguard-libraries": {
+        "captured": "2026-11-15T00:23:06Z",
+        "input": "xxh64:9af0f7af1581e02d"
+      },
+      "debian": {
+        "captured": "2026-11-15T00:23:55Z",
+        "input": "xxh64:86848175fedeacb3"
+      },
+      "echo": {
+        "captured": "2026-11-15T00:23:04Z",
+        "input": "xxh64:06744ed3f9108311"
+      },
+      "eol": {
+        "captured": "2026-11-15T00:23:06Z",
+        "input": "xxh64:a7ec31c80585f7ae"
+      },
+      "epss": {
+        "captured": "2026-11-15T00:23:13Z",
+        "input": "xxh64:286c57121f9acf03"
+      },
+      "fedora": {
+        "captured": "2026-11-15T00:23:08Z",
+        "input": "xxh64:a2c679da034fa4ac"
+      },
+      "github": {
+        "captured": "2026-11-15T00:23:23Z",
+        "input": "xxh64:37a1f4c4efb08325"
+      },
+      "govulndb": {
+        "captured": "2026-11-15T00:23:15Z",
+        "input": "xxh64:66490c654353472b"
+      },
+      "hummingbird": {
+        "captured": "2026-11-15T00:26:14Z",
+        "input": "xxh64:a0e26b96324ff59a"
+      },
+      "kev": {
+        "captured": "2026-11-15T00:23:12Z",
+        "input": "xxh64:4568728f33b4c2af"
+      },
+      "mariner": {
+        "captured": "2026-11-15T00:23:15Z",
+        "input": "xxh64:64b488170f6c947c"
+      },
+      "minimos": {
+        "captured": "2026-11-15T00:23:07Z",
+        "input": "xxh64:53a50171d85ce5db"
+      },
+      "nvd": {
+        "captured": "2026-11-15T00:24:38Z",
+        "input": "xxh64:061aa35eec760ef3"
+      },
+      "oracle": {
+        "captured": "2026-11-15T00:23:15Z",
+        "input": "xxh64:0719d876023dad58"
+      },
+      "photon": {
+        "captured": "2026-11-15T00:23:22Z",
+        "input": "xxh64:a6b41779d3619690"
+      },
+      "rhel": {
+        "captured": "2026-11-15T00:24:40Z",
+        "input": "xxh64:1053c5369852e30f"
+      },
+      "secureos": {
+        "captured": "2026-11-15T00:23:03Z",
+        "input": "xxh64:a0a8347160466cdc"
+      },
+      "sles": {
+        "captured": "2026-11-15T00:25:23Z",
+        "input": "xxh64:ccdc5171d000bcc9"
+      },
+      "ubuntu": {
+        "captured": "2026-11-15T01:30:42Z",
+        "input": "xxh64:9c866d01d8bae104"
+      },
+      "wolfi": {
+        "captured": "2026-11-15T00:23:10Z",
+        "input": "xxh64:fe8952b91086c579"
+      }
+    }
+  }
+}

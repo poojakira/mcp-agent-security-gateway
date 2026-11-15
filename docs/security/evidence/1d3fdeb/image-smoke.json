@@ -1,0 +1,1 @@
+{"non_root": true, "readonly_root": true, "docker_socket_absent": true, "network_interfaces": ["lo"], "health": 200, "unconfigured_auth_inspection": 503}

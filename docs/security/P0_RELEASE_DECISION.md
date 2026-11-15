@@ -11,3 +11,5 @@ Required approval: an accountable independent human reviewer approves the frozen
 Baseline CI and new execution evidence are recorded separately in P0_CI_EVIDENCE.md. Historical green runs never certify subsequent source edits. Development supported paths remain documented local research profiles. Networked multi-tenant production remains unaccepted.
 
 A completed advisory scan of the first frozen runtime image **failed** the High/Critical threshold. This is an additional concrete supply-chain blocker beyond missing deployment approval. The exact-image workflow retains a failing gate while any mandatory advisory remains; no exception or suppression has been approved.
+
+Final implementation freeze `1d3fdeb8e9af742a4178c0b23da0ea99cbd4de52`: nine-job integrated CI succeeds (1,306 passed / 6 skipped per Python version), but exact-image advisory acceptance fails with **59 High / 0 Critical matches**. Both outcomes must be presented together. The residual image matches have no published fixed version in the scanned database; independent triage and a safe upstream/base remediation remain mandatory. **0 findings VERIFIED FIXED; 19 open.**

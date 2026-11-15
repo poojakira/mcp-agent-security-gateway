@@ -1,0 +1,33 @@
+{
+  "source_sha": "1d3fdeb8e9af742a4178c0b23da0ea99cbd4de52",
+  "workflow_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43763660168",
+  "jobs": [
+    {
+      "job_id": 132963821755,
+      "name": "integrated-regression (3.10)",
+      "conclusion": "success",
+      "summaries": [
+        "2026-11-15T21:28:06.1465370Z TOTAL                                               7625   1258   2560    363    81%",
+        "2026-11-15T21:28:06.3529666Z 1306 passed, 6 skipped in 90.43s (0:01:30)"
+      ]
+    },
+    {
+      "job_id": 132963821816,
+      "name": "integrated-regression (3.12)",
+      "conclusion": "success",
+      "summaries": [
+        "2026-11-15T21:27:53.7668593Z TOTAL                                               7625   1260   2560    363    81%",
+        "2026-11-15T21:27:53.9145837Z 1306 passed, 6 skipped in 84.72s (0:01:24)"
+      ]
+    },
+    {
+      "job_id": 132963821924,
+      "name": "integrated-regression (3.11)",
+      "conclusion": "success",
+      "summaries": [
+        "2026-11-15T21:27:55.3176065Z TOTAL                                               7625   1260   2560    363    81%",
+        "2026-11-15T21:27:55.5288026Z 1306 passed, 6 skipped in 85.34s (0:01:25)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+[
+    {
+        "Id": "sha256:e20778f3a51c262619be7a40f4656f40325aa09e0d07d49f3f8ef66ae4eb715d",
+        "RepoTags": [
+            "mcp-p0-audit:tested"
+        ],
+        "RepoDigests": [
+            "mcp-p0-audit@sha256:e20778f3a51c262619be7a40f4656f40325aa09e0d07d49f3f8ef66ae4eb715d"
+        ],
+        "Comment": "buildkit.dockerfile.v0",
+        "Created": "2026-11-15T21:27:48.345036571Z",
+        "Config": {
+            "User": "mlsec",
+            "ExposedPorts": {
+                "8080/tcp": {}
+            },
+            "Env": [
+                "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "GPG_KEY=A035C8C19219BA821ECEA86B64E628F8D684696D",
+                "PYTHON_VERSION=3.11.18",
+                "PYTHON_SHA256=9120e0a653868f6e3698d36cdd99e5a58903ec9469e448f21d98f7b16d8fa290",
+                "MCP_LISTEN_HOST=0.0.0.0",
+                "MCP_LISTEN_PORT=8080",
+                "MCP_ELASTIC_RULES_PATH=/app/detection_rules/elastic_rules.toml"
+            ],
+            "Cmd": [
+                "python",
+                "-c",
+                "from mcp_monitor.production.server import run_server; run_server()"
+            ],
+            "WorkingDir": "/app",
+            "Labels": {
+                "org.opencontainers.image.revision": "1d3fdeb8e9af742a4178c0b23da0ea99cbd4de52"
+            },
+            "ArgsEscaped": true,
+            "Healthcheck": {
+                "Test": [
+                    "CMD-SHELL",
+                    "python -c \"import urllib.request; urllib.request.build_opener(urllib.request.ProxyHandler({})).open('http://127.0.0.1:8080/v1/health', timeout=5).close()\""
+                ],
+                "Interval": 30000000000,
+                "Timeout": 10000000000,
+                "StartPeriod": 10000000000,
+                "Retries": 3
+            }
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 48615729,
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:dd57f90311a2567b55ff22eeacff1602fd04ad7566e315957731359eab173b90",
+                "sha256:cd9a29aa43e014bda7a7815521ab51a3ababf2bceb4de66302701ac217ff26fb",
+                "sha256:961adfab8c074ba37b3fa0c54bb96911f8648a1788176a864bfb0750cfdef155",
+                "sha256:688ef2053b5da5e0048efd435dace328a25d5d4c8cb5e2cd1a7a92c697c586d5",
+                "sha256:edb6e433e9b597673cebfd3f65b15272adcc7820091c5ee5c3891c2803857543",
+                "sha256:5a58e9f16d2cbe18501fa831adb748da817e4be374f701f8dcafbd00dceb08f7",
+                "sha256:5960347cc201a57a7d2b1b80f58926f0f90fba5960ead72bf81962e78afb4a1c",
+                "sha256:54e9641f9315f7fe0089278806bedbb237fa7d96349a9acc7b21ff105a72b7dc",
+                "sha256:da93885c65ec1cd430c59b38ebb309ba6a3912aa0f9562747b8a70505e4f6bb8",
+                "sha256:2522a3915b5e3765b2e044996576b0283ced22d19814ab7d4cb31e1bdd356320",
+                "sha256:3a7a53a91a56c207b9d4efbcb82a47ba2cc3294b67a0c11bbfdcfc5753df8e06",
+                "sha256:364c0ab093fbf772f67856ca3e6851c239ff2ca31d8451da02e91ee29a9f414f"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2026-11-15T21:27:48.658672837Z"
+        },
+        "Descriptor": {
+            "mediaType": "application/vnd.oci.image.index.v1+json",
+            "digest": "sha256:e20778f3a51c262619be7a40f4656f40325aa09e0d07d49f3f8ef66ae4eb715d",
+            "size": 856
+        },
+        "Identity": {
+            "Build": [
+                {
+                    "Ref": "5tqqy1yly8uxjgfwos8xord5s",
+                    "CreatedAt": "2026-11-15T21:27:48.770372793Z"
+                }
+            ]
+        }
+    }
+]
