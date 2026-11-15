@@ -54,6 +54,15 @@ jobs:
           print(f"release version verified: {version}")
           PY
 
+      # A passing test suite alone must not approve a production release.
+      - name: Require explicit tag and SHA-matched release authorization
+        env:
+          MCP_RELEASE_GO: ${{ vars.MCP_RELEASE_GO }}
+          MCP_RELEASE_APPROVED_TAG: ${{ vars.MCP_RELEASE_APPROVED_TAG }}
+          MCP_RELEASE_APPROVED_SHA: ${{ vars.MCP_RELEASE_APPROVED_SHA }}
+          MCP_RELEASE_APPROVAL_REFERENCE: ${{ vars.MCP_RELEASE_APPROVAL_REFERENCE }}
+        run: python scripts/check_release_authorization.py
+
       - name: Run release gates
         env:
           MCP_ENV: production
