@@ -121,3 +121,13 @@ The repository tree API returned 378 entries without truncation. This is a **rep
 - The Kubernetes Deployment now contains an **intentionally invalid** immutable-digest placeholder. This prevents accidental tag-based promotion but is not a deployable manifest. Only an independently verified 64-character image digest and explicit deployment approval can replace it. Documentation includes the prerequisite warning.
 - The release workflow no longer publishes a mutable `:latest` alias or invents a zero-dependency source SBOM. A genuine source-specific dependency SBOM remains **outstanding**, not certified.
 - The remaining high-risk controls (downstream bypass, remote identity/revocation, network egress, provider effects, release environment rules, independent testing) remain **unresolved** and must not be reclassified as fixed merely because the workflow passes.
+
+
+## November 15 follow-up — verified results and unresolved exact-head parity
+
+- Three regenerated poster binaries were committed by the reviewed one-time workflow at `f1b8ee9574ed33683ab4149bb797ac45e97d090e`; the temporary write-enabled workflow was subsequently deleted.
+- Integrated security candidate run [43744627479](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43744627479) completed successfully with nine jobs, including real Docker isolation and official MCP filesystem integration. This is CI-scoped, not production deployment approval.
+- Poster Artifact Parity [43744455052](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43744455052) passed at an earlier branch commit. Later [43744822263](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43744822263) failed: PDF extracted text and PNG visible pixels matched, but PDF raster pixels differed at 0.5x. Thus exact-head visual reproducibility is intermittent; do not represent poster parity as permanently resolved.
+- The workflow now rejects PDF text, dimensions, and raster changes and PNG pixel changes. Browser/runtime font and rendering nondeterminism must be investigated and pinned before merging. No parity gate should be removed solely to obtain a green run.
+- Production **NO-GO** remains in force. No independently verified production Kubernetes CNI network-policy enforcement, issuer-side credential revocation, cross-tenant authorization across all entry points, or external side-effect reconciliation has been demonstrated.
+- Recruiter-facing metrics must distinguish the historical October 782 tests / 81.93% coverage from the November nine-job integrated validation. Neither is a claim of deployed production security.
