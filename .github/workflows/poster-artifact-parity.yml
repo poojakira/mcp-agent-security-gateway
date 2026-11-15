@@ -68,6 +68,38 @@ jobs:
               assert str(m["integrated_run_id"]) in content and str(m["poster_run_id"]) in content
           print(f"Verified historical poster evidence for {sha}; current checkout is not automatically certified")
           PY
+      - name: Independently reconcile historical test totals from CI logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY'
+          import io, json, os, re, urllib.request, zipfile
+          from pathlib import Path
+          m = json.loads(Path("poster/evidence_manifest.json").read_text())
+          base = f"https://api.github.com/repos/{os.environ['GH_REPOSITORY']}"
+          headers = {"Authorization": f"Bearer {os.environ['GH_TOKEN']}", "Accept": "application/vnd.github+json", "User-Agent": "poster-evidence-reconciler"}
+          def fetch(url):
+              with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=60) as response:
+                  return response.read()
+          jobs = json.loads(fetch(f"{base}/actions/runs/{m['integrated_run_id']}/jobs?per_page=100"))["jobs"]
+          assert len(jobs) == m["integrated_jobs_total"], "Unexpected job count or paginated job listing"
+          assert all(j["conclusion"] == "success" for j in jobs), "A historical job was not successful"
+          matrix = {j["name"]: j for j in jobs if j["name"].startswith("integrated-regression (")}
+          assert set(matrix) == {f"integrated-regression ({v})" for v in m["python_versions"]}, matrix.keys()
+          raw = fetch(f"{base}/actions/runs/{m['integrated_run_id']}/logs")
+          with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+              logs = {name: archive.read(name).decode("utf-8", errors="replace") for name in archive.namelist() if name.endswith(".txt")}
+          for name, job in matrix.items():
+              job_logs = "\n".join(value for path, value in logs.items() if name in path or str(job["id"]) in path)
+              assert job_logs, f"Missing downloadable log for {name}"
+              counts = re.findall(r"(\d+) passed, (\d+) skipped in [^\n]+", job_logs)
+              assert counts, f"No pytest summary found in {name}"
+              actual = tuple(map(int, counts[-1]))
+              expected = (m["tests_passed_per_python"], m["tests_skipped_per_python"])
+              assert actual == expected, f"{name}: observed {actual}, manifest {expected}"
+              print(f"Verified {name}: {actual[0]} passed, {actual[1]} skipped")
+          PY
       - name: Render 36x48 PDF and PNG without APIs or paid services
         run: |
           set -euo pipefail
