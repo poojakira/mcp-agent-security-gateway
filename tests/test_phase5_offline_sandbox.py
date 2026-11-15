@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.proxy.sandbox import OfflineDockerSandbox
 from mcp_monitor.proxy.stdio_proxy import StdioMCPProxy
 
@@ -160,6 +161,7 @@ def test_production_direct_constructor_uses_pinned_offline_docker(monkeypatch) -
         command=["python", "-u", "/opt/mcp/server.py"],
         strict_mcp_methods=True,
         offline_sandbox=OfflineDockerSandbox(IMAGE_ID),
+        policy_engine=PolicyEngine(allowed_servers={"default"}, allowed_tools={"read_file"}),
     )
     assert proxy.command[0] == "docker"
     assert "--network=none" in proxy.command
