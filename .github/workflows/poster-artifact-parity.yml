@@ -100,6 +100,16 @@ jobs:
               assert actual == expected, f"{name}: observed {actual}, manifest {expected}"
               print(f"Verified {name}: {actual[0]} passed, {actual[1]} skipped")
           PY
+      - name: Verify printed SVG animation is frozen
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          svg = Path("docs/poster/mcp-gateway-animated-architecture.svg").read_text()
+          renderer = Path("poster/render_poster.py").read_text()
+          assert "animation:flow" in svg and "animation:pulse" in svg
+          assert ".architecture svg *, .architecture svg { animation: none !important; transition: none !important; }" in renderer
+          print("Animated web SVG retained; print stylesheet freezes the PDF frame")
+          PY
       - name: Render 36x48 PDF and PNG without APIs or paid services
         run: |
           set -euo pipefail
