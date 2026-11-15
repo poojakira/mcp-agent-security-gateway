@@ -188,20 +188,53 @@ jobs:
           except ImportError:
               print("Pillow not installed: PNG pixel comparison unavailable", flush=True)
           PY
-      - name: Compare committed poster binaries against exact-head render
-        # Keep strict equality as a release blocker until source and generated
-        # binaries are reconciled; no automatic approval for PDF metadata drift.
+      - name: Verify committed poster content and rendered pixels against exact-head render
+        # Chromium embeds timestamps and version-dependent PDF metadata. Compare
+        # the actual PDF text, page geometry and raster pixels, plus exact PNG
+        # bytes; do not silently accept content or visual changes.
         run: |
           python - <<'PY'
-          import hashlib, subprocess
+          import hashlib
+          import subprocess
           from pathlib import Path
-          for path in ("poster/poster_36x48.pdf", "poster/poster.png", "MCP_Gateway_Poster.pdf"):
-              rendered = Path(path).read_bytes()
-              committed = subprocess.run(["git", "show", f"HEAD:{path}"], capture_output=True, check=True).stdout
-              actual = hashlib.sha256(rendered).hexdigest()
-              expected = hashlib.sha256(committed).hexdigest()
-              print(f"{path}: rendered={actual} committed={expected}", flush=True)
-              assert rendered == committed, f"{path} differs from committed binary; regenerate and review before parity approval"
+          import fitz
+
+          def committed(path):
+              return subprocess.run(
+                  ["git", "show", f"HEAD:{path}"],
+                  capture_output=True, check=True,
+              ).stdout
+
+          png_path = "poster/poster.png"
+          assert Path(png_path).read_bytes() == committed(png_path), (
+              "PNG differs from committed artifact; regenerate and review"
+          )
+          print("PNG exact-byte parity passed", flush=True)
+
+          pdf_paths = ("poster/poster_36x48.pdf", "MCP_Gateway_Poster.pdf")
+          assert Path(pdf_paths[0]).read_bytes() == Path(pdf_paths[1]).read_bytes(), (
+              "Generated PDF copies differ"
+          )
+          for path in pdf_paths:
+              with fitz.open(path) as fresh, fitz.open(
+                  stream=committed(path), filetype="pdf"
+              ) as prior:
+                  assert len(fresh) == len(prior) == 1, f"{path}: page count changed"
+                  for i in range(len(fresh)):
+                      a, b = fresh[i], prior[i]
+                      assert tuple(a.rect) == tuple(b.rect), f"{path}: page dimensions changed"
+                      assert a.get_text() == b.get_text(), f"{path}: extracted text changed"
+                      for zoom in (0.5, 1.0):
+                          matrix = fitz.Matrix(zoom, zoom)
+                          ar = a.get_pixmap(matrix=matrix, alpha=False)
+                          br = b.get_pixmap(matrix=matrix, alpha=False)
+                          assert (ar.width, ar.height) == (br.width, br.height), (
+                              f"{path}: raster dimensions changed"
+                          )
+                          assert hashlib.sha256(ar.samples).digest() == hashlib.sha256(
+                              br.samples
+                          ).digest(), f"{path}: raster pixels changed at {zoom}x"
+              print(f"{path}: text, dimensions and two-scale raster parity passed", flush=True)
           PY
       - name: Store rendered posterior artifacts for visual review
         if: always()
