@@ -2,7 +2,7 @@
 
 # Poster Metrics — Exact-Head CI Evidence, Not Product Effectiveness
 
-> **Current tested source commit:** `a24f92c17f93d5c150eafe4ba7dce507ecb534b6`; [CI run 43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973). Historical supply-chain runs use other commits. **PRODUCTION NO-GO.**
+> **Pinned historical poster-evidence source commit:** `a24f92c17f93d5c150eafe4ba7dce507ecb534b6`; [CI run 43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973). Historical supply-chain runs use other commits. **PRODUCTION NO-GO.**
 
 | Metric | Snapshot value | Scope |
 |---|---:|---|
@@ -17,8 +17,8 @@
 
 ## Scoped reproducibility
 
-- Latest Python matrix: [43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973) on `a24f92c17f93d5c150eafe4ba7dce507ecb534b6`.
-- Poster source/render parity: [43656574988](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656574988) on the same SHA.
+- Pinned poster-evidence Python matrix: [43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973) on `a24f92c17f93d5c150eafe4ba7dce507ecb534b6`.
+- Poster source/render parity: [43657370960](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370960) on the same SHA.
 - Tracked-file/history patterns and high-severity Bandit hygiene: [42971171965](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171965).
 - Installed Python CycloneDX and `pip-audit`: [42971171775](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171775).
 - Actual restricted Docker startup and MCP discovery: [42971171991](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171991).
