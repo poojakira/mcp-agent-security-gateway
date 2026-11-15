@@ -105,15 +105,10 @@ def test_invalid_header_token_is_rejected():
 
 
 def test_signed_content_length_is_rejected():
-    response = _request(
-        b"POST /v1/inspect_call HTTP/1.1\r\n"
-        b"Content-Length: +2\r\n\r\n{}"
-    )
+    response = _request(b"POST /v1/inspect_call HTTP/1.1\r\n" b"Content-Length: +2\r\n\r\n{}")
     assert response.startswith(b"HTTP/1.1 400")
 
 
 def test_duplicate_host_header_is_rejected():
-    response = _request(
-        b"GET /v1/health HTTP/1.1\r\nHost: one\r\nHost: two\r\n\r\n"
-    )
+    response = _request(b"GET /v1/health HTTP/1.1\r\nHost: one\r\nHost: two\r\n\r\n")
     assert response.startswith(b"HTTP/1.1 400")

@@ -26,7 +26,7 @@ import os
 import secrets
 import sys
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Protocol
 
@@ -34,6 +34,7 @@ from mcp_monitor.detectors.prompt_injection import PromptInjectionDetector
 from mcp_monitor.policy.acl_guard import AccessDenied, ACLGuard
 from mcp_monitor.policy.policy_engine import PolicyEngine
 from mcp_monitor.production.rate_limiter import RateLimiter
+from mcp_monitor.protocol.consequence_verifier import ManifestConsequenceVerifier
 from mcp_monitor.protocol.effect_authority import TrustedEffectAuthority
 from mcp_monitor.protocol.effect_journal import DurableEffectJournal, EffectJournalError
 from mcp_monitor.protocol.jsonrpc import JSONRPCError, MCPJSONRPCAdapter
@@ -95,7 +96,7 @@ class InspectionResult:
     reason: str
     matched_patterns: list[str]
     request_id: int | str | None = None
-    detector_errors: list[str] = None
+    detector_errors: list[str] = field(default_factory=list)
 
     def __post_init__(self):
         if self.detector_errors is None:
@@ -219,7 +220,7 @@ class OfflineDockerTransport(SubprocessTransport):
 
     def __init__(
         self,
-        sandbox: OfflineDockerSandbox,
+        sandbox: OfflineDockerSandbox | InternalDockerSandbox,
         server_command: list[str],
         *,
         max_response_bytes: int = 1048576,
@@ -402,10 +403,10 @@ def inspect_message(raw_message: str | bytes | dict) -> InspectionResult:
         try:
             detected, patterns = _detector.detect(internal)
         except Exception as exc:
-            detector_errors.append(f"prompt_injection: {exc}")
+            detector_errors.append(f"prompt_injection: {type(exc).__name__}")
             return InspectionResult(
                 decision=Decision.INDETERMINATE,
-                reason=f"Detector failed: {exc}",
+                reason="Detector failed",
                 matched_patterns=[],
                 request_id=request_id,
                 detector_errors=detector_errors,
@@ -501,6 +502,7 @@ class StdioMCPProxy:
         effect_journal: DurableEffectJournal | None = None,
         effect_tools: set[str] | frozenset[str] | None = None,
         effect_authority: TrustedEffectAuthority | None = None,
+        effect_verifiers: dict[str, ManifestConsequenceVerifier] | None = None,
         response_timeout_seconds: float = 120.0,
         max_message_bytes: int = 1048576,
         strict_mcp_methods: bool = False,
@@ -592,6 +594,15 @@ class StdioMCPProxy:
         if self._strict_mcp_methods and self._effect_tools and effect_authority is None:
             raise ValueError("Hardened side effects require exact trusted operator approval")
         self._effect_authority = effect_authority
+        if effect_verifiers is not None and (
+            not isinstance(effect_verifiers, dict)
+            or any(
+                not isinstance(k, str) or type(v) is not ManifestConsequenceVerifier
+                for k, v in effect_verifiers.items()
+            )
+        ):
+            raise ValueError("Trusted operation-key consequence verifier mapping required")
+        self._effect_verifiers = dict(effect_verifiers or {})
         # The gateway operator assigns server identity, not the AI agent.
         # Outbound destinations are denied unless explicitly allowlisted.
         if not isinstance(server_id, str) or not server_id:
@@ -870,6 +881,7 @@ class StdioMCPProxy:
                         server=self._server_id,
                         tool=params["name"],
                         operation_key=effect_key,
+                        consequence_verifier=self._effect_verifiers.get(effect_key),
                         arguments=sanitized.get("arguments"),
                     )
             except Exception:
@@ -881,6 +893,18 @@ class StdioMCPProxy:
                     "Security: effect journal denied duplicate, unsafe, or uncertain operation",
                     {"patterns": ["DENY_EFFECT_JOURNAL"]},
                 )
+
+        def revalidate_dispatch() -> None:
+            # Requests may wait behind another exchange after initial approval.
+            # Check fresh identity and ACLs after acquiring the actual send lock.
+            if self._session_binding is not None:
+                current = self._session_binding.verify()
+                if current.principal != self._authenticated_principal:
+                    raise SessionVerificationError("Session principal changed")
+            for item in messages:
+                if item.get("method") == "tools/call":
+                    if self._inspect(item).decision != Decision.ALLOW:
+                        raise AccessDenied("Authority lost before dispatch")
 
         try:
             expects_reply = any("id" in message and "method" in message for message in messages)
@@ -895,9 +919,11 @@ class StdioMCPProxy:
                     request_ids=request_ids,
                     timeout=self._response_timeout_seconds,
                     is_batch=is_batch,
+                    before_send=revalidate_dispatch,
                 )
             else:
                 async with self._exchange_lock:
+                    revalidate_dispatch()
                     await self._transport.send(outbound_raw + b"\n")
                     if not expects_reply:
                         self._stats["allowed" if tool_count else "passthrough"] += 1
@@ -911,7 +937,7 @@ class StdioMCPProxy:
             if not isinstance(response, bytes) or len(response) > self._max_message_bytes:
                 raise ValueError("Invalid or oversized downstream MCP response")
         except Exception:
-            logger.exception("Downstream MCP transport failure; suppressing response")
+            logger.warning("Downstream MCP transport or dispatch authorization failed")
             self._stats["blocked"] += 1
             return self._blocked_requests(
                 messages,
@@ -1176,13 +1202,13 @@ class StdioMCPProxy:
                     }
                 )
             except Exception as exc:
-                logger.exception("Authorization policy engine failed")
+                logger.warning("Authorization policy engine failed")
                 return InspectionResult(
                     decision=Decision.INDETERMINATE,
                     reason="Policy engine failed",
                     matched_patterns=["policy_engine_failure"],
                     request_id=request_id,
-                    detector_errors=[f"policy: {exc}"],
+                    detector_errors=[f"policy: {type(exc).__name__}"],
                 )
             if not policy_decision.allowed:
                 return InspectionResult(
@@ -1194,12 +1220,12 @@ class StdioMCPProxy:
             try:
                 detected, patterns = self._detector.detect(internal)
             except Exception as exc:
-                logger.exception("Prompt injection detector failed")
-                detector_errors.append(f"prompt_injection: {exc}")
+                logger.warning("Prompt injection detector failed")
+                detector_errors.append(f"prompt_injection: {type(exc).__name__}")
                 # Fail-closed: treat detector failure as INDETERMINATE
                 return InspectionResult(
                     decision=Decision.INDETERMINATE,
-                    reason=f"Detector failed: {exc}",
+                    reason="Detector failed",
                     matched_patterns=[],
                     request_id=request_id,
                     detector_errors=detector_errors,

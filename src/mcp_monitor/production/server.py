@@ -57,11 +57,12 @@ class ProductionServer:
         )
 
         # Set up core monitor
-        wal_path = self.config.wal_path or os.path.join(
-            tempfile.gettempdir(), "mcp_monitor_wal.jsonl"
-        )
+        # Development defaults must not share predictable /tmp names across
+        # users/processes. Production validation requires explicit durable paths.
+        self._ephemeral_state = tempfile.TemporaryDirectory(prefix="mcp-monitor-")
+        wal_path = self.config.wal_path or os.path.join(self._ephemeral_state.name, "wal.jsonl")
         audit_path = self.config.audit_path or os.path.join(
-            tempfile.gettempdir(), "mcp_monitor_audit.jsonl"
+            self._ephemeral_state.name, "audit.jsonl"
         )
         self._wal = WriteAheadLog(wal_path)
         self._audit_log = AuditLog(log_file=audit_path)
@@ -242,7 +243,11 @@ class ProductionServer:
             body = b""
             raw_content_length = headers.get("content-length", "0")
             try:
-                if not raw_content_length or not raw_content_length.isascii() or not raw_content_length.isdecimal():
+                if (
+                    not raw_content_length
+                    or not raw_content_length.isascii()
+                    or not raw_content_length.isdecimal()
+                ):
                     raise ValueError("Non-canonical Content-Length")
                 content_length = int(raw_content_length)
             except ValueError:

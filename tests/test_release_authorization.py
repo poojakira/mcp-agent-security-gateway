@@ -25,7 +25,21 @@ def _approved() -> dict[str, str]:
 
 
 def test_approved_release_metadata_passes() -> None:
-    check_release_authorization(_approved())
+    # Synthetic complete acceptance exercises the positive gate only.
+    check_release_authorization(
+        _approved(),
+        acceptance={
+            "decision": "GO",
+            "findings": {
+                f"P0-{i:02d}": {
+                    "status": "VERIFIED FIXED",
+                    "verified_sha": _SHA,
+                    "evidence": "synthetic-test-evidence",
+                }
+                for i in range(1, 20)
+            },
+        },
+    )
 
 
 @pytest.mark.parametrize(
@@ -52,3 +66,34 @@ def test_missing_release_approval_is_denied() -> None:
     values.pop("MCP_RELEASE_GO")
     with pytest.raises(ValueError, match="Release denied"):
         check_release_authorization(values)
+
+
+def test_environment_approval_cannot_override_open_p0_findings():
+    with pytest.raises(ValueError, match="P0 acceptance"):
+        check_release_authorization(_approved())
+
+
+@pytest.mark.parametrize("attack", ["missing", "stale", "unverified", "empty-evidence"])
+def test_p0_acceptance_rejects_forged_incomplete_records(attack):
+    document = {
+        "decision": "GO",
+        "findings": {
+            f"P0-{i:02d}": {
+                "status": "VERIFIED FIXED",
+                "verified_sha": _SHA,
+                "evidence": "synthetic",
+            }
+            for i in range(1, 20)
+        },
+    }
+    if attack == "missing":
+        document["findings"].pop("P0-01")
+    else:
+        field, value = {
+            "stale": ("verified_sha", "b" * 40),
+            "unverified": ("status", "PARTIAL"),
+            "empty-evidence": ("evidence", ""),
+        }[attack]
+        document["findings"]["P0-01"][field] = value
+    with pytest.raises(ValueError, match="Release denied"):
+        check_release_authorization(_approved(), acceptance=document)

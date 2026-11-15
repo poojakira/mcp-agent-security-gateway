@@ -1,12 +1,8 @@
 # MCP Security Gateway Monitor - Container Build
-ARG PYTHON_BASE_IMAGE=python:3.11-slim
+ARG PYTHON_BASE_IMAGE=python:3.11-slim@sha256:07d4824036af339fa1b6ef769cc99d9c10a141769538b52b3b597c84f7a7b535
 FROM ${PYTHON_BASE_IMAGE} AS builder
 
 WORKDIR /app
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc g++ libffi-dev libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
@@ -14,16 +10,23 @@ COPY tests ./tests
 COPY benchmark ./benchmark
 # This source-only measurement helper is imported by a builder-stage regression test.
 # It is intentionally not copied into the runtime stage.
-COPY scripts/measure_incident_response.py ./scripts/measure_incident_response.py
+COPY scripts ./scripts
+COPY docs ./docs
+COPY policy ./policy
+COPY .github/workflows ./.github/workflows
+COPY *.md ./
 COPY detection_rules ./detection_rules
 COPY Dockerfile docker-compose.yml docker-compose.detection-lab.yml locustfile.py ./
 COPY deploy ./deploy
 
 # Validate the package in the build stage; this is a build gate, not a deployment proof.
-RUN pip install --no-cache-dir -e ".[dev,oidc]"
-RUN python -m pytest tests/ -v
-
-RUN pip wheel --wheel-dir=/wheels --no-deps .
+# Optional operator CA is scoped to package installation in the builder only.
+# Never disable certificate verification for an intercepting build proxy.
+RUN --mount=type=secret,id=pip_ca \
+    if [ -f /run/secrets/pip_ca ]; then export PIP_CERT=/run/secrets/pip_ca; fi; \
+    pip install --no-cache-dir -e ".[dev,oidc]" \
+    && python -m pytest tests/ -q \
+    && pip wheel --wheel-dir=/wheels --no-deps .
 
 FROM ${PYTHON_BASE_IMAGE} AS runtime
 
@@ -34,7 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /wheels /wheels
-COPY --from=builder /app/detection_rules /app/detection_rules
+COPY --from=builder --chmod=0555 /app/detection_rules /app/detection_rules
 RUN pip install --no-cache-dir /wheels/*.whl && rm -rf /wheels
 
 RUN groupadd -r mlsec && useradd -r -g mlsec mlsec

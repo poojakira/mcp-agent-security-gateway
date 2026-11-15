@@ -220,7 +220,10 @@ class SQLitePermissionAuthority:
         _name(sid)
         _name(jti)
         _, _, revoked = self._current()
-        return [tenant, sid, jti] not in revoked
+        return not any(
+            candidate in revoked
+            for candidate in ([tenant, sid, jti], [tenant, sid, "*"], [tenant, "*", jti])
+        )
 
     def _update(
         self,
@@ -288,3 +291,11 @@ class SQLitePermissionAuthority:
     def revoke_session(self, tenant: str, sid: str, jti: str, *, expected_revision: int) -> int:
         """Durably revoke a single session token triple for all local readers."""
         return self._update(expected_revision, revoke=(_name(tenant), _name(sid), _name(jti)))
+
+    def revoke_entire_session(self, tenant: str, sid: str, *, expected_revision: int) -> int:
+        """Revoke all tokens for the trusted tenant/session across local readers."""
+        return self._update(expected_revision, revoke=(_name(tenant), _name(sid), "*"))
+
+    def revoke_token(self, tenant: str, jti: str, *, expected_revision: int) -> int:
+        """Revoke a token independent of the session in which it is presented."""
+        return self._update(expected_revision, revoke=(_name(tenant), "*", _name(jti)))

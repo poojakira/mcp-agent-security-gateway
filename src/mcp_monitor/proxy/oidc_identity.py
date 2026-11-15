@@ -87,6 +87,7 @@ class OfflineJWKSVerifier:
             raise ValueError("Invalid maximum token lifetime")
         if not callable(is_active) or not callable(clock):
             raise ValueError("A trusted revocation callback and clock are required")
+        self._jwt = jwt
         self._lock = threading.RLock()
         self._issuer = issuer
         self._audience = audience
@@ -164,8 +165,8 @@ class OfflineJWKSVerifier:
             if not self._healthy:
                 raise SessionVerificationError("Signing keyset requires trusted resync")
             try:
-                header = jwt.get_unverified_header(token)
-            except jwt.PyJWTError as exc:
+                header = self._jwt.get_unverified_header(token)
+            except self._jwt.PyJWTError as exc:
                 raise SessionVerificationError("Invalid JWT header") from exc
             if (
                 not isinstance(header, dict)
@@ -179,7 +180,7 @@ class OfflineJWKSVerifier:
             if key is None:
                 raise SessionVerificationError("Untrusted signing key")
             try:
-                claims = jwt.decode(
+                claims = self._jwt.decode(
                     token,
                     key=key,
                     algorithms=["RS256"],
@@ -188,7 +189,7 @@ class OfflineJWKSVerifier:
                     leeway=0,
                     options={"require": list(_REQUIRED), "strict_aud": True},
                 )
-            except jwt.PyJWTError as exc:
+            except self._jwt.PyJWTError as exc:
                 raise SessionVerificationError("JWT signature or claims validation failed") from exc
             if not isinstance(claims, dict):
                 raise SessionVerificationError("Invalid JWT claim envelope")

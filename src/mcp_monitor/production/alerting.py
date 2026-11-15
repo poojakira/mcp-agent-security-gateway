@@ -9,12 +9,11 @@ from __future__ import annotations
 import json
 import threading
 import time
-import urllib.error
 import urllib.parse
-import urllib.request
 from typing import Any
 
 from mcp_monitor.production.logging import get_logger
+from mcp_monitor.production.webhook_transport import post_webhook
 
 _logger = get_logger(__name__)
 
@@ -125,13 +124,7 @@ class AlertingHook:
             return
         try:
             data = json.dumps(payload).encode("utf-8")
-            req = urllib.request.Request(
-                self.webhook_url,
-                data=data,
-                headers={"Content-Type": "application/json"},
-                method="POST",
-            )
-            urllib.request.urlopen(req, timeout=10)  # nosec B310
+            post_webhook(self.webhook_url, data)
         except Exception as exc:
             # Fire-and-forget: log error but don't raise
             _logger.warning(

@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -70,7 +71,7 @@ class ProtectedRepoDockerSandbox(OfflineDockerSandbox):
             raise ValueError("Manifest must be a regular, single-link file")
 
     def build_command(
-        self, server_command: list[str] | tuple[str, ...], *, container_name: str | None = None
+        self, server_command: Sequence[str], *, container_name: str | None = None
     ) -> list[str]:
         if tuple(server_command) != _SERVER_COMMAND:
             raise ValueError("Protected sandbox only runs the pinned first-party MCP module")

@@ -65,7 +65,7 @@ def _read_manifest(root: Path) -> tuple[bytes, dict[str, Any]]:
         raise ValueError("Untrusted manifest workspace")
     path = root / "package.json"
     # Open without following a symlink; validate the opened inode, not just path.
-    flags = os.O_RDONLY
+    flags = os.O_RDONLY | os.O_NONBLOCK
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
     descriptor = os.open(path, flags)
@@ -120,10 +120,40 @@ class ManifestConsequenceVerifier:
         if before.content.get("dependencies", {}).get(package) != expected_previous:
             raise ValueError("Trusted preflight manifest does not match approved operation")
         self._root = root
-        self._before = before
+        metadata = root.stat()
+        self._root_identity = (metadata.st_dev, metadata.st_ino)
+        # Frozen dataclasses do not freeze nested dictionaries. Keep an owned
+        # snapshot so later mutations cannot change the approved postcondition.
+        self._before = ManifestSnapshot(
+            before.raw_sha256, json.loads(json.dumps(before.content, allow_nan=False))
+        )
         self._package = package
         self._previous = expected_previous
         self._approved = approved_version
+
+    @property
+    def arguments(self) -> dict[str, str]:
+        return {
+            "package": self._package,
+            "version": self._approved,
+            "expected_previous": self._previous,
+        }
+
+    @property
+    def binding(self) -> str:
+        """Operator resource identity and preflight bound before dispatch."""
+        metadata = self._root.stat()
+        if (metadata.st_dev, metadata.st_ino) != self._root_identity:
+            raise ValueError("Observer workspace replaced")
+        return json.dumps(
+            {
+                "workspace": str(self._root),
+                "device": metadata.st_dev,
+                "inode": metadata.st_ino,
+                "preflight": self._before.raw_sha256,
+            },
+            sort_keys=True,
+        )
 
     def inspect(self) -> ConsequenceReport:
         """Read external state, ignoring all claims in the MCP server response."""

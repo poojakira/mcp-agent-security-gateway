@@ -7,7 +7,7 @@ from mcp_monitor.production.alerting import AlertingHook
 
 def test_non_loopback_plain_http_webhook_is_rejected():
     hook = AlertingHook(webhook_url="http://alerts.example.com/secret-token")
-    with patch("mcp_monitor.production.alerting.urllib.request.urlopen") as urlopen:
+    with patch("mcp_monitor.production.alerting.post_webhook") as urlopen:
         hook._send_webhook({"text": "test"})
     urlopen.assert_not_called()
 
@@ -18,7 +18,7 @@ def test_webhook_failure_log_does_not_include_secret_url():
 
     with (
         patch(
-            "mcp_monitor.production.alerting.urllib.request.urlopen",
+            "mcp_monitor.production.alerting.post_webhook",
             side_effect=OSError("delivery failed"),
         ),
         patch("mcp_monitor.production.alerting._logger.warning") as warning,

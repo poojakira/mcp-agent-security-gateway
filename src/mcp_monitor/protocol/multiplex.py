@@ -14,8 +14,8 @@ from __future__ import annotations
 import asyncio
 import json
 import math
-from collections.abc import Sequence
-from typing import Any, Protocol
+from collections.abc import Callable, Sequence
+from typing import Any, Protocol, cast
 
 
 class TransportLike(Protocol):
@@ -27,7 +27,7 @@ class TransportLike(Protocol):
     async def stop(self) -> None:
         raise NotImplementedError
 
-    async def send(self, raw: bytes) -> None:
+    async def send(self, raw: bytes, /) -> None:
         raise NotImplementedError
 
     async def receive(self) -> bytes:
@@ -60,7 +60,7 @@ def _key(value: object) -> tuple[str, str | int | float | None]:
         raise ValueError("Invalid JSON-RPC request ID")
     if isinstance(value, float) and not math.isfinite(value):
         raise ValueError("Invalid nonfinite JSON-RPC request ID")
-    return ("number", value)
+    return ("number", cast(int | float, value))
 
 
 class MultiplexedTransport:
@@ -187,6 +187,7 @@ class MultiplexedTransport:
         request_ids: Sequence[tuple],
         timeout: float,
         is_batch: bool,
+        before_send: Callable[[], None] | None = None,
     ) -> bytes:
         if not self._started or self._failure is not None:
             raise RuntimeError("MCP broker unavailable")
@@ -205,6 +206,8 @@ class MultiplexedTransport:
                 raise RuntimeError("MCP in-flight capacity exceeded")
             if any(k in self._pending or k in self._retired for k in request_ids):
                 raise RuntimeError("Request ID already active or retired")
+            if before_send is not None:
+                before_send()
             for key in request_ids:
                 future: asyncio.Future[dict] = loop.create_future()
                 future.add_done_callback(lambda f: f.exception() if not f.cancelled() else None)

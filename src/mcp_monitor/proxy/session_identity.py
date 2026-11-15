@@ -8,6 +8,7 @@ This opt-in interface must be invoked only by a trusted local operator.
 from __future__ import annotations
 
 import base64
+import binascii
 import hashlib
 import hmac
 import json
@@ -49,7 +50,7 @@ def _decode_base64url(part: str) -> bytes:
         raise SessionVerificationError("Malformed session encoding")
     try:
         data = base64.urlsafe_b64decode(part + "=" * (-len(part) % 4))
-    except (ValueError, base64.binascii.Error) as exc:
+    except (ValueError, binascii.Error) as exc:
         raise SessionVerificationError("Malformed session encoding") from exc
     canonical = base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
     if canonical != part:

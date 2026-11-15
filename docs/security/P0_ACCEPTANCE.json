@@ -1,0 +1,100 @@
+{
+  "decision": "NO-GO",
+  "findings": {
+    "P0-01": {
+      "status": "PARTIAL",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-02": {
+      "status": "PARTIAL",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-03": {
+      "status": "BLOCKED",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-04": {
+      "status": "PARTIAL",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-05": {
+      "status": "PARTIAL",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-06": {
+      "status": "PARTIAL",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-07": {
+      "status": "PARTIAL",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-08": {
+      "status": "PARTIAL",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-09": {
+      "status": "BLOCKED",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-10": {
+      "status": "PARTIAL",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-11": {
+      "status": "BLOCKED",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-12": {
+      "status": "BLOCKED",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-13": {
+      "status": "PARTIAL",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-14": {
+      "status": "PARTIAL",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-15": {
+      "status": "PARTIAL",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-16": {
+      "status": "PARTIAL",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-17": {
+      "status": "BLOCKED",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-18": {
+      "status": "BLOCKED",
+      "verified_sha": null,
+      "evidence": null
+    },
+    "P0-19": {
+      "status": "BLOCKED",
+      "verified_sha": null,
+      "evidence": null
+    }
+  }
+}

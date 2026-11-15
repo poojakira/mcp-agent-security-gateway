@@ -89,11 +89,21 @@ class RevocationFence:
                     "INSERT INTO capability(principal, allowed, epoch) VALUES(?,1,0)",
                     (identity,),
                 )
-        except sqlite3.Error as exc:
+        except (sqlite3.Error, OSError) as exc:
             raise RevocationFenceError("Could not bootstrap authority database") from exc
         return gate
 
     def _connect(self) -> sqlite3.Connection:
+        # Revalidate on every boundary, including after process startup.
+        metadata = self._path.lstat()
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_nlink != 1
+            or metadata.st_mode & 0o077
+            or metadata.st_uid != os.getuid()
+            or self._path.resolve(strict=True) != self._path
+        ):
+            raise RevocationFenceError("Authority storage no longer trusted")
         uri = "file:" + quote(str(self._path), safe="/") + "?mode=rw"
         db = sqlite3.connect(
             uri,
@@ -115,7 +125,7 @@ class RevocationFence:
         identity = _principal(principal)
         try:
             db = self._connect()
-        except sqlite3.Error as exc:
+        except (sqlite3.Error, OSError) as exc:
             raise RevocationFenceError("Revocation authority unavailable") from exc
         try:
             try:
@@ -131,7 +141,7 @@ class RevocationFence:
             except Exception:
                 db.rollback()
                 raise
-        except sqlite3.Error as exc:
+        except (sqlite3.Error, OSError) as exc:
             raise RevocationFenceError("Revocation authority unavailable") from exc
         finally:
             db.close()
@@ -161,7 +171,7 @@ class RevocationFence:
                 ).fetchone()
                 assert new_epoch is not None
                 return int(new_epoch[0])
-        except sqlite3.Error as exc:
+        except (sqlite3.Error, OSError) as exc:
             raise RevocationFenceError("Revocation authority unavailable") from exc
 
     def status(self, *, principal: str) -> tuple[bool, int]:
@@ -174,5 +184,5 @@ class RevocationFence:
             if row is None or row[0] not in (0, 1) or type(row[1]) is not int:
                 raise RevocationFenceError("Invalid or unknown authority state")
             return (row[0] == 1, row[1])
-        except sqlite3.Error as exc:
+        except (sqlite3.Error, OSError) as exc:
             raise RevocationFenceError("Revocation authority unavailable") from exc

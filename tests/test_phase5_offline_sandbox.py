@@ -152,7 +152,11 @@ def test_production_requires_strict_offline_sandbox_even_for_direct_constructor(
     with pytest.raises(ValueError, match="Production stdio proxy requires strict offline"):
         StdioMCPProxy(command=["python"], offline_sandbox=OfflineDockerSandbox(IMAGE_ID))
     with pytest.raises(ValueError, match="Production stdio proxy requires strict offline"):
-        StdioMCPProxy(command=["python"], strict_mcp_methods=False, offline_sandbox=OfflineDockerSandbox(IMAGE_ID))
+        StdioMCPProxy(
+            command=["python"],
+            strict_mcp_methods=False,
+            offline_sandbox=OfflineDockerSandbox(IMAGE_ID),
+        )
 
 
 def test_production_direct_constructor_rejects_unbound_identity(monkeypatch) -> None:
@@ -163,9 +167,7 @@ def test_production_direct_constructor_rejects_unbound_identity(monkeypatch) -> 
             command=["python", "-u", "/opt/mcp/server.py"],
             strict_mcp_methods=True,
             offline_sandbox=OfflineDockerSandbox(IMAGE_ID),
-            policy_engine=PolicyEngine(
-                allowed_servers={"default"}, allowed_tools={"read_file"}
-            ),
+            policy_engine=PolicyEngine(allowed_servers={"default"}, allowed_tools={"read_file"}),
         )
 
 
@@ -189,8 +191,6 @@ def test_production_cannot_enable_unmapped_tools_even_with_identity(monkeypatch)
             command=["python", "-u", "/opt/mcp/server.py"],
             strict_mcp_methods=True,
             offline_sandbox=OfflineDockerSandbox(IMAGE_ID),
-            policy_engine=PolicyEngine(
-                allowed_servers={"default"}, allowed_tools={"read_file"}
-            ),
+            policy_engine=PolicyEngine(allowed_servers={"default"}, allowed_tools={"read_file"}),
             protected_resource_tools={"read_file": "path"},
         )

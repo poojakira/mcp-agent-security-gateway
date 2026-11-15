@@ -444,7 +444,7 @@ class TestAlerting:
         result = {"risk_score": 90, "findings": ["critical"], "call_id": "c1"}
         assert hook.check_and_alert(result) is False
 
-    @patch("mcp_monitor.production.alerting.urllib.request.urlopen")
+    @patch("mcp_monitor.production.alerting.post_webhook")
     def test_alert_fires_above_threshold(self, mock_urlopen):
         """Alert fires when risk_score >= threshold."""
         hook = AlertingHook(
@@ -463,7 +463,7 @@ class TestAlerting:
         time.sleep(0.2)
         mock_urlopen.assert_called_once()
 
-    @patch("mcp_monitor.production.alerting.urllib.request.urlopen")
+    @patch("mcp_monitor.production.alerting.post_webhook")
     def test_cooldown_prevents_duplicate(self, mock_urlopen):
         """Cooldown prevents duplicate alerts for same findings."""
         hook = AlertingHook(
@@ -476,7 +476,7 @@ class TestAlerting:
         # Second alert same findings within cooldown
         assert hook.check_and_alert(result) is False
 
-    @patch("mcp_monitor.production.alerting.urllib.request.urlopen")
+    @patch("mcp_monitor.production.alerting.post_webhook")
     def test_webhook_payload_format(self, mock_urlopen):
         """Webhook payload is Slack-compatible JSON."""
         hook = AlertingHook(
@@ -493,8 +493,8 @@ class TestAlerting:
         time.sleep(0.2)
 
         call_args = mock_urlopen.call_args
-        req = call_args[0][0]
-        payload = json.loads(req.data.decode("utf-8"))
+        assert call_args[0][0] == "https://hooks.example.com/test"
+        payload = json.loads(call_args[0][1].decode("utf-8"))
         assert "text" in payload
         assert "CRITICAL" in payload["text"]
         assert payload["risk_score"] == 85

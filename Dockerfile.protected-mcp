@@ -9,8 +9,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app
 
 WORKDIR /app
-COPY src/mcp_monitor/protected_repo_server.py /app/mcp_monitor/protected_repo_server.py
-COPY src/mcp_monitor/protocol/revocation_fence.py /app/mcp_monitor/protocol/revocation_fence.py
+COPY --chmod=0555 src/mcp_monitor/protected_repo_server.py /app/mcp_monitor/protected_repo_server.py
+COPY --chmod=0555 src/mcp_monitor/protocol/revocation_fence.py /app/mcp_monitor/protocol/revocation_fence.py
 
 # The trusted launcher supplies a non-root UID/GID, fixed bind mount and scope.
 CMD ["python", "-m", "mcp_monitor.protected_repo_server"]
