@@ -2,12 +2,17 @@
 
 **Decision: PRODUCTION NO-GO.** This is a tracked engineering backlog, not proof of release acceptance. Audit branch source baseline: `2158ab58e4a07a5c49b70c659996653a92f661c8`. This remediation branch is intentionally not merged to `main`.
 
+## Latest independently observed CI snapshot (historical commit; not current head)
+
+- Exact commit `463a85f85cdb0aa6a6e287ffba56c1b364cfcd31`: [integrated CI 43667123478](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43667123478) passed **5/5 jobs**, with **1,246 passed and 6 skipped per Python 3.10, 3.11, 3.12**; [poster parity 43667123466](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43667123466) passed on the same SHA.
+- This documentation update is later than the verified commit and needs its own exact-head CI. Poster manifest remains intentionally frozen to the historical `a24f92c...` pair and does not prove current binary visual parity. The six skips and all independent production acceptance controls below remain open.
+
 ## Verified observations
 
 - Historical integrated five-job run [43657894182](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657894182) passed at audit SHA `2158ab58e4a07a5c49b70c659996653a92f661c8`, with 1,245 passed and 6 skipped per Python version. This is **not** a validation of the remediation head.
 - Poster provenance workflow [43661291942](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43661291942) succeeded at `96ed7d1b61815e40da37103f6bbd3a36721796c9`.
 - Correct historical same-source poster and integrated pair: runs 43657370960 and 43657370973 at `a24f92c17f93d5c150eafe4ba7dce507ecb534b6`. The manifest validates run status, workflow identity and SHA; it does not independently establish every numeric claim from the job logs.
-- Current remediation head must pass a new five-job integrated matrix, poster rendering, and additional security checks before merge. Six skips require explicit review.
+- Any subsequent remediation head must pass its own five-job integrated matrix and poster rendering before merge. Six skips require explicit review.
 
 ## Critical unresolved engineering controls
 
