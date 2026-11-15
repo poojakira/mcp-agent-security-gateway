@@ -199,41 +199,53 @@ class DurableEffectJournal:
             _label(tool, "tool"),
             _label(operation_key, "operation key"),
         )
-        try:
-            with self._lock:
-                with self._open() as db:
+        with self._lock:
+            try:
+                db = self._open()
+                try:
+                    # Hold the write lock across observation and state transition.
+                    # Concurrent reconcilers cannot both accept the same intent.
+                    db.execute("BEGIN IMMEDIATE")
                     row = db.execute(
                         "SELECT argument_hash, status FROM effects "
                         "WHERE principal=? AND server=? AND tool=? AND operation_key=?",
                         identity,
                     ).fetchone()
-        except Exception as exc:
-            raise EffectJournalError("Effect journal unavailable") from exc
-        if row != (expected, "UNCERTAIN"):
-            raise EffectJournalError("Observer does not match reserved effect")
-        # Obtain a fresh observation here; caller-supplied reports are not
-        # acceptable completion evidence.
-        report = verifier.inspect()
-        if report.state is not Consequence.VERIFIED_EFFECT:
-            raise EffectJournalError("External effect not independently verified")
-        if (
-            not isinstance(report.before_sha256, str)
-            or not isinstance(report.observed_sha256, str)
-            or len(report.before_sha256) != 64
-            or len(report.observed_sha256) != 64
-            or report.before_sha256 == report.observed_sha256
-            or any(
-                c not in "0123456789abcdef"
-                for c in report.before_sha256 + report.observed_sha256
-            )
-        ):
-            raise EffectJournalError("Invalid independent observation hashes")
-        self.mark_completed(
-            principal=principal,
-            server=server,
-            tool=tool,
-            operation_key=operation_key,
-        )
+                    if row != (expected, "UNCERTAIN"):
+                        raise EffectJournalError("Observer does not match reserved effect")
+                    report = verifier.inspect()
+                    if report.state is not Consequence.VERIFIED_EFFECT:
+                        raise EffectJournalError("External effect not independently verified")
+                    if (
+                        not isinstance(report.before_sha256, str)
+                        or not isinstance(report.observed_sha256, str)
+                        or len(report.before_sha256) != 64
+                        or len(report.observed_sha256) != 64
+                        or report.before_sha256 == report.observed_sha256
+                        or any(
+                            c not in "0123456789abcdef"
+                            for c in report.before_sha256 + report.observed_sha256
+                        )
+                    ):
+                        raise EffectJournalError("Invalid independent observation hashes")
+                    updated = db.execute(
+                        "UPDATE effects SET status='COMPLETED' "
+                        "WHERE principal=? AND server=? AND tool=? AND operation_key=? "
+                        "AND argument_hash=? AND status='UNCERTAIN'",
+                        (*identity, expected),
+                    )
+                    if updated.rowcount != 1:
+                        raise EffectJournalError("Effect changed during reconciliation")
+                    db.commit()
+                except Exception:
+                    db.rollback()
+                    raise
+                finally:
+                    db.close()
+            except EffectJournalError:
+                raise
+            except Exception as exc:
+                raise EffectJournalError("Effect journal unavailable") from exc
 
     def status(self, *, principal: str, server: str, tool: str, operation_key: str) -> str | None:
         identity = (
