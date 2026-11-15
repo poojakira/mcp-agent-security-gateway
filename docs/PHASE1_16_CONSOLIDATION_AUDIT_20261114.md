@@ -1,7 +1,9 @@
+> **2026-11-14/15 exact-SHA verification:** [Run 43656575066](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656575066) on `5978d483329c4c3c29e313846172aeb75b2b2fc3`: **1,236 passed and 6 skipped per Python 3.10/3.11/3.12; all five jobs passed**. [Poster parity 43656574988](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656574988) also passed on that SHA. Older unverified-patch notices below refer to earlier snapshots; new release-authorization and Markdown commits still require exact-head verification. [Full post-mortem](https://github.com/poojakira/mcp-agent-security-gateway/blob/security/phase1-16-audit/docs/review/FULL_REPOSITORY_POSTMORTEM_DEVILS_ADVOCATE_20261114.md) explains residual risks. **PRODUCTION NO-GO.**
+
 # Phase 1–16 consolidation and adversarial release audit
 
 Date: 2026-11-14
-Status: OPEN — NOT PRODUCTION APPROVED
+Status: TESTED DEVELOPMENT SNAPSHOT GREEN; PRODUCTION NOT APPROVED
 
 ## 2026-11-14 post-deletion recovery and verification update
 
@@ -9,7 +11,7 @@ Status: OPEN — NOT PRODUCTION APPROVED
 - The private repository's integration branch was present when checked and was not recreated.
 - The public audit branch was 384 commits ahead of `main` and 0 behind when compared. This is commit ancestry only, not security validation.
 - The exact audit-head pull-request workflow lookup for `4d37d68330b79cde36376272f47d007d234681fd` returned no runs. This API only returns PR-triggered runs on its first page; absence does not prove no other Actions runs exist.
-- Historical 1,211 passed / 6 skipped per Python version belongs exclusively to SHA `43a72c8984bf9a472b9055d4f9e84cc759f61718`. The five newly authored revocation tests have **not** been observed passing on the latest audit head.
+- Historical 1,211 passed / 6 skipped per Python version belongs exclusively to SHA `43a72c8984bf9a472b9055d4f9e84cc759f61718`. Those added tests were included in a later green full regression at `5978d483`; commits after that SHA require new validation.
 - Open PRs and divergent branches must be reconciled before further cleanup or promotion. **Production NO-GO.**
 
 ## Repository policy
@@ -53,4 +55,4 @@ Status: OPEN — NOT PRODUCTION APPROVED
 - Enumerated 5 private and 53 public branches before creating working branches.
 - Compared selected integration, release, remediation and poster branches against main.
 - Created integration and security audit branches in both repositories.
-- No full CI suite executed; no source branches deleted; no production approval granted.
+- A subsequent full five-job workflow passed at `5978d483`; no production approval granted, and newer commits require exact-head checks.
