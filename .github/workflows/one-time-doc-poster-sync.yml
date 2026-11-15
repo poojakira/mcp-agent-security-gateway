@@ -1,0 +1,42 @@
+name: One-time documented poster refresh
+on:
+  push:
+    branches: [fix/evidence-provenance-20261114]
+    paths: [.github/workflows/one-time-doc-poster-sync.yml]
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Verify pinned evidence sources and NO-GO
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD:poster/01_research_brief.md)" = "54161734a8bd680b7ebeaa1c5474325bf68c55e5"
+          test "$(git rev-parse HEAD:poster/03_verified_metrics.md)" = "f7f1ca2816d7e17b49df9e683be8ea33035d53bc"
+          grep -q 'PRODUCTION NO-GO' poster/01_research_brief.md
+          grep -q 'PRODUCTION NO-GO' poster/03_verified_metrics.md
+      - name: Render exact poster and check printed evidence
+        run: |
+          set -euo pipefail
+          export POSTER_BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          python poster/render_poster.py
+          cmp poster/poster_36x48.pdf MCP_Gateway_Poster.pdf
+          python -m pip install --disable-pip-version-check 'PyMuPDF>=1.24,<2'
+          python - <<'PY'
+          import fitz
+          with fitz.open("poster/poster_36x48.pdf") as doc:
+              assert len(doc) == 1
+              txt = doc[0].get_text()
+              assert "NO-GO" in txt
+              assert "1,245" in txt
+          PY
+      - name: Commit only poster binaries
+        run: |
+          set -euo pipefail
+          git add poster/poster_36x48.pdf poster/poster.png MCP_Gateway_Poster.pdf
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'docs(poster): regenerate after evidence reconciliation'
+          git push origin HEAD:fix/evidence-provenance-20261114
