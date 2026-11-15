@@ -163,6 +163,50 @@ class DurableEffectJournal:
             except Exception as exc:
                 raise EffectJournalError("Effect completion journal unavailable") from exc
 
+    def reconcile_verified_effect(
+        self,
+        *,
+        principal: str,
+        server: str,
+        tool: str,
+        operation_key: str,
+        report: object,
+    ) -> None:
+        """Record a bounded effect only after independent positive observation.
+
+        A provider acknowledgment, gateway response, timeout, or local intent
+        is not evidence of an external consequence. Indeterminate, no-effect,
+        and unexpected-effect observations must remain UNCERTAIN and must
+        never trigger an automatic retry.
+        """
+        from mcp_monitor.protocol.consequence_verifier import (
+            Consequence,
+            ConsequenceReport,
+        )
+
+        if not isinstance(report, ConsequenceReport):
+            raise EffectJournalError("Independent consequence report required")
+        if report.state is not Consequence.VERIFIED_EFFECT:
+            raise EffectJournalError("External effect not independently verified")
+        if (
+            not isinstance(report.before_sha256, str)
+            or not isinstance(report.observed_sha256, str)
+            or len(report.before_sha256) != 64
+            or len(report.observed_sha256) != 64
+            or report.before_sha256 == report.observed_sha256
+            or any(
+                c not in "0123456789abcdef"
+                for c in report.before_sha256 + report.observed_sha256
+            )
+        ):
+            raise EffectJournalError("Invalid independent observation hashes")
+        self.mark_completed(
+            principal=principal,
+            server=server,
+            tool=tool,
+            operation_key=operation_key,
+        )
+
     def status(self, *, principal: str, server: str, tool: str, operation_key: str) -> str | None:
         identity = (
             _label(principal, "principal"),
