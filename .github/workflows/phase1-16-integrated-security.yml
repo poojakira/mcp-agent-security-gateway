@@ -17,6 +17,7 @@ on:
       - release/phase1-16-offline-rc-20261111
       - integration/phase1-16-verified
       - security/phase1-16-audit
+      - fix/evidence-provenance-20261114
       - security/phase1-16-effect-verification-20261111
   pull_request:
     branches:
@@ -73,7 +74,7 @@ jobs:
           ruff format --check tests/test_phase16_crash_fencing_process.py
           python -m pytest tests/test_phase16_crash_fencing_process.py -q --tb=short
       - name: Full inherited regression suite
-        run: python -m pytest tests/ -q --tb=short
+        run: python -m pytest tests/ -q -rs --tb=short
       - name: Verify combined identity, effect, revocation and key-retirement boundaries
         run: |
           python -m pytest tests/test_retired_demo_credential.py tests/test_phase16_revocation_safe_commit.py tests/test_phase15_consequence_verification.py tests/test_phase11_effect_journal.py tests/test_first_party_protected_mcp.py -q --tb=short
