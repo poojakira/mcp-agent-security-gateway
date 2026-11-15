@@ -186,7 +186,8 @@ jobs:
           curl --fail --location --retry 3 --proto '=https' --tlsv1.2 \
             'https://raw.githubusercontent.com/modelcontextprotocol/servers/36380287ed3b15d115b55f546617d723072b1296/package.json' \
             --output "$RUNNER_TEMP/mcp-public-package.json"
-          echo '34557784d197891ed31204127a76fde5eee240da  '"$RUNNER_TEMP"'/mcp-public-package.json' | sha1sum --check
+          actual_blob="$(git hash-object -- "$RUNNER_TEMP/mcp-public-package.json")"
+          test "$actual_blob" = "34557784d197891ed31204127a76fde5eee240da" || { echo "Pinned Git blob mismatch: $actual_blob"; exit 1; }
           echo "MCP_PUBLIC_MANIFEST_PATH=$RUNNER_TEMP/mcp-public-package.json" >> "$GITHUB_ENV"
       - name: Execute genuine public manifest gateway test without skips
         run: python -m pytest tests/test_first_party_public_manifest.py -v -rs --tb=short
