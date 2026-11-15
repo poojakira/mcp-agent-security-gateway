@@ -41,7 +41,7 @@ jobs:
           ledger = Path("poster/02_claim_ledger.md").read_text()
           for content in (brief, metrics, ledger):
               assert "NO-GO" in content
-              assert "5978d483329c4c3c29e313846172aeb75b2b2fc3" in content
+              assert "a24f92c17f93d5c150eafe4ba7dce507ecb534b6" in content
           print("Poster source provenance and NO-GO assertions verified")
           PY
       - name: Render 36x48 PDF and PNG without APIs or paid services
@@ -65,7 +65,7 @@ jobs:
           page = p[0]
           assert abs(page.rect.width - 2592) < 2 and abs(page.rect.height - 3456) < 2
           text = page.get_text()
-          for phrase in ("1,236", "NO-GO", "Docker"):
+          for phrase in ("1,245", "NO-GO", "Docker"):
               assert phrase in text, (phrase, text[:350])
           assert Path("poster/poster.png").stat().st_size > 10000
           assert Path("docs/poster/mcp-gateway-animated-architecture.svg").exists()
