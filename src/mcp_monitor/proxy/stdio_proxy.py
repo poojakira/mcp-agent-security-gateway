@@ -628,6 +628,15 @@ class StdioMCPProxy:
         # Reject the configuration BEFORE any downstream process is started.
         if self._strict_mcp_methods and self._policy_engine.allowed_tools is None:
             raise ValueError("Hardened MCP proxy requires an explicit trusted tool allowlist")
+        if os.environ.get("MCP_ENV", "").strip().lower() == "production":
+            # A tool allowlist is not a tenant authorization policy. Every
+            # permitted tool must identify a resource checked by the trusted
+            # ACL before forwarding. Do not allow unmapped tool paths.
+            allowed = self._policy_engine.allowed_tools
+            if not allowed or set(self._protected_resource_tools) != set(allowed):
+                raise ValueError(
+                    "Production stdio requires a resource ACL mapping for every allowed tool"
+                )
         # Rate limit tool calls at the proxy layer (separate from production/ server rate limiter).
         # Default: 300 tool calls/minute, burst up to 300. Reduces DoS risk and
         # limits blast radius if an agent is compromised or stuck in a loop.
