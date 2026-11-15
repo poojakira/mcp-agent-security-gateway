@@ -31,6 +31,14 @@ This register distinguishes implemented repository changes from independently ve
 
 **Release gate:** keep the PR in draft and production NO-GO until every required control is implemented, tested on the exact promoted SHA, independently reviewed and explicitly approved. Do not use provider API keys or paid services to fabricate validation.
 
+## Current implementation evidence updates (2026-11-15 UTC)
+
+- **Item 17 — verified on historical exact SHA:** [integrated run 43674537092](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43674537092), pinned public manifest job **success**, Git blob hash verification and actual gateway test **1 passed**. This corrects the previously erroneous raw SHA-1 comparison; later commits need their own CI.
+- **Items 18–19 — partial:** Phase 5, Phase 9 and Phase 14 disposable Docker jobs succeeded on the above run. Generic matrix still intentionally skips fixture-gated cases; accept only with explicit same-SHA dedicated successes. Do not claim all acceptance jobs green until run conclusion is successful.
+- **Item 20 — implementation committed, validation pending:** integrated regression now requests line and branch coverage, publishes per-version `coverage.xml` artifacts. No numerical coverage claims until the new job completes.
+- **Items 25–27 — unresolved, evidence preservation improved:** poster workflow retains newly rendered PDF/PNG on parity failure. Exact-byte parity still fails against committed poster. A reviewer must compare visual differences and determine whether deterministic reproduction is achievable; preserving an artifact is not the same as accepting it.
+- **Items 1–16 and 21–42:** the 42-point register above remains authoritative; no additional production or novelty claims were established by these CI improvements.
+
 ## Verified observations
 
 - Historical integrated five-job run [43657894182](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657894182) passed at audit SHA `2158ab58e4a07a5c49b70c659996653a92f661c8`, with 1,245 passed and 6 skipped per Python version. This is **not** a validation of the remediation head.
