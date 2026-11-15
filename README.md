@@ -2,7 +2,7 @@
 
 > **2026-11-14 audit work in progress:** See [audit PR #187](https://github.com/poojakira/mcp-agent-security-gateway/pull/187). Protected reads and tool discovery now have revocation checks on the audit branch; five regression tests were added but have not yet been observed passing. Direct-server bypass and production release blockers remain. The [animated architecture diagram](docs/poster/mcp-gateway-animated-architecture.svg) is illustrative. **PRODUCTION NO-GO.**
 
-> **Evidence reconciliation (2026-11-11; living reference):** Historical results below retain their original dates and denominators. Latest tested Phase 1–16 development SHA is `43a72c8984bf9a472b9055d4f9e84cc759f61718` ([CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): 1,211 passed, 6 skipped per Python version), **not** a merged or production-approved release. Offline research tests require no paid provider or provider-issued API keys; deployed HTTP authentication and unverified real credential revocation remain separate. See [operating restrictions](PRODUCTION.md) and [release evidence](docs/review/PHASE1_16_RELEASE_CANDIDATE_NO_GO_20261110.md).
+> **Evidence reconciliation (2026-11-11; living reference):** Historical results below retain their original dates and denominators. Historical November 11 tested Phase 1–16 development SHA was `43a72c8984bf9a472b9055d4f9e84cc759f61718` ([CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171992): 1,211 passed, 6 skipped per Python version), **not** a merged or production-approved release. Offline research tests require no paid provider or provider-issued API keys; deployed HTTP authentication and unverified real credential revocation remain separate. See [operating restrictions](PRODUCTION.md) and [release evidence](docs/review/PHASE1_16_RELEASE_CANDIDATE_NO_GO_20261110.md).
 
 > **License:** New releases are governed by [LICENSE](LICENSE). Earlier MIT-licensed versions retain their historical terms; see [license history](docs/license-history/LICENSE-BEFORE-2026-10-13.txt).
 
@@ -12,7 +12,7 @@
 
 The gateway inspects supported Model Context Protocol (MCP) / JSON-RPC traffic before selected tool calls reach downstream MCP servers. It combines tool authorization, untrusted-input inspection, scoped exfiltration/egress rules, telemetry, and evidence of downstream outcomes. Only traffic routed through a supported enforcement path is protected. Neither heuristic detectors nor a passing development test establishes universal bypass prevention.
 
-**Repository:** [source and issues](https://github.com/poojakira/mcp-agent-security-gateway) · **Maintainer:** [@poojakira](https://github.com/poojakira) · **Status authority:** [Phase 13 release gate](docs/review/PHASE13_RELEASE_READINESS.md) and [Phases 1–16 integration PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167).
+**Repository:** [source and issues](https://github.com/poojakira/mcp-agent-security-gateway) · **Maintainer:** [@poojakira](https://github.com/poojakira) · **Historical release-gate reference:** [Phase 13 release gate](docs/review/PHASE13_RELEASE_READINESS.md) and [Phases 1–16 integration PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167).
 
 ## Architecture
 
@@ -97,7 +97,7 @@ The baseline [metrics file](VERIFIED_METRICS.md) reports **782 tests and 81.93% 
 
 ## Research poster
 
-The [Poster Artifact Parity workflow](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42740787837) successfully rerendered and confirmed the committed PNG matches the October evidence sources. That successful parity check is a **rendering/source consistency result**, not a validation of integrated-branch security or detector efficacy.
+The [historical October Poster Artifact Parity workflow](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42740787837) successfully rerendered and confirmed the committed PNG matches the October evidence sources. That successful parity check is a **rendering/source consistency result**, not a validation of integrated-branch security or detector efficacy.
 
 
 [View existing research poster PDF](poster/poster_36x48.pdf). This older poster is **historical and does not verify the integrated phase 1–16 candidate**. Do not use its figures without their printed dates and source commits.
