@@ -137,3 +137,44 @@ def test_missing_docker_runtime_fails_without_unsandboxed_fallback(monkeypatch) 
     with pytest.raises(FileNotFoundError, match="synthetic Docker"):
         asyncio.run(proxy.start())
     assert proxy.command[0] == "docker"
+
+
+@pytest.mark.parametrize("production_value", ["production", "PRODUCTION", " production "])
+def test_production_requires_strict_offline_sandbox_even_for_direct_constructor(
+    monkeypatch, production_value: str
+) -> None:
+    monkeypatch.setenv("MCP_ENV", production_value)
+    with pytest.raises(ValueError, match="Production stdio proxy requires strict offline"):
+        StdioMCPProxy(command=["python"])
+    with pytest.raises(ValueError, match="Production stdio proxy requires strict offline"):
+        StdioMCPProxy(command=["python"], strict_mcp_methods=True)
+    with pytest.raises(ValueError, match="Production stdio proxy requires strict offline"):
+        StdioMCPProxy(command=["python"], offline_sandbox=OfflineDockerSandbox(IMAGE_ID))
+    with pytest.raises(ValueError, match="Production stdio proxy requires strict offline"):
+        StdioMCPProxy(command=["python"], strict_mcp_methods=False, offline_sandbox=OfflineDockerSandbox(IMAGE_ID))
+
+
+def test_production_direct_constructor_uses_pinned_offline_docker(monkeypatch) -> None:
+    monkeypatch.setenv("MCP_ENV", "production")
+    proxy = StdioMCPProxy(
+        command=["python", "-u", "/opt/mcp/server.py"],
+        strict_mcp_methods=True,
+        offline_sandbox=OfflineDockerSandbox(IMAGE_ID),
+    )
+    assert proxy.command[0] == "docker"
+    assert "--network=none" in proxy.command
+    assert "--read-only" in proxy.command
+    assert "--cap-drop=ALL" in proxy.command
+    assert "--security-opt=no-new-privileges" in proxy.command
+    assert IMAGE_ID in proxy.command
+
+
+def test_production_rejects_injected_transport_even_with_offline_sandbox(monkeypatch) -> None:
+    monkeypatch.setenv("MCP_ENV", "production")
+    with pytest.raises(ValueError, match="Cannot override"):
+        StdioMCPProxy(
+            command=["python"],
+            strict_mcp_methods=True,
+            offline_sandbox=OfflineDockerSandbox(IMAGE_ID),
+            transport=object(),
+        )
