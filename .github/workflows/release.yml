@@ -117,31 +117,9 @@ jobs:
           echo "SBOM generated:"
           python -m json.tool dist/sbom-cyclonedx.json | head -30
 
-      - name: Generate SBOM for source
-        run: |
-          cyclonedx-py requirements \
-            --input requirements.txt \
-            --output dist/sbom-source-cyclonedx.json \
-            --format json \
-            --schema-version 1.5 || echo "No requirements.txt — zero-dep project"
-          # For zero-dep projects, create a minimal SBOM
-          if [ ! -f dist/sbom-source-cyclonedx.json ]; then
-            cat > dist/sbom-source-cyclonedx.json << 'EOF'
-          {
-            "bomFormat": "CycloneDX",
-            "specVersion": "1.5",
-            "version": 1,
-            "metadata": {
-              "component": {
-                "type": "library",
-                "name": "mcp-agent-security-gateway",
-                "version": "${{ steps.version.outputs.version }}"
-              }
-            },
-            "components": []
-          }
-          EOF
-          fi
+      # No fabricated source SBOM: the environment SBOM above inventories the
+      # installed build environment, not an independently resolved source lock.
+      # A source-specific SBOM requires a validated lockfile and separate gate.
 
       # ------------------------------------------------------------------
       # Sign artifacts with Sigstore (keyless)
@@ -223,7 +201,6 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-            ghcr.io/${{ github.repository }}:latest
           labels: |
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.version=${{ github.ref_name }}
@@ -272,7 +249,6 @@ jobs:
             dist/*.whl
             dist/*.tar.gz
             dist/sbom-cyclonedx.json
-            dist/sbom-source-cyclonedx.json
             dist/SHA256SUMS.txt
             dist/*.sigstore
 
