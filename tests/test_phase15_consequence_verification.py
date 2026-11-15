@@ -185,7 +185,7 @@ def test_independent_verified_effect_can_reconcile_without_replay(
         "tool": "update_dependency",
         "operation_key": "reconcile-1",
     }
-    args = {"package": "safe-package", "version": "1.1.0"}
+    args = {"package": "safe-package", "version": "1.1.0", "expected_previous": "1.0.0"}
     journal.reserve(**identity, arguments=args)
     observer = _observer(workspace)
     with pytest.raises(EffectJournalError, match="not independently verified"):
@@ -200,6 +200,31 @@ def test_independent_verified_effect_can_reconcile_without_replay(
     assert DurableEffectJournal(tmp_path / "reconcile.sqlite").status(**identity) == "COMPLETED"
     with pytest.raises(EffectJournalError, match="Duplicate or unresolved"):
         journal.reserve(**identity, arguments=args)
+
+
+def test_mismatched_reserved_operation_cannot_reconcile(
+    workspace: Path, tmp_path: Path
+) -> None:
+    journal = DurableEffectJournal.bootstrap(tmp_path / "mismatch.sqlite")
+    identity = {
+        "principal": "operator-test",
+        "server": "protected-repo",
+        "tool": "update_dependency",
+        "operation_key": "mismatch-1",
+    }
+    journal.reserve(**identity, arguments={
+        "package": "safe-package",
+        "version": "9.9.9",
+        "expected_previous": "1.0.0",
+    })
+    observer = _observer(workspace)
+    manifest = workspace / "package.json"
+    data = json.loads(manifest.read_text())
+    data["dependencies"]["safe-package"] = "1.1.0"
+    manifest.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(EffectJournalError, match="does not match reserved"):
+        journal.reconcile_verified_effect(**identity, verifier=observer)
+    assert journal.status(**identity) == "UNCERTAIN"
 
 
 def test_unexpected_external_effect_never_reconciles_as_success(
