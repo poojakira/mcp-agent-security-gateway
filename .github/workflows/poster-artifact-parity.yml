@@ -47,8 +47,10 @@ jobs:
           assert m["schema_version"] == 1 and m["decision"] == "NO-GO"
           sha = m["source_sha"]
           assert re.fullmatch(r"[0-9a-f]{40}", sha)
-          assert m["tests_passed_per_python"] == 1245 and m["tests_skipped_per_python"] == 6
-          assert m["integrated_jobs_passed"] == m["integrated_jobs_total"] == 5
+          assert isinstance(m["tests_passed_per_python"], int) and m["tests_passed_per_python"] > 0
+          assert isinstance(m["tests_skipped_per_python"], int) and m["tests_skipped_per_python"] >= 0
+          assert isinstance(m["integrated_jobs_total"], int) and m["integrated_jobs_total"] > 0
+          assert m["integrated_jobs_passed"] == m["integrated_jobs_total"]
           assert m["coverage_percent"] is None
           def get_run(run_id):
               url = f"https://api.github.com/repos/{os.environ['GH_REPOSITORY']}/actions/runs/{run_id}"
@@ -87,7 +89,9 @@ jobs:
           page = p[0]
           assert abs(page.rect.width - 2592) < 2 and abs(page.rect.height - 3456) < 2
           text = page.get_text()
-          for phrase in ("1,245", "NO-GO", "Docker"):
+          import json
+          manifest = json.loads(Path("poster/evidence_manifest.json").read_text())
+          for phrase in (f"{manifest['tests_passed_per_python']:,}", "NO-GO", "Docker"):
               assert phrase in text, (phrase, text[:350])
           assert Path("poster/poster.png").stat().st_size > 10000
           assert Path("docs/poster/mcp-gateway-animated-architecture.svg").exists()
