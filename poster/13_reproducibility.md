@@ -1,4 +1,4 @@
-> **Latest tested regression evidence:** SHA `5978d483329c4c3c29e313846172aeb75b2b2fc3`, [CI 43656575066](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656575066): **1,236 passed, 6 skipped per Python 3.10/3.11/3.12; 5/5 jobs passed**. [Poster parity 43656574988](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656574988) passed at that source SHA. Subsequent code/docs changes require new exact-head verification; historical 1,211-pass results below belong to a different commit. PRODUCTION NO-GO.
+> **Latest tested regression evidence:** SHA `a24f92c17f93d5c150eafe4ba7dce507ecb534b6`, [CI 43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973): **1,245 passed, 6 skipped per Python 3.10/3.11/3.12; 5/5 jobs passed**. [Poster parity 43656574988](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656574988) passed at that source SHA. Subsequent code/docs changes require new exact-head verification; historical 1,211-pass results below belong to a different commit. PRODUCTION NO-GO.
 
 # Reproducibility — November 11, 2026 Phase 1–16 Poster
 
