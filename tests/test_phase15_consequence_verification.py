@@ -237,7 +237,11 @@ def test_unexpected_external_effect_never_reconciles_as_success(
         "tool": "update_dependency",
         "operation_key": "unexpected-1",
     }
-    journal.reserve(**identity, arguments={})
+    journal.reserve(**identity, arguments={
+        "package": "safe-package",
+        "version": "1.1.0",
+        "expected_previous": "1.0.0",
+    })
     observer = _observer(workspace)
     manifest = workspace / "package.json"
     data = json.loads(manifest.read_text())
