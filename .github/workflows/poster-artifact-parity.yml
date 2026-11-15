@@ -130,6 +130,8 @@ jobs:
           print("Poster dimension, content and PNG checks passed")
           PY
       - name: Compare committed poster binaries against exact-head render
+        # Keep strict equality as a release blocker until source and generated
+        # binaries are reconciled; no automatic approval for PDF metadata drift.
         run: |
           python - <<'PY'
           import hashlib, subprocess
