@@ -198,6 +198,9 @@ def main() -> int:
     .evidence p, .evidence li { font-size:16.5px; }
     footer { font-size:14px; color:#657789; margin-top:24px; text-align:center; }
     @media print {
+      /* A printed PDF must capture a deterministic SVG frame, not a random
+         instant in the live flow/pulse animation. Digital SVG stays animated. */
+      .architecture svg *, .architecture svg { animation: none !important; transition: none !important; }
       html, body { width:36in; height:48in; background:#f4f7fb; }
       body { overflow:hidden; }
       .page { width:36in; height:48in; padding:1.24in 1.44in .90in; }
