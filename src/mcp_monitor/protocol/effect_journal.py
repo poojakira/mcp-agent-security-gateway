@@ -170,7 +170,7 @@ class DurableEffectJournal:
         server: str,
         tool: str,
         operation_key: str,
-        report: object,
+        verifier: object,
     ) -> None:
         """Record a bounded effect only after independent positive observation.
 
@@ -181,11 +181,14 @@ class DurableEffectJournal:
         """
         from mcp_monitor.protocol.consequence_verifier import (
             Consequence,
-            ConsequenceReport,
+            ManifestConsequenceVerifier,
         )
 
-        if not isinstance(report, ConsequenceReport):
-            raise EffectJournalError("Independent consequence report required")
+        if not isinstance(verifier, ManifestConsequenceVerifier):
+            raise EffectJournalError("Trusted independent consequence verifier required")
+        # Obtain a fresh observation here; caller-supplied reports are not
+        # acceptable completion evidence.
+        report = verifier.inspect()
         if report.state is not Consequence.VERIFIED_EFFECT:
             raise EffectJournalError("External effect not independently verified")
         if (
