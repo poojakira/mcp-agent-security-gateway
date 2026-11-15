@@ -73,8 +73,17 @@ jobs:
           ruff format --diff tests/test_phase16_crash_fencing_process.py
           ruff format --check tests/test_phase16_crash_fencing_process.py
           python -m pytest tests/test_phase16_crash_fencing_process.py -q --tb=short
-      - name: Full inherited regression suite
-        run: python -m pytest tests/ -q -rs --tb=short
+      - name: Full inherited regression suite with explicit coverage evidence
+        run: |
+          python -m pytest tests/ -q -rs --tb=short --cov=mcp_monitor --cov-branch --cov-report=term-missing --cov-report=xml:coverage.xml
+      - name: Upload per-version branch and line coverage evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: coverage-python-${{ matrix.python-version }}
+          path: coverage.xml
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify combined identity, effect, revocation and key-retirement boundaries
         run: |
           python -m pytest tests/test_retired_demo_credential.py tests/test_phase16_revocation_safe_commit.py tests/test_phase15_consequence_verification.py tests/test_phase11_effect_journal.py tests/test_first_party_protected_mcp.py -q --tb=short
