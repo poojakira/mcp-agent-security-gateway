@@ -251,3 +251,45 @@ def test_unexpected_external_effect_never_reconciles_as_success(
     with pytest.raises(EffectJournalError, match="not independently verified"):
         journal.reconcile_verified_effect(**identity, verifier=observer)
     assert journal.status(**identity) == "UNCERTAIN"
+
+
+def test_reconciliation_is_single_winner_across_journal_instances(
+    workspace: Path, tmp_path: Path
+) -> None:
+    import concurrent.futures
+    import threading
+
+    path = tmp_path / "concurrent.sqlite"
+    first = DurableEffectJournal.bootstrap(path)
+    second = DurableEffectJournal(path, timeout_seconds=2.0)
+    identity = {
+        "principal": "operator-test",
+        "server": "protected-repo",
+        "tool": "update_dependency",
+        "operation_key": "concurrent-1",
+    }
+    first.reserve(**identity, arguments={
+        "package": "safe-package",
+        "version": "1.1.0",
+        "expected_previous": "1.0.0",
+    })
+    observer = _observer(workspace)
+    manifest = workspace / "package.json"
+    data = json.loads(manifest.read_text())
+    data["dependencies"]["safe-package"] = "1.1.0"
+    manifest.write_text(json.dumps(data), encoding="utf-8")
+    barrier = threading.Barrier(2)
+
+    def reconcile(journal: DurableEffectJournal) -> str:
+        barrier.wait(timeout=5)
+        try:
+            journal.reconcile_verified_effect(**identity, verifier=observer)
+            return "COMPLETED"
+        except EffectJournalError:
+            return "DENIED"
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        futures = [pool.submit(reconcile, journal) for journal in (first, second)]
+        outcomes = [future.result(timeout=10) for future in futures]
+    assert sorted(outcomes) == ["COMPLETED", "DENIED"]
+    assert first.status(**identity) == "COMPLETED"
