@@ -28,14 +28,13 @@ applyable Secret.
 
 ## Image
 
-The sample Deployment references the repository release image. For controlled
-production promotion, replace the tag with an **immutable digest**, for example:
+The Deployment deliberately contains an **invalid digest placeholder** and must not be applied unchanged. A reviewer must verify the release artifact and replace the placeholder with the actual 64-character immutable image digest. Example syntax:
 
 ```yaml
 image: ghcr.io/poojakira/mcp-agent-security-gateway@sha256:<digest>
 ```
 
-Do not deploy a locally mutable `:latest` tag.
+Do not deploy mutable `:latest` or version tags. The placeholder is intentionally invalid, and this sample is **not** production-approved.
 
 ## Apply
 
