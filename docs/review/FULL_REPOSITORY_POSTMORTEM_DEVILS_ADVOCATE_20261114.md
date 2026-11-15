@@ -14,7 +14,7 @@ These are **exact-commit** results. They cannot certify later release-authorizat
 
 A complete Git tree inventory at the tested SHA showed **25 files in `.github/workflows/`**. I inspected their event/triggers and reviewed a GitHub Actions history sample spanning approximately July–November 2026 (about 3,189 run records returned across pages). Old successful phase workflows are **not exact-head validations** of the current audit branch. Most standalone phase workflows do **not** automatically trigger on `security/phase1-16-audit`; many support manual `workflow_dispatch`. CI, Security Hygiene, Production Gate, real filesystem smoke and independent specialty tests have successful *historical* runs on other branches. A job named "Production Gate" passing is insufficient for production acceptance.
 
-The currently validated audit-head workflow pair is:
+At the time of this original audit snapshot, the validated workflow pair was (later superseded by 1,245-pass runs):
 - [Integrated security 43656575066](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656575066) — 5/5 jobs, 1,236 passed + 6 skipped on each of three Python versions, pinned source SHA `5978d483...`.
 - [Poster artifact parity 43656574988](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656574988) — generated 36×48 PDF and PNG artifacts with automated dimension/content checks at the same SHA. The committed poster binaries may be from earlier inputs; do not distribute them as current without comparing the artifacts and inspecting the rendered output.
 
