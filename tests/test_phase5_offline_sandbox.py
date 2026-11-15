@@ -155,20 +155,18 @@ def test_production_requires_strict_offline_sandbox_even_for_direct_constructor(
         StdioMCPProxy(command=["python"], strict_mcp_methods=False, offline_sandbox=OfflineDockerSandbox(IMAGE_ID))
 
 
-def test_production_direct_constructor_uses_pinned_offline_docker(monkeypatch) -> None:
+def test_production_direct_constructor_rejects_unbound_identity(monkeypatch) -> None:
+    """Offline Docker alone does not authenticate the calling principal."""
     monkeypatch.setenv("MCP_ENV", "production")
-    proxy = StdioMCPProxy(
-        command=["python", "-u", "/opt/mcp/server.py"],
-        strict_mcp_methods=True,
-        offline_sandbox=OfflineDockerSandbox(IMAGE_ID),
-        policy_engine=PolicyEngine(allowed_servers={"default"}, allowed_tools={"read_file"}),
-    )
-    assert proxy.command[0] == "docker"
-    assert "--network=none" in proxy.command
-    assert "--read-only" in proxy.command
-    assert "--cap-drop=ALL" in proxy.command
-    assert "--security-opt=no-new-privileges" in proxy.command
-    assert IMAGE_ID in proxy.command
+    with pytest.raises(ValueError, match="trusted OIDC session binding"):
+        StdioMCPProxy(
+            command=["python", "-u", "/opt/mcp/server.py"],
+            strict_mcp_methods=True,
+            offline_sandbox=OfflineDockerSandbox(IMAGE_ID),
+            policy_engine=PolicyEngine(
+                allowed_servers={"default"}, allowed_tools={"read_file"}
+            ),
+        )
 
 
 def test_production_rejects_injected_transport_even_with_offline_sandbox(monkeypatch) -> None:
