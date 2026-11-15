@@ -1,12 +1,8 @@
-> **2026-11-14 recovery check:** The public integration branch was recreated from the security-audit branch after accidental deletion; its original head was not recovered. The branches compared identical at recovery time. Current audit-head PR workflow lookup returned no runs; historical CI results below do not validate the latest audit code or poster binaries. **PRODUCTION NO-GO.**
-
-> **2026-11-14 consolidated audit update:** Five authored but unexecuted revocation regression tests now cover protected manifest reads and tool discovery; direct same-user server invocation remains a documented critical bypass. Poster animation source: [animated MCP architecture](../docs/poster/mcp-gateway-animated-architecture.svg). Numerical CI results below belong exclusively to historical commit `43a72c8984bf9a472b9055d4f9e84cc759f61718`, not this branch. **PRODUCTION NO-GO.**
-
-> **2026-11-14 audit update:** The current audit branch adds unverified regression fixes for revocation of `read_manifest` and `tools/list`. Historical **1,211 passed / 6 skipped** is evidence only for commit `43a72c8984bf9a472b9055d4f9e84cc759f61718`, not the new audit head. A same-user direct-server bypass is demonstrated by existing tests and remains open. The digital poster now embeds an animated architecture diagram; print/PDF renders a static frame. **PRODUCTION NO-GO.**
+> **Latest verified evidence (2026-11-14 Phoenix / November 15 UTC):** [Full five-job integrated regression](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656575066) passed on source `5978d483329c4c3c29e313846172aeb75b2b2fc3`: **1,236 passed / 6 skipped per Python 3.10, 3.11 and 3.12**; isolated Docker and lab-security jobs also passed. [Poster render/parity](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656574988) passed on the same SHA. Earlier 1,211-test figures below are historical and must not be presented as current. Changes after this tested SHA (including release-authorization hardening) require their own exact-head tests. **PRODUCTION NO-GO**; direct downstream bypass and independent release acceptance remain unresolved.
 
 # Research Brief — Offline MCP Agent Security Gateway (Phase 1–16)
 
-> **Evidence cutoff: 2026-11-11 UTC. DEVELOPMENT RESEARCH ONLY — PRODUCTION NO-GO.** Source: stacked draft PRs #167 and #169–#178; exact verified integration head `43a72c8984bf9a472b9055d4f9e84cc759f61718`. The four named workflows below passed on that head. This does not certify a merged release, a live environment, or safety for ticketing, payments or healthcare.
+> **Historical snapshot (2026-11-11 UTC), superseded for regression counts by the latest evidence above. DEVELOPMENT RESEARCH ONLY — PRODUCTION NO-GO.** Source: stacked draft PRs #167 and #169–#178; exact verified integration head `43a72c8984bf9a472b9055d4f9e84cc759f61718`. The four named workflows below passed on that head. This does not certify a merged release, a live environment, or safety for ticketing, payments or healthcare.
 
 ## Repository
 
@@ -42,7 +38,7 @@ A constrained agent-to-tool gateway demonstrating explicit MCP capability decisi
 
 ## Current Verified Evidence
 
-- **1,211 passed, 6 skipped** per Python version (3.10, 3.11, 3.12), exact source commit `43a72c8984bf9a472b9055d4f9e84cc759f61718`; 5/5 integration jobs passed.
+- **Latest regression: 1,236 passed and 6 skipped per Python version** ([run 43656575066](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656575066) on `5978d483329c4c3c29e313846172aeb75b2b2fc3`). Earlier historical run: **1,211 passed, 6 skipped** per Python version (3.10, 3.11, 3.12), exact source commit `43a72c8984bf9a472b9055d4f9e84cc759f61718`; 5/5 integration jobs passed.
 - **Four workflows passed on the same commit**: integrated security, Security Hygiene, Python supply-chain evidence, protected Docker import/handshake.
 - Real child-process termination tests exercised before reservation, after reservation and after a local approved file change but before acknowledgment. This is not physical power-loss testing.
 - A CycloneDX SBOM for the installed Python CI environment was generated and retained as an Actions artifact; `pip-audit` reported no known advisories in that environment at that time.
