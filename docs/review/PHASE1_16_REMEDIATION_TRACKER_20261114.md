@@ -7,6 +7,30 @@
 - Exact commit `463a85f85cdb0aa6a6e287ffba56c1b364cfcd31`: [integrated CI 43667123478](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43667123478) passed **5/5 jobs**, with **1,246 passed and 6 skipped per Python 3.10, 3.11, 3.12**; [poster parity 43667123466](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43667123466) passed on the same SHA.
 - This documentation update is later than the verified commit and needs its own exact-head CI. Poster manifest remains intentionally frozen to the historical `a24f92c...` pair and does not prove current binary visual parity. The six skips and all independent production acceptance controls below remain open.
 
+## Forty-two-item acceptance register (2026-11-15 UTC)
+
+This register distinguishes implemented repository changes from independently verified production outcomes. **No item is accepted solely because a unit test passes.** All production promotion remains NO-GO.
+
+| IDs | Required acceptance work | Current disposition |
+|---|---|---|
+| 1–2 | Non-bypassable downstream access and OS isolation; adversarial same-user/process/socket/workspace bypass tests | **BLOCKED**: deployment and hostile process boundary not available |
+| 3–5 | Trusted IdP identity, tenant-scoped tool/resource authorization, real issuer revocation and in-flight fencing | **BLOCKED**: issuer, tenant integration and real credentials not available; local controls are not equivalent |
+| 6 | Independently observe external provider effects, crash/lost-ack reconciliation, duplicate prevention | **BLOCKED**: provider-side idempotency and external ground truth not available |
+| 7–8 | DNS/IPv4/IPv6/redirect/metadata/proxy egress isolation and production cluster validation | **BLOCKED**: target deployment and network policy enforcement not available |
+| 9–12 | MCP transport/version compatibility, filesystem TOCTOU, tamper-resistant audit, external crash/retry fault injection | **PARTIAL**: repository tests exist; complete adversarial acceptance matrix not verified |
+| 13–16 | Credential issuer/history audit, independent penetration test, threat/control traceability and failure injection | **BLOCKED/PARTIAL**: no issuer or independent tester; review does not imply exhaustive credential revocation |
+| 17 | Verify pinned public manifest using Git blob hash rather than raw-file SHA-1 | **FIX COMMITTED**: integrated workflow changed; exact-head pass pending |
+| 18–19 | All exact-head jobs green, dedicated opt-in integration tests executed without skips | **PARTIAL**: dedicated Phase 5/9/14/official filesystem jobs passed at prior head; public manifest failed and matrix not green |
+| 20–24 | Branch/line coverage, manifest/job/log provenance, representative attacks, false positives, comprehensive CI triggers | **PARTIAL**: CI log reconciliation implemented; full metrics and independent benchmark pending |
+| 25–27 | Current poster PDF/PNG reconciliation, deterministic rendering and human print-readability inspection | **OPEN**: exact-byte comparison correctly detects committed PDF mismatch; visual review and reproducible render pending |
+| 28–29 | Historical vs current metrics and documentation consistency | **PARTIAL**: main banners updated; remaining historical tracker passages need resolution annotations |
+| 30–33 | Authentic SBOM, immutable release digest, protected approvals, live rollback rehearsal, safe branch/PR reconciliation | **OPEN**: no release authorization or deployment proof |
+| 34–42 | Competitor baseline, controlled adversarial comparisons, ground truth, ablations, latency/false-positive measurements, reproducible novelty package | **NOT ESTABLISHED**: uniqueness cannot be asserted before comparative evidence |
+
+**Adversarial acceptance questions:** Can a client reach downstream without gateway authorization? Can a revoked principal obtain an already-computed response? Can a timeout cause a duplicated external action? Can a local adversary replace a checked file before use? Can DNS, IPv6, redirects or proxies bypass egress policy? Can audit records be deleted or forked without independent detection? Can a green CI run be paired with stale poster binaries or fabricated counts? Can competing gateways match the purported novelty under the same tests? Each question requires an observed pass/fail result and preserved evidence, not a narrative assertion.
+
+**Release gate:** keep the PR in draft and production NO-GO until every required control is implemented, tested on the exact promoted SHA, independently reviewed and explicitly approved. Do not use provider API keys or paid services to fabricate validation.
+
 ## Verified observations
 
 - Historical integrated five-job run [43657894182](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657894182) passed at audit SHA `2158ab58e4a07a5c49b70c659996653a92f661c8`, with 1,245 passed and 6 skipped per Python version. This is **not** a validation of the remediation head.
