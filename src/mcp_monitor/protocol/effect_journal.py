@@ -186,6 +186,31 @@ class DurableEffectJournal:
 
         if not isinstance(verifier, ManifestConsequenceVerifier):
             raise EffectJournalError("Trusted independent consequence verifier required")
+        if tool != "update_dependency":
+            raise EffectJournalError("Unsupported reconciliation tool")
+        expected = _fingerprint({
+            "package": verifier._package,
+            "version": verifier._approved,
+            "expected_previous": verifier._previous,
+        })
+        identity = (
+            _label(principal, "principal"),
+            _label(server, "server"),
+            _label(tool, "tool"),
+            _label(operation_key, "operation key"),
+        )
+        try:
+            with self._lock:
+                with self._open() as db:
+                    row = db.execute(
+                        "SELECT argument_hash, status FROM effects "
+                        "WHERE principal=? AND server=? AND tool=? AND operation_key=?",
+                        identity,
+                    ).fetchone()
+        except Exception as exc:
+            raise EffectJournalError("Effect journal unavailable") from exc
+        if row != (expected, "UNCERTAIN"):
+            raise EffectJournalError("Observer does not match reserved effect")
         # Obtain a fresh observation here; caller-supplied reports are not
         # acceptable completion evidence.
         report = verifier.inspect()
