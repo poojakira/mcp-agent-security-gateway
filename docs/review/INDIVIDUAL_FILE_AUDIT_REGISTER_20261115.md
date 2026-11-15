@@ -1,3 +1,5 @@
+> **Verification update (2026-11-15 UTC; exact source SHA):** Gateway commit `8049ec46e8337ee4eabff9cfa97ffe4663f4febc` passed [nine-job Phase 1–16 integrated security CI](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43748347243) and [Poster Artifact Parity](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43748347212). The earlier PDF raster mismatch was traced to continuously animated SVG print frames; the print stylesheet now freezes animations, and the three committed poster binaries were regenerated ([reconciliation run](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43748301101)). Historical 782/81.93%, 1,245/6 and 1,246/6 figures belong only to their cited dated CI runs; the final nine-job run is **not** a newly measured coverage figure. This note records successful verification of the cited SHA, not automatic certification of later edits. **PRODUCTION NO-GO** remains in force.
+
 # Individual-file adversarial audit register — 2026-11-15
 
 **Baseline SHA:** `428ca84e6d693041f33985aef8c5a64aa558eae0`. **Production: NO-GO.**
