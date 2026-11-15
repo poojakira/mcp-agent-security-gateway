@@ -143,6 +143,7 @@ jobs:
               assert rendered == committed, f"{path} differs from committed binary; regenerate and review before parity approval"
           PY
       - name: Store rendered posterior artifacts for visual review
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: exact-head-poster-36x48
