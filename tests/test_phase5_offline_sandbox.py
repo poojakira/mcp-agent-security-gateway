@@ -178,3 +178,19 @@ def test_production_rejects_injected_transport_even_with_offline_sandbox(monkeyp
             offline_sandbox=OfflineDockerSandbox(IMAGE_ID),
             transport=object(),
         )
+
+
+def test_production_cannot_enable_unmapped_tools_even_with_identity(monkeypatch) -> None:
+    """All production tools must have resource-level authorization, not only allowlisting."""
+    monkeypatch.setenv("MCP_ENV", "production")
+    # Construction fails before launch when no trusted OIDC session exists.
+    with pytest.raises(ValueError, match="trusted OIDC session binding"):
+        StdioMCPProxy(
+            command=["python", "-u", "/opt/mcp/server.py"],
+            strict_mcp_methods=True,
+            offline_sandbox=OfflineDockerSandbox(IMAGE_ID),
+            policy_engine=PolicyEngine(
+                allowed_servers={"default"}, allowed_tools={"read_file"}
+            ),
+            protected_resource_tools={"read_file": "path"},
+        )
