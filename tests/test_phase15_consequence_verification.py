@@ -173,3 +173,52 @@ def test_real_mcp_lost_ack_does_not_falsify_consequence_or_retry(
     workspace: Path, tmp_path: Path
 ) -> None:
     asyncio.run(_lost_ack_scenario(workspace, tmp_path))
+
+
+def test_independent_verified_effect_can_reconcile_without_replay(
+    workspace: Path, tmp_path: Path
+) -> None:
+    journal = DurableEffectJournal.bootstrap(tmp_path / "reconcile.sqlite")
+    identity = {
+        "principal": "operator-test",
+        "server": "protected-repo",
+        "tool": "update_dependency",
+        "operation_key": "reconcile-1",
+    }
+    args = {"package": "safe-package", "version": "1.1.0"}
+    journal.reserve(**identity, arguments=args)
+    observer = _observer(workspace)
+    with pytest.raises(EffectJournalError, match="not independently verified"):
+        journal.reconcile_verified_effect(**identity, report=observer.inspect())
+    assert journal.status(**identity) == "UNCERTAIN"
+
+    manifest = workspace / "package.json"
+    data = json.loads(manifest.read_text())
+    data["dependencies"]["safe-package"] = "1.1.0"
+    manifest.write_text(json.dumps(data), encoding="utf-8")
+    journal.reconcile_verified_effect(**identity, report=observer.inspect())
+    assert DurableEffectJournal(tmp_path / "reconcile.sqlite").status(**identity) == "COMPLETED"
+    with pytest.raises(EffectJournalError, match="Duplicate or unresolved"):
+        journal.reserve(**identity, arguments=args)
+
+
+def test_unexpected_external_effect_never_reconciles_as_success(
+    workspace: Path, tmp_path: Path
+) -> None:
+    journal = DurableEffectJournal.bootstrap(tmp_path / "unexpected.sqlite")
+    identity = {
+        "principal": "operator-test",
+        "server": "protected-repo",
+        "tool": "update_dependency",
+        "operation_key": "unexpected-1",
+    }
+    journal.reserve(**identity, arguments={})
+    observer = _observer(workspace)
+    manifest = workspace / "package.json"
+    data = json.loads(manifest.read_text())
+    data["dependencies"]["other"] = "compromised"
+    manifest.write_text(json.dumps(data), encoding="utf-8")
+    assert observer.inspect().state is Consequence.UNEXPECTED_EFFECT
+    with pytest.raises(EffectJournalError, match="not independently verified"):
+        journal.reconcile_verified_effect(**identity, report=observer.inspect())
+    assert journal.status(**identity) == "UNCERTAIN"
