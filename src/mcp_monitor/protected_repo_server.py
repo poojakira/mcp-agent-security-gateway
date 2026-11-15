@@ -220,9 +220,7 @@ def handle(request: Any, repo: ProtectedRepo) -> dict[str, Any] | None:
     if method == "tools/list":
         if repo.revocation_fence is not None:
             try:
-                allowed, _epoch = repo.revocation_fence.status(
-                    principal=repo.operator_principal
-                )
+                allowed, _epoch = repo.revocation_fence.status(principal=repo.operator_principal)
                 if not allowed:
                     raise RevocationFenceError("Operator authorization revoked")
             except RevocationFenceError:
