@@ -81,3 +81,39 @@ def test_valid_health_request_reaches_router():
     response = _request(b"GET /v1/health HTTP/1.1\r\nHost: gateway\r\n\r\n")
     assert response.startswith(b"HTTP/1.1 200")
     assert b'"status": "healthy"' in response
+
+
+def test_duplicate_api_key_header_rejected_instead_of_last_value_winning():
+    response = _request(
+        b"POST /v1/inspect_call HTTP/1.1\r\n"
+        b"Host: gateway\r\n"
+        b"X-API-Key: first\r\n"
+        b"x-api-key: second\r\n"
+        b"Content-Length: 2\r\n\r\n{}"
+    )
+    assert response.startswith(b"HTTP/1.1 400")
+
+
+def test_whitespace_before_header_colon_is_rejected():
+    response = _request(b"GET /v1/health HTTP/1.1\r\nHost : gateway\r\n\r\n")
+    assert response.startswith(b"HTTP/1.1 400")
+
+
+def test_invalid_header_token_is_rejected():
+    response = _request(b"GET /v1/health HTTP/1.1\r\nBad@Name: x\r\n\r\n")
+    assert response.startswith(b"HTTP/1.1 400")
+
+
+def test_signed_content_length_is_rejected():
+    response = _request(
+        b"POST /v1/inspect_call HTTP/1.1\r\n"
+        b"Content-Length: +2\r\n\r\n{}"
+    )
+    assert response.startswith(b"HTTP/1.1 400")
+
+
+def test_duplicate_host_header_is_rejected():
+    response = _request(
+        b"GET /v1/health HTTP/1.1\r\nHost: one\r\nHost: two\r\n\r\n"
+    )
+    assert response.startswith(b"HTTP/1.1 400")
