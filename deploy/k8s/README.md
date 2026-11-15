@@ -41,6 +41,7 @@ Do not deploy mutable `:latest` or version tags. The placeholder is intentionall
 **STOP:** Before applying, replace the invalid digest placeholder in `deployment.yaml`, configure and verify ingress/egress isolation and workload identity, and obtain independent approval. These commands are for an authorized non-production validation environment only.
 
 ```bash
+kubectl apply -f deploy/k8s/networkpolicy-deny-all.yaml
 kubectl apply -f deploy/k8s/configmap.yaml
 kubectl apply -f deploy/k8s/pvc.yaml
 kubectl apply -f deploy/k8s/deployment.yaml
@@ -76,3 +77,7 @@ Optional external-validation transport output also requires `MCP_IDENTITY_TELEME
 ## Production gate
 
 Do not apply these example manifests to production without trusted workload identity, authorization, network ingress/egress isolation, persistent audit/effect state, image/SBOM review, tested rollback and explicit approval. Passing example syntax or smoke checks alone does not close these requirements.
+
+## Fail-closed network baseline
+
+Apply `networkpolicy-deny-all.yaml` in an **authorized disposable test namespace** before starting the workload. It selects the gateway pods and denies all ingress and egress, including DNS, until an operator has designed and independently tested explicit minimum-permission exceptions. Consequently the sample Service and port-forward cannot reach the gateway while ingress remains denied; this is intentional. A CNI must actually enforce NetworkPolicy; verify with a negative network probe from a different pod and a denied outbound probe from the gateway. NetworkPolicy is not a substitute for mTLS, authenticated workload identity, host isolation or defense against privileged node actors. Do **not** silently relax the policy to make health checks or third-party tools work.
