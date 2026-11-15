@@ -28,7 +28,7 @@ applyable Secret.
 
 ## Image
 
-The Deployment deliberately contains an **invalid digest placeholder** and must not be applied unchanged. A reviewer must verify the release artifact and replace the placeholder with the actual 64-character immutable image digest. Example syntax:
+The Deployment deliberately contains an **invalid digest placeholder** and must not be applied unchanged. A reviewer must verify the release artifact and replace the placeholder with the verified immutable digest (a 64-character lowercase SHA-256 hex value). Example syntax:
 
 ```yaml
 image: ghcr.io/poojakira/mcp-agent-security-gateway@sha256:<digest>
