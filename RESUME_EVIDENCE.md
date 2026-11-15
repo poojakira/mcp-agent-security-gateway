@@ -7,3 +7,8 @@ The detailed, dated evidence ledger is maintained at [docs/evidence/RESUME_EVIDE
 The **782 passing tests / 81.93% statement coverage** claim comes from the [October 13, 2026 Linux CI run](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803) at `c75c52db`, **not** from the current unmerged integration candidate. The **69 prompt-injection signatures** are a source inventory, not a measured precision/recall rate.
 
 Do not state that the project is production-deployed, independently penetration-tested, compliant with a certification, or proven to prevent all MCP prompt injection. Consult [release status](docs/review/PHASE13_RELEASE_READINESS.md) for open controls and [integration PR #167](https://github.com/poojakira/mcp-agent-security-gateway/pull/167) for exact-commit CI.
+
+
+### November 15, 2026 verification boundary
+
+The Phase 1–16 integrated candidate completed all nine CI jobs in [run 43744627479](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43744627479), including real Docker and official MCP filesystem integration. This does not supersede separately dated historical test-count or coverage measurements and is not a production certification. Regenerated poster binaries were committed at `f1b8ee9574ed33683ab4149bb797ac45e97d090e`, but later exact-head poster parity failed intermittently on PDF raster pixels despite matching text and PNG pixels. See [remediation tracker](docs/review/PHASE1_16_REMEDIATION_TRACKER_20261114.md). **Production NO-GO:** deployment CNI enforcement, issuer-side credential revocation, end-to-end authorization non-bypassability, and external side-effect reconciliation remain unverified.
