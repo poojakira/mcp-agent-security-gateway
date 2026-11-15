@@ -206,10 +206,14 @@ jobs:
               ).stdout
 
           png_path = "poster/poster.png"
-          assert Path(png_path).read_bytes() == committed(png_path), (
-              "PNG differs from committed artifact; regenerate and review"
-          )
-          print("PNG exact-byte parity passed", flush=True)
+          from PIL import Image, ImageChops
+          import io
+          with Image.open(io.BytesIO(committed(png_path))) as prior_png, Image.open(png_path) as rendered_png:
+              assert prior_png.size == rendered_png.size, "PNG dimensions changed"
+              assert ImageChops.difference(
+                  prior_png.convert("RGBA"), rendered_png.convert("RGBA")
+              ).getbbox() is None, "PNG visible pixels changed"
+          print("PNG exact-pixel parity passed; encoder metadata may differ", flush=True)
 
           pdf_paths = ("poster/poster_36x48.pdf", "MCP_Gateway_Poster.pdf")
           assert Path(pdf_paths[0]).read_bytes() == Path(pdf_paths[1]).read_bytes(), (
