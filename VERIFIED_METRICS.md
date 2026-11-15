@@ -29,3 +29,8 @@ py -3.12 -m pytest tests -q -p pytest_cov -p no:cacheprovider --override-ini add
 ## Historical evidence
 
 The previous **723 tests / 81.91% coverage / 55-signature** snapshot at `008775c8878cc70c50247baa223da3256e093316` ([CI run 37184196303](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303)) is preserved in the [dated historical archive](docs/archive/HISTORICAL_EVIDENCE.md), not presented as the current result.
+
+
+### November 15, 2026 verification boundary
+
+The Phase 1–16 integrated candidate completed all nine CI jobs in [run 43744627479](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43744627479), including real Docker and official MCP filesystem integration. This does not supersede separately dated historical test-count or coverage measurements and is not a production certification. Regenerated poster binaries were committed at `f1b8ee9574ed33683ab4149bb797ac45e97d090e`, but later exact-head poster parity failed intermittently on PDF raster pixels despite matching text and PNG pixels. See [remediation tracker](docs/review/PHASE1_16_REMEDIATION_TRACKER_20261114.md). **Production NO-GO:** deployment CNI enforcement, issuer-side credential revocation, end-to-end authorization non-bypassability, and external side-effect reconciliation remain unverified.
