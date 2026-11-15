@@ -24,8 +24,9 @@ spec:
           type: RuntimeDefault
       containers:
         - name: mcp-monitor
-          # Release image. Pin to an immutable digest for controlled production promotion.
-          image: ghcr.io/poojakira/mcp-agent-security-gateway:v0.1.0
+          # INTENTIONALLY INVALID until a reviewer supplies the verified immutable digest.
+          # Never replace this with a mutable tag or infer a digest from a version.
+          image: ghcr.io/poojakira/mcp-agent-security-gateway@sha256:REPLACE_WITH_VERIFIED_64_CHARACTER_DIGEST
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
