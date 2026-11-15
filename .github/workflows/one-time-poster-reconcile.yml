@@ -37,6 +37,8 @@ jobs:
           test -s poster/poster.png
           test -s MCP_Gateway_Poster.pdf
           cmp poster/poster_36x48.pdf MCP_Gateway_Poster.pdf
+      - name: Install free PDF inspection dependency
+        run: python -m pip install --disable-pip-version-check PyMuPDF
       - name: Check evidence and poster content before commit
         run: |
           python - <<'PY'
