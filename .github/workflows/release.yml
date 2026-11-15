@@ -63,10 +63,18 @@ jobs:
           MCP_RELEASE_APPROVAL_REFERENCE: ${{ vars.MCP_RELEASE_APPROVAL_REFERENCE }}
         run: python scripts/check_release_authorization.py
 
+      - name: Generate disposable release-validation credential
+        run: |
+          python - <<'PY'
+          import os
+          import secrets
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as out:
+              out.write("MCP_API_KEY=" + secrets.token_hex(32) + "\n")
+          PY
+
       - name: Run release gates
         env:
           MCP_ENV: production
-          MCP_API_KEY: release-validation-key-at-least-32-characters
           MCP_ALLOWED_SERVERS: github
           MCP_WAL_PATH: /tmp/mcp-release-wal.jsonl
           MCP_AUDIT_PATH: /tmp/mcp-release-audit.jsonl
