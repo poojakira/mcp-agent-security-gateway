@@ -129,6 +129,19 @@ jobs:
           assert Path("docs/poster/mcp-gateway-animated-architecture.svg").exists()
           print("Poster dimension, content and PNG checks passed")
           PY
+      - name: Compare committed poster binaries against exact-head render
+        run: |
+          python - <<'PY'
+          import hashlib, subprocess
+          from pathlib import Path
+          for path in ("poster/poster_36x48.pdf", "poster/poster.png", "MCP_Gateway_Poster.pdf"):
+              rendered = Path(path).read_bytes()
+              committed = subprocess.run(["git", "show", f"HEAD:{path}"], capture_output=True, check=True).stdout
+              actual = hashlib.sha256(rendered).hexdigest()
+              expected = hashlib.sha256(committed).hexdigest()
+              print(f"{path}: rendered={actual} committed={expected}", flush=True)
+              assert rendered == committed, f"{path} differs from committed binary; regenerate and review before parity approval"
+          PY
       - name: Store rendered posterior artifacts for visual review
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
