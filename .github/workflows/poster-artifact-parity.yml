@@ -133,6 +133,7 @@ jobs:
         run: |
           python - <<'PY'
           import hashlib
+          import difflib
           import subprocess
           import tempfile
           from pathlib import Path
@@ -162,6 +163,17 @@ jobs:
                   )
                   print(f"{path}: pages_equal={same_pages} text_equal={same_text} raster_equal={same_pixels}", flush=True)
                   print(f"{path}: committed_metadata={prior.metadata} rendered_metadata={fresh.metadata}", flush=True)
+                  if not same_text:
+                      old_lines = "\\n".join(page.get_text() for page in prior).splitlines()
+                      new_lines = "\\n".join(page.get_text() for page in fresh).splitlines()
+                      diff = list(difflib.unified_diff(
+                          old_lines, new_lines,
+                          fromfile=f"committed/{path}",
+                          tofile=f"rendered/{path}",
+                          lineterm="",
+                      ))
+                      print(f"{path}: extracted_text_diff_lines={len(diff)}", flush=True)
+                      print("\\n".join(diff[:100]), flush=True)
           try:
               from PIL import Image, ImageChops
               with tempfile.TemporaryDirectory() as temp:
