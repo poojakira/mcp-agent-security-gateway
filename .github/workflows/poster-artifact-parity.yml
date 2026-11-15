@@ -129,6 +129,53 @@ jobs:
           assert Path("docs/poster/mcp-gateway-animated-architecture.svg").exists()
           print("Poster dimension, content and PNG checks passed")
           PY
+      - name: Diagnose poster content drift independently of PDF metadata
+        run: |
+          python - <<'PY'
+          import hashlib
+          import subprocess
+          import tempfile
+          from pathlib import Path
+          import fitz
+
+          def committed(path):
+              return subprocess.run(
+                  ["git", "show", f"HEAD:{path}"],
+                  capture_output=True, check=True,
+              ).stdout
+
+          for path in ("poster/poster_36x48.pdf", "MCP_Gateway_Poster.pdf"):
+              current = Path(path).read_bytes()
+              original = committed(path)
+              with fitz.open(stream=current, filetype="pdf") as fresh, fitz.open(
+                  stream=original, filetype="pdf"
+              ) as prior:
+                  same_pages = len(fresh) == len(prior)
+                  same_text = same_pages and all(
+                      fresh[i].get_text() == prior[i].get_text()
+                      for i in range(len(fresh))
+                  )
+                  same_pixels = same_pages and all(
+                      hashlib.sha256(fresh[i].get_pixmap(matrix=fitz.Matrix(0.5, 0.5), alpha=False).samples).digest()
+                      == hashlib.sha256(prior[i].get_pixmap(matrix=fitz.Matrix(0.5, 0.5), alpha=False).samples).digest()
+                      for i in range(len(fresh))
+                  )
+                  print(f"{path}: pages_equal={same_pages} text_equal={same_text} raster_equal={same_pixels}", flush=True)
+                  print(f"{path}: committed_metadata={prior.metadata} rendered_metadata={fresh.metadata}", flush=True)
+          try:
+              from PIL import Image, ImageChops
+              with tempfile.TemporaryDirectory() as temp:
+                  previous = Path(temp) / "committed.png"
+                  previous.write_bytes(committed("poster/poster.png"))
+                  with Image.open(previous) as prior, Image.open("poster/poster.png") as fresh:
+                      same_size = prior.size == fresh.size
+                      same_pixels = same_size and ImageChops.difference(
+                          prior.convert("RGBA"), fresh.convert("RGBA")
+                      ).getbbox() is None
+                      print(f"poster/poster.png: size_equal={same_size} pixels_equal={same_pixels}", flush=True)
+          except ImportError:
+              print("Pillow not installed: PNG pixel comparison unavailable", flush=True)
+          PY
       - name: Compare committed poster binaries against exact-head render
         # Keep strict equality as a release blocker until source and generated
         # binaries are reconciled; no automatic approval for PDF metadata drift.
