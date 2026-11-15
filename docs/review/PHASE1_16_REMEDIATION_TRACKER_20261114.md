@@ -66,3 +66,11 @@ The repository tree API returned 378 entries without truncation. This is a **rep
 - The poster artifact is circulated from the committed binary instead of the verified current render.
 
 **Audit limitations:** No production cluster, IdP, credential issuer, third-party provider, real external consequence, independent tester, or full local file-by-file static analysis was accessed in this review. Do not infer absence of vulnerabilities from the inventory or from passing CI.
+
+## Follow-up remediation and test review
+
+- The exact-head integrated run [43661565902](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43661565902) passed all five jobs at `956d4a7b8b10f590ec0c871e14fcfaf95596db95`. Python 3.12 logs show **1,245 passed / 6 skipped**. This does **not** validate later Kubernetes manifest or documentation changes.
+- The six reported skips are: `test_first_party_public_manifest.py` (pinned public manifest not fetched); `test_live_filesystem_mcp.py` (real server opt-in / Node); two `test_phase14_isolated_docker.py` cases (pinned local Docker image missing); `test_phase5_docker_integration.py` (Phase 5 image ID absent); and `test_phase9_internal_docker.py` (Phase 9 fixture not provisioned in the general pytest job). Separate Docker workflow success is not equivalent to unskipping every test in the full matrix.
+- The Kubernetes Deployment now contains an **intentionally invalid** immutable-digest placeholder. This prevents accidental tag-based promotion but is not a deployable manifest. Only an independently verified 64-character image digest and explicit deployment approval can replace it. Documentation includes the prerequisite warning.
+- The release workflow no longer publishes a mutable `:latest` alias or invents a zero-dependency source SBOM. A genuine source-specific dependency SBOM remains **outstanding**, not certified.
+- The remaining high-risk controls (downstream bypass, remote identity/revocation, network egress, provider effects, release environment rules, independent testing) remain **unresolved** and must not be reclassified as fixed merely because the workflow passes.
