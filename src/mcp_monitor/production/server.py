@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import re
 import tempfile
 import time
 from secrets import compare_digest
@@ -38,6 +39,7 @@ _MAX_REQUEST_LINE_BYTES = 8 * 1024
 _MAX_HEADER_LINE_BYTES = 8 * 1024
 _MAX_HEADER_BYTES = 32 * 1024
 _MAX_HEADER_COUNT = 100
+_HTTP_TOKEN = re.compile(r"[!#$%&'*+.^_`|~0-9A-Za-z-]+\Z", re.ASCII)
 
 
 class ProductionServer:
@@ -217,15 +219,15 @@ class ProductionServer:
                     await self._send_response(writer, 400, {"error": "Malformed header"})
                     return
                 key, value = header_str.split(":", 1)
-                normalized_key = key.strip().lower()
-                if not normalized_key or any(ch.isspace() for ch in normalized_key):
+                # Never normalize whitespace before a colon or silently replace
+                # duplicate security headers. Upstream proxies may parse either
+                # differently, allowing authentication/framing disagreement.
+                if key != key.strip() or _HTTP_TOKEN.fullmatch(key) is None:
                     await self._send_response(writer, 400, {"error": "Malformed header name"})
                     return
-                if (
-                    normalized_key in {"content-length", "transfer-encoding"}
-                    and normalized_key in headers
-                ):
-                    await self._send_response(writer, 400, {"error": "Ambiguous request framing"})
+                normalized_key = key.lower()
+                if normalized_key in headers:
+                    await self._send_response(writer, 400, {"error": "Duplicate request header"})
                     return
                 headers[normalized_key] = value.strip()
 
@@ -240,6 +242,8 @@ class ProductionServer:
             body = b""
             raw_content_length = headers.get("content-length", "0")
             try:
+                if not raw_content_length or not raw_content_length.isascii() or not raw_content_length.isdecimal():
+                    raise ValueError("Non-canonical Content-Length")
                 content_length = int(raw_content_length)
             except ValueError:
                 await self._send_response(writer, 400, {"error": "Invalid Content-Length"})
