@@ -22,6 +22,9 @@ jobs:
         run: |
           docker build --label "org.opencontainers.image.revision=$GITHUB_SHA" -t mcp-p0-audit:tested .
           docker image inspect mcp-p0-audit:tested > image-inspect.json
+      - name: Smoke test non-root read-only runtime with no network or installers
+        run: |
+          docker run --rm -i --network=none --read-only --cap-drop=ALL --security-opt=no-new-privileges --tmpfs=/tmp:rw,nosuid,nodev,size=32m mcp-p0-audit:tested python - < scripts/p0_image_smoke.py > image-smoke.json
       - name: Install checksum-pinned free image scanners
         run: |
           set -euo pipefail
@@ -46,6 +49,7 @@ jobs:
           name: p0-image-${{ github.sha }}
           path: |
             image-inspect.json
+            image-smoke.json
             gateway-image.cdx.json
             gateway-image-vulnerabilities.json
           if-no-files-found: warn
