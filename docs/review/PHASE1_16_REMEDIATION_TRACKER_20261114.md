@@ -39,6 +39,16 @@ This register distinguishes implemented repository changes from independently ve
 - **Items 25–27 — unresolved, evidence preservation improved:** poster workflow retains newly rendered PDF/PNG on parity failure. Exact-byte parity still fails against committed poster. A reviewer must compare visual differences and determine whether deterministic reproduction is achievable; preserving an artifact is not the same as accepting it.
 - **Items 1–16 and 21–42:** the 42-point register above remains authoritative; no additional production or novelty claims were established by these CI improvements.
 
+## Audit remediation status — 2026-11-15 UTC (commit-specific)
+
+- **Coverage artifact:** integrated workflow now sets `if-no-files-found: error` for `coverage.xml` on each Python matrix job. This closes a missing-artifact silent-warning gap, but does **not** set a coverage threshold or establish a current coverage percentage.
+- **Poster:** exact-byte comparison remains a blocking failure, with generated artifacts retained for investigation. A comment documents that nondeterministic PDF metadata must not be silently ignored. **The binary mismatch is not fixed.**
+- **Deployment:** the intentionally invalid image digest is a deliberate release safety gate. A verified published digest and authorized cluster test are required; replacing the placeholder with a guessed digest would create a vulnerability.
+- **Network policy:** deny-all configuration and structural test exist, but no live CNI enforcement or authorized exceptions have been validated.
+- **Credential audit:** a fixed release-test key was replaced with per-run random material; no provider-side revocation or full historical secret scan has been established.
+- **Document review:** prior file inventory and selected-line inspections are **not** a completed 333-file line-by-line audit. Do not describe the entire repository as reviewed.
+- **Release:** keep PR in draft and production **NO-GO** pending exact-head CI, poster reconciliation, deployed security controls and independent review.
+
 ## Verified observations
 
 - Historical integrated five-job run [43657894182](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657894182) passed at audit SHA `2158ab58e4a07a5c49b70c659996653a92f661c8`, with 1,245 passed and 6 skipped per Python version. This is **not** a validation of the remediation head.
