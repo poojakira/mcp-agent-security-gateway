@@ -1,4 +1,4 @@
-> **2026-11-14 rendering and validation note:** The poster generator embeds `docs/poster/mcp-gateway-animated-architecture.svg`. Animation is for digital viewing only; PDF and PNG show a static frame. The current audit branch contains unverified revocation patches and five new tests. Run full CI and poster parity against the exact audit commit before replacing historical poster binaries. **PRODUCTION NO-GO.**
+> **Latest tested regression evidence:** SHA `5978d483329c4c3c29e313846172aeb75b2b2fc3`, [CI 43656575066](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656575066): **1,236 passed, 6 skipped per Python 3.10/3.11/3.12; 5/5 jobs passed**. [Poster parity 43656574988](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656574988) passed at that source SHA. Subsequent code/docs changes require new exact-head verification; historical 1,211-pass results below belong to a different commit. PRODUCTION NO-GO.
 
 # Reproducibility — November 11, 2026 Phase 1–16 Poster
 
