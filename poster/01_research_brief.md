@@ -36,9 +36,9 @@ A constrained agent-to-tool gateway demonstrating explicit MCP capability decisi
 5. Restrict production-flagged stdio startup to a pinned, offline Docker image; verify a real protected server Docker handshake.
 6. Reserve an operation durably and report uncertain outcomes on interrupted effects; independently inspect a local manifest, not remote-provider results.
 
-## Current Verified Evidence
+## Pinned Historical Poster Evidence (not current remediation head)
 
-- **Latest regression: 1,245 passed and 6 skipped per Python version** ([run 43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973) on `a24f92c17f93d5c150eafe4ba7dce507ecb534b6`). Earlier historical run: **1,211 passed, 6 skipped** per Python version (3.10, 3.11, 3.12), exact source commit `43a72c8984bf9a472b9055d4f9e84cc759f61718`; 5/5 integration jobs passed.
+- **Pinned historical regression: 1,245 passed and 6 skipped per Python version** ([run 43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973) on `a24f92c17f93d5c150eafe4ba7dce507ecb534b6`). Earlier historical run: **1,211 passed, 6 skipped** per Python version (3.10, 3.11, 3.12), exact source commit `43a72c8984bf9a472b9055d4f9e84cc759f61718`; 5/5 integration jobs passed.
 - **Historical four-workflow evidence at the earlier 2026-11-11 commit**: integrated security, Security Hygiene, Python supply-chain evidence, protected Docker import/handshake. This is not the current poster source SHA.
 - Real child-process termination tests exercised before reservation, after reservation and after a local approved file change but before acknowledgment. This is not physical power-loss testing.
 - A CycloneDX SBOM for the installed Python CI environment was generated and retained as an Actions artifact; `pip-audit` reported no known advisories in that environment at that time.
