@@ -309,15 +309,53 @@ class TestKubernetesDeployment:
         assert security_context["readOnlyRootFilesystem"] is True
         assert "ALL" in security_context["capabilities"]["drop"]
 
+    @staticmethod
+    def _image_is_digest_pinned(image):
+        """Only a full sha256 digest, never a mutable tag or digest placeholder."""
+        import re
+
+        return (
+            isinstance(image, str)
+            and re.fullmatch(
+                r"ghcr\\.io/poojakira/mcp-agent-security-gateway@sha256:[0-9a-f]{64}",
+                image,
+            )
+            is not None
+        )
+
     def test_image_uses_repository_release_registry(self):
         with open(os.path.join(K8S_DIR, "deployment.yaml")) as f:
             data = yaml.safe_load(f)
         container = data["spec"]["template"]["spec"]["containers"][0]
-        assert container["image"].startswith("ghcr.io/poojakira/mcp-agent-security-gateway:")
+        image = container["image"]
+        placeholder = (
+            "ghcr.io/poojakira/mcp-agent-security-gateway"
+            "@sha256:REPLACE_WITH_VERIFIED_64_CHARACTER_DIGEST"
+        )
+        # The checked-in example must fail closed until a real digest is approved.
+        assert image == placeholder or self._image_is_digest_pinned(image)
+        assert ":" not in image.split("@", 1)[0]  # no mutable tag before digest
         assert container["imagePullPolicy"] == "IfNotPresent"
         with open(os.path.join(K8S_DIR, "README.md")) as f:
             runbook = f.read()
         assert "immutable digest" in runbook.lower()
+        assert "invalid digest placeholder" in runbook.lower()
+
+    def test_image_digest_policy_rejects_mutable_and_malformed_references(self):
+        repository = "ghcr.io/poojakira/mcp-agent-security-gateway"
+        for invalid in (
+            repository + ":latest",
+            repository + ":v0.1.0",
+            repository + "@sha256:abc123",
+            repository + "@sha256:" + "g" * 64,
+            repository + "@sha256:" + "A" * 64,
+            repository + "@sha256:" + "0" * 63,
+            repository + "@sha256:" + "0" * 65,
+            repository + ":latest@sha256:" + "0" * 64,
+            "ghcr.io/untrusted/other@sha256:" + "0" * 64,
+        ):
+            assert not self._image_is_digest_pinned(invalid), invalid
+        assert self._image_is_digest_pinned(repository + "@sha256:" + "a" * 64)
 
 
 class TestKubernetesSecretExample:
