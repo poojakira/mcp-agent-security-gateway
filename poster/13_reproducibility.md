@@ -1,4 +1,4 @@
-> **Latest tested regression evidence:** SHA `a24f92c17f93d5c150eafe4ba7dce507ecb534b6`, [CI 43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973): **1,245 passed, 6 skipped per Python 3.10/3.11/3.12; 5/5 jobs passed**. [Poster parity 43656574988](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656574988) passed at that source SHA. Subsequent code/docs changes require new exact-head verification; historical 1,211-pass results below belong to a different commit. PRODUCTION NO-GO.
+> **Historical poster-evidence regression snapshot:** SHA `a24f92c17f93d5c150eafe4ba7dce507ecb534b6`, [CI 43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973): **1,245 passed, 6 skipped per Python 3.10/3.11/3.12; 5/5 jobs passed**. [Poster parity 43657370960](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370960) passed at that source SHA. Subsequent code/docs changes require new exact-head verification; historical 1,211-pass results below belong to a different commit. PRODUCTION NO-GO.
 
 # Reproducibility — November 11, 2026 Phase 1–16 Poster
 
@@ -12,7 +12,7 @@
 - [Python SBOM/advisories: 42971171775](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171775): CycloneDX installed-environment SBOM artifact and pip-audit public advisory check passed.
 - [Protected MCP real Docker smoke: 42971171991](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/42971171991): real offline import and tools/list handshake passed.
 
-## Reproduce development source
+## Reproduce the historical November 11 development source (not the current remediation head)
 
 ```bash
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
