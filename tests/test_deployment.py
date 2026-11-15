@@ -516,3 +516,19 @@ class TestLocustfile:
         assert '"name"' in content
         assert '"server_id"' in content
         assert '"arguments"' in content
+
+
+class TestKubernetesFailClosedNetworkPolicy:
+    """The example must deny all traffic until explicitly authorized."""
+
+    def test_network_policy_denies_all_ingress_and_egress(self):
+        with open(os.path.join(K8S_DIR, "networkpolicy-deny-all.yaml"), encoding="utf-8") as source:
+            policy = yaml.safe_load(source)
+        assert policy["apiVersion"] == "networking.k8s.io/v1"
+        assert policy["kind"] == "NetworkPolicy"
+        assert policy["metadata"]["namespace"] == "mcp-monitor"
+        spec = policy["spec"]
+        assert set(spec["policyTypes"]) == {"Ingress", "Egress"}
+        assert spec["podSelector"]["matchLabels"]["app.kubernetes.io/name"] == "mcp-monitor"
+        assert spec["ingress"] == []
+        assert spec["egress"] == []
