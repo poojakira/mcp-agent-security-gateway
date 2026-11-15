@@ -1,4 +1,4 @@
-> **Latest verified evidence (2026-11-14 Phoenix / November 15 UTC):** [Full five-job integrated regression](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973) passed on source `a24f92c17f93d5c150eafe4ba7dce507ecb534b6`: **1,245 passed / 6 skipped per Python 3.10, 3.11 and 3.12**; isolated Docker and lab-security jobs also passed. [Poster render/parity](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656574988) passed on the same SHA. Earlier 1,211- and 1,236-test figures below are historical and must not be presented as current. Changes after this tested SHA (including release-authorization hardening) require their own exact-head tests. **PRODUCTION NO-GO**; direct downstream bypass and independent release acceptance remain unresolved.
+> **Latest verified development evidence (2026-11-14 Phoenix / 2026-11-15 UTC):** [Integrated run 43657894182](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657894182) on audit commit `2158ab58e4a07a5c49b70c659996653a92f661c8`: **1,245 passed / 6 skipped per Python 3.10, 3.11 and 3.12; 5/5 jobs green**. This run is newer than the pinned poster evidence manifest, which intentionally references the earlier same-SHA pair [integrated 43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973) and [poster 43657370960](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370960) on `a24f92c17f93d5c150eafe4ba7dce507ecb534b6`. The current documentation-fix commit is not covered by those historical runs. **PRODUCTION NO-GO.**
 
 # Poster Metrics — Exact-Head CI Evidence, Not Product Effectiveness
 
@@ -10,7 +10,7 @@
 | Skipped tests | **6** | Per Python version; skipped are not verified |
 | Python versions | **3** | 3.10 / 3.11 / 3.12 all passed |
 | Integrated CI jobs | **5/5** | [Run 43657370973](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973) |
-| Same-SHA workflows | **2/2** | [Integrated regression](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973) and [poster parity](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43656574988); other workflows are historical |
+| Same-SHA workflows | **2/2** | [Integrated regression](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370973) and [poster parity](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/43657370960); other workflows are historical |
 | Local process-crash cases | **3** | Before reservation, post-reservation and post-effect/pre-ack |
 | Known Python advisories | **0 found** | Installed CI environment, public database at run time; not a promise |
 | Production status | **NO-GO** | No external deployment or independent approval established |
