@@ -82,7 +82,7 @@ jobs:
         with:
           name: coverage-python-${{ matrix.python-version }}
           path: coverage.xml
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 14
       - name: Verify combined identity, effect, revocation and key-retirement boundaries
         run: |
