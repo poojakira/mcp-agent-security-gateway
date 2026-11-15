@@ -38,6 +38,8 @@ Do not deploy mutable `:latest` or version tags. The placeholder is intentionall
 
 ## Apply
 
+**STOP:** Before applying, replace the invalid digest placeholder in `deployment.yaml`, configure and verify ingress/egress isolation and workload identity, and obtain independent approval. These commands are for an authorized non-production validation environment only.
+
 ```bash
 kubectl apply -f deploy/k8s/configmap.yaml
 kubectl apply -f deploy/k8s/pvc.yaml
