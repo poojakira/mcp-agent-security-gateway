@@ -1,0 +1,18 @@
+# Fail-closed research baseline. No ingress, egress, DNS or provider access.
+# A CNI that enforces NetworkPolicy is mandatory. Applying this does not
+# itself demonstrate isolation, prevent hostNetwork access or block privileged
+# node-level attackers. Authorize narrowly scoped exceptions separately.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mcp-monitor-deny-all
+  namespace: mcp-monitor
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: mcp-monitor
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []
+  egress: []
