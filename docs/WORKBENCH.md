@@ -72,6 +72,8 @@ Autopsy: pretty-printed JSON initially reached the newline-delimited stdio trans
 
 Independent review found three further evidence defects: Python 3.10 raises `asyncio.TimeoutError` rather than the later built-in alias; an installed wheel could inherit another repository's commit; and repeat count was absent from the configuration hash. The runtime now catches the cross-version exception, accepts Git provenance only from a tracked editable-source checkout with explicit CLEAN/DIRTY status, and hashes the complete exposed execution configuration. Real-process repeat tests and temporary Git repository regressions cover these failures. A receipt without a completed response still produces UNKNOWN.
 
+Remote CI exposed a workflow expression error that plain YAML parsing cannot detect: `runner` is unavailable in job-level `env`. The gate now uses a run-specific path built from the supported `github` context and checks out the exact candidate head. The existing lint job validates this workflow with checksum-pinned actionlint 1.7.7. CodeQL's redundant provenance initializers were removed, and expected client disconnect/operator-stop handling is documented rather than suppressed.
+
 The strongest counterargument remains that a controlled offline fixture does not prove security for arbitrary MCP tools. The UI and exported limitations state that scope explicitly. The advanced branch's independent image gate failure remains unaddressed by this candidate, which does not merge that branch.
 
 ## Acceptance status matrix

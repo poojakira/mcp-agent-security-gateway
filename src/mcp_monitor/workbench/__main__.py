@@ -40,6 +40,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             self.wfile.write(payload)
         except (BrokenPipeError, ConnectionResetError):
+            # The client disconnected; do not attempt another response or tool action.
             pass
 
     def boundary(self) -> bool:
@@ -128,6 +129,7 @@ def main():
         try:
             server.serve_forever()
         except KeyboardInterrupt:
+            # An operator interrupt ends the local loop; the context closes the server.
             pass
 
 

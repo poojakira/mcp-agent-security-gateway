@@ -56,6 +56,13 @@ jobs:
           ruff format --diff src/mcp_monitor/proxy/stdio_proxy.py
           ruff format --check src/ tests poster/render_poster.py scripts/recruiter_demo.py
 
+      - name: Validate local workbench workflow expressions
+        run: |
+          curl --fail --silent --show-error --location --proto '=https' --output "$RUNNER_TEMP/actionlint.tar.gz" https://github.com/rhysd/actionlint/releases/download/v1.7.7/actionlint_1.7.7_linux_amd64.tar.gz
+          printf '%s  %s\n' 023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757 "$RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check --status
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" .github/workflows/local-workbench.yml
+
       - name: Focused Pyright gate
         run: PYTHONPATH=src pyright src/mcp_monitor/detectors src/mcp_monitor/audit tests/test_prompt_injection.py tests/test_pii_detector.py tests/test_audit_log.py
 

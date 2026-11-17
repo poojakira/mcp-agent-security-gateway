@@ -33,8 +33,6 @@ def digest(value: bytes) -> str:
 def provenance() -> dict:
     source = Path(__file__).resolve()
     root = source.parents[3]
-    sha = "UNKNOWN"
-    status = "UNKNOWN"
     try:
         # A wheel installed under another repository must not inherit its HEAD.
         # Only the actual editable source layout can attest to this checkout.
