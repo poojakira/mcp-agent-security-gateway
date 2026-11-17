@@ -1,4 +1,5 @@
 # MCP Security Gateway Monitor - Container Build
+ARG PYTHON_RUNTIME_IMAGE=python:3.11-alpine
 ARG PYTHON_BASE_IMAGE=python:3.11-slim@sha256:07d4824036af339fa1b6ef769cc99d9c10a141769538b52b3b597c84f7a7b535
 FROM ${PYTHON_BASE_IMAGE} AS builder
 
@@ -33,7 +34,6 @@ RUN --mount=type=secret,id=pip_ca \
 # the vulnerable runtime OS package footprint.
 # Release CI supplies python:3.11-alpine@sha256:<resolved-index-digest>.
 # The tag default is for developer builds, never a production release pin.
-ARG PYTHON_RUNTIME_IMAGE=python:3.11-alpine
 FROM ${PYTHON_RUNTIME_IMAGE} AS runtime
 
 WORKDIR /app
