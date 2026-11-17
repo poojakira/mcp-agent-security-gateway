@@ -1,4 +1,15 @@
-# Changelog
+# Local workbench candidate — unreleased
+
+- Add a loopback browser request editor connected to the existing MCP proxy and policy engine.
+- Add constrained first-party stdio tool execution, independent state observations, redacted exports and actual crash/repeat checks.
+- Fix independently reproduced Python 3.10 timeout handling, unrelated-repository source attribution, and omitted repeat-count evidence.
+- Move current screenshots to generated source-scoped evidence; do not publish a dirty implementation preview as candidate evidence.
+- Preserve advanced security branches; no production release or current legacy metrics claimed.
+- Normalize five pre-existing documentation trailing line endings under the existing Git attributes.
+
+# Historical changelog
+
+Entries below are preserved project history. Their test counts, coverage and verification language describe earlier snapshots and do not attest to the local workbench candidate. Where an accessible run cannot be recovered, those historical verification claims remain NOT VERIFIED.
 
 ## Unreleased
 

@@ -1,0 +1,12 @@
+# Direct tools used for the local workbench gate. Transitive versions are captured
+# in each run's dependency snapshot; this is not a complete transitive lock.
+pytest==9.2.0
+pytest-cov==7.1.0
+ruff==0.8.4
+PyYAML==6.0.3
+scikit-learn==1.9.1
+fastapi==0.163.1
+uvicorn==0.54.0
+httpx==0.28.1
+playwright==1.65.2
+build==1.6.1

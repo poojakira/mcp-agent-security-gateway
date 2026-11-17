@@ -1,0 +1,55 @@
+name: Local MCP workbench acceptance
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-workbench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONPATH: src
+      EVIDENCE_DIR: ${{ runner.temp }}/mcp-workbench-evidence
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Install pinned direct test tools and product
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-workbench-test.txt
+          python -m pip install -e .
+          python -m playwright install --with-deps chromium
+          mkdir -p "$EVIDENCE_DIR"
+      - name: Full regression and existing coverage threshold
+        run: |
+          set -o pipefail
+          python -m pytest tests/ -q --cov=mcp_monitor --cov-fail-under=77 --cov-report=term-missing --cov-report=json:"$EVIDENCE_DIR/coverage.json" --junitxml="$EVIDENCE_DIR/junit.xml" | tee "$EVIDENCE_DIR/regression.log"
+      - name: Lint and formatting
+        run: |
+          ruff check src/ tests/ scripts/workbench_e2e.py scripts/workbench_manifest.py poster/render_poster.py scripts/recruiter_demo.py
+          ruff format --check src/ tests/ scripts/workbench_e2e.py scripts/workbench_manifest.py poster/render_poster.py scripts/recruiter_demo.py
+      - name: Browser against real local backend and redacted export
+        run: |
+          chromium_path=$(python -c 'from playwright.sync_api import sync_playwright; p = sync_playwright().start(); print(p.chromium.executable_path); p.stop()')
+          python scripts/workbench_e2e.py --output "$EVIDENCE_DIR/browser" --chromium "$chromium_path"
+      - name: Build wheel and source distribution
+        run: python -m build --outdir "$EVIDENCE_DIR/artifacts"
+      - name: Generate source-scoped evidence even when checks fail
+        if: always()
+        run: python scripts/workbench_manifest.py --output "$EVIDENCE_DIR" --job-status '${{ job.status }}'
+      - name: Upload generated evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: mcp-workbench-${{ github.sha }}
+          path: ${{ env.EVIDENCE_DIR }}
+          if-no-files-found: error
