@@ -1,0 +1,19 @@
+{
+  "expected_source_commit": "c36664757c20bbc4c9d1614ec0c9e7c9e10558cd",
+  "wheel_sha256": "3e77ae329edacd9cd70b3354dfe8fa7e72952c6fb79fbe9ce5ad7171256f1063",
+  "utc": "2026-11-17T05:50:31.247121+00:00",
+  "unrelated_git_head": "ba2c07a3450d63d6571a0a5a88b283a2ba4a55ec",
+  "package_provenance": {
+    "app_version": "0.1.0",
+    "source_commit": "UNKNOWN",
+    "source_status": "UNKNOWN",
+    "protocol_version": "2025-03-26"
+  },
+  "actual_installed_read_outcome": "CONFIRMED_SUCCEEDED",
+  "actual_installed_read_provenance": {
+    "source_commit": "UNKNOWN",
+    "source_status": "UNKNOWN",
+    "app_version": "0.1.0"
+  },
+  "passed": true
+}

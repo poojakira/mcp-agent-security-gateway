@@ -1,0 +1,265 @@
+{
+  "app_version": "0.1.0",
+  "source_commit": "c36664757c20bbc4c9d1614ec0c9e7c9e10558cd",
+  "source_status": "CLEAN",
+  "protocol_version": "2025-03-26",
+  "trace_id": "332f8b1e-765f-49d1-b51e-1db1200304fd",
+  "timestamp_utc": "2026-11-17T05:50:33.321048+00:00",
+  "input_sha256": "2418d0e9d6a8ac1ad4c87783a890b767d0c384bf40f88b20f32e549392db1705",
+  "configuration_sha256": "6afcc4e63f71fe792580bdba7c281dea731576c5dbad71ba0b459d8ca7383c32",
+  "configuration": {
+    "preset": "read-write",
+    "guarded": true,
+    "repeats": 1,
+    "effective_tool_allowlist": [
+      "append_note",
+      "crash",
+      "http_get",
+      "read_note",
+      "timeout",
+      "update_note"
+    ],
+    "protocol_version": "2025-03-26"
+  },
+  "policy": "read-write",
+  "guarded": true,
+  "repeats": 1,
+  "authorization_decision": {
+    "allowed": true,
+    "reason_code": "ALLOWED",
+    "message": "[REDACTED]",
+    "matched_rule": "allow"
+  },
+  "effective_identity": "single local operator; no verified credential identity",
+  "authority": "fixed first-party fixture only; no user-selected server",
+  "request": "[REDACTED; use input_sha256]",
+  "handshake": [
+    {
+      "jsonrpc": "2.0",
+      "id": "init",
+      "result": {
+        "protocolVersion": "2025-03-26",
+        "capabilities": {
+          "tools": {}
+        },
+        "serverInfo": {
+          "name": "first-party-offline-fixture",
+          "version": "0.1.0"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": "list",
+      "result": {
+        "tools": [
+          {
+            "name": "read_note",
+            "description": "Constrained disposable fixture operation",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "enum": [
+                    "note.txt"
+                  ]
+                },
+                "text": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "url": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "context": {
+                  "type": "string",
+                  "maxLength": 8192
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "update_note",
+            "description": "Constrained disposable fixture operation",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "enum": [
+                    "note.txt"
+                  ]
+                },
+                "text": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "url": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "context": {
+                  "type": "string",
+                  "maxLength": 8192
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "append_note",
+            "description": "Constrained disposable fixture operation",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "enum": [
+                    "note.txt"
+                  ]
+                },
+                "text": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "url": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "context": {
+                  "type": "string",
+                  "maxLength": 8192
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "http_get",
+            "description": "Constrained disposable fixture operation",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "enum": [
+                    "note.txt"
+                  ]
+                },
+                "text": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "url": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "context": {
+                  "type": "string",
+                  "maxLength": 8192
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "crash",
+            "description": "Constrained disposable fixture operation",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "enum": [
+                    "note.txt"
+                  ]
+                },
+                "text": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "url": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "context": {
+                  "type": "string",
+                  "maxLength": 8192
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "timeout",
+            "description": "Constrained disposable fixture operation",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "enum": [
+                    "note.txt"
+                  ]
+                },
+                "text": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "url": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "context": {
+                  "type": "string",
+                  "maxLength": 8192
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "responses": "[REDACTED]",
+  "outcome": "CONFIRMED_SUCCEEDED",
+  "error": null,
+  "tool_state": {
+    "note": "[REDACTED; use note_sha256]",
+    "note_sha256": "fdcca90ac0160fae48bc61a214228061ab4f3b57e8fe7bcc486fefa99a3076c6",
+    "receipts": [
+      {
+        "index": 0,
+        "tool": "update_note"
+      }
+    ]
+  },
+  "limitations": [
+    "Permission OFF changes the tool allowlist only; other security checks remain ON.",
+    "First-party constrained fixture, not OS containment of arbitrary servers.",
+    "No exactly-once guarantee; repeating append_note has duplicate effects.",
+    "No credential lifecycle, response PII filtering or latest MCP interoperability claim."
+  ],
+  "audit": {
+    "entries": [
+      {
+        "entry_id": "3355a488-e0b3-41d6-b9ee-f5228a7e7f16",
+        "timestamp": 1794894633.3212008,
+        "event_type": "execution",
+        "data": {
+          "trace_id": "332f8b1e-765f-49d1-b51e-1db1200304fd",
+          "input_sha256": "2418d0e9d6a8ac1ad4c87783a890b767d0c384bf40f88b20f32e549392db1705",
+          "outcome": "CONFIRMED_SUCCEEDED"
+        },
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "entry_hash": "d92a3fd649f3baacb64caf242fbbdc7a12316771973678ad046a9f7f2c62b17c"
+      }
+    ],
+    "chain_verified": true,
+    "integrity": "Unkeyed hash chain; no protection against full rewrite"
+  }
+}

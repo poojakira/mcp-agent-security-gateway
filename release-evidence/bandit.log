@@ -1,0 +1,35 @@
+Working... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+[main]	INFO	profile include tests: None
+[main]	INFO	profile exclude tests: None
+[main]	INFO	cli include tests: None
+[main]	INFO	cli exclude tests: None
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/defense10/corpus.py:263
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/defense10/corpus.py:264
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/defense10/corpus.py:265
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/defense10/corpus.py:268
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/defense10/corpus.py:269
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/defense10/corpus.py:270
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/defense10/corpus.py:271
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/defense10/corpus.py:272
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/defense10/corpus.py:273
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/defense10/corpus.py:274
+[manager]	WARNING	Test in comment: explicit is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: trust is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: checksum is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: required is not a test name or id, ignoring
+[tester]	WARNING	nosec encountered (B104), but no failed test on file src/mcp_monitor/defense10/network_monitor.py:117
+[tester]	WARNING	nosec encountered (B104), but no failed test on file src/mcp_monitor/defense10/network_monitor.py:189
+[tester]	WARNING	nosec encountered (B104), but no failed test on file src/mcp_monitor/defense10/network_monitor.py:189
+[manager]	WARNING	Test in comment: attack is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: simulation is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: payload is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: string is not a test name or id, ignoring
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/siem/attack_simulations.py:364
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/siem/attack_simulations.py:365
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/siem/attack_simulations.py:366
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/siem/attack_simulations.py:364
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/siem/attack_simulations.py:365
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/siem/attack_simulations.py:367
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/siem/attack_simulations.py:368
+[tester]	WARNING	nosec encountered (B108), but no failed test on file src/mcp_monitor/siem/attack_simulations.py:368
+[json]	INFO	JSON output written to file: /workspace/work/evidence/mcp-agent-security-gateway/final/bandit.json

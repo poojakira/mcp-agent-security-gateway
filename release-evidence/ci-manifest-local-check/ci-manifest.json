@@ -1,0 +1,18 @@
+{
+  "repository": "poojakira/mcp-agent-security-gateway",
+  "source_commit": "c36664757c20bbc4c9d1614ec0c9e7c9e10558cd",
+  "branch": "codex/local-workbench-20261116",
+  "source_clean": true,
+  "generated_utc": "2026-11-17T05:51:54.918612+00:00",
+  "python": "3.12.14",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "run_id": null,
+  "job_status": "LOCAL_CHECK_ONLY_REMOTE_CI_NOT_EXECUTED",
+  "release_decision": "PARTIAL; full master-contract acceptance remains outstanding",
+  "workflow": ".github/workflows/local-workbench.yml",
+  "direct_tool_pins_sha256": "898e09c5be0dd830fe4c299b4569efb20bb7191a9d17e77fbe4147d672d7267f",
+  "lock_limit": "Direct tools pinned; transitive dependency snapshot is run-specific",
+  "artifact_sha256": {
+    "dependencies.txt": "d4e60795f936fd2c9153ad4b710c5691e7083545094fdbf3f4125e35f1e50638"
+  }
+}

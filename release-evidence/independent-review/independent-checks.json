@@ -1,0 +1,191 @@
+{
+  "source_commit": "c36664757c20bbc4c9d1614ec0c9e7c9e10558cd",
+  "utc_start": "2026-11-17T05:50:30.545921+00:00",
+  "checks": [
+    {
+      "name": "manifest artifact checksums",
+      "passed": true,
+      "artifacts": 23,
+      "mismatches": []
+    },
+    {
+      "name": "manifest source is checked-out clean source",
+      "passed": true
+    },
+    {
+      "name": "repeat count represented by configuration hash",
+      "passed": true,
+      "one_hash": "6afcc4e63f71fe792580bdba7c281dea731576c5dbad71ba0b459d8ca7383c32",
+      "two_hash": "f881d642999a5788c6156f0cec3b0eb6026df5d0947c986f5bd79a76371772a8",
+      "one_receipts": 1,
+      "two_receipts": 2,
+      "repeat_count_in_report": true
+    },
+    {
+      "name": "duplicate JSON keys",
+      "passed": true,
+      "expected": "NOT_INVOKED",
+      "actual": "NOT_INVOKED",
+      "error": null,
+      "receipts": 0,
+      "unchanged_note": true
+    },
+    {
+      "name": "outbound metadata destination",
+      "passed": true,
+      "expected": "NOT_INVOKED",
+      "actual": "NOT_INVOKED",
+      "error": null,
+      "receipts": 0,
+      "unchanged_note": true
+    },
+    {
+      "name": "literal cross-workspace path",
+      "passed": true,
+      "expected": "CONFIRMED_FAILED",
+      "actual": "CONFIRMED_FAILED",
+      "error": null,
+      "receipts": 1,
+      "unchanged_note": true
+    },
+    {
+      "name": "alternate method",
+      "passed": true,
+      "expected": "NOT_INVOKED",
+      "actual": "NOT_INVOKED",
+      "error": null,
+      "receipts": 0,
+      "unchanged_note": true
+    },
+    {
+      "name": "crash uncertainty",
+      "passed": true,
+      "expected": "UNKNOWN / REQUIRES_RECONCILIATION",
+      "actual": "UNKNOWN / REQUIRES_RECONCILIATION",
+      "error": "RuntimeError",
+      "receipts": 1,
+      "unchanged_note": true
+    },
+    {
+      "name": "timeout uncertainty",
+      "passed": true,
+      "expected": "UNKNOWN / REQUIRES_RECONCILIATION",
+      "actual": "UNKNOWN / REQUIRES_RECONCILIATION",
+      "error": "TimeoutError",
+      "receipts": 1,
+      "unchanged_note": true
+    },
+    {
+      "name": "cross-origin HTTP rejection",
+      "passed": true,
+      "expected": 403,
+      "actual": 403,
+      "detail": {
+        "error": "Only the local same-origin operator is allowed"
+      }
+    },
+    {
+      "name": "DNS-rebinding Host rejection",
+      "passed": true,
+      "expected": 403,
+      "actual": 403,
+      "detail": {
+        "error": "Only the local same-origin operator is allowed"
+      }
+    },
+    {
+      "name": "unknown fields rejected",
+      "passed": true,
+      "expected": 400,
+      "actual": 400,
+      "detail": {
+        "error": "Invalid request payload"
+      }
+    },
+    {
+      "name": "oversized body rejected",
+      "passed": true,
+      "expected": 413,
+      "actual": 413,
+      "detail": {
+        "error": "Body must be between 1 and 16384 bytes"
+      }
+    },
+    {
+      "name": "deep malformed JSON rejected",
+      "passed": true,
+      "expected": 400,
+      "actual": 400,
+      "detail": {
+        "error": "Invalid request payload"
+      }
+    },
+    {
+      "name": "simple-form CSRF content type rejected",
+      "passed": true,
+      "expected": 415,
+      "actual": 415,
+      "detail": {
+        "error": "A bounded application/json body is required"
+      }
+    },
+    {
+      "name": "browser custom user input reaches actual engine",
+      "passed": true
+    },
+    {
+      "name": "browser treats result markup as text",
+      "passed": true
+    },
+    {
+      "name": "browser export source provenance",
+      "passed": true
+    },
+    {
+      "name": "browser export removes request result note and IDs",
+      "passed": true
+    },
+    {
+      "name": "hostile markup is denied by actual injection engine",
+      "passed": true
+    },
+    {
+      "name": "hostile request displayed safely as text",
+      "passed": true
+    },
+    {
+      "name": "actual requests exhaust HTTP rate limiter",
+      "passed": true,
+      "request_count": 26,
+      "statuses": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        429
+      ]
+    }
+  ],
+  "utc_end": "2026-11-17T05:50:35.116855+00:00"
+}

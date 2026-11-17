@@ -1,0 +1,17 @@
+{
+  "source_commit": "c36664757c20bbc4c9d1614ec0c9e7c9e10558cd",
+  "command": [
+    "/workspace/work/security-tools/bin/pyright",
+    "--pythonpath",
+    "/workspace/work/tooling/venv/bin/python",
+    "src/mcp_monitor/detectors",
+    "src/mcp_monitor/audit",
+    "tests/test_prompt_injection.py",
+    "tests/test_pii_detector.py",
+    "tests/test_audit_log.py"
+  ],
+  "utc_start": "2026-11-17T05:51:37.663836+00:00",
+  "utc_end": "2026-11-17T05:51:47.437966+00:00",
+  "exit_code": 0,
+  "prior_setup_failure": "Initial attempt failed before analysis because npm cache was not writable; corrected with an explicit workspace cache, no checking rule relaxed"
+}

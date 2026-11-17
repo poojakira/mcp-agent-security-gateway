@@ -1,0 +1,18 @@
+{
+  "result": "passed",
+  "health": {
+    "status": "ok",
+    "app_version": "0.1.0",
+    "source_commit": "c36664757c20bbc4c9d1614ec0c9e7c9e10558cd",
+    "source_status": "CLEAN",
+    "protocol_version": "2025-03-26"
+  },
+  "checks": [
+    "real read",
+    "denied write has no receipt",
+    "same request permission comparator writes",
+    "redacted export",
+    "mobile bounds",
+    "no page errors"
+  ]
+}

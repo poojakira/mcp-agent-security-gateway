@@ -1,0 +1,25 @@
+{
+  "source_commit": "c36664757c20bbc4c9d1614ec0c9e7c9e10558cd",
+  "source_clean": true,
+  "review_utc_end": "2026-11-17T05:51:27.290297+00:00",
+  "review_python": "3.12.14",
+  "decision": "PARTIAL; F1-F3 remain CLOSED on publication source",
+  "findings": {
+    "F1": "CLOSED",
+    "F2": "CLOSED",
+    "F3": "CLOSED"
+  },
+  "artifacts": {
+    "PUBLICATION_RECHECK.md": "14fc4c1793a64c50f81c0a1b3652f2a7aecbffe58439d609bb4e25ac9ff12fe1",
+    "tree-identity.json": "0390cab40251426113a1c43a1293b9577738f167a0f9e123d3c817bc7f302829",
+    "independent_checks.py": "1b45250ccbcf0b6e0d0f09b1b75cf7852123a766948eaf8e4f0cefae7db7cf27",
+    "independent-checks.json": "2c98f18635a6e93bb8908d2366923ff2d7f5cc34195306dc9b257ddaae5cea84",
+    "independent-checks.log": "e50347fc6def181ff60689fe74ccd824a72021107653e6bc8623f9fc34ada636",
+    "independent-export.json": "1417f200f3350db466844d86db65ddd8ce2ca4f40a700c26c9bfbfcb6430ade9",
+    "independent-browser.png": "76408038545af6343dffdc9181c87d001d2a9add1211ee902f23f834a251311c",
+    "python310-tests.log": "435ae9159b9518131fe1ba22707801cea40097fbdfcd25ea26e36ee20acab03b",
+    "python310-junit.xml": "5fb94e4e91657341425b2ec47051c998bd175aa7df9a8583a518a3b3d1bf98a8",
+    "unrelated-wheel-provenance.json": "318e47dc3e5d4acb28363493630517fd18f6808ca4b3c9d0b7d6739368057412",
+    "unrelated-wheel-install.log": "19a989932d5e20ab50db5848d8973f9d04f84c48ee6c16da0c194a3c93367c77"
+  }
+}

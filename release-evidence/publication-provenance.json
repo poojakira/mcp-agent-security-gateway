@@ -1,0 +1,11 @@
+{
+  "utc": "2026-11-17T05:47:10.623126+00:00",
+  "reason": "GitHub GH007 private-email protection; no disabling of protection, no remote ref created",
+  "unpublished_source_preserved": "c8dd416f6f5b57a0f34e3630400fc78538bba47f",
+  "unpublished_evidence_preserved": "ea250ce870663132ab51e92018a6274b6af51d08",
+  "source_commit": "c36664757c20bbc4c9d1614ec0c9e7c9e10558cd",
+  "tree": "17f9c227a91373fe5cc13117f18215fcca0e88ad",
+  "source_tree_identical": true,
+  "public_email": "90021441+poojakira@users.noreply.github.com",
+  "default_history_changed": false
+}
