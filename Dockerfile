@@ -28,12 +28,17 @@ RUN --mount=type=secret,id=pip_ca \
     && python -m pytest tests/ -q \
     && pip wheel --wheel-dir=/wheels .
 
-FROM ${PYTHON_BASE_IMAGE} AS runtime
+# Runtime contains only the pure-Python application wheel. Keep the
+# Debian build/test stage separate from the minimal musl runtime to reduce
+# the vulnerable runtime OS package footprint.
+# Release CI supplies python:3.11-alpine@sha256:<resolved-index-digest>.
+# The tag default is for developer builds, never a production release pin.
+ARG PYTHON_RUNTIME_IMAGE=python:3.11-alpine
+FROM ${PYTHON_RUNTIME_IMAGE} AS runtime
 
 WORKDIR /app
 
-RUN apt-get update && apt-get upgrade -y --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk upgrade --no-cache
 
 COPY --from=builder /wheels /wheels
 COPY --from=builder --chmod=0555 /app/detection_rules /app/detection_rules
@@ -42,7 +47,7 @@ RUN pip install --no-index --no-cache-dir /wheels/*.whl \
     && python -c "import pathlib, shutil, sysconfig; shutil.rmtree(pathlib.Path(sysconfig.get_path('stdlib')) / 'ensurepip')" \
     && rm -rf /wheels
 
-RUN groupadd -r mlsec && useradd -r -g mlsec mlsec
+RUN addgroup -S mlsec && adduser -S -G mlsec mlsec
 
 # Create the SIEM log directory owned by the runtime user. When the
 # detection-lab compose mounts a named volume here, Docker initializes the
