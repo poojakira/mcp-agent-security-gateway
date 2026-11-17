@@ -68,9 +68,13 @@ Startup: `python -m mcp_monitor.workbench` (default port 8761), optional `--port
 
 See README commands. Full regression includes existing engine tests; focused workbench checks use actual subprocesses, not FakeTransport. Browser tests use the real backend, compare identical request hashes, assert tool-side receipt/state, and validate export redaction. Supply-chain tooling, complete legacy documentation reconciliation, arbitrary-platform testing and container release validation are separate outstanding gates.
 
+The provenance regression tests create disposable Git repositories and therefore require Git in the test/build environment. The Docker builder installs it; the final runtime does not need Git and must report UNKNOWN when checkout provenance is unavailable.
+
 Autopsy: pretty-printed JSON initially reached the newline-delimited stdio transport as multiple lines and crashed the fixture server. The cause was editor/wire framing mismatch. FixtureTransport now serializes the already-validated message to one line; `test_pretty_printed_editor_json_uses_single_line_stdio_frame` reproduces that defect and requires an actual completed read. Browser tests also use locator assertions, keeping CSP enabled. No security check was weakened to fix either issue.
 
 Independent review found three further evidence defects: Python 3.10 raises `asyncio.TimeoutError` rather than the later built-in alias; an installed wheel could inherit another repository's commit; and repeat count was absent from the configuration hash. The runtime now catches the cross-version exception, accepts Git provenance only from a tracked editable-source checkout with explicit CLEAN/DIRTY status, and hashes the complete exposed execution configuration. Real-process repeat tests and temporary Git repository regressions cover these failures. A receipt without a completed response still produces UNKNOWN.
+
+Remote CI exposed a workflow expression error that plain YAML parsing cannot detect: `runner` is unavailable in job-level `env`. The gate now uses a run-specific path built from the supported `github` context and checks out the exact candidate head. The existing lint job validates this workflow with checksum-pinned actionlint 1.7.7. CodeQL's redundant provenance initializers were removed, and expected client disconnect/operator-stop handling is documented rather than suppressed.
 
 The strongest counterargument remains that a controlled offline fixture does not prove security for arbitrary MCP tools. The UI and exported limitations state that scope explicitly. The advanced branch's independent image gate failure remains unaddressed by this candidate, which does not merge that branch.
 

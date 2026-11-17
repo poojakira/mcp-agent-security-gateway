@@ -5,7 +5,7 @@ FROM ${PYTHON_BASE_IMAGE} AS builder
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc g++ libffi-dev libssl-dev \
+    gcc g++ git libffi-dev libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml README.md LICENSE ./
