@@ -276,7 +276,7 @@
     "candidate-type-validation.log": "5ad993a05ad4af982287f6f812132aabcbe420d18afe05b3d9e99ff33de09c31",
     "new_ci_script_lint.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
     "dependency_audit_cache_corrected.log": "048ad3c7763fa426656e0b0b871c2b1232840a0720bfdc227c238aa0be0e54dd",
-    "RELEASE_ASSESSMENT.md": "5357d6689b110b61ebeb12a28d3c51a009e2622690c41fb6bcbf815d299da4e1",
+    "RELEASE_ASSESSMENT.md": "c7e7af74f2e20252832bfd7a0e71a9f32cd31c1c908c71e882bcec2ba760c07e",
     "secrets-triage.json": "e5da9a522bfa99b8a364c2e01477c8c6b8dd9e090e428d0ebb33e4928cd7d9e5",
     "bandit.log": "4681a0bcb7909f70751884dacd0ac751fcde586c10a0721008c4d0b862180bf9",
     "dependencies.log": "848b96f2873b44224658939930ee3d7f34f34f88534285c6fdbaa957559e36b3",
@@ -325,7 +325,7 @@
   "chromium": "Chromium 156.0.8078.79 built on Debian GNU/Linux 13 (trixie)",
   "tooling_note": "Earlier superseded source run found vulnerable pip25.0.1 only; packaging tool was upgraded to26.3 before this final run. This final source run dependency snapshot includes26.3; corrected cache scan is the authoritative final audit.",
   "remote_ci_status": "NOT EXECUTED in this local engineering session",
-  "evidence_packaged_utc": "2026-11-17T05:52:36.026509+00:00",
+  "evidence_packaged_utc": "2026-11-17T05:53:20.540405+00:00",
   "independent_review": {
     "source_commit": "c36664757c20bbc4c9d1614ec0c9e7c9e10558cd",
     "python310_passed": 23,
