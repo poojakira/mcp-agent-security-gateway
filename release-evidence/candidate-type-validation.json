@@ -1,6 +1,6 @@
 {
   "repository": "/workspace/work/candidates/mcp-agent-security-gateway",
-  "commit": "c36664757c20bbc4c9d1614ec0c9e7c9e10558cd",
+  "commit": "4b6bb486d83f4410037113e64848a22e4a06f713",
   "status": "",
   "files": [
     {
@@ -61,15 +61,15 @@
     },
     {
       "path": ".github/workflows/ci.yml",
-      "bytes": 12145,
-      "sha256": "86fc662595545fe6bc756721f28cd9dd7bf6f4bce7594346dcaf5da6c948571e",
+      "bytes": 13239,
+      "sha256": "26e500f64fa71d8cbe87010b5d74ecb8024650e0ff548d6ccd2b468a467069a1",
       "symlink": false,
       "syntax": "PASSED YAML parse (schema NOT VERIFIED)"
     },
     {
       "path": ".github/workflows/local-workbench.yml",
-      "bytes": 2477,
-      "sha256": "70509e18f1a53bea5e849e4eb1106e8218cb404d19bd0270ade3c4ec09c623d1",
+      "bytes": 2572,
+      "sha256": "1c8370c22d5d06c6f51a08d366a26071b2b2e565c21b60014982998e437b56a6",
       "symlink": false,
       "syntax": "PASSED YAML parse (schema NOT VERIFIED)"
     },
@@ -131,8 +131,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 4167,
-      "sha256": "2d72c856251aab910996300f03d3e3a6edfef6fc38ff1bab6b2e5e47627a9610",
+      "bytes": 4451,
+      "sha256": "aa135f76f8ab30efdee7b160b47dd7eced7968d8ec81fa0c1c104008b54603aa",
       "symlink": false,
       "syntax": "READ text; facts/examples NOT VERIFIED by this script"
     },
@@ -145,8 +145,8 @@
     },
     {
       "path": "Dockerfile",
-      "bytes": 2686,
-      "sha256": "c14a412f377843aaf1c47b66c95ce79c54f28243f9180840389d000aed51f791",
+      "bytes": 2691,
+      "sha256": "b903871ef3e0bb3eedf8c7825183f368b1f9689a0bbc3194a5c937b3ae3c52c0",
       "symlink": false,
       "syntax": "NOT APPLICABLE"
     },
@@ -187,8 +187,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 4774,
-      "sha256": "31705f4b2ea7d173efb1483d57cd160a6781ae2520531d1d6b6a2855815e496f",
+      "bytes": 4807,
+      "sha256": "f0dae6ca7bf2d72c54548414d60f62d92890e78aba6e27fa33cc80b76cf01899",
       "symlink": false,
       "syntax": "READ text; facts/examples NOT VERIFIED by this script"
     },
@@ -495,8 +495,8 @@
     },
     {
       "path": "docs/WORKBENCH.md",
-      "bytes": 10585,
-      "sha256": "3fa82679851eea4598926bfd54ad38f08b9b64519292f03ab9f8eda74266b776",
+      "bytes": 11328,
+      "sha256": "742d3782f1330366b120efe085bc3d3eaa1973594ddcc2934c5f9f43a68152e7",
       "symlink": false,
       "syntax": "READ text; facts/examples NOT VERIFIED by this script"
     },
@@ -1321,8 +1321,8 @@
     },
     {
       "path": "src/mcp_monitor/workbench/__main__.py",
-      "bytes": 4951,
-      "sha256": "a949d8b75f7ec3d2f55da20a9971b25b44cdedd48888adecfda7da40da1b40b6",
+      "bytes": 5126,
+      "sha256": "a311680c263706711ed2261ad014e6ae2d671afbfe02bdccc5a29f1a4bcc4c53",
       "symlink": false,
       "syntax": "PASSED Python AST (not executed)"
     },
@@ -1342,8 +1342,8 @@
     },
     {
       "path": "src/mcp_monitor/workbench/runtime.py",
-      "bytes": 10617,
-      "sha256": "f47f9909cb409745a21cfcc64065ccc8ae7388ce2d6df309f4ecfeb589361235",
+      "bytes": 10574,
+      "sha256": "3370b106996ac85212d3a65fdf2c52d3e13657183703d706688da505e17f62d8",
       "symlink": false,
       "syntax": "PASSED Python AST (not executed)"
     },
@@ -1697,7 +1697,7 @@
     },
     {
       "source": "README.md",
-      "target": "https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/refs/heads/codex/evidence-local-workbench-20261116/release-evidence/browser/desktop.png",
+      "target": "https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/refs/tags/evidence/local-workbench-20261116/release-evidence/browser/desktop.png",
       "kind": "external"
     },
     {

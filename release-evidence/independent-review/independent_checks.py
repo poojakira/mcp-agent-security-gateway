@@ -14,7 +14,7 @@ from mcp_monitor.workbench.__main__ import create_server
 from mcp_monitor.workbench.runtime import INITIAL_NOTE, execute
 
 ROOT = pathlib.Path('/workspace/work/candidates/mcp-agent-security-gateway')
-OUT = pathlib.Path('/workspace/work/reviews/mcp-agent-security-gateway/publication-recheck')
+OUT = pathlib.Path('/workspace/work/reviews/mcp-agent-security-gateway/final-archive-recheck')
 EVIDENCE = pathlib.Path('/workspace/work/evidence/mcp-agent-security-gateway/final')
 sha = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
 result = {'source_commit': sha, 'utc_start': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'checks': []}

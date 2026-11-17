@@ -1,0 +1,41 @@
+{
+  "repository": "poojakira/mcp-agent-security-gateway",
+  "completed_utc": "2026-11-17T06:32:56.370078+00:00",
+  "retained": "fix/evidence-provenance-20261114",
+  "retained_sha": "40c5f2b5b887d1c7f02d7054b0af3a95a10d0323",
+  "branches": [
+    {
+      "name": "integration/phase1-16-verified",
+      "expected_sha": "4d37d68330b79cde36376272f47d007d234681fd",
+      "archive_tag": "archive/mcp/integration-phase1-16-20261116",
+      "disposition": "ARCHIVED TAG RETAINED; OBSOLETE REMOTE BRANCH DELETED",
+      "proof": "Exact Git ancestor of retained fix; zero unique commits; not protected; no open PR; no queued/running CI; only obsolete workflow push filters mention it",
+      "delete_command": [
+        "git",
+        "push",
+        "--force-with-lease=refs/heads/integration/phase1-16-verified:4d37d68330b79cde36376272f47d007d234681fd",
+        "origin",
+        ":refs/heads/integration/phase1-16-verified"
+      ],
+      "delete_exit_code": 0,
+      "delete_output": "To https://github.com/poojakira/mcp-agent-security-gateway.git\n - [deleted]         integration/phase1-16-verified\n"
+    },
+    {
+      "name": "security/phase1-16-audit",
+      "expected_sha": "2158ab58e4a07a5c49b70c659996653a92f661c8",
+      "archive_tag": "archive/mcp/security-phase1-16-20261116",
+      "disposition": "ARCHIVED TAG RETAINED; OBSOLETE REMOTE BRANCH DELETED",
+      "proof": "Exact Git ancestor of retained fix; zero unique commits; not protected; no open PR; no queued/running CI; only obsolete workflow push filters mention it",
+      "delete_command": [
+        "git",
+        "push",
+        "--force-with-lease=refs/heads/security/phase1-16-audit:2158ab58e4a07a5c49b70c659996653a92f661c8",
+        "origin",
+        ":refs/heads/security/phase1-16-audit"
+      ],
+      "delete_exit_code": 0,
+      "delete_output": "To https://github.com/poojakira/mcp-agent-security-gateway.git\n - [deleted]         security/phase1-16-audit\n"
+    }
+  ],
+  "recovery": "Annotated public archive tags retain deleted branch tips. A verified private local bundle is retained; it is not published."
+}

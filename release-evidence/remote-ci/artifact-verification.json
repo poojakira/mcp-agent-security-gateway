@@ -1,0 +1,9 @@
+{
+  "source_commit": "4b6bb486d83f4410037113e64848a22e4a06f713",
+  "artifact_id": 14368677593,
+  "run_id": 44173598380,
+  "zip_sha256": "fd24e09b3b7fe69e4cda2976cf06a7e38979a319ab19a3c414db5f412dfc3965",
+  "all_embedded_digests_matched": true,
+  "verified_artifacts": 10,
+  "note": "Artifact label contains event merge SHA; checked-out source in actual manifest is the candidate head. Signed download links are excluded."
+}

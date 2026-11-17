@@ -1,7 +1,7 @@
 {
-  "expected_source_commit": "c36664757c20bbc4c9d1614ec0c9e7c9e10558cd",
-  "wheel_sha256": "3e77ae329edacd9cd70b3354dfe8fa7e72952c6fb79fbe9ce5ad7171256f1063",
-  "utc": "2026-11-17T05:50:31.247121+00:00",
+  "expected_source_commit": "4b6bb486d83f4410037113e64848a22e4a06f713",
+  "wheel_sha256": "d21382a39c620cdb21e994766357ea4bf324f18e699fd455c8dd6a9df7c0ba30",
+  "utc": "2026-11-17T21:02:45.621559+00:00",
   "unrelated_git_head": "ba2c07a3450d63d6571a0a5a88b283a2ba4a55ec",
   "package_provenance": {
     "app_version": "0.1.0",

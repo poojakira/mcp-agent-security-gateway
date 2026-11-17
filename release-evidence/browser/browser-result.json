@@ -3,7 +3,7 @@
   "health": {
     "status": "ok",
     "app_version": "0.1.0",
-    "source_commit": "c36664757c20bbc4c9d1614ec0c9e7c9e10558cd",
+    "source_commit": "4b6bb486d83f4410037113e64848a22e4a06f713",
     "source_status": "CLEAN",
     "protocol_version": "2025-03-26"
   },

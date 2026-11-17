@@ -71,7 +71,7 @@ src/mcp_monitor/siem/lifecycle.py                    238      7    97%
 src/mcp_monitor/siem/shipper.py                      147     70    52%
 src/mcp_monitor/workbench/__init__.py                  0      0   100%
 src/mcp_monitor/workbench/__main__.py                 89     27    70%
-src/mcp_monitor/workbench/runtime.py                 113      1    99%
+src/mcp_monitor/workbench/runtime.py                 111      1    99%
 src/mcp_monitor/workbench/tool_server.py              60     60     0%
 ----------------------------------------------------------------------
-TOTAL                                               5965   1085    82%
+TOTAL                                               5963   1085    82%

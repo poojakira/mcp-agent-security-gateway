@@ -437,7 +437,7 @@ running install_egg_info
 Copying src/mcp_security_gateway_monitor.egg-info to build/bdist.linux-x86_64/wheel/./mcp_security_gateway_monitor-0.1.0-py3.12.egg-info
 running install_scripts
 creating build/bdist.linux-x86_64/wheel/mcp_security_gateway_monitor-0.1.0.dist-info/WHEEL
-creating '/workspace/work/evidence/mcp-agent-security-gateway/final/artifacts/.tmp-my8ps4fx/mcp_security_gateway_monitor-0.1.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+creating '/workspace/work/evidence/mcp-agent-security-gateway/final/artifacts/.tmp-3bow3njf/mcp_security_gateway_monitor-0.1.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
 adding 'mcp_monitor/__init__.py'
 adding 'mcp_monitor/client.py'
 adding 'mcp_monitor/monitor.py'

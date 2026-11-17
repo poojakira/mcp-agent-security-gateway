@@ -1,0 +1,560 @@
+{
+  "repository": "poojakira/mcp-agent-security-gateway",
+  "source_commit": "4b6bb486d83f4410037113e64848a22e4a06f713",
+  "retrieved_utc": "2026-11-17T21:22:14.157Z",
+  "runs": [
+    {
+      "id": 44173598434,
+      "name": "Security Hygiene",
+      "head_sha": "4b6bb486d83f4410037113e64848a22e4a06f713",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-17T20:50:56Z",
+      "updated_at": "2026-11-17T20:51:05Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598434"
+    },
+    {
+      "id": 44173598454,
+      "name": "Documentation Integrity",
+      "head_sha": "4b6bb486d83f4410037113e64848a22e4a06f713",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-17T20:50:56Z",
+      "updated_at": "2026-11-17T20:51:04Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598454"
+    },
+    {
+      "id": 44173598574,
+      "name": "Focused AppSec Regression",
+      "head_sha": "4b6bb486d83f4410037113e64848a22e4a06f713",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-17T20:50:56Z",
+      "updated_at": "2026-11-17T20:51:31Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598574"
+    },
+    {
+      "id": 44173598473,
+      "name": "Production Gate",
+      "head_sha": "4b6bb486d83f4410037113e64848a22e4a06f713",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-17T20:50:56Z",
+      "updated_at": "2026-11-17T20:52:58Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598473"
+    },
+    {
+      "id": 44173598380,
+      "name": "Local MCP workbench acceptance",
+      "head_sha": "4b6bb486d83f4410037113e64848a22e4a06f713",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-17T20:50:56Z",
+      "updated_at": "2026-11-17T20:53:40Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598380"
+    },
+    {
+      "id": 44173598509,
+      "name": "CI",
+      "head_sha": "4b6bb486d83f4410037113e64848a22e4a06f713",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-17T20:50:56Z",
+      "updated_at": "2026-11-17T20:55:28Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598509"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 134358918800,
+      "name": "Lint & Type Check",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T20:50:59Z",
+      "completed_at": "2026-11-17T20:51:48Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598509/job/134358918800",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Lint with Ruff",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Ruff Formatter Check",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate local workbench workflow expressions",
+          "conclusion": "success"
+        },
+        {
+          "name": "Focused Pyright gate",
+          "conclusion": "success"
+        },
+        {
+          "name": "Security scan with Bandit",
+          "conclusion": "success"
+        },
+        {
+          "name": "pip-audit",
+          "conclusion": "success"
+        },
+        {
+          "name": "Generate CycloneDX SBOM",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload SBOM",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134359444234,
+      "name": "Type Check (Pyright)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T20:51:51Z",
+      "completed_at": "2026-11-17T20:52:13Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598509/job/134359444234",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Pyright",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134359444236,
+      "name": "Windows Control Plane",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T20:51:51Z",
+      "completed_at": "2026-11-17T20:53:17Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598509/job/134359444236",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install control-plane dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate Windows control-plane behavior",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134359444300,
+      "name": "CodeQL Analysis (python)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T20:51:51Z",
+      "completed_at": "2026-11-17T20:52:53Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598509/job/134359444300",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run github/codeql-action/init@c4dd10e44af883a891fe31ced449bcb4a6728b9b",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run github/codeql-action/analyze@c4dd10e44af883a891fe31ced449bcb4a6728b9b",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run github/codeql-action/analyze@c4dd10e44af883a891fe31ced449bcb4a6728b9b",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run github/codeql-action/init@c4dd10e44af883a891fe31ced449bcb4a6728b9b",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134359444370,
+      "name": "Security Scan",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T20:51:51Z",
+      "completed_at": "2026-11-17T20:53:45Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598509/job/134359444370",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Trivy vulnerability scanner",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload Trivy results",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Grype scanner",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload Grype results",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Syft for SBOM",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload SBOM",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Upload Trivy results",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run Trivy vulnerability scanner",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134359444378,
+      "name": "Unit Tests (Python 3.12)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T20:51:51Z",
+      "completed_at": "2026-11-17T20:53:13Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598509/job/134359444378",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python 3.12",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run tests with coverage",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload coverage report",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify test collection",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python 3.12",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134359444415,
+      "name": "Unit Tests (Python 3.10)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T20:51:51Z",
+      "completed_at": "2026-11-17T20:53:11Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598509/job/134359444415",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python 3.10",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run tests with coverage",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload coverage report",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify test collection",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python 3.10",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134359444474,
+      "name": "Unit Tests (Python 3.11)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T20:51:51Z",
+      "completed_at": "2026-11-17T20:53:36Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598509/job/134359444474",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python 3.11",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run tests with coverage",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload coverage report",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify test collection",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python 3.11",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout attack-v19-core (optional)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 134360540340,
+      "name": "Docker Build",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-17T20:53:38Z",
+      "completed_at": "2026-11-17T20:55:28Z",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44173598509/job/134360540340",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Docker Buildx",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build Docker image (no push)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Smoke test final runtime image (no external pilot traffic)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Build Docker image (no push)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Docker Buildx",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}

@@ -85,11 +85,11 @@ src/mcp_monitor/siem/ecs_formatter.py                 83      0   100%
 src/mcp_monitor/siem/lifecycle.py                    238      7    97%   47-48, 123, 260, 523, 525, 624
 src/mcp_monitor/siem/shipper.py                      147     70    52%   53, 70, 84-85, 125, 132-135, 139-144, 173-180, 184-189, 193-196, 200-258, 277-279
 src/mcp_monitor/workbench/__init__.py                  0      0   100%
-src/mcp_monitor/workbench/__main__.py                 89     27    70%   42-43, 58-70, 76-77, 84-85, 110-112, 123-131, 135
-src/mcp_monitor/workbench/runtime.py                 113      1    99%   54
+src/mcp_monitor/workbench/__main__.py                 89     27    70%   42-44, 59-71, 77-78, 85-86, 111-113, 124-133, 137
+src/mcp_monitor/workbench/runtime.py                 111      1    99%   52
 src/mcp_monitor/workbench/tool_server.py              60     60     0%   3-110
 --------------------------------------------------------------------------------
-TOTAL                                               5965   1085    82%
+TOTAL                                               5963   1085    82%
 Coverage JSON written to file /workspace/work/evidence/mcp-agent-security-gateway/final/coverage.json
-Required test coverage of 77% reached. Total coverage: 81.81%
-829 passed in 73.04s (0:01:13)
+Required test coverage of 77% reached. Total coverage: 81.80%
+829 passed in 73.24s (0:01:13)

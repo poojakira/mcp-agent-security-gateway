@@ -1,11 +1,11 @@
 {
-  "source_commit": "c36664757c20bbc4c9d1614ec0c9e7c9e10558cd",
-  "utc_start": "2026-11-17T05:50:30.545921+00:00",
+  "source_commit": "4b6bb486d83f4410037113e64848a22e4a06f713",
+  "utc_start": "2026-11-17T21:02:44.552823+00:00",
   "checks": [
     {
       "name": "manifest artifact checksums",
       "passed": true,
-      "artifacts": 23,
+      "artifacts": 34,
       "mismatches": []
     },
     {
@@ -187,5 +187,5 @@
       ]
     }
   ],
-  "utc_end": "2026-11-17T05:50:35.116855+00:00"
+  "utc_end": "2026-11-17T21:02:49.656799+00:00"
 }
