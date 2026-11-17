@@ -24,9 +24,9 @@ Open **http://127.0.0.1:8761**. The server binds only to IPv4 loopback. Do not e
 
 OFF changes only the tool allowlist. Injection, egress and protocol checks remain enabled. The comparison does not measure real-world incident reduction.
 
-![Browser running the local MCP workbench with candidate execution evidence](https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/refs/heads/codex/evidence-local-workbench-20261116/release-evidence/browser/desktop.png)
+![Browser running the local MCP workbench with candidate execution evidence](https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/refs/tags/evidence/local-workbench-20261116/release-evidence/browser/desktop.png)
 
-The screenshot and its source commit are retained separately in the generated evidence branch. They do not assert that this source commit contains its own evidence hash.
+The screenshot and its source commit are retained separately under an evidence archive tag. The tag is not a software release. This source commit does not claim to contain its own post-execution evidence hash.
 
 ## What is supported
 
