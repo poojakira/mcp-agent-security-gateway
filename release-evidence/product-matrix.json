@@ -1,0 +1,91 @@
+{
+  "source_commit": "e6be0062c398890225548fa14332d2a5350c9176",
+  "capabilities": [
+    {
+      "capability": "Editable browser JSON-RPC through canonical policy/proxy and actual stdio child",
+      "status": "TESTED",
+      "code": [
+        "src/mcp_monitor/workbench/__main__.py",
+        "src/mcp_monitor/workbench/runtime.py",
+        "src/mcp_monitor/proxy/stdio_proxy.py"
+      ],
+      "evidence": [
+        "browser/browser-result.json",
+        "browser/browser-export.json",
+        "junit.xml"
+      ]
+    },
+    {
+      "capability": "Same-request allowlist comparison with actual state/receipts",
+      "status": "TESTED",
+      "code": [
+        "src/mcp_monitor/policy/engine.py",
+        "src/mcp_monitor/workbench/runtime.py"
+      ],
+      "evidence": [
+        "browser/browser-result.json"
+      ]
+    },
+    {
+      "capability": "Supported protocol parsing, injection/egress denial, crash/timeout/duplicate-effect behavior",
+      "status": "TESTED for named bounded cases; no universal robustness claim",
+      "code": [
+        "src/mcp_monitor/proxy/stdio_proxy.py",
+        "src/mcp_monitor/workbench/tool_server.py"
+      ],
+      "evidence": [
+        "junit.xml",
+        "browser/browser-result.json"
+      ]
+    },
+    {
+      "capability": "Redacted download, safe rendering and mobile layout",
+      "status": "TESTED",
+      "code": [
+        "src/mcp_monitor/workbench/app.js"
+      ],
+      "evidence": [
+        "browser/browser-export.json",
+        "browser/desktop.png",
+        "browser/mobile.png"
+      ]
+    },
+    {
+      "capability": "Rebuilt installed wheel real child read, receipt, packaged asset and UNKNOWN source under unrelated Git",
+      "status": "TESTED",
+      "evidence": [
+        "installed-wheel-smoke.json"
+      ]
+    },
+    {
+      "capability": "C++ Make build/test and driver",
+      "status": "TESTED separately:11 assertions and actual smoke",
+      "evidence": [
+        "native/result.json"
+      ]
+    },
+    {
+      "capability": "CMake/Rust optional toolchain execution",
+      "status": "BLOCKED: unavailable toolchains; no passing execution claim",
+      "evidence": [
+        "native/result.json"
+      ]
+    },
+    {
+      "capability": "All-document local semantic reconciliation",
+      "status": "REVIEWED:48originaltextdocuments,47changedfiles;44Markdown/102localtargets checked",
+      "evidence": [
+        "documentation-audit/document-ledger.json",
+        "documentation-audit/parent-links-final.json",
+        "documentation-audit/example-checks.json"
+      ]
+    },
+    {
+      "capability": "Complete current MCP conformance, credential identity/lifecycle, arbitrary external-server containment, response PII filtering, durable provider effects/exactly-once, external audit anchoring, authenticated public multiuser hosting",
+      "status": "NOT IMPLEMENTED / NOT VERIFIED",
+      "evidence": [
+        "RELEASE_ASSESSMENT.md"
+      ]
+    }
+  ]
+}

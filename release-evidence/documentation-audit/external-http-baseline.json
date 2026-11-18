@@ -1,0 +1,102 @@
+{
+  "utc": "2026-11-18T04:33:49.397984+00:00",
+  "source_commit": "4b6bb486d83f4410037113e64848a22e4a06f713",
+  "results": [
+    {
+      "url": "https://docs.docker.com/build/cache/backends/gha/",
+      "status": 200,
+      "final_url": "https://docs.docker.com/build/cache/backends/gha/",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://gallery.ecr.aws/docker/library/python",
+      "status": 200,
+      "final_url": "https://gallery.ecr.aws/docker/library/python",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://github.com/poojakira",
+      "status": 200,
+      "final_url": "https://github.com/poojakira",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://github.com/poojakira/aws-agent-identity-guard/actions/runs/38462296804",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/aws-agent-identity-guard/actions/runs/38462296804",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37993212614",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37993212614",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37994335824",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37994335824",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37999099427",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37999099427",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/commit/ef0d7ceb42fb3b886a65e986166862b0b43d8fcf",
+      "status": 200,
+      "final_url": "https://github.com/poojakira/mcp-agent-security-gateway/commit/ef0d7ceb42fb3b886a65e986166862b0b43d8fcf",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/refs/tags/evidence/local-workbench-20261116/release-evidence/browser/desktop.png",
+      "status": 200,
+      "final_url": "https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/refs/tags/evidence/local-workbench-20261116/release-evidence/browser/desktop.png",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://www.docker.com/blog/news-from-aws-reinvent-docker-official-images-on-amazon-ecr-public/",
+      "status": 200,
+      "final_url": "https://www.docker.com/blog/news-from-aws-reinvent-docker-official-images-on-amazon-ecr-public/",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://www.openpolicyagent.org/",
+      "status": 200,
+      "final_url": "https://www.openpolicyagent.org/",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    },
+    {
+      "url": "https://www.openpolicyagent.org/docs/latest/#running-opa",
+      "status": 200,
+      "final_url": "https://www.openpolicyagent.org/docs",
+      "scope": "HTTP HEAD reachability only; content and external fragment not verified"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+[113226:113226:1117/213804.309176:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[113226:113226:1117/213804.309395:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[113226:113259:1117/213804.335366:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113226:113259:1117/213804.335417:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113226:113259:1117/213804.346191:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113226:113259:1117/213804.346285:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113226:113259:1117/213804.346299:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113226:113259:1117/213804.346305:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113226:113259:1117/213804.346336:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113226:113259:1117/213804.350211:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113226:113255:1117/213804.350346:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[113226:113259:1117/213804.403666:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113226:113269:1117/213804.409526:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113274: Read-only file system (30)
+[113226:113226:1117/213804.435664:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113226:113259:1117/213804.435833:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113226:113226:1117/213804.435872:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113226:113259:1117/213804.436032:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113226:113226:1117/213804.436127:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113226:113226:1117/213804.438673:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113226:113259:1117/213804.438766:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+
+(process:113226): dconf-CRITICAL **: 21:38:04.453: unable to create directory '/home/agent/.cache/dconf': Read-only file system.  dconf will not work properly.
+
+(process:113226): dconf-CRITICAL **: 21:38:04.455: unable to create directory '/home/agent/.cache/dconf': Read-only file system.  dconf will not work properly.
+[113226:113269:1117/213804.455357:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113287: Read-only file system (30)
+
+(process:113226): dconf-CRITICAL **: 21:38:04.495: unable to create directory '/home/agent/.cache/dconf': Read-only file system.  dconf will not work properly.
+[113226:113269:1117/213804.541195:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113307: Read-only file system (30)
+[113226:113269:1117/213804.615550:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113328: Read-only file system (30)
+[113226:113269:1117/213804.619445:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113329: Read-only file system (30)
+[113226:113226:1117/213804.651521:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113226:113259:1117/213804.651576:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113226:113259:1117/213804.651812:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113226:113226:1117/213804.652390:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113226:113259:1117/213804.652435:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113226:113226:1117/213804.652967:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113226:113269:1117/213804.702571:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113350: Read-only file system (30)
+[113226:113226:1117/213804.706077:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: unknown error type: 
+[113226:113226:1117/213804.706509:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113226:113259:1117/213804.707126:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113226:113226:1117/213804.723406:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113226:113259:1117/213804.723510:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113226:113226:1117/213804.731454:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113226:113256:1117/213804.760593:ERROR:crypto/nss_util.cc:256] Error initializing NSS with a persistent database (sql:/home/agent/.pki/nssdb): NSS error code: -8126
+[113279:113322:1117/213804.763304:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113279:113322:1117/213804.813524:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113279:113322:1117/213805.660280:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113226:113269:1117/213807.861289:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113384: Read-only file system (30)
+[113226:113269:1117/213807.871435:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113393: Read-only file system (30)
+[113279:113322:1117/213807.894953:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113279:113322:1117/213808.628603:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113279:113322:1117/213814.432251:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113279:113322:1117/213816.896053:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113279:113322:1117/213843.805252:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113279:113322:1117/213904.451784:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113706:113706:1117/213923.529157:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[113706:113706:1117/213923.529222:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[113706:113770:1117/213923.550392:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113706:113770:1117/213923.550433:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113706:113770:1117/213923.550453:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113706:113770:1117/213923.550472:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113706:113770:1117/213923.550488:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113706:113770:1117/213923.550499:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113706:113770:1117/213923.550506:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113706:113770:1117/213923.560525:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113706:113789:1117/213923.561566:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[113706:113770:1117/213923.710186:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113706:113706:1117/213923.756957:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113706:113706:1117/213923.757038:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113706:113770:1117/213923.757145:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113706:113770:1117/213923.757159:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113706:113706:1117/213923.757238:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113706:113706:1117/213923.800666:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113706:113770:1117/213923.800760:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+
+(process:113706): dconf-CRITICAL **: 21:39:23.819: unable to create directory '/home/agent/.cache/dconf': Read-only file system.  dconf will not work properly.
+
+(process:113706): dconf-CRITICAL **: 21:39:23.819: unable to create directory '/home/agent/.cache/dconf': Read-only file system.  dconf will not work properly.
+
+(process:113706): dconf-CRITICAL **: 21:39:23.819: unable to create directory '/home/agent/.cache/dconf': Read-only file system.  dconf will not work properly.
+[113706:113706:1117/213924.422916:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113706:113770:1117/213924.423162:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113706:113770:1117/213924.423187:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113706:113706:1117/213924.427290:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113706:113770:1117/213924.428089:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113706:113706:1117/213924.432231:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113706:113706:1117/213924.497723:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: unknown error type: 
+[113706:113706:1117/213924.525693:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113706:113770:1117/213924.525915:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113706:113706:1117/213924.550074:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113706:113770:1117/213924.550159:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113706:113766:1117/213924.562001:ERROR:crypto/nss_util.cc:256] Error initializing NSS with a persistent database (sql:/home/agent/.pki/nssdb): NSS error code: -8126
+[113706:113706:1117/213924.595743:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113802:113907:1117/213924.700470:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113802:113907:1117/213924.720399:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113802:113907:1117/213925.654465:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113802:113907:1117/213928.139314:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113802:113907:1117/213933.730299:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113802:113907:1117/213937.074758:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113706:113706:1117/213953.471291:ERROR:content/browser/gpu/gpu_process_host.cc:1044] GPU process exited unexpectedly: exit_code=15
+[113706:113706:1117/213953.504398:ERROR:content/browser/network_service_instance_impl.cc:652] Network service crashed or was terminated, restarting service.
+Traceback (most recent call last):
+  File "/workspace/work/candidates/mcp-agent-security-gateway/poster/render_poster.py", line 306, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/work/candidates/mcp-agent-security-gateway/poster/render_poster.py", line 283, in main
+    subprocess.run(
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/workspace/work/doc-reconciliation/mcp-agent-security-gateway/chromium-poster', '--headless=new', '--disable-gpu', '--hide-scrollbars', '--user-data-dir=/tmp/poster-render-a360laey/profile', '--window-size=1800,2400', '--screenshot=/workspace/work/candidates/mcp-agent-security-gateway/poster/poster.png', 'file:///tmp/poster-render-a360laey/poster.html']' returned non-zero exit status 124.

@@ -1,0 +1,478 @@
+{
+  "repository": "poojakira/mcp-agent-security-gateway",
+  "source_commit": "e6be0062c398890225548fa14332d2a5350c9176",
+  "branch": "codex/local-workbench-20261116",
+  "clean_before": true,
+  "clean_after": true,
+  "utc_start": "2026-11-18T19:27:12.975510+00:00",
+  "utc_end": "2026-11-18T19:28:43.445960+00:00",
+  "python": "3.12.14",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "version": "0.1.0",
+  "protocol_subset": "2025-03-26",
+  "test_totals": {
+    "total": 829,
+    "passed": 829,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "coverage": {
+    "covered_lines": 4878,
+    "num_statements": 5963,
+    "percent_covered": 81.80446084185813,
+    "percent_covered_display": "82",
+    "missing_lines": 1085,
+    "excluded_lines": 44,
+    "percent_statements_covered": 81.80446084185813,
+    "percent_statements_covered_display": "82"
+  },
+  "coverage_gate": 77,
+  "runs": [
+    {
+      "name": "dependencies",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "-m",
+        "pip",
+        "freeze"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-18T19:27:12.975754+00:00",
+      "utc_end": "2026-11-18T19:27:13.313957+00:00",
+      "exit_code": 0,
+      "log": "dependencies.log"
+    },
+    {
+      "name": "workflow_lint",
+      "command": [
+        "/workspace/work/tooling/actionlint/actionlint",
+        ".github/workflows/local-workbench.yml",
+        ".github/workflows/ci.yml"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-18T19:27:13.314306+00:00",
+      "utc_end": "2026-11-18T19:27:13.330541+00:00",
+      "exit_code": 0,
+      "log": "workflow_lint.log"
+    },
+    {
+      "name": "pyright",
+      "command": [
+        "/workspace/work/security-tools/bin/pyright",
+        "--pythonpath",
+        "/workspace/work/tooling/venv/bin/python",
+        "src/mcp_monitor/detectors",
+        "src/mcp_monitor/audit",
+        "tests/test_prompt_injection.py",
+        "tests/test_pii_detector.py",
+        "tests/test_audit_log.py"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-18T19:27:13.331054+00:00",
+      "utc_end": "2026-11-18T19:27:19.932874+00:00",
+      "exit_code": 0,
+      "log": "pyright.log"
+    },
+    {
+      "name": "regression",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "tests/",
+        "-q",
+        "--cov=mcp_monitor",
+        "--cov-fail-under=77",
+        "-W",
+        "error::DeprecationWarning",
+        "-W",
+        "error::PendingDeprecationWarning",
+        "--cov-report=term-missing",
+        "--cov-report=json:/workspace/work/evidence/mcp-agent-security-gateway/docs-reconciliation/coverage.json",
+        "--junitxml=/workspace/work/evidence/mcp-agent-security-gateway/docs-reconciliation/junit.xml"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-18T19:27:19.933163+00:00",
+      "utc_end": "2026-11-18T19:28:34.940327+00:00",
+      "exit_code": 0,
+      "log": "regression.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "/workspace/work/tooling/venv/bin/ruff",
+        "check",
+        "src/",
+        "tests/",
+        "poster/render_poster.py",
+        "scripts/recruiter_demo.py",
+        "scripts/workbench_e2e.py",
+        "scripts/workbench_manifest.py"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-18T19:28:34.941232+00:00",
+      "utc_end": "2026-11-18T19:28:34.975996+00:00",
+      "exit_code": 0,
+      "log": "lint.log"
+    },
+    {
+      "name": "format",
+      "command": [
+        "/workspace/work/tooling/venv/bin/ruff",
+        "format",
+        "--check",
+        "src/",
+        "tests/",
+        "poster/render_poster.py",
+        "scripts/recruiter_demo.py",
+        "scripts/workbench_e2e.py",
+        "scripts/workbench_manifest.py"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-18T19:28:34.976139+00:00",
+      "utc_end": "2026-11-18T19:28:34.984143+00:00",
+      "exit_code": 0,
+      "log": "format.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "scripts/workbench_e2e.py",
+        "--output",
+        "/workspace/work/evidence/mcp-agent-security-gateway/docs-reconciliation/browser"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-18T19:28:34.984240+00:00",
+      "utc_end": "2026-11-18T19:28:37.770711+00:00",
+      "exit_code": 0,
+      "log": "browser.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "-m",
+        "build",
+        "--outdir",
+        "/workspace/work/evidence/mcp-agent-security-gateway/docs-reconciliation/artifacts"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-18T19:28:37.770829+00:00",
+      "utc_end": "2026-11-18T19:28:40.851816+00:00",
+      "exit_code": 0,
+      "log": "build.log"
+    },
+    {
+      "name": "dependency_audit",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "-m",
+        "pip_audit",
+        "--cache-dir",
+        "/workspace/work/tooling/pip-audit-cache",
+        "--format",
+        "json",
+        "--output",
+        "/workspace/work/evidence/mcp-agent-security-gateway/docs-reconciliation/pip-audit.json"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-18T19:28:40.851954+00:00",
+      "utc_end": "2026-11-18T19:28:43.436360+00:00",
+      "exit_code": 0,
+      "log": "dependency_audit.log"
+    }
+  ],
+  "all_required_commands_passed": true,
+  "decision": "PARTIAL",
+  "scope": "Fresh primary regression/browser/build/static/dependency checks after documentation freeze. Existing verification dependencies reused; not a clean-download install or independent full-suite proof. Hosted CI recorded separately.",
+  "prior_implementation_source": "4b6bb486d83f4410037113e64848a22e4a06f713",
+  "artifacts": {
+    ".coverage": {
+      "bytes": 69632,
+      "sha256": "ab524e515d3bd05cadbf1d6c418af01648bc2aee328fa2c139c35fef33d849f7"
+    },
+    "RELEASE_ASSESSMENT.md": {
+      "bytes": 10088,
+      "sha256": "a269820be5af83f679d686616c862a6632d915e2b78c847ff957cc2f34d1e01e"
+    },
+    "artifacts/mcp_security_gateway_monitor-0.1.0-py3-none-any.whl": {
+      "bytes": 195017,
+      "sha256": "a4a53f6af5c68f94ad7f0fae67e11c75f090046b351c8946a980d9faa13fc082"
+    },
+    "artifacts/mcp_security_gateway_monitor-0.1.0.tar.gz": {
+      "bytes": 238573,
+      "sha256": "d15c7c21033b7f12ce957354cf7d192a2fe65ba98799972444b5b5a027fef256"
+    },
+    "bandit.json": {
+      "bytes": 25406,
+      "sha256": "2a7d9196f6e58c82cab11cdd1346f70e97ec0dec2d2f00bf3fed635c96287165"
+    },
+    "bandit.log": {
+      "bytes": 3441,
+      "sha256": "f997f7442fbeac413aeabe9c0b843d41e38f83c87ec0ec3ab97c01fff90f4e3d"
+    },
+    "browser/browser-export.json": {
+      "bytes": 7787,
+      "sha256": "b4254649f61d3ef6f9752611f71987d490a5d5df659cf37cea5f12c15c460f6f"
+    },
+    "browser/browser-result.json": {
+      "bytes": 408,
+      "sha256": "402b61282cfceba081dd765a300a832b94f1ef681e9f5632db9a886a8065ff25"
+    },
+    "browser/desktop.png": {
+      "bytes": 255158,
+      "sha256": "9fa53dcc986ece9e19c09607271819c41c654bda0fe62cd6311c1fdb971718a2"
+    },
+    "browser/mobile.png": {
+      "bytes": 229434,
+      "sha256": "a28a03d0a26539bcdde447f632f9bd5f4736241fb7d9143c6ce7595b2daccb0a"
+    },
+    "browser.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build.log": {
+      "bytes": 39743,
+      "sha256": "3ef2c420b2abcffee4a31d87cbc0950dfdff55a491df974c62b752bf40f4aee8"
+    },
+    "candidate-type-validation.json": {
+      "bytes": 76814,
+      "sha256": "cfe7d9da4b66d4c5a80f3c3b5d1118220613c630bd9a44e235669d1b337584cf"
+    },
+    "candidate-type-validation.log": {
+      "bytes": 127,
+      "sha256": "7b77509e01fa24046ee5313c2322bfc7e1559fdb06796aa339cf6a963b63fb9a"
+    },
+    "coverage.json": {
+      "bytes": 383431,
+      "sha256": "cf2923d5199c5f5f8f932c251be6a9921e54219e0869d7e4413532fd112f5883"
+    },
+    "dependencies.log": {
+      "bytes": 1237,
+      "sha256": "aad3f17014f626f542990d77936c3be7756610663a780651eda0183c0c6ac423"
+    },
+    "dependency_audit.log": {
+      "bytes": 31,
+      "sha256": "15950a68a7ed99c59779717acefdceb3f69cfd31bde67d2c954f2a3cea4d7955"
+    },
+    "documentation-audit/FINAL_HANDOFF.json": {
+      "bytes": 7147,
+      "sha256": "81c4c077d08b13efda35f25c4b41117056a6b428e2c9ecada74c2281654e8e11"
+    },
+    "documentation-audit/check_examples.py": {
+      "bytes": 2277,
+      "sha256": "db3393bc3f7433dd11d316bbc288e2949ff3faedd83a2f529b8b17455be90a87"
+    },
+    "documentation-audit/chromium-playwright-wrapper": {
+      "bytes": 1376,
+      "sha256": "d1bd78501adc82a0af56a41f6e1d7585fa00728a1a2c4ec7ee20c6d707714f7a"
+    },
+    "documentation-audit/document-ledger.json": {
+      "bytes": 20421,
+      "sha256": "d3ff9cda829430518292573633664d0e2b7373370b36bd2f163240fa3442999a"
+    },
+    "documentation-audit/example-checks.json": {
+      "bytes": 4255,
+      "sha256": "0c86cbc03e810beb9d0b0432812af4d9a180c191ede0c1150954fedfadf83db5"
+    },
+    "documentation-audit/external-http-baseline.json": {
+      "bytes": 5114,
+      "sha256": "870ce30adcbc1a88906240fb4d8ec9131f75fb609beb5bde5a53e4df9ad0b315"
+    },
+    "documentation-audit/hosted-workflow-approval.json": {
+      "bytes": 1428,
+      "sha256": "2a0033b996c892d398cd26beb9162ffa4abe4b01583b02b0a505c0ce425d01c6"
+    },
+    "documentation-audit/merge-tree-equivalence.json": {
+      "bytes": 289,
+      "sha256": "4f23c3d338458e21b6102fbbf5f7e94794365807d555cbd944e733f817e53e28"
+    },
+    "documentation-audit/parent-links-final.json": {
+      "bytes": 7722,
+      "sha256": "73f3839fa31f160e2821c1790eb6c553d97b8cb5d5bfc95b7eb4d94ca3ec63e6"
+    },
+    "documentation-audit/poster-content-run1.log": {
+      "bytes": 332,
+      "sha256": "78257f39648295bab80321cc7cd5127d5560ecdf94f5d14e43271076a041b44f"
+    },
+    "documentation-audit/poster-content-run2.log": {
+      "bytes": 332,
+      "sha256": "78257f39648295bab80321cc7cd5127d5560ecdf94f5d14e43271076a041b44f"
+    },
+    "documentation-audit/poster-final-text.txt": {
+      "bytes": 3678,
+      "sha256": "f43631ac7a7c165e0b41a11ec5733e03dfaf569f82492d1473ce91922174b6b2"
+    },
+    "documentation-audit/poster-generation.json": {
+      "bytes": 1719,
+      "sha256": "0a34c430cc777ed11a5f777cbfe2c1400b7c059be05ef1acc2e51bb0268ace47"
+    },
+    "documentation-audit/poster-render-final.log": {
+      "bytes": 17681,
+      "sha256": "caa581463d8e88a55f7bf8102b527cf8df375b471ebc7a756f96533966834693"
+    },
+    "documentation-audit/poster-render-fixed.log": {
+      "bytes": 33130,
+      "sha256": "36ba3e1b0044d8e6aaaca142975bb9846f6883e64012a94b20886cb8d8d23774"
+    },
+    "documentation-audit/poster-render-playwright.log": {
+      "bytes": 2756,
+      "sha256": "00ee2bf2426262a072059c9a2856a37958c91a605420eeb6b8bf713cfa8c23b0"
+    },
+    "documentation-audit/poster-render.log": {
+      "bytes": 2200,
+      "sha256": "7685d48fcb99c2b734eafc6c6348b7917a20fe87f692a79fa09e282700f68920"
+    },
+    "documentation-audit/render_and_compare.py": {
+      "bytes": 2223,
+      "sha256": "db475ab5ceb8597f8b13e04f528f95ebdf03ed40827aae9f9a8d9f6d6687fbce"
+    },
+    "format.log": {
+      "bytes": 28,
+      "sha256": "002dcbe5e1c568f629375aba9dfc3c53b0a1a568e412487af27022aa51d778ad"
+    },
+    "installed-wheel-install.log": {
+      "bytes": 879,
+      "sha256": "fd67cfdd734ebee0ce6f1c4dde042897968d038370a3c9e1fc9208fb1e4ce6a0"
+    },
+    "installed-wheel-smoke.json": {
+      "bytes": 1844,
+      "sha256": "4c650a36527ac32cefc8786b54133b7decd48abb0a1e821c4e6a81f0b221a939"
+    },
+    "installed-wheel-smoke.log": {
+      "bytes": 129,
+      "sha256": "5c67f398eccd587e7d7fbf17ccef4d78559ea13062728533edbdc6b8b0b40b14"
+    },
+    "junit.xml": {
+      "bytes": 100210,
+      "sha256": "314c832cb470ee9d84e26a77304862a7342bf70cf49fe276e5af4c6f1d1c0041"
+    },
+    "lint.log": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "native/cpp/.gitignore": {
+      "bytes": 38,
+      "sha256": "b303100d8289dd0ff8c68f186a79b5f00ef68e6619af0e6f44939cffc96229a6"
+    },
+    "native/cpp/CMakeLists.txt": {
+      "bytes": 548,
+      "sha256": "b64a14c650c915c5a708dc90989f54e598b31fcdc7b0caa655a2b4cf95017429"
+    },
+    "native/cpp/Makefile": {
+      "bytes": 478,
+      "sha256": "fee014b90b925d67b8c577cde52a5d386c6668b6e98476b352569df7e9964c92"
+    },
+    "native/cpp/README.md": {
+      "bytes": 2919,
+      "sha256": "be78cac0ae0857a940e84e041578326bbfae289974de7e6fb4f7d7bed8ae60cb"
+    },
+    "native/cpp/include/mcp_inspect.hpp": {
+      "bytes": 11805,
+      "sha256": "4ecf9953f645bbf3ba48e859a1e1d0af609927310538c9a82a8a02eb502eb46b"
+    },
+    "native/cpp/mcp-inspect": {
+      "bytes": 56568,
+      "sha256": "a2341014cd29c54dacc13153b51f1aac0e099db6b781a82a4690447e2c1a02a7"
+    },
+    "native/cpp/src/main.cpp": {
+      "bytes": 1895,
+      "sha256": "fc6ace78681893ee02ce0472bf2a92a596ca79e590a7c1ddfd72a345d52f3ae9"
+    },
+    "native/cpp/test_inspect": {
+      "bytes": 56816,
+      "sha256": "fd41f8e41dd64f85c5c3a51d3442b14401c9a2f35715a3458471a9972198cd0c"
+    },
+    "native/cpp/tests/test_inspect.cpp": {
+      "bytes": 3737,
+      "sha256": "af409bcc9f7925e64dc33fcff304b909bf8e644c4a6f72ae66fa0ce7871e3c83"
+    },
+    "native/driver-smoke.log": {
+      "bytes": 91,
+      "sha256": "91ba5dfd2b049e60d8ac4d879e50e5b6ad53ced98cbfee76c4099d1e636bf800"
+    },
+    "native/make-driver.log": {
+      "bytes": 82,
+      "sha256": "1dc0bfdb823fa2b9953f1af595102896df8b57b938b2bdbf8b683c8eaa97c613"
+    },
+    "native/make-test.log": {
+      "bytes": 512,
+      "sha256": "4a95c03593bf62ad440e63eaad88655e7964121dd8ec682a95a9bd12af5d1025"
+    },
+    "native/result.json": {
+      "bytes": 2441,
+      "sha256": "27d3356818bec1b6c3cc9419825bef7feb953c472e9d8d83aeaf6523dcb1d889"
+    },
+    "pip-audit.json": {
+      "bytes": 3969,
+      "sha256": "1ed430a946a8f97b7f24586cbbc1c232a3ac4d1bccec4bbec98dfcfe76c6e2ac"
+    },
+    "product-matrix.json": {
+      "bytes": 2941,
+      "sha256": "bc1d19ffd9559db6961a3cf609572ece6816a3c648e9eb938d13087556d08975"
+    },
+    "pyright.log": {
+      "bytes": 38,
+      "sha256": "1d044deee37a17d52f4dd31d7de6ebd21c68eb5d08e8b3b0822f58940a3392bb"
+    },
+    "regression.log": {
+      "bytes": 8738,
+      "sha256": "826402d2e8cc96510ff390c10253294bdc79a47d31ecad1a465a2d3aa0942761"
+    },
+    "remote-ci/artifact-verification.json": {
+      "bytes": 913,
+      "sha256": "ed19b92ae486c6bebcb551d13166e8b29e337561a472448c8d98b2ad6b534be0"
+    },
+    "remote-ci/ci-manifest.json": {
+      "bytes": 1812,
+      "sha256": "c4a091e8e0b4099c9d2108a814c99cf4b751c1252659d39eba8cf462ca840bba"
+    },
+    "remote-ci/final-run-status.json": {
+      "bytes": 2944,
+      "sha256": "a70538fc796805f14ad3a2320587e60007ec58c3770be2f291d52f4ca4d703c1"
+    },
+    "remote-ci/run-status.json": {
+      "bytes": 124552,
+      "sha256": "3d7012cefe57326e030e3d53bb8681840b972c536d389bbfc9375f21aa6948da"
+    },
+    "remote-ci/workbench-artifact.zip": {
+      "bytes": 956669,
+      "sha256": "23008d6535ed53beadbe95505fdaccb59cb9a6e2b2d665e7e2ceac789f883836"
+    },
+    "secrets-scan.json": {
+      "bytes": 63978,
+      "sha256": "6f90c5b0fe7b5b9535eb73ac6401af5ab3ecfd82828ef3ae469d52e9fa41df71"
+    },
+    "secrets-triage.json": {
+      "bytes": 42248,
+      "sha256": "b6de0e44b3d9cc7e94d179ff9697eed0e745bb574d12e74ae5c2c014c34469d5"
+    },
+    "security-checks.json": {
+      "bytes": 1421,
+      "sha256": "07e2ade35d9532d393e341d9712e343fcf7669f1508d396d9353cedc3a7c9f38"
+    },
+    "workflow_lint.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "documentation_phase": {
+    "base_implementation_source": "4b6bb486d83f4410037113e64848a22e4a06f713",
+    "initial_docs_source": "1d8afe42c292a687b85928deba81a5bbc2992358",
+    "final_source": "e6be0062c398890225548fa14332d2a5350c9176",
+    "original_text_documents_read": 48,
+    "files_reconciled": 47,
+    "markdown_documents": 44,
+    "local_targets": 102,
+    "example_checks": 27,
+    "native_cpp_assertions": 11,
+    "hosted_workflows_passed": 7,
+    "runtime_independent_review_scope": "Historical implementation-source review only; new docs authored/reviewed separately; no new independent adversarial closure claimed",
+    "archive_tag": "evidence/docs-reconciliation-20261118"
+  },
+  "finalized_utc": "2026-11-18T19:40:41.821865+00:00"
+}

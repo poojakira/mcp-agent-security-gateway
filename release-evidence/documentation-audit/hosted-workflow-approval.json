@@ -1,0 +1,50 @@
+{
+  "utc": "2026-11-18T19:28:16.681797+00:00",
+  "reviewed_diff": "OnlythreegeneratedPNG/PDFfiles between1d8ande6be; identicalcode/workflows",
+  "source": "e6be0062c398890225548fa14332d2a5350c9176",
+  "acceptance_run_44240014919_approval_exit_code": 0,
+  "other_approvals": [
+    {
+      "run_id": 44240014961,
+      "name": "Production Gate",
+      "head_sha": "e6be0062c398890225548fa14332d2a5350c9176",
+      "approval_exit_code": 0,
+      "result": "{}"
+    },
+    {
+      "run_id": 44240014796,
+      "name": "Focused AppSec Regression",
+      "head_sha": "e6be0062c398890225548fa14332d2a5350c9176",
+      "approval_exit_code": 0,
+      "result": "{}"
+    },
+    {
+      "run_id": 44240014879,
+      "name": "Documentation Integrity",
+      "head_sha": "e6be0062c398890225548fa14332d2a5350c9176",
+      "approval_exit_code": 0,
+      "result": "{}"
+    },
+    {
+      "run_id": 44240014862,
+      "name": "Poster Artifact Parity",
+      "head_sha": "e6be0062c398890225548fa14332d2a5350c9176",
+      "approval_exit_code": 0,
+      "result": "{}"
+    },
+    {
+      "run_id": 44240015021,
+      "name": "Security Hygiene",
+      "head_sha": "e6be0062c398890225548fa14332d2a5350c9176",
+      "approval_exit_code": 0,
+      "result": "{}"
+    },
+    {
+      "run_id": 44240015070,
+      "name": "CI",
+      "head_sha": "e6be0062c398890225548fa14332d2a5350c9176",
+      "approval_exit_code": 0,
+      "result": "{}"
+    }
+  ]
+}

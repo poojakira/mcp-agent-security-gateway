@@ -1,0 +1,16 @@
+g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 -Iinclude tests/test_inspect.cpp -o test_inspect
+./test_inspect
+ok:   malformed_json_is_blocked
+ok:   malformed_json_pattern_tag
+ok:   duplicate_keys_blocked
+ok:   empty_batch_blocked
+ok:   non_object_blocked
+ok:   non_tool_call_allowed
+ok:   benign_tool_call_allowed
+ok:   injection_tool_call_blocked
+ok:   injection_has_patterns
+ok:   detector_failure_is_indeterminate
+ok:   batch_atomic_blocks_all_on_one_bad
+
+11/11 checks passed
+test result: ok. all checks passed

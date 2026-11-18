@@ -1,0 +1,392 @@
+{
+  "reviewed_base": "4b6bb486d83f4410037113e64848a22e4a06f713",
+  "generated_utc": "2026-11-18T04:46:23.960837+00:00",
+  "tracked_text_docs": 48,
+  "documents": [
+    {
+      "path": ".github/format-trigger.txt",
+      "sha256_reviewed_final": "cf9268e108d63cefef62abde6205217e645d85b682cf470b3ae059eb51fa549c",
+      "bytes": 75,
+      "disposition": "preserved",
+      "category": "raw historical inventory/trigger \u2014 preserved",
+      "review": "Read as raw records, not a current verification claim or executable user guide."
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256_reviewed_final": "6cf2e9f0209caaaff2637d0f59cffd7bf6c8105258544aab56964f7c34df9d17",
+      "bytes": 5287,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256_reviewed_final": "8c8a39b85fb97d7a1b42d1e245fe97a7899aa06d0a1cd1240ccaa11fb2ecbfce",
+      "bytes": 2435,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "INCIDENT_RUNBOOK.md",
+      "sha256_reviewed_final": "a3af177643734da57bebfbb18b9f25f468c6931ef8998c15bc7da03577032a1a",
+      "bytes": 4594,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "PRODUCTION.md",
+      "sha256_reviewed_final": "797ddcbbe437d6f84cf49ea54b2da4ae6c9b9641da51923e0eb779739187aa22",
+      "bytes": 2790,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "PROVENANCE.md",
+      "sha256_reviewed_final": "09aa5acf43d6894906b442452593ea072c63e791e20de952b58cfcf5c6fd49d5",
+      "bytes": 7185,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "README.md",
+      "sha256_reviewed_final": "1054572d85ab0b48f9e810770356545a63a0eae5aa98ffa283d15b5c93c36152",
+      "bytes": 7413,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "RESEARCH_REPORT.md",
+      "sha256_reviewed_final": "6cfb91a40b93c13cbfc23c7909fce9ff621105524178a86c6c2431842c178467",
+      "bytes": 4157,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "RESUME_EVIDENCE.md",
+      "sha256_reviewed_final": "be2ece7b098c544d09a906189df3652a1783ae86bfdca48089a29cc62c039a14",
+      "bytes": 657,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "RUNBOOK.md",
+      "sha256_reviewed_final": "c222965a95734d17fff95a95f93c8d6a23eec067206d2a23431d83ff2d8f6ca0",
+      "bytes": 5644,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "SECURITY.md",
+      "sha256_reviewed_final": "183597e316ded17168a0b44f10c47982b17c70b704e50bd1a12029c14863ca88",
+      "bytes": 2627,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "SECURITY_AUDIT.md",
+      "sha256_reviewed_final": "897610056051d2ef1b84a7c8dd797d1ec8c8e5c430d92309ff425f355080653b",
+      "bytes": 7687,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "SECURITY_AUDIT_2026-09-30.md",
+      "sha256_reviewed_final": "0b9e2e15a8cbf7a4bf832b65d92c22fd8521f0bef87e0391ef30337d5cc15a86",
+      "bytes": 4482,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "THREAT_MODEL.md",
+      "sha256_reviewed_final": "0e0bacd70ed84d15f87004958a061c099b942f82aca5f5a56881ab6ae3e9a691",
+      "bytes": 4727,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "VERIFIED_METRICS.md",
+      "sha256_reviewed_final": "69f604b2ba315e3f4742a6681d1e0d993c5ba3aee408925c01f62da82cbc3345",
+      "bytes": 2256,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "cpp/CMakeLists.txt",
+      "sha256_reviewed_final": "b64a14c650c915c5a708dc90989f54e598b31fcdc7b0caa655a2b4cf95017429",
+      "bytes": 548,
+      "disposition": "updated",
+      "category": "build configuration/comment",
+      "review": "Read; replaced an unscoped VERIFIED comment with exact-source README status reference. CMake build behavior is unchanged."
+    },
+    {
+      "path": "cpp/README.md",
+      "sha256_reviewed_final": "be78cac0ae0857a940e84e041578326bbfae289974de7e6fb4f7d7bed8ae60cb",
+      "bytes": 2919,
+      "disposition": "updated",
+      "category": "optional implementation reference",
+      "review": "Read code/tests; distinguish Python transport mocks/actual workbench, intended native/Rego parity and absent current native/OPA execution evidence."
+    },
+    {
+      "path": "deploy/k8s/README.md",
+      "sha256_reviewed_final": "8b4762491f214215e304fc831036793f6f81ce589434626b2e356f202898ebb6",
+      "bytes": 3392,
+      "disposition": "updated",
+      "category": "separate deployment/lab reference",
+      "review": "Read configuration/code. Mark deployment actions unexecuted/current-head NOT VERIFIED; correct TOML import guidance and preserve isolation/credential warnings."
+    },
+    {
+      "path": "detection_lab/README.md",
+      "sha256_reviewed_final": "5c481e3e9dad4fbc8d101d2ed2e0fcf5083150a414cf39d6b6f83b788c10cf67",
+      "bytes": 11043,
+      "disposition": "updated",
+      "category": "separate deployment/lab reference",
+      "review": "Read configuration/code. Mark deployment actions unexecuted/current-head NOT VERIFIED; correct TOML import guidance and preserve isolation/credential warnings."
+    },
+    {
+      "path": "docs/API_VERSIONING.md",
+      "sha256_reviewed_final": "7ea75b3aa207c2ecd4737a90f2dcdd0880648584e5773f97c73ba98933495181",
+      "bytes": 7989,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "docs/APPSEC_ASSESSMENT_2026-10-05.md",
+      "sha256_reviewed_final": "fb275feb35cf1f773f243831b881b431f6bb02453c6ef44b76a622d10c87ccdc",
+      "bytes": 3585,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "docs/APPSEC_CASE_STUDY.md",
+      "sha256_reviewed_final": "7f1d341d90c3c6e1af1f4ccb186c36a4744f226cffe65b22df371313626cd71d",
+      "bytes": 7953,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "docs/DOCKER_BUILD.md",
+      "sha256_reviewed_final": "f568119a96b9aaf20ba7f512f9b3d6a360d957573ba02a6aa32c96178f7f4a74",
+      "bytes": 3763,
+      "disposition": "updated",
+      "category": "historical build issue plus current config reference",
+      "review": "Read Dockerfile/CI; distinguish original registry failures, later4b success, liveness HEALTHCHECK and extra CI readiness smoke."
+    },
+    {
+      "path": "docs/ENFORCEMENT_BENCHMARK_2026-10-09.md",
+      "sha256_reviewed_final": "e12e2efc75ac0c0f4ce549b76e3ee2c0bba8ed61b1d370050b87c5a4e56a9db7",
+      "bytes": 1882,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "docs/EVIDENCE.md",
+      "sha256_reviewed_final": "2458380067b72c0e2558ed7e22361dca1e6b665578a6a6e16f29f44934252fcc",
+      "bytes": 5952,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "docs/OPERATIONAL_INCIDENT_RESPONSE_MEASUREMENT.md",
+      "sha256_reviewed_final": "40546ea82cea9b06645587a10cf45b93ed439bc3ab8a4cce99f004ef2671cb2a",
+      "bytes": 1676,
+      "disposition": "preserved",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "docs/PERFORMANCE_BASELINE.md",
+      "sha256_reviewed_final": "05cfe31528a47b4b84a938bb194d90ed173d8dae9b766286be03a30d931e9290",
+      "bytes": 1797,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "docs/RECRUITER_DEMO_60S.md",
+      "sha256_reviewed_final": "5b804f2047340baa25e7b0c56c2abab6ff1d2e7f8b66d3115ae816b28d38cdc6",
+      "bytes": 2326,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md",
+      "sha256_reviewed_final": "7c94adfe6eff0b6ab27474352406c7dce5307cf1da0a58437049ef7e0fd34c82",
+      "bytes": 2763,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "docs/VERIFICATION_STATUS_2026-10-09.md",
+      "sha256_reviewed_final": "803836978072838648497b30aaad79ed63041a40c93e07fd74e1461d6ba0ed51",
+      "bytes": 1666,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "docs/WORKBENCH.md",
+      "sha256_reviewed_final": "e12a9bc7c232cdac0f09f7a40960f29570e280cd096e817ce000017b47eec1d4",
+      "bytes": 12143,
+      "disposition": "updated",
+      "category": "current task/reference guidance",
+      "review": "Read completely; relevant source/test/workflow relationships checked. Execution limits below apply."
+    },
+    {
+      "path": "docs/archive/HISTORICAL_EVIDENCE.md",
+      "sha256_reviewed_final": "8b2738c6c649962a5c8d4294d69d0ee1233cb68dfecd5f963e8f9e67ae125088",
+      "bytes": 1961,
+      "disposition": "preserved",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "docs/detection/TUNING_LOG.md",
+      "sha256_reviewed_final": "b539d463b3b998a54b6463784afe8aecd45474e05ebb0d4757593c5974c83cd7",
+      "bytes": 4759,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "docs/detection/coverage_matrix.md",
+      "sha256_reviewed_final": "b80b96659e66c9a622827dc86d99252c288f2b65f14f9b93fac671e8121e96f4",
+      "bytes": 3382,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "docs/detection/latency_bench.md",
+      "sha256_reviewed_final": "dedc038e25bfc004916841f9ca273aee54c3c9fe9d67ee419bcdd5d54a131f37",
+      "bytes": 836,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "docs/detection/precision_recall.md",
+      "sha256_reviewed_final": "75f2383d49130a8745559ab5b388dae5576e859555ff4aa6b521777bb00a3d4c",
+      "bytes": 1318,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "docs/evidence/RESUME_EVIDENCE.md",
+      "sha256_reviewed_final": "7b0caf27892fc3521819f6e033215f91eff40bbe324e40461a25ef4e07e37264",
+      "bytes": 1392,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "docs/internal/BASELINE_FILES.txt",
+      "sha256_reviewed_final": "bf37293129faa68763eab056f5040ed4eb5d4efc4fdb44db9884749cf04a7f9a",
+      "bytes": 6558,
+      "disposition": "preserved",
+      "category": "raw historical inventory/trigger \u2014 preserved",
+      "review": "Read as raw records, not a current verification claim or executable user guide."
+    },
+    {
+      "path": "docs/internal/REPOSITORY_AUDIT.md",
+      "sha256_reviewed_final": "8ea068d159c6409ec54dc28c1482b330a598c7832ed07e6cd50937a65160cb52",
+      "bytes": 9823,
+      "disposition": "updated",
+      "category": "historical/source-bounded record",
+      "review": "Read; retain dated measurements/author-recorded claims with explicit non-current boundary. External original logs, chronology and field assertions not independently revalidated."
+    },
+    {
+      "path": "docs/license-history/LICENSE-BEFORE-2026-10-13.txt",
+      "sha256_reviewed_final": "655d2cc8d9cf9b56bda8e59fa40f6d91d442d66b3484a60ba95e9aa409291aba",
+      "bytes": 1414,
+      "disposition": "preserved",
+      "category": "historical legal record \u2014 preserved",
+      "review": "Read; preserved byte-for-byte. No legal-rights reinterpretation or external lineage verification."
+    },
+    {
+      "path": "docs/policy/POLICY_AS_CODE.md",
+      "sha256_reviewed_final": "e91bdaf2367e5d1c9a0f97c69be8f1f8a0024c25da3563e1205b95f7ccdaee99",
+      "bytes": 3924,
+      "disposition": "updated",
+      "category": "optional implementation reference",
+      "review": "Read code/tests; distinguish Python transport mocks/actual workbench, intended native/Rego parity and absent current native/OPA execution evidence."
+    },
+    {
+      "path": "policy/rego/README.md",
+      "sha256_reviewed_final": "d4b4c65a6e824bb1e6b3d68945b80fdf5b30ec7653865d34f4881e0aa2ef2010",
+      "bytes": 2344,
+      "disposition": "updated",
+      "category": "optional implementation reference",
+      "review": "Read code/tests; distinguish Python transport mocks/actual workbench, intended native/Rego parity and absent current native/OPA execution evidence."
+    },
+    {
+      "path": "poster/01_research_brief.md",
+      "sha256_reviewed_final": "ca0fecb9539b42e8a25e2346c36322399934221e6e63e2f0583ac459ee040ee9",
+      "bytes": 5587,
+      "disposition": "updated",
+      "category": "historical source-bounded poster",
+      "review": "Read; dated October14/f1 source, corrected current-main language and checkout mismatch; generated artifacts must match updated documentary source."
+    },
+    {
+      "path": "poster/02_claim_ledger.md",
+      "sha256_reviewed_final": "ab8171ef33e1e6edab2d8d61199d7c153e7462a453e421689f5bc85793a75cad",
+      "bytes": 2627,
+      "disposition": "updated",
+      "category": "historical source-bounded poster",
+      "review": "Read; dated October14/f1 source, corrected current-main language and checkout mismatch; generated artifacts must match updated documentary source."
+    },
+    {
+      "path": "poster/03_verified_metrics.md",
+      "sha256_reviewed_final": "9b53b8fa1c2514d5ef356670c59aa886f8eaa4f7716dcbec4256324a45a24e8c",
+      "bytes": 1509,
+      "disposition": "updated",
+      "category": "historical source-bounded poster",
+      "review": "Read; dated October14/f1 source, corrected current-main language and checkout mismatch; generated artifacts must match updated documentary source."
+    },
+    {
+      "path": "poster/13_reproducibility.md",
+      "sha256_reviewed_final": "7ccd92e5c778da4b7e85383b026282b6fbab628e314c233021744ecd120334e3",
+      "bytes": 1544,
+      "disposition": "updated",
+      "category": "historical source-bounded poster",
+      "review": "Read; dated October14/f1 source, corrected current-main language and checkout mismatch; generated artifacts must match updated documentary source."
+    },
+    {
+      "path": "requirements-workbench-test.txt",
+      "sha256_reviewed_final": "898e09c5be0dd830fe4c299b4569efb20bb7191a9d17e77fbe4147d672d7267f",
+      "bytes": 317,
+      "disposition": "preserved",
+      "category": "dependency instruction \u2014 preserved",
+      "review": "Read against pyproject/workflow. Direct tooling pins are not a complete transitive lock; no dependency install executed in this docs pass."
+    },
+    {
+      "path": "rust/README.md",
+      "sha256_reviewed_final": "80dcdcc55fa8e33b43adcb3355266b2965cc70a6575e8e72ee3053d5d04f0b81",
+      "bytes": 2857,
+      "disposition": "updated",
+      "category": "optional implementation reference",
+      "review": "Read code/tests; distinguish Python transport mocks/actual workbench, intended native/Rego parity and absent current native/OPA execution evidence."
+    }
+  ],
+  "boundary": "Read all listed docs; source-checked semantics. Actual executed checks separately recorded; external historical/operational assertions NOT VERIFIED."
+}

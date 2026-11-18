@@ -1,0 +1,32 @@
+{
+  "source_commit": "e6be0062c398890225548fa14332d2a5350c9176",
+  "utc_start": "2026-11-18T19:32:28.679138+00:00",
+  "utc_end": "2026-11-18T19:32:29.634030+00:00",
+  "wheel": "mcp_security_gateway_monitor-0.1.0-py3-none-any.whl",
+  "wheel_sha256": "a4a53f6af5c68f94ad7f0fae67e11c75f090046b351c8946a980d9faa13fc082",
+  "install_command": [
+    "/workspace/work/tooling/mcp-wheel-smoke/bin/python",
+    "-m",
+    "pip",
+    "install",
+    "--no-deps",
+    "--force-reinstall",
+    "/workspace/work/evidence/mcp-agent-security-gateway/docs-reconciliation/artifacts/mcp_security_gateway_monitor-0.1.0-py3-none-any.whl"
+  ],
+  "install_exit_code": 0,
+  "smoke_command": [
+    "/workspace/work/tooling/mcp-wheel-smoke/bin/python",
+    "-c",
+    "import asyncio,json,importlib.resources as r; from mcp_monitor.workbench.runtime import execute; q={'jsonrpc':'2.0','id':1,'method':'tools/call','params':{'name':'read_note','arguments':{}}}; v=asyncio.run(execute(json.dumps(q))); assert v['outcome']=='CONFIRMED_SUCCEEDED'; assert v['source_commit']=='UNKNOWN'; assert len(v['tool_state']['receipts'])==1; assert r.files('mcp_monitor.workbench').joinpath('index.html').is_file(); print(json.dumps({'actual_tool_read':'PASS','receipt_count':len(v['tool_state']['receipts']),'assets_present':True,'source_commit':v['source_commit'],'package_version':v['app_version']}))"
+  ],
+  "smoke_cwd": "/workspace/work/tooling/mcp-docs-unrelated-git",
+  "smoke_exit_code": 0,
+  "observed": {
+    "actual_tool_read": "PASS",
+    "receipt_count": 1,
+    "assets_present": true,
+    "source_commit": "UNKNOWN",
+    "package_version": "0.1.0"
+  },
+  "scope": "Freshly built wheel reinstalled without changing dependencies; actual packaged first-partychild read and bundledasset check under a real unrelatedGitHEAD. No arbitraryservercontainment or newplatformclaim."
+}

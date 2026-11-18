@@ -1,0 +1,33 @@
+{
+  "repository": "poojakira/mcp-agent-security-gateway",
+  "source_commit": "e6be0062c398890225548fa14332d2a5350c9176",
+  "branch": "",
+  "source_clean": true,
+  "generated_utc": "2026-11-18T19:29:59.653570+00:00",
+  "python": "3.12.16",
+  "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+  "run_id": "44240014919",
+  "job_status": "success",
+  "release_decision": "PARTIAL; full master-contract acceptance remains outstanding",
+  "workflow": ".github/workflows/local-workbench.yml",
+  "direct_tool_pins_sha256": "898e09c5be0dd830fe4c299b4569efb20bb7191a9d17e77fbe4147d672d7267f",
+  "lock_limit": "Direct tools pinned; transitive dependency snapshot is run-specific",
+  "tests": {
+    "tests": 829,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "artifact_sha256": {
+    "junit.xml": "2a278c7561064e60bb37e7a45f78df21ece6f12a87c41f6a8e9bbe6030608783",
+    "dependencies.txt": "932d03b5ae57b8c18faaf5409e8755b262bf2dfcea6bba3be9257518ab85acd7",
+    "regression.log": "6141f1e768ee1a48d137d9a10ce2c70223eefd1361e78744570746a90b16a690",
+    "coverage.json": "84a273cc80b76a46dcbebb9f011576db59dc4f2eb03fa4f9ca903db49d771fc1",
+    "browser/browser-export.json": "4d2b088fc35c2b9cb317c012b48790a49943c482b7e081aa75ccbbf605584b0e",
+    "browser/desktop.png": "c9618361a58d1c0e49aa62f7ee58b603d1e2584038739e4c6ab2540404ab665f",
+    "browser/mobile.png": "d732479ef03c2e65c3508510a9ac56b1c1de0790fb2aa739d417e7f63723fe82",
+    "browser/browser-result.json": "402b61282cfceba081dd765a300a832b94f1ef681e9f5632db9a886a8065ff25",
+    "artifacts/mcp_security_gateway_monitor-0.1.0.tar.gz": "8b89d854493916e5f482c9a67b5a7de32185db7386fbc5a27747d55290da45dd",
+    "artifacts/mcp_security_gateway_monitor-0.1.0-py3-none-any.whl": "71a279184b3c717dbb45d94f41c36a9ea327faad30427dad6c191d96103dde93"
+  }
+}

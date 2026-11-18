@@ -1,0 +1,64 @@
+{
+  "repository": "poojakira/mcp-agent-security-gateway",
+  "source_commit": "e6be0062c398890225548fa14332d2a5350c9176",
+  "source_clean": true,
+  "scope": "Actual documented Make build/test/smoke against byte-identical tracked C++ sources copied to out-of-tree build dir; no full native transport/parity guarantee",
+  "source_files": {
+    "cpp/.gitignore": "b303100d8289dd0ff8c68f186a79b5f00ef68e6619af0e6f44939cffc96229a6",
+    "cpp/CMakeLists.txt": "b64a14c650c915c5a708dc90989f54e598b31fcdc7b0caa655a2b4cf95017429",
+    "cpp/Makefile": "fee014b90b925d67b8c577cde52a5d386c6668b6e98476b352569df7e9964c92",
+    "cpp/README.md": "be78cac0ae0857a940e84e041578326bbfae289974de7e6fb4f7d7bed8ae60cb",
+    "cpp/include/mcp_inspect.hpp": "4ecf9953f645bbf3ba48e859a1e1d0af609927310538c9a82a8a02eb502eb46b",
+    "cpp/src/main.cpp": "fc6ace78681893ee02ce0472bf2a92a596ca79e590a7c1ddfd72a345d52f3ae9",
+    "cpp/tests/test_inspect.cpp": "af409bcc9f7925e64dc33fcff304b909bf8e644c4a6f72ae66fa0ce7871e3c83"
+  },
+  "gxx_version": "g++ (Debian 14.2.0-19) 14.2.0",
+  "runs": [
+    {
+      "name": "make-test",
+      "command": [
+        "make",
+        "test"
+      ],
+      "cwd": "/workspace/work/evidence/mcp-agent-security-gateway/docs-reconciliation/native/cpp",
+      "utc_start": "2026-11-18T19:27:12.951951+00:00",
+      "utc_end": "2026-11-18T19:27:14.063404+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "make-driver",
+      "command": [
+        "make",
+        "mcp-inspect"
+      ],
+      "cwd": "/workspace/work/evidence/mcp-agent-security-gateway/docs-reconciliation/native/cpp",
+      "utc_start": "2026-11-18T19:27:14.063447+00:00",
+      "utc_end": "2026-11-18T19:27:15.141152+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "driver-smoke",
+      "command": [
+        "./mcp-inspect"
+      ],
+      "cwd": "/workspace/work/evidence/mcp-agent-security-gateway/docs-reconciliation/native/cpp",
+      "utc_start": "2026-11-18T19:27:15.141196+00:00",
+      "utc_end": "2026-11-18T19:27:15.143155+00:00",
+      "exit_code": 0
+    }
+  ],
+  "cpp_assertions_passed": 11,
+  "smoke": {
+    "decision": "allow",
+    "reason": "Tool call passed security inspection",
+    "matched_patterns": []
+  },
+  "cmake": {
+    "status": "BLOCKED",
+    "reason": "CMake executable unavailable; no installation attempted"
+  },
+  "rust": {
+    "status": "BLOCKED",
+    "reason": "cargo/rustc toolchain unavailable; no installation attempted"
+  }
+}

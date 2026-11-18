@@ -1,0 +1,16 @@
+[112802:112802:1117/213650.179085:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[112802:112802:1117/213650.179249:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[112802:112802:1117/213650.182728:FATAL:sandbox/linux/suid/client/setuid_sandbox_host.cc:172] The SUID sandbox helper binary was found, but is not configured correctly. Rather than run without sandboxing I'm aborting now. You need to make sure that /usr/lib/chromium/chrome-sandbox is owned by root and has mode 4755.
+[1117/213650.187001:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[1117/213650.187818:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:153] open /home/agent/.config/chromium/Crash Reports/new/8762e531-00e6-45eb-84fa-6c900f6ff36b.dmp: Read-only file system (30)
+[1117/213650.187838:ERROR:third_party/crashpad/crashpad/handler/linux/crash_report_exception_handler.cc:209] PrepareNewCrashReport failed
+Traceback (most recent call last):
+  File "/workspace/work/candidates/mcp-agent-security-gateway/poster/render_poster.py", line 306, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/work/candidates/mcp-agent-security-gateway/poster/render_poster.py", line 270, in main
+    subprocess.run(
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/chromium', '--headless=new', '--disable-gpu', '--hide-scrollbars', '--user-data-dir=/tmp/poster-render-svki2_4t/profile', '--print-to-pdf=/workspace/work/candidates/mcp-agent-security-gateway/poster/poster_36x48.pdf', '--no-pdf-header-footer', 'file:///tmp/poster-render-svki2_4t/poster.html']' died with <Signals.SIGABRT: 6>.
+[112824:112824:0100/000000.218933:ERROR:content/zygote/zygote_linux.cc:662] write: Broken pipe (32)

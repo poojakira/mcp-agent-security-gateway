@@ -1,0 +1,78 @@
+{
+  "checked_utc": "2026-11-18T19:37:32.487Z",
+  "source_commit": "e6be0062c398890225548fa14332d2a5350c9176",
+  "runs": [
+    {
+      "id": 44240014862,
+      "name": "Poster Artifact Parity",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e6be0062c398890225548fa14332d2a5350c9176",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44240014862",
+      "updated_at": "2026-11-18T19:29:51Z"
+    },
+    {
+      "id": 44240014796,
+      "name": "Focused AppSec Regression",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e6be0062c398890225548fa14332d2a5350c9176",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44240014796",
+      "updated_at": "2026-11-18T19:28:39Z"
+    },
+    {
+      "id": 44240014879,
+      "name": "Documentation Integrity",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e6be0062c398890225548fa14332d2a5350c9176",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44240014879",
+      "updated_at": "2026-11-18T19:28:21Z"
+    },
+    {
+      "id": 44240015021,
+      "name": "Security Hygiene",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e6be0062c398890225548fa14332d2a5350c9176",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44240015021",
+      "updated_at": "2026-11-18T19:28:28Z"
+    },
+    {
+      "id": 44240014961,
+      "name": "Production Gate",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e6be0062c398890225548fa14332d2a5350c9176",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44240014961",
+      "updated_at": "2026-11-18T19:29:26Z"
+    },
+    {
+      "id": 44240014919,
+      "name": "Local MCP workbench acceptance",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e6be0062c398890225548fa14332d2a5350c9176",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44240014919",
+      "updated_at": "2026-11-18T19:30:06Z"
+    },
+    {
+      "id": 44240015070,
+      "name": "CI",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e6be0062c398890225548fa14332d2a5350c9176",
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44240015070",
+      "updated_at": "2026-11-18T19:33:54Z"
+    }
+  ],
+  "all_seven_completed_successfully": true,
+  "note": "Final snapshot supersedes the earlier in-progress run-status.json. Actual explicit-head manifest and merge-tree equivalence are recorded separately."
+}

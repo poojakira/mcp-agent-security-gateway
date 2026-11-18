@@ -1,0 +1,11 @@
+Processing ./work/evidence/mcp-agent-security-gateway/docs-reconciliation/artifacts/mcp_security_gateway_monitor-0.1.0-py3-none-any.whl
+Installing collected packages: mcp-security-gateway-monitor
+  Attempting uninstall: mcp-security-gateway-monitor
+    Found existing installation: mcp-security-gateway-monitor 0.1.0
+    Uninstalling mcp-security-gateway-monitor-0.1.0:
+      Successfully uninstalled mcp-security-gateway-monitor-0.1.0
+Successfully installed mcp-security-gateway-monitor-0.1.0
+WARNING: The directory '/home/agent/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+
+[notice] A new release of pip is available: 25.0.1 -> 26.3
+[notice] To update, run: python -m pip install --upgrade pip

@@ -1,0 +1,169 @@
+{
+  "utc": "2026-11-18T19:29:57.486615+00:00",
+  "scope": "Documentation example checks; exact source/status observed in runtime check; no full-suite or release claim",
+  "checks": [
+    {
+      "document": "INCIDENT_RUNBOOK.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "RUNBOOK.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "cpp/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "cpp/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "deploy/k8s/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "deploy/k8s/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "deploy/k8s/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "detection_lab/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "detection_lab/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "detection_lab/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "detection_lab/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "detection_lab/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "docs/API_VERSIONING.md",
+      "check": "JSON example syntax",
+      "exit_code": 0
+    },
+    {
+      "document": "docs/API_VERSIONING.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "docs/PERFORMANCE_BASELINE.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "docs/RECRUITER_DEMO_60S.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "docs/WORKBENCH.md",
+      "check": "JSON example syntax",
+      "exit_code": 0
+    },
+    {
+      "document": "docs/internal/REPOSITORY_AUDIT.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "docs/policy/POLICY_AS_CODE.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "policy/rego/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "policy/rego/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "poster/13_reproducibility.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "rust/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "rust/README.md",
+      "check": "bash syntax only; not executed",
+      "exit_code": 0,
+      "error": ""
+    },
+    {
+      "document": "docs/API_VERSIONING.md",
+      "check": "actual documented API envelope through fresh loopback server, real policy/proxy/stdio child",
+      "exit_code": 0,
+      "observed_outcome": "CONFIRMED_SUCCEEDED",
+      "source_commit_observed": "e6be0062c398890225548fa14332d2a5350c9176",
+      "source_status_observed": "CLEAN",
+      "receipt_count": 1
+    }
+  ]
+}

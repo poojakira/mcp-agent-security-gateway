@@ -1,0 +1,23 @@
+#!/workspace/work/tooling/venv/bin/python
+import sys
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+args=sys.argv[1:];url=args[-1]
+assert url.startswith('file:///tmp/poster-render-') and url.endswith('/poster.html')
+pdf=next((x.split('=',1)[1] for x in args if x.startswith('--print-to-pdf=')),None)
+png=next((x.split('=',1)[1] for x in args if x.startswith('--screenshot=')),None)
+assert bool(pdf)!=bool(png)
+if pdf:assert pdf=='/workspace/work/candidates/mcp-agent-security-gateway/poster/poster_36x48.pdf'
+if png:assert png=='/workspace/work/candidates/mcp-agent-security-gateway/poster/poster.png'
+with sync_playwright() as p:
+ browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+ page=browser.new_page(viewport={'width':1800,'height':2400},device_scale_factor=1)
+ from urllib.parse import urlsplit,unquote
+ html_path=Path(unquote(urlsplit(url).path))
+ assert html_path.parent.name.startswith('poster-render-') and html_path.name=='poster.html'
+ page.set_content(html_path.read_text(),wait_until='load',timeout=15000)
+ page.evaluate('document.fonts.ready')
+ if pdf:page.pdf(path=pdf,prefer_css_page_size=True,print_background=True)
+ else:page.screenshot(path=png,full_page=False)
+ browser.close()
+print('Rendered trusted locally generated poster HTML through Playwright-backed Chromium',flush=True)

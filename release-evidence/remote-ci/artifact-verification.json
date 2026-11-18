@@ -1,0 +1,28 @@
+{
+  "utc": "2026-11-18T19:31:42.004127+00:00",
+  "source_commit": "e6be0062c398890225548fa14332d2a5350c9176",
+  "source_clean": true,
+  "run_id": 44240014919,
+  "artifact_id": 14462349993,
+  "zip_sha256": "23008d6535ed53beadbe95505fdaccb59cb9a6e2b2d665e7e2ceac789f883836",
+  "embedded_artifacts_verified": [
+    "junit.xml",
+    "dependencies.txt",
+    "regression.log",
+    "coverage.json",
+    "browser/browser-export.json",
+    "browser/desktop.png",
+    "browser/mobile.png",
+    "browser/browser-result.json",
+    "artifacts/mcp_security_gateway_monitor-0.1.0.tar.gz",
+    "artifacts/mcp_security_gateway_monitor-0.1.0-py3-none-any.whl"
+  ],
+  "all_embedded_hashes_matched": true,
+  "actual_checkout": "Explicit PR head, source_commit in downloadedci-manifest matchescandidate; zipdisplaynameusesGitHubmergeSHA only",
+  "tests": {
+    "tests": 829,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

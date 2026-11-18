@@ -1,0 +1,48 @@
+{
+  "source_commit": "e6be0062c398890225548fa14332d2a5350c9176",
+  "runs": [
+    {
+      "name": "candidate-type-validation",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "/workspace/work/validate_inventory.py",
+        "/workspace/work/candidates/mcp-agent-security-gateway",
+        "/workspace/work/evidence/mcp-agent-security-gateway/docs-reconciliation/candidate-type-validation.json"
+      ],
+      "utc_start": "2026-11-18T19:29:54.050950+00:00",
+      "utc_end": "2026-11-18T19:29:54.336283+00:00",
+      "exit_code": 0,
+      "log": "candidate-type-validation.log"
+    },
+    {
+      "name": "secrets-scan",
+      "command": [
+        "/workspace/work/security-tools/bin/detect-secrets",
+        "scan",
+        "--no-verify",
+        "."
+      ],
+      "utc_start": "2026-11-18T19:29:54.336301+00:00",
+      "utc_end": "2026-11-18T19:29:59.091156+00:00",
+      "exit_code": 0,
+      "log": "secrets-scan.json"
+    },
+    {
+      "name": "bandit",
+      "command": [
+        "/workspace/work/security-tools/bin/bandit",
+        "-r",
+        "src",
+        "-ll",
+        "-f",
+        "json",
+        "-o",
+        "/workspace/work/evidence/mcp-agent-security-gateway/docs-reconciliation/bandit.json"
+      ],
+      "utc_start": "2026-11-18T19:29:59.091176+00:00",
+      "utc_end": "2026-11-18T19:30:00.170896+00:00",
+      "exit_code": 0,
+      "log": "bandit.log"
+    }
+  ]
+}

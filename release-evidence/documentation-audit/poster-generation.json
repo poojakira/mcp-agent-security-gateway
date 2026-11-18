@@ -1,0 +1,44 @@
+{
+  "utc": "2026-11-18T04:45:34.652465+00:00",
+  "source_state": "pre-freeze DIRTY; no current-head release claim",
+  "actual_project_renderer": true,
+  "method": "Unchanged project HTML generation through temporary POSTER_BROWSER wrapper; exact own generated HTML read into Playwright set_content, same installed Chromium PDF/screenshot APIs",
+  "first_and_second_runs": [
+    {
+      "poster/poster.png": {
+        "bytes": 426007,
+        "sha256": "cfeb7eda85e1fb779140e3e6d7a0885378e0a84b263301ba9d78070a8be4c68d"
+      },
+      "poster/poster_36x48.pdf": {
+        "bytes": 242744,
+        "sha256": "d887a17566e3b31ad98d5f3cc93bae2f3bf57d8d6d59deba9485e0f665e5b650"
+      },
+      "MCP_Gateway_Poster.pdf": {
+        "bytes": 242744,
+        "sha256": "d887a17566e3b31ad98d5f3cc93bae2f3bf57d8d6d59deba9485e0f665e5b650"
+      }
+    },
+    {
+      "poster/poster.png": {
+        "bytes": 426007,
+        "sha256": "cfeb7eda85e1fb779140e3e6d7a0885378e0a84b263301ba9d78070a8be4c68d"
+      },
+      "poster/poster_36x48.pdf": {
+        "bytes": 242744,
+        "sha256": "9a9e5c38f76b9d70d7a0430420475743166a57b9894a92de04e61a68243d00bd"
+      },
+      "MCP_Gateway_Poster.pdf": {
+        "bytes": 242744,
+        "sha256": "9a9e5c38f76b9d70d7a0430420475743166a57b9894a92de04e61a68243d00bd"
+      }
+    }
+  ],
+  "png_identical": true,
+  "pdf_bytes_identical": false,
+  "pdf_copy_equal": true,
+  "png_dimensions": [
+    1800,
+    2400
+  ],
+  "limitations": "Standard CLI SUID sandbox/read-onlyHOME and hang; file scheme navigation administratively blocked. No browser policy/HOME/product control changed. Trusted local render browser --no-sandbox only. Hosted Chrome/fonts/parity may differ; PDF metadata may vary."
+}

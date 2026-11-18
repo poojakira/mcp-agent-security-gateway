@@ -1,0 +1,210 @@
+[112853:112853:1117/213706.311811:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[112853:112853:1117/213706.311921:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[112853:112883:1117/213706.325125:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[112853:112883:1117/213706.325146:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[112853:112883:1117/213706.339341:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[112853:112883:1117/213706.340406:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[112853:112883:1117/213706.340426:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[112853:112883:1117/213706.340436:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[112853:112883:1117/213706.340441:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[112853:112883:1117/213706.345902:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[112853:112880:1117/213706.346356:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[112853:112883:1117/213706.393679:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[112853:112895:1117/213706.413815:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 112899: Read-only file system (30)
+[112853:112853:1117/213706.432707:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[112853:112853:1117/213706.432817:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[112853:112853:1117/213706.433103:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[112853:112883:1117/213706.437249:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[112853:112883:1117/213706.437265:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[112853:112895:1117/213706.439106:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 112907: Read-only file system (30)
+[112853:112853:1117/213706.439737:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[112853:112883:1117/213706.443398:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+
+(process:112853): dconf-CRITICAL **: 21:37:06.452: unable to create directory '/home/agent/.cache/dconf': Read-only file system.  dconf will not work properly.
+
+(process:112853): dconf-CRITICAL **: 21:37:06.453: unable to create directory '/home/agent/.cache/dconf': Read-only file system.  dconf will not work properly.
+
+(process:112853): dconf-CRITICAL **: 21:37:06.453: unable to create directory '/home/agent/.cache/dconf': Read-only file system.  dconf will not work properly.
+[112853:112895:1117/213706.526009:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 112931: Read-only file system (30)
+[112853:112895:1117/213706.595264:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 112952: Read-only file system (30)
+[112853:112895:1117/213706.601450:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 112954: Read-only file system (30)
+[112853:112883:1117/213706.608617:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[112853:112883:1117/213706.608934:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[112853:112853:1117/213706.609111:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[112853:112853:1117/213706.613252:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[112853:112883:1117/213706.615737:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[112853:112853:1117/213706.616188:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[112853:112853:1117/213706.643147:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: unknown error type: 
+[112853:112853:1117/213706.645121:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[112853:112883:1117/213706.645804:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[112853:112895:1117/213706.646422:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 112970: Read-only file system (30)
+[112853:112853:1117/213706.699417:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[112853:112883:1117/213706.699516:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[112853:112880:1117/213706.702694:ERROR:crypto/nss_util.cc:256] Error initializing NSS with a persistent database (sql:/home/agent/.pki/nssdb): NSS error code: -8126
+[112853:112853:1117/213706.706379:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[112853:112895:1117/213706.727246:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 112982: Read-only file system (30)
+[112853:112895:1117/213706.744190:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 112992: Read-only file system (30)
+[112853:112895:1117/213706.757890:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 112997: Read-only file system (30)
+[112900:112946:1117/213706.797334:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213706.797756:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213706.797871:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213706.833476:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113011: Read-only file system (30)
+[112853:112895:1117/213706.844230:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113020: Read-only file system (30)
+[112853:112895:1117/213706.858903:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113026: Read-only file system (30)
+[112853:112895:1117/213706.916513:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113040: Read-only file system (30)
+[112853:112895:1117/213706.921045:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113042: Read-only file system (30)
+[112853:112895:1117/213706.930564:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113050: Read-only file system (30)
+[112853:112895:1117/213706.960250:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113067: Read-only file system (30)
+[112853:112895:1117/213707.038550:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113075: Read-only file system (30)
+[112853:112895:1117/213707.102231:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113084: Read-only file system (30)
+[112853:112895:1117/213707.116838:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113092: Read-only file system (30)
+[112853:112895:1117/213707.239612:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113107: Read-only file system (30)
+[112900:112946:1117/213707.548452:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213707.633291:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213708.071323:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213708.638466:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113121: Read-only file system (30)
+[112853:112895:1117/213708.648448:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113130: Read-only file system (30)
+[112900:112946:1117/213708.675566:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213710.089707:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213710.101236:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213710.368978:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213710.613952:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213712.626890:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213716.427563:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213717.145261:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213717.156684:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213717.159848:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213717.680520:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213717.680947:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213718.160792:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213719.694754:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213719.701030:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213724.216175:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213724.216493:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213745.069236:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213806.452938:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213807.543309:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213807.644039:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113366: Read-only file system (30)
+[112853:112895:1117/213807.656882:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113375: Read-only file system (30)
+[112900:112946:1117/213807.703202:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213807.948641:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113402: Read-only file system (30)
+[112900:112946:1117/213807.967688:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213808.061909:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213808.424111:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113411: Read-only file system (30)
+[112853:112895:1117/213808.700798:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113421: Read-only file system (30)
+[112900:112946:1117/213808.753340:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213809.531489:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113430: Read-only file system (30)
+[112853:112895:1117/213809.565666:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113439: Read-only file system (30)
+[112900:112946:1117/213809.597303:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213810.079424:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213810.495745:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113464: Read-only file system (30)
+[112900:112946:1117/213810.514310:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213811.442180:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113474: Read-only file system (30)
+[112900:112946:1117/213811.458782:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213812.636697:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113483: Read-only file system (30)
+[112900:112946:1117/213812.704802:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213813.962842:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113493: Read-only file system (30)
+[112853:112895:1117/213813.968369:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113502: Read-only file system (30)
+[112900:112946:1117/213813.984863:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213814.595956:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213815.301252:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113511: Read-only file system (30)
+[112900:112946:1117/213815.321570:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213815.398899:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113520: Read-only file system (30)
+[112900:112946:1117/213815.414206:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213815.548431:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113529: Read-only file system (30)
+[112853:112895:1117/213815.560417:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113538: Read-only file system (30)
+[112900:112946:1117/213815.586150:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213815.777120:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113547: Read-only file system (30)
+[112853:112895:1117/213815.789132:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113556: Read-only file system (30)
+[112900:112946:1117/213815.810913:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213816.083893:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113566: Read-only file system (30)
+[112900:112946:1117/213816.127527:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213816.470432:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113575: Read-only file system (30)
+[112900:112946:1117/213816.488271:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213816.897700:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113584: Read-only file system (30)
+[112900:112946:1117/213816.922998:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213817.447362:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113593: Read-only file system (30)
+[112900:112946:1117/213817.491118:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213818.182037:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113603: Read-only file system (30)
+[112853:112895:1117/213818.554334:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113612: Read-only file system (30)
+[112900:112946:1117/213818.665091:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213819.873548:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113621: Read-only file system (30)
+[112900:112946:1117/213819.892201:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112853:112895:1117/213821.157820:ERROR:content/browser/zygote_host/zygote_host_impl_linux.cc:312] Failed to adjust OOM score of renderer with pid 113630: Read-only file system (30)
+[112900:112946:1117/213821.175586:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213851.812112:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213907.548046:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213908.078750:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213910.106597:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[112900:112946:1117/213914.620234:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113719:113719:1117/213923.537613:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[113719:113719:1117/213923.537707:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[113719:113783:1117/213923.566707:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113719:113783:1117/213923.566733:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113719:113783:1117/213923.566746:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113719:113783:1117/213923.566757:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113719:113783:1117/213923.566767:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113719:113783:1117/213923.566773:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113719:113783:1117/213923.566778:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113719:113783:1117/213923.594367:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113719:113810:1117/213923.596380:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:208] open /home/agent/.config/chromium/Crash Reports/settings.dat: Read-only file system (30)
+[113719:113783:1117/213923.826194:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113719:113719:1117/213923.993943:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113719:113719:1117/213923.994031:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113719:113719:1117/213923.994127:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113719:113783:1117/213923.999147:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113719:113783:1117/213923.999168:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113719:113719:1117/213924.029272:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113719:113783:1117/213924.029516:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+
+(process:113719): dconf-CRITICAL **: 21:39:24.051: unable to create directory '/home/agent/.cache/dconf': Read-only file system.  dconf will not work properly.
+
+(process:113719): dconf-CRITICAL **: 21:39:24.051: unable to create directory '/home/agent/.cache/dconf': Read-only file system.  dconf will not work properly.
+
+(process:113719): dconf-CRITICAL **: 21:39:24.052: unable to create directory '/home/agent/.cache/dconf': Read-only file system.  dconf will not work properly.
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+[113719:113783:1117/213924.746390:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113719:113783:1117/213924.746541:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[113719:113719:1117/213924.746723:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113719:113719:1117/213924.749009:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113719:113783:1117/213924.749075:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113719:113719:1117/213924.759027:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+[113719:113719:1117/213924.939336:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: unknown error type: 
+[113719:113719:1117/213924.940917:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113719:113783:1117/213924.942714:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113719:113719:1117/213925.029268:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113719:113779:1117/213925.032692:ERROR:crypto/nss_util.cc:256] Error initializing NSS with a persistent database (sql:/home/agent/.pki/nssdb): NSS error code: -8126
+[113719:113783:1117/213925.033836:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[113719:113719:1117/213925.043898:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[113825:113930:1117/213925.053260:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+[113825:113930:1117/213925.210825:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+[113825:113930:1117/213926.037477:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+touch: cannot touch '/home/agent/.local/share/icons/hicolor/.xdg-icon-resource-dummy': No such file or directory
+[113825:113930:1117/213928.750874:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113825:113930:1117/213933.849572:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+[113825:113930:1117/213937.461483:ERROR:net/socket/ssl_client_socket_impl.cc:949] handshake failed; returned -1, SSL error code 1, net_error -202
+Traceback (most recent call last):
+  File "/workspace/work/candidates/mcp-agent-security-gateway/poster/render_poster.py", line 306, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/work/candidates/mcp-agent-security-gateway/poster/render_poster.py", line 283, in main
+    subprocess.run(
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/workspace/work/doc-reconciliation/mcp-agent-security-gateway/chromium-poster', '--headless=new', '--disable-gpu', '--hide-scrollbars', '--user-data-dir=/tmp/poster-render-idr4r7x3/profile', '--window-size=1800,2400', '--screenshot=/workspace/work/candidates/mcp-agent-security-gateway/poster/poster.png', 'file:///tmp/poster-render-idr4r7x3/poster.html']' returned non-zero exit status 124.

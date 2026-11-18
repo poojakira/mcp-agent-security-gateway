@@ -1,0 +1,167 @@
+{
+  "repository": "/workspace/work/candidates/mcp-agent-security-gateway",
+  "source_commit": "e6be0062c398890225548fa14332d2a5350c9176",
+  "source_status": "",
+  "utc": "2026-11-18T19:29:56.131987+00:00",
+  "documents_parsed": 44,
+  "local_targets_checked": 102,
+  "errors": [],
+  "external_targets_not_verified": [
+    {
+      "document": "PROVENANCE.md",
+      "url": "https://github.com/poojakira",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "PROVENANCE.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/commit/ef0d7ceb42fb3b886a65e986166862b0b43d8fcf",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "README.md",
+      "url": "https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/d0d78a97802b203a9652b7fceb50acc0711a66e1/release-evidence/browser/desktop.png",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "README.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/blob/d0d78a97802b203a9652b7fceb50acc0711a66e1/release-evidence/RELEASE_ASSESSMENT.md",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "README.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/blob/d0d78a97802b203a9652b7fceb50acc0711a66e1/release-evidence/manifest.json",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "README.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/pull/194",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "SECURITY.md",
+      "url": "https://github.com/poojakira",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "SECURITY_AUDIT.md",
+      "url": "https://github.com/poojakira",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "VERIFIED_METRICS.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/blob/d0d78a97802b203a9652b7fceb50acc0711a66e1/release-evidence/manifest.json",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "VERIFIED_METRICS.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/blob/d0d78a97802b203a9652b7fceb50acc0711a66e1/release-evidence/RELEASE_ASSESSMENT.md",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "VERIFIED_METRICS.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/APPSEC_CASE_STUDY.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/DOCKER_BUILD.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37993212614",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/DOCKER_BUILD.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37994335824",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/DOCKER_BUILD.md",
+      "url": "https://www.docker.com/blog/news-from-aws-reinvent-docker-official-images-on-amazon-ecr-public/",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/DOCKER_BUILD.md",
+      "url": "https://gallery.ecr.aws/docker/library/python",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/DOCKER_BUILD.md",
+      "url": "https://docs.docker.com/build/cache/backends/gha/",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/DOCKER_BUILD.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37999099427",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/EVIDENCE.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/pull/194",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/EVIDENCE.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/blob/d0d78a97802b203a9652b7fceb50acc0711a66e1/release-evidence/RELEASE_ASSESSMENT.md",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/EVIDENCE.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/blob/d0d78a97802b203a9652b7fceb50acc0711a66e1/release-evidence/manifest.json",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/EVIDENCE.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/blob/d0d78a97802b203a9652b7fceb50acc0711a66e1/release-evidence/browser/desktop.png",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md",
+      "url": "https://github.com/poojakira/aws-agent-identity-guard/actions/runs/38462296804",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md",
+      "url": "https://github.com/poojakira/hf-model-provenance-scanner/actions/runs/38462464074",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "policy/rego/README.md",
+      "url": "https://www.openpolicyagent.org/",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "policy/rego/README.md",
+      "url": "https://www.openpolicyagent.org/docs",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "poster/02_claim_ledger.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "poster/02_claim_ledger.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "poster/13_reproducibility.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461",
+      "reason": "External target not validated by local-file/anchor check"
+    },
+    {
+      "document": "poster/13_reproducibility.md",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303",
+      "reason": "External target not validated by local-file/anchor check"
+    }
+  ],
+  "scope": "CommonMark links/images and block HTML href/src, local existence and Markdown heading/HTML ids. No claim of external URL/image semantics or perfect GitHub/MDX/RST parser equivalence."
+}
