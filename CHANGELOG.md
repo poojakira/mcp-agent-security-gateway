@@ -1,3 +1,11 @@
+# Documentation reconciliation — unreleased
+
+- Consolidate current local workflow, API, security, operations, release and developer guidance around actual fixture execution.
+- Distinguish the prior 829-test implementation-source proof from pending later-head results; publish immutable evidence without an evidence branch.
+- Date historical/poster/native/lab assertions, remove unsupported effectiveness/certification/SLA claims, and record every tracked document's disposition.
+- Correct API/module, dependency, rule-count, build-probe and deployment-scope drift; preserve legal and raw historical records.
+- Record completed safe branch cleanup while retaining active/unique work. Update only a documentation-renderer heading and build-comment label outside prose; no runtime, security-gate, software release or deployment change.
+
 # Local workbench candidate — unreleased
 
 - Add a loopback browser request editor connected to the existing MCP proxy and policy engine.

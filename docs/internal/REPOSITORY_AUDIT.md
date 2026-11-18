@@ -1,3 +1,5 @@
+> **Historical/source-bounded record.** Statements, metrics and commands below describe the cited earlier snapshot or author-recorded observations. They are not execution evidence for the current documentation head or production approval. External chronology/deployment/benchmark assertions have not been independently revalidated in this pass. See [current evidence status](../EVIDENCE.md).
+
 # Read-only forensic baseline: poojakira/mcp-agent-security-gateway
 
 UTC: 2026-11-17T02:26:33.787101+00:00. Audit role: independent forensic reviewer. Decision: PARTIAL baseline; product release NOT VERIFIED.
@@ -73,3 +75,7 @@ BRANCH CHANGES: none; all KEEP or HOLD FOR REVIEW.
 RISKS / BLOCKERS: incomplete release acceptance and provider protection visibility; product-specific items above.
 DECISION: PARTIAL baseline; NOT VERIFIED release.
 NEXT SAFE ACTION: Start on reviewed main for small bounded UI adapter, or explicitly review protected server/journal diff before basing candidate on origin/fix/evidence-provenance-20261114. Preserve all three substantial enhancement branches. Do not claim production isolation or image release while exact-image check fails.
+
+## Documentation-pass clarification
+
+The baseline above remains a dated record. Its phrase “Production CLI fails closed without isolation” must not be read as an implemented OS-isolation requirement on this candidate: checked-in `production/config.py` validates the enumerated credential, server, state, transport and limit settings, not an arbitrary-server OS sandbox. The local fixture has a different loopback-only boundary. Completed implementation-source verification and safe branch cleanup are recorded in [EVIDENCE.md](../EVIDENCE.md); the earlier baseline phase does not describe later branch disposition.

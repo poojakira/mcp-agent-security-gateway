@@ -1,3 +1,5 @@
+> **Historical/source-bounded record.** Statements, metrics and commands below describe the cited earlier snapshot or author-recorded observations. They are not execution evidence for the current documentation head or production approval. External chronology/deployment/benchmark assertions have not been independently revalidated in this pass. See [current evidence status](../EVIDENCE.md).
+
 # Detection Latency Microbenchmark
 
 > LOCAL SYNTHETIC-LOAD MICROBENCHMARK. Single process, in-memory engine, synthetic events. NOT a production throughput or SLA measurement.

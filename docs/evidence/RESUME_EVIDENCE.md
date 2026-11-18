@@ -34,16 +34,6 @@ The resume rounds 78.41% to **78%**.
 
 `tests/test_siem.py` contains **21** `test_*` functions covering ECS formatting, correlation behavior, and shipping behavior.
 
-## Current repository state
+## Later evidence
 
-The current evidence anchor is [../../VERIFIED_METRICS.md](../../VERIFIED_METRICS.md).
-
-Latest cited CI code snapshot: `c75c52db` (CI run `38462601803`, October 13, 2026).
-
-- **782 passing tests**
-- **81.93% statement coverage** (5,657 statements, 1,022 missed)
-- **69 prompt-injection patterns**
-- **9 Elastic Security rules**
-- **21 core SIEM tests**
-- Stable multi-credential authentication plus trusted-proxy-aware source attribution
-- Local HMAC-SHA256 credential/network fingerprinting without raw credential/IP export
+The frozen application numbers above retain their cited source. Later implementation-source 829-test evidence and pending new-head status are recorded in [VERIFIED_METRICS.md](../../VERIFIED_METRICS.md) and [docs/EVIDENCE.md](../EVIDENCE.md). Do not substitute later counts into previously submitted historical material or call any of these figures detector efficacy.

@@ -1,35 +1,21 @@
-# Production Operating Contract
+# Release and deployment governance
 
-## System role
+**Decision: PARTIAL. No production deployment is approved.** A configuration named `production`, a green workflow named Production Gate, or checked-in deployment manifests is not operational approval.
 
-This repository is maintained as a **MCP/JSON-RPC security gateway**.
+## Promotion requirements
 
-## Production purpose
+A release requires a frozen candidate and fresh evidence identifying its exact commit, clean state, commands, environment, pass/fail/skip counts, coverage settings and artifact hashes. Required checks cover regression/integration, browser behavior, lint/type checks, security/dependency analysis, package/container build and runtime, documentation drift and release provenance. Preserve blocking thresholds and record failures or skips explicitly. [docs/EVIDENCE.md](docs/EVIDENCE.md) separates prior-source evidence from pending new-head results.
 
-inspect and enforce agent-to-tool policy decisions across supported integration paths.
+The local workbench still lacks credential expiry/revocation, arbitrary-server containment, output PII filtering, durable external-action reconciliation and complete current MCP conformance/cancellation/concurrency validation. Environment-specific security/privacy review, SLO/load evidence, immutable deployment images, trusted ingress/TLS, backup/restore and exercised rollback remain unverified. Do not expose the workbench to shared/public networks.
 
-## Release gate
+## Optional inspection-service controls
 
-A release is promotable only when tests, lint/type checks, SAST, dependency audit, container/security scans, and deployment smoke checks pass.
+The separate HTTP service validates production-mode configuration, authenticates protected inspection/metrics routes, evaluates policy and records local audit/WAL evidence. It is not a general tool executor. Operators must route privileged actions through an enforcing integration and own credentials, storage, network controls and recovery. Read [API/configuration](docs/API_VERSIONING.md) and [operations](RUNBOOK.md) before considering any deployment.
 
-## Operating requirements
+Single-writer file-backed WAL/audit state does not support shared-file horizontal scaling. Readiness checks writable persistence directories, not external-effect durability or security efficacy. Optional identity telemetry adds external data delivery only when explicitly configured; its local fingerprint generation does not prove ingestion quality or lawful/appropriate use.
 
-- Configuration must come from explicit environment/config files; secrets must never be committed.
-- Production defaults must fail safely when required identity, credentials, artifacts, or dependencies are missing.
-- Health/readiness behavior must represent real dependency state where the repository exposes a service.
-- Logs and machine-readable outputs must support incident/debug reconstruction without leaking secrets.
-- Protected endpoints may use one legacy API credential or a stable multi-credential set; all configured credentials must meet the minimum length requirement.
-- Source identity must default to the socket peer. Forwarded source headers may only be used behind explicitly trusted infrastructure.
-- Privacy-preserving external-validation telemetry must fingerprint credentials and source/network values locally; raw credentials and raw source addresses must not be exported.
-- Dependency and security findings at the repository's blocking threshold must stop promotion.
-- Public metrics and benchmark claims must identify their dataset, environment, and scope.
-- Deployment images/artifacts must be versioned and immutable at promotion time.
-- Rollback must be possible without rewriting Git history.
+## Branch and change policy
 
-## Evidence boundary
+Keep protected main, the reviewed candidate and active or unique work. Archive verified recovery points before deleting proven merged/unused refs. Do not delete unresolved PR work or rewrite shared history. [Current disposition](docs/EVIDENCE.md#branch-disposition) records the completed cleanup and retained unique branches; earlier forensic reports remain historical.
 
-"Production-oriented" describes the engineering and release contract of this repository. It does **not** mean that an external enterprise deployment, penetration test, certification, uptime history, scale target, or external validation has occurred unless separate evidence proves it.
-
-## Change management
-
-Main is the supported integration branch. Production changes should be small, reviewable, tested, and tied to observable behavior. Historical benchmark/research material may remain for evidence, but active README, security, runbook, and deployment surfaces must describe the supported runtime rather than an academic or prototype status.
+A later change, including documentation, needs commit-scoped checks before its results are called current. Evidence-only archive tags are not releases. Review and merge decisions remain separate from package/container publication or deployment.

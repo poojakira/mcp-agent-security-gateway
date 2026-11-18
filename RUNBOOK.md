@@ -1,313 +1,58 @@
-# Runbook — MCP Agent Security Gateway
+# Operations runbook
 
-## Runtime roles
+## Choose the correct surface
 
-This repository contains two deliberately different surfaces.
+| Surface | Entry point | Default address | Boundary |
+|---|---|---|---|
+| Local execution workbench | `python -m mcp_monitor.workbench` | `http://127.0.0.1:8761` | Real first-party fixture execution; one trusted local operator |
+| Optional HTTP inspection service | `mcp-gateway` | `http://127.0.0.1:8080` | Authenticated inspection decisions; integrating caller must honor them |
+| Legacy real-time dashboard | `python run_realtime.py` | Port 8000 | Visualization/control-plane development; not the workbench or execution proof |
 
-| Surface | Port | Role | Production enforcement? |
-|---|---:|---|---|
-| `mcp-gateway` production API | 8080 | authenticated MCP tool-call/output inspection | **Yes** |
-| `run_realtime.py` dashboard | 8000 | local visualization/demo/control-plane development | No |
+No surface is approved for production merely because its code or deployment example exists. See [release gates](PRODUCTION.md). Do not route the local workbench through a public tunnel or reverse proxy.
 
-Do not deploy the port-8000 dashboard as the production policy-enforcement
-boundary. The hardened deployment contract is the stdlib production API under
-`src/mcp_monitor/production/`.
+## Local workbench startup and shutdown
 
-## Install for development
+Use [README setup](README.md#start-locally). Start `python -m mcp_monitor.workbench`; use `--port 8765` if 8761 is already owned by another process. Open the exact printed IPv4-loopback address. No API credential, database, migration or optional server extra is needed.
 
-```bash
-git clone https://github.com/poojakira/mcp-agent-security-gateway.git
-cd mcp-agent-security-gateway
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev,server]"
+```sh
+curl http://127.0.0.1:8761/health
 ```
 
-On Windows PowerShell use `.venv\Scripts\Activate.ps1`.
+Health reports software version, protocol subset and Git source/status when available. It is liveness/provenance metadata, not a readiness test for arbitrary external servers. An installed wheel correctly reports source `UNKNOWN`; do not substitute an enclosing repository's commit.
 
-## Run tests and security checks
+Stop with Ctrl+C. Normal execution stops the owned child and deletes its temporary directory before responding. Abrupt host termination may leave temporary files. Stop only the process you own; do not kill every Python process or delete another operator's workspace.
 
-```bash
-ruff check src tests run_realtime.py
-ruff format --check src tests run_realtime.py
-pytest tests/ -q --tb=short
-bandit -r src -ll
-pip-audit --skip-editable
-```
+## Data lifecycle
 
-Use the successful GitHub Actions run on the exact commit as the authoritative
-verification record.
+Requests, responses and raw note content exist in browser/process memory and the per-run temporary directory. Every execution starts a new synthetic target. Reloading loses the in-browser comparison; there is no durable case store or backup operation. Explicit downloads remain wherever the operator saves them. Redacted exports remove raw request/response/note fields, but retain tool names, metadata, receipts and unkeyed audit entries. Filesystem deletion is not cryptographic erasure.
 
-## Production configuration
+## Troubleshoot the actual result
 
-Production mode validates security-critical settings at startup.
-
-```bash
-export MCP_ENV=production
-# Configure either one legacy key or a stable multi-key set.
-export MCP_API_KEY="$(openssl rand -hex 32)"
-# export MCP_API_KEYS="<stable-key-a>,<stable-key-b>,<stable-key-c>"
-export MCP_ALLOWED_SERVERS="github,filesystem"
-export MCP_ALLOW_ANONYMOUS=false
-export MCP_WAL_PATH=/var/lib/mcp/wal.jsonl
-export MCP_AUDIT_PATH=/var/lib/mcp/audit.jsonl
-export MCP_LISTEN_HOST=0.0.0.0
-export MCP_LISTEN_PORT=8080
-```
-
-Production startup fails when:
-
-- anonymous access is enabled;
-- no API credential is configured, or any configured credential is shorter than 32 characters;
-- WAL or audit paths are not configured;
-- the approved-server set is empty;
-- rate/payload limits are invalid.
-
-## Docker Compose
-
-Copy the example environment and replace its values:
-
-```bash
-cp .env.example .env
-# edit .env with MCP_API_KEY or MCP_API_KEYS and the exact MCP_ALLOWED_SERVERS set
-docker compose config >/dev/null
-docker compose up -d --build
-```
-
-The Compose contract:
-
-- binds the application to `0.0.0.0:8080` inside the container;
-- exposes it only on host loopback by default;
-- persists WAL/audit state on the `mcp-state` named volume;
-- uses `/v1/ready` as the health gate.
-
-## Kubernetes
-
-The sample manifests under `deploy/k8s/` run one replica because the included
-file-backed WAL/audit store is single-writer state. See
-`deploy/k8s/README.md`.
-
-For controlled deployment, pin the released image by digest rather than using a
-mutable tag.
-
-## Production API
-
-Health and readiness are intentionally unauthenticated for orchestration.
-
-```bash
-curl http://127.0.0.1:8080/v1/health
-curl http://127.0.0.1:8080/v1/ready
-```
-
-Inspection and metrics require `X-API-Key`. The supplied value may match the legacy `MCP_API_KEY` or any stable credential configured in `MCP_API_KEYS`.
-
-```bash
-curl -X POST http://127.0.0.1:8080/v1/inspect_call \
-  -H "X-API-Key: $MCP_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name":"read_file",
-    "server_id":"github",
-    "arguments":{"path":"README.md"}
-  }'
-
-curl -H "X-API-Key: $MCP_API_KEY" \
-  http://127.0.0.1:8080/v1/metrics
-```
-
-## Trusted source-address and external-validation telemetry
-
-Source attribution is explicit and fail-safe:
-
-- the socket peer address is authoritative by default;
-- `X-Forwarded-For` is accepted only when the socket peer belongs to a configured `MCP_TRUSTED_PROXY_CIDRS` network;
-- the trusted forwarded value is normalized before fingerprinting;
-- IPv4-mapped IPv6 is normalized back to IPv4;
-- invalid values such as `unknown` are rejected from the fingerprint path.
-
-Optional local external-validation event output is configured with:
-
-```bash
-export MCP_IDENTITY_TELEMETRY_ENABLED=true
-export MCP_IDENTITY_TELEMETRY_TENANT_SALT="<customer-held-salt>"
-export MCP_IDENTITY_TELEMETRY_OUTPUT=/var/lib/mcp/identity-telemetry.ndjson
-# Optional only when the gateway is behind infrastructure you control:
-export MCP_TRUSTED_PROXY_CIDRS="10.0.0.0/8,2001:db8:100::/48"
-```
-
-Each NDJSON line is one immutable live transport envelope:
-
-- `schema_version`: integer `1`
-- `client`: `mcp-gateway/1.0.0`
-- `backfill`: `false`
-- `events`: event array
-- `event_fps`: positional array with exactly one 32-character lowercase-hex fingerprint per event
-
-The gateway generates one immutable source-record ID for each protected request, persists that same ID as the WAL entry ID, and uses it to derive the queued transport fingerprint. The event fingerprint is computed locally as `HMAC-SHA256(key=tenant_salt, message=UTF-8("evt:" + event_id)).hexdigest()[:32]`. The internal event ID is not transmitted.
-
-Raw credentials and raw source addresses are not written to the identity telemetry queue. Token counts are emitted as `0` where MCP-layer token accounting is unavailable. Once queued, the event and its fingerprint are immutable: after an ambiguous transport timeout, retry the exact stored envelope rather than regenerating an ID or changing behavioral fields.
-
-The static field/envelope mapping is complete. Controlled smoke/idempotency events are validation evidence only and must not be treated as behavioral-baseline history.
-
-### Persistent baseline operation
-
-Baseline mode has two invariants:
-
-- configure one fixed three-credential set in `MCP_API_KEYS` and preserve it across gateway restarts;
-- preserve the same tenant HMAC salt for the entire baseline window.
-
-Do not regenerate credentials between baseline requests. Because `key_fp` is a deterministic HMAC of the incoming credential under the tenant salt, changing a credential intentionally creates a new identity.
-
-The production request path appends immutable envelopes to the local NDJSON queue. Continuous HTTPS delivery is performed by the separate durable shipper. The shipper stores a byte-offset checkpoint on the same persistent volume and advances it only after a successful 2xx response. On failure or an ambiguous interruption, it retries the same queued envelope; the existing `event_fps` values preserve receiver-side idempotency.
-
-For Docker Compose, configure the runtime-only values in `.env` and start the telemetry profile:
-
-```bash
-MCP_API_KEY=
-MCP_API_KEYS="<stable-key-a>,<stable-key-b>,<stable-key-c>"
-MCP_IDENTITY_TELEMETRY_ENABLED=true
-MCP_IDENTITY_TELEMETRY_TENANT_SALT="<customer-held-stable-salt>"
-MCP_IDENTITY_TELEMETRY_ENDPOINT="<https-ingest-endpoint>"
-MCP_IDENTITY_TELEMETRY_BEARER_TOKEN="<runtime-secret>"
-
-docker compose --profile identity-telemetry up -d --build
-```
-
-The shipper is a queue worker and does not expose an HTTP health endpoint; Compose disables the image-level HTTP health check for that service. The queue and shipper cursor live on the `mcp-state` volume. Do not delete or reset the cursor during normal baseline operation. A cursor reset can cause previously delivered immutable envelopes to be resent; the receiver should deduplicate them by `event_fps`, but resetting it is not a normal operational action.
-
-No synthetic requests are required for baseline accumulation. Only normal protected gateway requests should build behavioral history.
-
-### First three-credential smoke batch
-
-Use a fresh queue generated with the live tenant salt. Do not reuse queue records created with an earlier validation salt.
-
-Set the transport connection details only in the runtime environment:
-
-```bash
-export MCP_IDENTITY_TELEMETRY_ENDPOINT="<https-ingest-endpoint>"
-export MCP_IDENTITY_TELEMETRY_BEARER_TOKEN="<runtime-secret>"
-```
-
-After one new protected request has been observed for each of three distinct configured credentials, run:
-
-```bash
-python -m mcp_monitor.production.identity_smoke
-```
-
-The smoke command refuses to send unless the queue contains at least three distinct `key_fp` values. It selects exactly one event from each of three credential paths, creates one batch, performs one HTTPS POST, and prints only the HTTP status plus the response body with configured token/salt values redacted. It does not print the bearer token, tenant salt, raw API credentials, raw source addresses, or internal source-record IDs.
-
-
-## Readiness semantics
-
-`/v1/ready` returns 200 only when both forensic persistence directories
-(WAL and audit) are writable. A process may be live but not ready.
-
-Do not bypass readiness merely to restore traffic. Repair the durable
-persistence path.
-
-## Client integration and availability policy
-
-`GatewayClient` is **fail-closed by default**.
-
-```python
-from mcp_monitor.client import GatewayClient
-
-gateway = GatewayClient(
-    "http://127.0.0.1:8080",
-    api_key="replace-with-production-secret",
-)
-```
-
-When the gateway is unreachable, the default client blocks tool execution.
-Monitoring-only integrations may explicitly choose `fail_closed=False`, but
-HTTP 4xx denials remain blocking in every mode.
-
-The wrapper sends tool calls before executing the wrapped function. A blocked
-verdict raises `ToolBlocked`.
-
-## Production decision behavior
-
-The production server evaluates the core monitor and then applies:
-
-- approved-server policy;
-- detector findings;
-- circuit-breaker behavior;
-- shadow/enforcement mode;
-- audit and WAL persistence;
-- optional SIEM event output.
-
-Circuit-breaker fallback for inspection is fail-closed.
-
-`MCP_SHADOW_MODE=true` converts a blocking detector result into an observed
-allow decision and must be an explicit operator choice. Production Compose
-defaults to enforcement mode.
-
-## Local real-time dashboard
-
-For local visualization only:
-
-```bash
-python run_realtime.py
-# browser: http://127.0.0.1:8000
-```
-
-Synthetic dashboard events require explicit demo mode:
-
-```bash
-MCP_DEMO_MODE=1 python run_realtime.py
-```
-
-The dashboard/control-plane implementation is not the production deployment
-contract and should not be used as evidence that the 8080 enforcement service
-is deployed.
-
-## Load testing
-
-The Locust harness requires a configured service credential so it measures the real protected
-inspection path rather than 401 responses.
-
-```bash
-export MCP_API_KEY="<same configured credential used by the target>"
-locust -f locustfile.py --host=http://127.0.0.1:8080 \
-  --users 500 --spawn-rate 50
-```
-
-The `5000 requests/second` text in the harness is a target scenario, not a
-verified production throughput claim. Treat measured results as
-hardware/configuration-specific evidence.
-
-## Failure semantics
-
-| Condition | Expected behavior |
+| Observation | Meaning and recovery |
 |---|---|
-| Missing/invalid API key on protected route | 401 |
-| Server not in approved set | blocking finding/decision |
-| Oversized body | 413 |
-| Unsupported transfer encoding / malformed HTTP framing | request rejected |
-| Detector exception | fail-closed result |
-| Circuit breaker open | fail-closed fallback |
-| WAL/audit path unwritable | readiness 503 |
-| Shadow mode enabled | detector block is observed but converted to allow |
+| Browser cannot connect | Check the owning terminal, chosen port and printed address. Do not widen the bind address. |
+| HTTP 403 | Use the exact `127.0.0.1` origin and port. Proxying/alternate Host is intentionally refused. |
+| HTTP 400/413/415 | Correct the bounded JSON payload/content type. The UI constructs the supported envelope. |
+| HTTP 429 | The serial server's 30-request/minute budget is exhausted; wait for refill. |
+| `NOT_INVOKED` | No operation was sent. Inspect parse/authorization/injection reasons before changing input or permissions. |
+| `UNKNOWN / REQUIRES_RECONCILIATION` | A forwarded operation lacks sufficient confirmation. Do not infer success or automatically retry an external effect. |
+| HTTP 500 | Engine failure; no successful outcome is established. Preserve non-secret source/configuration metadata and reproduce locally. |
+| Export unavailable after edits | Execute the current input again. Do not attach an older report to new editor content. |
 
-## Incident evidence
+A permission comparison starts another fresh disposable target. It is not rollback, idempotent replay or reconciliation of an external provider action. The repeat option deliberately demonstrates duplicate effects.
 
-For a suspected bypass or control failure:
+## Separate HTTP inspection service
 
-1. preserve WAL and audit files;
-2. preserve the exact deployed image digest and commit SHA;
-3. record the request/call ID and relevant policy configuration;
-4. rotate credentials separately from code rollback;
-5. compare the observed input against a regression test before changing a rule;
-6. do not weaken fail-closed behavior to reduce false positives without a
-   documented risk decision.
+The service's actual API/configuration reference is [API_VERSIONING.md](docs/API_VERSIONING.md#separate-http-inspection-service). It returns decisions; `GatewayClient` defaults to fail closed, but callers bypassing an enforcing integration are outside that boundary. Run `mcp-gateway --help` for the supported CLI. There is no `python -m mcp_monitor` application entry point, config-reload subcommand or password-reset flow.
 
-See `INCIDENT_RUNBOOK.md` for the incident template.
+Production-mode configuration validates credentials, approved server IDs, persistence paths and limits at startup. This is a configuration mode, not a release certification. Preserve API credentials/tenant salts in an operator-controlled secret store. Rotate at the relevant provider/deployment, recreate services when environment changes, and never put values in logs or source. Do not activate optional external telemetry during a local workbench evaluation.
 
-## Evidence boundaries
+[Compose](docker-compose.yml) and [Kubernetes examples](deploy/k8s/README.md) require operator-owned credentials, storage, image digests and deployment-specific review. File WAL/audit state is single-writer; do not increase replicas sharing those paths. The unauthenticated ELK lab is [a separate local experiment](detection_lab/README.md).
 
-Repository test counts, coverage percentages, detector counts, and latency
-numbers are point-in-time evidence. Do not describe them as current after code
-changes unless the exact current commit has a successful reproducible run.
+## Incident response and rollback
 
-The fixed red-team catalog is a regression suite, not a population-level
-real-world detection rate.
+For a workbench failure, preserve the exact source commit, clean/dirty status, non-secret configuration, report outcome and reproducible synthetic input. Report privately using [SECURITY.md](SECURITY.md). Do not publish user inputs or credentials.
+
+Stop the owned process, choose a previously reviewed commit in a separate checkout or worktree, install that version in a separate virtual environment and run its checks before using it. This avoids overwriting local modifications. No default-branch history rewrite is needed. It does not revoke credentials or undo external actions.
+
+[INCIDENT_RUNBOOK.md](INCIDENT_RUNBOOK.md) provides an environment-specific response template. On-call staffing, response deadlines, recovery times and production backup/restore must be supplied and exercised by an operator; this repository establishes none of them.

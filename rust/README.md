@@ -5,22 +5,13 @@ This crate re-implements the **security-critical decision logic** of the Python
 demonstrate systems-programming capability and a memory-safe, dependency-light
 enforcement core.
 
-## STATUS: VERIFIED via containerized Rust toolchain
+## Verification status
 
-The maintainer's host has no local Rust toolchain, so the crate was compiled and
-tested inside the official `rust:1-slim` Docker image:
-
-```
-docker run --rm -v "${PWD}:/work" -w /work rust:1-slim sh -c "cargo test"
-```
-
-Result (recorded evidence): `cargo build` finishes with **zero warnings** and
-`cargo test` reports **`test result: ok. 9 passed; 0 failed`**. Re-run the
-command above to reproduce.
+**Current-head status: consult the exact-source manifest linked from [docs/EVIDENCE.md](../docs/EVIDENCE.md).** No native result is inferred from the Python suite. Earlier documentation reported 9 tests passing in a containerized `rust:1-slim` toolchain, but did not supply a source-scoped run manifest here. That report is historical, not a current result. The Python workbench does not use this native port. Use the build commands below from this directory with an explicitly pinned/reviewed toolchain, capture exact source/versions/output, and record the real outcome before claiming parity. Container image tags can change.
 
 ## Parity with the Python implementation
 
-The Rust `inspect_message` reproduces the Python fail-closed semantics:
+The Rust source intends to reproduce these selected Python inspection semantics:
 
 | Input | Python `inspect_message` | Rust `inspect_message` |
 |---|---|---|
@@ -55,7 +46,7 @@ printf '%s\n' '{"method":"tools/call","id":1,"params":{"arguments":{"q":"ignore 
 # -> {"decision":"block","reason":"Prompt injection detected: ignore previous", ...}
 ```
 
-When `cargo test` passes, record the output here and flip the status to VERIFIED.
+After execution, preserve a source-scoped external manifest with commands, toolchain and actual outcomes. Do not infer complete proxy/transport parity from these unit cases.
 
 ## Scope (intentional)
 

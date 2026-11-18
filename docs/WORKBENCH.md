@@ -50,7 +50,7 @@ The authorization decision is distinct from injection checks and final outcome. 
 
 ## API and operations
 
-`GET /` serves the workbench. `GET /health` reports software version 0.1.0, the exact package checkout's Git commit and CLEAN/DIRTY status when available, and protocol subset 2025-03-26. An installed wheel reports source commit UNKNOWN, including when its environment is inside another Git repository; deployment builds must supply traceable source packaging before release. Configuration evidence includes repeat count, effective tool allowlist and protocol version, so one and two deliveries have distinct configuration hashes.
+`GET /` serves the workbench. `GET /health` reports software version 0.1.0, the exact package checkout's Git commit and CLEAN/DIRTY status when available, and protocol subset 2025-03-26. An installed wheel reports source commit UNKNOWN, including when its environment is inside another Git repository; deployment builds must supply traceable source packaging before release. This endpoint is not the separately authenticated `/v1` inspection API; see [API_VERSIONING.md](API_VERSIONING.md). Configuration evidence includes repeat count, effective tool allowlist and protocol version, so one and two deliveries have distinct configuration hashes.
 
 `POST /api/execute` requires Content-Type exactly `application/json` and a declared body up to 16384 bytes:
 
@@ -66,7 +66,7 @@ Startup: `python -m mcp_monitor.workbench` (default port 8761), optional `--port
 
 ## Developer checks and adversarial review
 
-See README commands. Full regression includes existing engine tests; focused workbench checks use actual subprocesses, not FakeTransport. Browser tests use the real backend, compare identical request hashes, assert tool-side receipt/state, and validate export redaction. Supply-chain tooling, complete legacy documentation reconciliation, arbitrary-platform testing and container release validation are separate outstanding gates.
+See README commands. Full regression includes existing engine tests; focused workbench checks use actual subprocesses, not FakeTransport. Browser tests use the real backend, compare identical request hashes, assert tool-side receipt/state, and validate export redaction. New-head supply-chain, platform and container evidence must be generated after the candidate is frozen; prior-source results and still-unverified external/operational claims are separated in [EVIDENCE.md](EVIDENCE.md). The all-document reconciliation ledger is [DOCUMENTATION_AUDIT.md](DOCUMENTATION_AUDIT.md).
 
 The provenance regression tests create disposable Git repositories and therefore require Git in the test/build environment. The Docker builder installs it; the final runtime does not need Git and must report UNKNOWN when checkout provenance is unavailable.
 
@@ -92,4 +92,8 @@ The strongest counterargument remains that a controlled offline fixture does not
 | Crash / timeout / duplicate effects | Actual child termination and repeated append tests | Durable replay/reconciliation is NOT IMPLEMENTED |
 | MCP initialize/list/call | Real stdio transcript with clientInfo/capabilities | Full conformance, cancellation/concurrency and latest version NOT VERIFIED |
 | Sensitive output / credential lifecycle | Explicit UI limitations | PII filtering, invalid/expired/revoked identity NOT IMPLEMENTED |
-| Independent release and branch hygiene | Candidate branch; baseline refs preserved | Exhaustive docs/branch consolidation and deployment signoff remain BLOCKED |
+| Independent release and branch hygiene | Published implementation-source review; three obsolete branches safely archived/deleted | New-head review/CI, retained unique work and deployment signoff remain pending or unverified |
+
+## Documentation and evidence revisions
+
+Current task guidance is consolidated here, in [the runbook](../RUNBOOK.md), [API reference](API_VERSIONING.md) and [evidence status](EVIDENCE.md). Dated reports and poster metrics remain their original source-scoped snapshots. A documentation commit needs its own subsequent execution record; it does not inherit the 829-test implementation result. The planned documentation-pass archive and its pending status are described in EVIDENCE.md.

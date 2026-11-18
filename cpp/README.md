@@ -6,20 +6,9 @@ alongside the Rust port in [`../rust`](../rust). It demonstrates a native,
 dependency-light enforcement core with an explicit, auditable duplicate-key
 rejection path.
 
-## STATUS: VERIFIED via containerized toolchain
+## Verification status
 
-The host has no local C++ toolchain, so the code was compiled and tested inside
-the official `gcc:13` Docker image:
-
-```
-docker run --rm -v "${PWD}:/work" -w /work gcc:13 sh -c "make test"
-```
-
-Recorded evidence:
-- `make test` compiles `tests/test_inspect.cpp` with `-Wall -Wextra -Wpedantic`
-  (no warnings) and prints **`11/11 checks passed` / `test result: ok`**.
-- CMake path also verified: `cmake -S . -B build && cmake --build build && ctest`
-  reports **`100% tests passed, 0 tests failed out of 1`**.
+**Current-head status: consult the exact-source manifest linked from [docs/EVIDENCE.md](../docs/EVIDENCE.md).** No native result is inferred from the Python suite. Earlier documentation reported 11 checks passing in a containerized `gcc:13` toolchain, but did not supply a source-scoped run manifest here. That report is historical, not a current result. The Python workbench does not use this native port. Use the build commands below from this directory with an explicitly pinned/reviewed toolchain, capture exact source/versions/output, and record the real outcome before claiming parity. Container image tags can change.
 
 ## Parity with the Python and Rust implementations
 

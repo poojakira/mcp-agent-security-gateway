@@ -1,12 +1,12 @@
 # MCP Agent Security Gateway
 
-A local security workbench for agent developers to compare tool permissions, execute constrained MCP requests, and inspect actual tool-side outcomes. The browser calls the repository's `StdioMCPProxy`, `PolicyEngine`, and injection detector against a first-party disposable file server.
+A local workbench for agent developers to compose MCP requests, change tool permissions and inspect actual tool-side outcomes. The browser calls the repository's `PolicyEngine` and `StdioMCPProxy`, which invoke a fixed first-party stdio subprocess in a disposable workspace. No model or provider account is needed.
 
-**Release status: PARTIAL.** This candidate adds a functioning local workflow. It is not an approved production release. Historical test counts and coverage elsewhere in this repository do not attest to this candidate. Run the checks below; generated evidence must identify the actual checked-out commit.
+**Release decision: PARTIAL.** The demonstrated workflow works within its bounded fixture scope. Credential lifecycle, arbitrary-server containment, external action reconciliation, response PII filtering and complete current MCP conformance remain missing or unverified. No production release or deployment is approved.
 
 ## Start locally
 
-Requires Python 3.10+ and a browser. No API keys, external models, or paid services.
+Prerequisites: Python 3.10 or newer, pip and a browser. Git is needed for checkout provenance and some development tests. Initial installation may download packaging tools; Python 3.10 also needs the declared `tomli` compatibility dependency. No API keys or paid services are required.
 
 ```sh
 python -m venv .venv
@@ -15,51 +15,67 @@ python -m pip install -e .
 python -m mcp_monitor.workbench
 ```
 
-Open **http://127.0.0.1:8761**. The server binds only to IPv4 loopback. Do not expose it through a reverse proxy or public tunnel. Stop with Ctrl+C. Each run's temporary directory and subprocess are removed before the response returns; no durable incident database is created.
+On Windows PowerShell, activate with `.venv\Scripts\Activate.ps1`. Open **http://127.0.0.1:8761**. If that port is occupied, use `python -m mcp_monitor.workbench --port 8765` and open the printed address. The service binds only to IPv4 loopback and accepts its exact origin. Do not expose it through a tunnel or reverse proxy. Stop with Ctrl+C.
 
-1. Execute **Read sample note**. Inspect the actual response, tool receipt and state hash.
-2. Select **Write note** and execute with **Read-only / Tool permission ON**. The request is denied without a tool receipt.
-3. Keep the request unchanged and turn **Tool permission OFF**. A fresh disposable target receives the same request using the read/write allowlist. Inspect the changed note.
-4. Export redacted evidence. Raw request, response and note content are removed; checksums and metadata remain.
+## Complete a real task
 
-OFF changes only the tool allowlist. Injection, egress and protocol checks remain enabled. The comparison does not measure real-world incident reduction.
+1. Execute **Read sample note**. Inspect the completed tool response, receipt and independently read note hash.
+2. Choose **Write note · denied by read-only**. Keep **Read-only** and **Tool permission ON**, then execute. The result is `NOT_INVOKED`, with no tool receipt.
+3. Keep the request unchanged and turn **Tool permission OFF**. Execute again. A separate fresh target receives the same request with the read/write allowlist; inspect the changed note and receipt.
+4. Select **Export redacted evidence**. The download removes raw request, response and note content, retaining configuration, hashes and receipts. Review metadata before sharing.
 
-![Browser running the local MCP workbench with candidate execution evidence](https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/refs/tags/evidence/local-workbench-20261116/release-evidence/browser/desktop.png)
+OFF changes only the exact tool allowlist; injection, egress and protocol checks stay enabled. Each run starts with the same labeled synthetic note and removes its child/workspace before the normal response completes. There is no incident database or guarantee of secure erasure.
 
-The screenshot and its source commit are retained separately under an evidence archive tag. The tag is not a software release. This source commit does not claim to contain its own post-execution evidence hash.
+![Actual browser execution: denied write followed by permission comparison](https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/d0d78a97802b203a9652b7fceb50acc0711a66e1/release-evidence/browser/desktop.png)
 
-## What is supported
+This screenshot is from tested implementation source `4b6bb486d83f4410037113e64848a22e4a06f713`. Its evidence archive is not a software release.
 
-- An editable JSON-RPC request reaches the actual proxy, then a real stdio subprocess.
-- Exact read/write permission comparison; independent fixture state and invocation receipts.
-- Injection-in-arguments and disallowed-destination denial through existing engine controls.
-- Fixed-path cross-workspace refusal, malformed request and alternate-method rejection.
-- Actual crash/timeout scenarios with honest unknown outcomes, and observable duplicate append effects.
-- Protocol subset: MCP 2025-03-26 stdio initialize, initialized notification, tools/list, tools/call and ping. Full conformance, cancellation/concurrency semantics and the current protocol version are **NOT VERIFIED**.
+## Supported scope and uncertainty
 
-This workbench accepts requests to its first-party fixture only. It cannot launch arbitrary servers, execute commands, select host paths, or make outbound requests. It does not verify credential identity, expiry/revocation, external action reconciliation, output PII filtering, or multi-user isolation. It offers no exactly-once guarantee. Unkeyed hash chains do not prevent an attacker rewriting an entire log.
+- Editable JSON-RPC reaches the actual engine and real first-party subprocess.
+- Exact read/write permissions, independent state hashes and invocation receipts support the outcome.
+- Existing controls exercise injection-in-arguments denial, disallowed destinations, fixed-path cross-workspace refusal, malformed requests and alternate-method rejection.
+- Crash and timeout cases return explicit uncertainty; repeated append demonstrates duplicate effects.
+- The tested MCP **2025-03-26 stdio subset** covers initialize, initialized notification, tools/list, tools/call and ping. Latest-version interoperability, full conformance, cancellation and concurrent-request semantics are **NOT VERIFIED**.
 
-## Development and verification
+The operator cannot select a server executable, host path or outbound connection. This controlled child is not an OS sandbox for arbitrary servers. A policy ALLOW is not proof of execution. Reports distinguish `NOT_INVOKED`, `CONFIRMED_SUCCEEDED`, `CONFIRMED_FAILED` and `UNKNOWN / REQUIRES_RECONCILIATION`. Unkeyed audit chains do not resist a complete log rewrite. Only operations routed through an enforcing integration receive its controls.
+
+## Verification and evidence
+
+The last published implementation-source run is explicitly scoped to **`4b6bb486d83f4410037113e64848a22e4a06f713`**: **829 passed, zero skipped, 81.80446084185813% statement coverage**, with the unchanged 77% coverage gate. The focused independent review and six associated hosted workflows passed at that source. These results do not attest to later documentation commits.
+
+- [Published assessment, exact commands and limitations](https://github.com/poojakira/mcp-agent-security-gateway/blob/d0d78a97802b203a9652b7fceb50acc0711a66e1/release-evidence/RELEASE_ASSESSMENT.md)
+- [Published source-scoped manifest](https://github.com/poojakira/mcp-agent-security-gateway/blob/d0d78a97802b203a9652b7fceb50acc0711a66e1/release-evidence/manifest.json)
+- [Current verification procedure and new-head evidence status](docs/EVIDENCE.md)
+- [Review proposal: PR #194](https://github.com/poojakira/mcp-agent-security-gateway/pull/194)
+
+New-head verification is pending until a freshly executed manifest identifies that exact commit. The planned non-release archive is `evidence/docs-reconciliation-20261118`; this name alone does not establish that it exists or that checks passed.
+
+## Develop and verify
 
 ```sh
-python -m pip install -e '.[dev]'
-PYTHONPATH=src python -m pytest tests/ -q
-ruff check src/ tests/ poster/render_poster.py scripts/recruiter_demo.py
-ruff format --check src/ tests/ poster/render_poster.py scripts/recruiter_demo.py
-python -m pip install playwright
+python -m pip install -r requirements-workbench-test.txt
+python -m pip install -e .
+PYTHONPATH=src python -m pytest tests/ -q --cov=mcp_monitor --cov-fail-under=77
+ruff check src/ tests/ scripts/workbench_e2e.py scripts/workbench_manifest.py poster/render_poster.py scripts/recruiter_demo.py
+ruff format --check src/ tests/ scripts/workbench_e2e.py scripts/workbench_manifest.py poster/render_poster.py scripts/recruiter_demo.py
 PYTHONPATH=src python scripts/workbench_e2e.py --output /tmp/mcp-workbench-evidence --chromium /usr/bin/chromium
 python -m build
 ```
 
-The browser command needs Chromium installed at the chosen path. It starts and tears down its own loopback server, exercises real read/denied write/permission rerun/export, checks a mobile viewport, and records screenshots. Tests use synthetic data only. The workbench itself has no new runtime dependency; existing optional services retain their authentication behavior.
+Chromium must exist at the supplied path. The browser harness starts its own server on an available loopback port and tears it down; it does not reuse an operator's running server. The direct tooling requirements are not a complete transitive lock. See [the developer checks](docs/WORKBENCH.md#developer-checks-and-adversarial-review) and [operations](RUNBOOK.md) for prerequisites, limits and failure recovery.
 
-## Documentation
+## Documentation index
 
-- [Product, architecture and threat boundaries](docs/WORKBENCH.md)
-- [API, operations and limitations](docs/WORKBENCH.md#api-and-operations)
-- [Evidence and remaining release gates](docs/EVIDENCE.md)
-- [Read-only repository baseline](docs/internal/REPOSITORY_AUDIT.md)
-- [Security reporting](SECURITY.md)
-- [Change history](CHANGELOG.md)
+| Task | Document |
+|---|---|
+| Product scope, architecture, threat boundaries, browser guide and acceptance matrix | [Local workbench](docs/WORKBENCH.md) |
+| Startup/shutdown, data lifecycle, failures and rollback | [Runbook](RUNBOOK.md) |
+| Workbench and separate HTTP-service endpoints | [API and versioning](docs/API_VERSIONING.md) |
+| Security reporting and residual risk | [Security policy](SECURITY.md), [threat model](THREAT_MODEL.md) |
+| Tests, exact-source evidence, branch disposition and release gates | [Evidence](docs/EVIDENCE.md), [verified snapshots](VERIFIED_METRICS.md), [release governance](PRODUCTION.md) |
+| Authorized development and contribution terms | [Contributing](CONTRIBUTING.md), [license](LICENSE) |
+| All-document review dispositions and externally unverified claims | [Documentation audit](docs/DOCUMENTATION_AUDIT.md) |
+| User-facing changes | [Changelog](CHANGELOG.md) |
 
-Other documents describe legacy engine paths, experiments and historical evidence. Their metrics and release claims have not all been reconciled against this candidate; that incomplete audit remains a release blocker. Advanced protected-server/journal/revocation branches remain preserved and unmerged.
+The optional authenticated inspection service, legacy dashboards, detection lab and native ports are separate integration surfaces, not proof that this browser workbench supports their capabilities. Historical reports retain their own dates/source bounds. Unique protected-server/journal/revocation work remains preserved and unmerged.
