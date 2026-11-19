@@ -2,6 +2,7 @@
 
 ## 2026-11-18 — Architecture, selected branches and free notebook access
 
+- Included guided fixtures in the Docker builder regression; retained truthful UNKNOWN provenance when Git metadata is absent and kept fixtures out of the final runtime image.
 - Added detailed component/trust-boundary and execution-sequence diagrams, verified against named source symbols and actual limits.
 - Added source-resolving, synthetic-only inline Colab notebooks that call the canonical engine, with local equivalent runners and explicit hosted-runtime limits.
 - Retired nonselected branches only after exact-tip recovery tags/private verified backups; retained main and the reviewed candidate without merging unreviewed work.

@@ -47,10 +47,21 @@ def test_isolated_runner_uses_own_source(tmp_path):
     )
     value = json.loads(result.stdout)
     assert value["report"]["mode"] == "GUIDED_SYNTHETIC_ONLY"
-    assert (
-        value["report"]["source"]["commit"]
-        == subprocess.check_output(
-            [shutil.which("git"), "rev-parse", "HEAD"], cwd=ROOT, text=True
-        ).strip()
-    )
+    git = shutil.which("git")
+    expected = None
+    if git is not None:
+        probe = subprocess.run(
+            [git, "rev-parse", "--show-toplevel", "HEAD"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+        )
+        lines = probe.stdout.splitlines()
+        if probe.returncode == 0 and len(lines) == 2 and Path(lines[0]).resolve() == ROOT:
+            expected = lines[1]
+    if expected is None:
+        # Builder/wheel contexts deliberately omit Git metadata; inventing a SHA is forbidden.
+        assert value["report"]["source"] == {"commit": "UNKNOWN", "state": "UNKNOWN"}
+    else:
+        assert value["report"]["source"]["commit"] == expected
     assert len(value["report_sha256"]) == 64
