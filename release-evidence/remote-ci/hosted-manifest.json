@@ -1,0 +1,33 @@
+{
+  "repository": "poojakira/mcp-agent-security-gateway",
+  "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+  "branch": "",
+  "source_clean": true,
+  "generated_utc": "2026-11-19T00:36:17.715025+00:00",
+  "python": "3.12.16",
+  "platform": "Linux-7.0.0-1020-azure-x86_64-with-glibc2.43",
+  "run_id": "44429942331",
+  "job_status": "success",
+  "release_decision": "PARTIAL; full master-contract acceptance remains outstanding",
+  "workflow": ".github/workflows/local-workbench.yml",
+  "direct_tool_pins_sha256": "898e09c5be0dd830fe4c299b4569efb20bb7191a9d17e77fbe4147d672d7267f",
+  "lock_limit": "Direct tools pinned; transitive dependency snapshot is run-specific",
+  "tests": {
+    "tests": 834,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "artifact_sha256": {
+    "junit.xml": "3ade052e98d09254d02604ad964d72c26899717b3506112a4db0fb39c41192df",
+    "regression.log": "734f72a44e753dcc75f8f158b9c6393ca21d63d1a433772e1d1ea44f02b7eb5f",
+    "dependencies.txt": "932d03b5ae57b8c18faaf5409e8755b262bf2dfcea6bba3be9257518ab85acd7",
+    "coverage.json": "1cd627a1ba54a7bae25c3386cae41da7fb5b607ee92f749195057a64f0ecacfb",
+    "artifacts/mcp_security_gateway_monitor-0.1.0.tar.gz": "3c40758a73b2d36398c53ffa22311a543662ecf98e1c74bc8ce978721472769e",
+    "artifacts/mcp_security_gateway_monitor-0.1.0-py3-none-any.whl": "0911895f609e3f5398b4e70a3105cd7ff624b3809201e26a310ec1c9c6ea2c43",
+    "browser/browser-result.json": "6634c9dcaf273c3e029b6232eaa0a451947a900f6f1b67ab49dd324797726d6e",
+    "browser/browser-export.json": "9beffcf44bd8533c279c0299c5d3e481ab93ae0c9bec7f3aba25d2dcd7521641",
+    "browser/desktop.png": "3d254e371accadf9352a60b5c30e784e0dc90836347e251ca0a30cff7c07bc2c",
+    "browser/mobile.png": "0fa8753cd40c8ae9a1eace70e1e92f70d3badb48fff565f3002369b671880383"
+  }
+}

@@ -1,0 +1,10 @@
+Resolved source: d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c
+Guided dependencies installed. Full-app and hosted-runtime verification are separate.
+CONFIRMED_SUCCEEDED; tool receipts=1
+Run source: {'commit': 'd2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c', 'state': 'CLEAN'}
+Evidence SHA-256: 0b82c599fd9148439165703fe9ec2b65d3743e57c8b2131a5a4c78a9ed832e8a
+<IPython.core.display.JSON object>
+read → CONFIRMED_SUCCEEDED; tool receipts=1
+deny → NOT_INVOKED; tool receipts=0
+allow → CONFIRMED_SUCCEEDED; tool receipts=1
+<IPython.core.display.JSON object>

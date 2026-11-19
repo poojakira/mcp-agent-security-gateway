@@ -1,0 +1,569 @@
+{
+  "run_id": 44429942445,
+  "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+  "checked_utc": "2026-11-19T00:47:13.427Z",
+  "jobs": [
+    {
+      "id": 135244443433,
+      "name": "Lint & Type Check",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Lint with Ruff",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Ruff Formatter Check",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate local workbench workflow expressions",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Focused Pyright gate",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Security scan with Bandit",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "pip-audit",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Generate CycloneDX SBOM",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload SBOM",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 135244763175,
+      "name": "Windows Control Plane",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install control-plane dependencies",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate Windows control-plane behavior",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 135244763233,
+      "name": "Security Scan",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Trivy vulnerability scanner",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload Trivy results",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Grype scanner",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload Grype results",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Syft for SBOM",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload SBOM",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Upload Trivy results",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run Trivy vulnerability scanner",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 135244763279,
+      "name": "Type Check (Pyright)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout attack-v19-core (optional)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Pyright",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout attack-v19-core (optional)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 135244763288,
+      "name": "CodeQL Analysis (python)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run github/codeql-action/init@c4dd10e44af883a891fe31ced449bcb4a6728b9b",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run github/codeql-action/analyze@c4dd10e44af883a891fe31ced449bcb4a6728b9b",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run github/codeql-action/analyze@c4dd10e44af883a891fe31ced449bcb4a6728b9b",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run github/codeql-action/init@c4dd10e44af883a891fe31ced449bcb4a6728b9b",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 135244763317,
+      "name": "Unit Tests (Python 3.12)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout attack-v19-core (optional)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python 3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run tests with coverage",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload coverage report",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify test collection",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python 3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout attack-v19-core (optional)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 135244763399,
+      "name": "Unit Tests (Python 3.10)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout attack-v19-core (optional)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python 3.10",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run tests with coverage",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload coverage report",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify test collection",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python 3.10",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout attack-v19-core (optional)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 135244763512,
+      "name": "Unit Tests (Python 3.11)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout attack-v19-core (optional)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python 3.11",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run tests with coverage",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload coverage report",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify test collection",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python 3.11",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Checkout attack-v19-core (optional)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 135245891775,
+      "name": "Docker Build",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Docker Buildx",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build Docker image (no push)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Smoke test final runtime image (no external pilot traffic)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Build Docker image (no push)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Docker Buildx",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}

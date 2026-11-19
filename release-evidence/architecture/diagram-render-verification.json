@@ -1,0 +1,23 @@
+{
+  "utc": "2026-11-18T23:59:29.577403+00:00",
+  "renderer": "mermaid11.12.2;headlessChromium;strictsecurity;pureSVGtext",
+  "mermaid_js_sha256": "d0830a6c05546e9edb8fe20a8f545f3e0dc7c4c3134d584bad9c13a99d7a71e0",
+  "diagrams": [
+    {
+      "diagram": 1,
+      "path": "docs/architecture/components.svg",
+      "svg_sha256": "0e7e9456cbd52aa3f015c3e94627ed933275ad09509f0d46efe53696ac6fa7c6",
+      "bytes": 91630,
+      "parsed_and_rendered": true
+    },
+    {
+      "diagram": 2,
+      "path": "docs/architecture/sequence.svg",
+      "svg_sha256": "434e719b892ee33a901ee3437557db8638f5679faf4de3228a1c0e564ce09741",
+      "bytes": 49537,
+      "parsed_and_rendered": true
+    }
+  ],
+  "standalone_svg": "Root width/height set to actual viewBox pixels for readable full-size opening; README uses separate22pxoverview; HTMLvieweraddszoom/pan",
+  "svg_serialization_note": "MermaidHTMLlinebreaks in first component SVG required actual DOM XMLSerializer round-trip for valid standaloneSVG. ExactfileXMLvalidated; no control/claim changed."
+}

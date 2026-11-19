@@ -1,0 +1,16 @@
+{
+  "utc": "2026-11-19T00:42:23.620100+00:00",
+  "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+  "clean": true,
+  "scope": "Own static architecture viewer, local browser execution; not a remote hosted-engine claim",
+  "diagrams_loaded": 3,
+  "checks": [
+    "all SVG choices load",
+    "actual zoom transform",
+    "reset",
+    "correct full-size links",
+    "390px mobile no horizontal overflow",
+    "no page errors"
+  ],
+  "page_errors": []
+}

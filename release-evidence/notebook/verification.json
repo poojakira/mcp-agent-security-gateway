@@ -1,0 +1,28 @@
+{
+  "repository": "mcp-agent-security-gateway",
+  "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+  "expected_candidate": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+  "utc_start": "2026-11-19T00:42:19.580708+00:00",
+  "utc_end": "2026-11-19T00:42:25.499748+00:00",
+  "result": "PASS",
+  "error": null,
+  "environment": "Actual committed notebook setup/scenario/comparison cells executed on local LinuxCPython3.12, GitHubpubliccheckout and fresh isolated minimalvenv",
+  "colab_hosted_kernel": "NOT VERIFIED; no Google sign-in or remote hosted execution claimed",
+  "source_notebook_sha256": "81b89b0f745bee6435dc8de9b91d09dd79a72dd0bd1df713b773a783715d75ed",
+  "all_result_checksums_verified": true,
+  "no_external_resources": "No server/tunnel/Drive/GPU/paidAPI/cloudresource/APIkey; only publicGitHub/PyPI downloads",
+  "scenario_summaries": [
+    {
+      "scenario": "read",
+      "summary": "CONFIRMED_SUCCEEDED; tool receipts=1"
+    },
+    {
+      "scenario": "deny",
+      "summary": "NOT_INVOKED; tool receipts=0"
+    },
+    {
+      "scenario": "allow",
+      "summary": "CONFIRMED_SUCCEEDED; tool receipts=1"
+    }
+  ]
+}

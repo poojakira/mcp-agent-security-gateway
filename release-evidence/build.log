@@ -1,0 +1,538 @@
+* Creating isolated environment: venv+pip...
+* Installing packages in isolated environment:
+  - setuptools>=69
+  - wheel
+* Getting build dependencies for sdist...
+running egg_info
+writing src/mcp_security_gateway_monitor.egg-info/PKG-INFO
+writing dependency_links to src/mcp_security_gateway_monitor.egg-info/dependency_links.txt
+writing entry points to src/mcp_security_gateway_monitor.egg-info/entry_points.txt
+writing requirements to src/mcp_security_gateway_monitor.egg-info/requires.txt
+writing top-level names to src/mcp_security_gateway_monitor.egg-info/top_level.txt
+reading manifest file 'src/mcp_security_gateway_monitor.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'src/mcp_security_gateway_monitor.egg-info/SOURCES.txt'
+WARNING `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2027-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+* Installed build dependency versions:
+  - setuptools==84.2.1
+  - wheel==0.48.0
+* Building sdist...
+running sdist
+running egg_info
+writing src/mcp_security_gateway_monitor.egg-info/PKG-INFO
+writing dependency_links to src/mcp_security_gateway_monitor.egg-info/dependency_links.txt
+writing entry points to src/mcp_security_gateway_monitor.egg-info/entry_points.txt
+writing requirements to src/mcp_security_gateway_monitor.egg-info/requires.txt
+writing top-level names to src/mcp_security_gateway_monitor.egg-info/top_level.txt
+reading manifest file 'src/mcp_security_gateway_monitor.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'src/mcp_security_gateway_monitor.egg-info/SOURCES.txt'
+running check
+creating mcp_security_gateway_monitor-0.1.0
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/advanced
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/audit
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/dashboard
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/defense10
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/detectors
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/layers
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/policy
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/protocol
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/proxy
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/redteam
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/server
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/siem
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/workbench
+creating mcp_security_gateway_monitor-0.1.0/src/mcp_security_gateway_monitor.egg-info
+creating mcp_security_gateway_monitor-0.1.0/tests
+copying files to mcp_security_gateway_monitor-0.1.0...
+copying LICENSE -> mcp_security_gateway_monitor-0.1.0
+copying README.md -> mcp_security_gateway_monitor-0.1.0
+copying pyproject.toml -> mcp_security_gateway_monitor-0.1.0
+copying src/mcp_monitor/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor
+copying src/mcp_monitor/client.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor
+copying src/mcp_monitor/monitor.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor
+copying src/mcp_monitor/advanced/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/advanced
+copying src/mcp_monitor/advanced/canary.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/advanced
+copying src/mcp_monitor/advanced/correlation.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/advanced
+copying src/mcp_monitor/advanced/drift.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/advanced
+copying src/mcp_monitor/advanced/invariants.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/advanced
+copying src/mcp_monitor/advanced/manifest.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/advanced
+copying src/mcp_monitor/audit/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/audit
+copying src/mcp_monitor/audit/log.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/audit
+copying src/mcp_monitor/audit/wal.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/audit
+copying src/mcp_monitor/dashboard/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/dashboard
+copying src/mcp_monitor/dashboard/report.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/dashboard
+copying src/mcp_monitor/dashboard/terminal.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/dashboard
+copying src/mcp_monitor/defense10/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/corpus.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/dataset.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/egress_proxy.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/features.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/honeypot.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/ml_classifier.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/network_monitor.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/orchestrator10.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/rate_limiter.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/sandbox.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/defense10
+copying src/mcp_monitor/detectors/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/detectors
+copying src/mcp_monitor/detectors/exfiltration.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/detectors
+copying src/mcp_monitor/detectors/pii_detector.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/detectors
+copying src/mcp_monitor/detectors/prompt_injection.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/detectors
+copying src/mcp_monitor/detectors/shadow_server.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/detectors
+copying src/mcp_monitor/layers/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/layers
+copying src/mcp_monitor/layers/egress.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/layers
+copying src/mcp_monitor/layers/kernel.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/layers
+copying src/mcp_monitor/layers/orchestrator.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/layers
+copying src/mcp_monitor/layers/proxy.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/layers
+copying src/mcp_monitor/layers/semantic.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/layers
+copying src/mcp_monitor/policy/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/policy
+copying src/mcp_monitor/policy/policy_engine.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/policy
+copying src/mcp_monitor/production/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/production/alerting.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/production/circuit_breaker.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/production/config.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/production/identity_shipper.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/production/identity_smoke.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/production/identity_telemetry.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/production/identity_transport.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/production/logging.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/production/metrics.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/production/rate_limiter.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/production/server.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/production/shutdown.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/production/tracing.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/production
+copying src/mcp_monitor/protocol/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/protocol
+copying src/mcp_monitor/protocol/jsonrpc.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/protocol
+copying src/mcp_monitor/proxy/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/proxy
+copying src/mcp_monitor/proxy/stdio_proxy.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/proxy
+copying src/mcp_monitor/redteam/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/redteam
+copying src/mcp_monitor/redteam/payloads.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/redteam
+copying src/mcp_monitor/redteam/simulator.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/redteam
+copying src/mcp_monitor/server/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/server
+copying src/mcp_monitor/server/realtime.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/server
+copying src/mcp_monitor/server/workload.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/server
+copying src/mcp_monitor/siem/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/siem
+copying src/mcp_monitor/siem/attack_simulations.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/siem
+copying src/mcp_monitor/siem/correlation.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/siem
+copying src/mcp_monitor/siem/ecs_formatter.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/siem
+copying src/mcp_monitor/siem/lifecycle.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/siem
+copying src/mcp_monitor/siem/shipper.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/siem
+copying src/mcp_monitor/workbench/__init__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/workbench
+copying src/mcp_monitor/workbench/__main__.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/workbench
+copying src/mcp_monitor/workbench/app.js -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/workbench
+copying src/mcp_monitor/workbench/index.html -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/workbench
+copying src/mcp_monitor/workbench/runtime.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/workbench
+copying src/mcp_monitor/workbench/style.css -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/workbench
+copying src/mcp_monitor/workbench/tool_server.py -> mcp_security_gateway_monitor-0.1.0/src/mcp_monitor/workbench
+copying src/mcp_security_gateway_monitor.egg-info/PKG-INFO -> mcp_security_gateway_monitor-0.1.0/src/mcp_security_gateway_monitor.egg-info
+copying src/mcp_security_gateway_monitor.egg-info/SOURCES.txt -> mcp_security_gateway_monitor-0.1.0/src/mcp_security_gateway_monitor.egg-info
+copying src/mcp_security_gateway_monitor.egg-info/dependency_links.txt -> mcp_security_gateway_monitor-0.1.0/src/mcp_security_gateway_monitor.egg-info
+copying src/mcp_security_gateway_monitor.egg-info/entry_points.txt -> mcp_security_gateway_monitor-0.1.0/src/mcp_security_gateway_monitor.egg-info
+copying src/mcp_security_gateway_monitor.egg-info/requires.txt -> mcp_security_gateway_monitor-0.1.0/src/mcp_security_gateway_monitor.egg-info
+copying src/mcp_security_gateway_monitor.egg-info/top_level.txt -> mcp_security_gateway_monitor-0.1.0/src/mcp_security_gateway_monitor.egg-info
+copying tests/test_5_layers.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_advanced_canary.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_advanced_correlation.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_advanced_drift.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_advanced_invariants.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_advanced_manifest.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_alerting_security.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_audit_log.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_client.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_coverage_100.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_cross_platform.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_defense10.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_deployment.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_detection_lifecycle.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_detector_failures.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_exfiltration.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_http_framing.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_identity_shipper.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_identity_telemetry.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_identity_transport.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_injection_enforcement_regression.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_instruction_authority_regression.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_live_stdio_policy_backport.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_measure_incident_response.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_notebook_demo.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_pii_detector.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_policy_enforcement.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_production.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_prompt_injection.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_protocol_hardening.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_real_mcp_protocol.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_realtime.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_redteam_simulator.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_retired_demo_credential.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_shadow_server.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_siem.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_siem_scenarios.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_stdio_proxy.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_workbench.py -> mcp_security_gateway_monitor-0.1.0/tests
+copying tests/test_workload.py -> mcp_security_gateway_monitor-0.1.0/tests
+Writing mcp_security_gateway_monitor-0.1.0/setup.cfg
+Creating tar archive
+removing 'mcp_security_gateway_monitor-0.1.0' (and everything under it)
+WARNING `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2027-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+* Building wheel from sdist
+* Creating isolated environment: venv+pip...
+* Installing packages in isolated environment:
+  - setuptools>=69
+  - wheel
+* Getting build dependencies for wheel...
+running egg_info
+writing src/mcp_security_gateway_monitor.egg-info/PKG-INFO
+writing dependency_links to src/mcp_security_gateway_monitor.egg-info/dependency_links.txt
+writing entry points to src/mcp_security_gateway_monitor.egg-info/entry_points.txt
+writing requirements to src/mcp_security_gateway_monitor.egg-info/requires.txt
+writing top-level names to src/mcp_security_gateway_monitor.egg-info/top_level.txt
+reading manifest file 'src/mcp_security_gateway_monitor.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'src/mcp_security_gateway_monitor.egg-info/SOURCES.txt'
+WARNING `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2027-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+* Installed build dependency versions:
+  - setuptools==84.2.1
+  - wheel==0.48.0
+* Building wheel...
+running bdist_wheel
+running build
+running build_py
+creating build/lib/mcp_monitor
+copying src/mcp_monitor/monitor.py -> build/lib/mcp_monitor
+copying src/mcp_monitor/__init__.py -> build/lib/mcp_monitor
+copying src/mcp_monitor/client.py -> build/lib/mcp_monitor
+creating build/lib/mcp_monitor/proxy
+copying src/mcp_monitor/proxy/__init__.py -> build/lib/mcp_monitor/proxy
+copying src/mcp_monitor/proxy/stdio_proxy.py -> build/lib/mcp_monitor/proxy
+creating build/lib/mcp_monitor/audit
+copying src/mcp_monitor/audit/__init__.py -> build/lib/mcp_monitor/audit
+copying src/mcp_monitor/audit/wal.py -> build/lib/mcp_monitor/audit
+copying src/mcp_monitor/audit/log.py -> build/lib/mcp_monitor/audit
+creating build/lib/mcp_monitor/workbench
+copying src/mcp_monitor/workbench/__init__.py -> build/lib/mcp_monitor/workbench
+copying src/mcp_monitor/workbench/runtime.py -> build/lib/mcp_monitor/workbench
+copying src/mcp_monitor/workbench/__main__.py -> build/lib/mcp_monitor/workbench
+copying src/mcp_monitor/workbench/tool_server.py -> build/lib/mcp_monitor/workbench
+creating build/lib/mcp_monitor/detectors
+copying src/mcp_monitor/detectors/shadow_server.py -> build/lib/mcp_monitor/detectors
+copying src/mcp_monitor/detectors/__init__.py -> build/lib/mcp_monitor/detectors
+copying src/mcp_monitor/detectors/prompt_injection.py -> build/lib/mcp_monitor/detectors
+copying src/mcp_monitor/detectors/pii_detector.py -> build/lib/mcp_monitor/detectors
+copying src/mcp_monitor/detectors/exfiltration.py -> build/lib/mcp_monitor/detectors
+creating build/lib/mcp_monitor/redteam
+copying src/mcp_monitor/redteam/payloads.py -> build/lib/mcp_monitor/redteam
+copying src/mcp_monitor/redteam/__init__.py -> build/lib/mcp_monitor/redteam
+copying src/mcp_monitor/redteam/simulator.py -> build/lib/mcp_monitor/redteam
+creating build/lib/mcp_monitor/policy
+copying src/mcp_monitor/policy/__init__.py -> build/lib/mcp_monitor/policy
+copying src/mcp_monitor/policy/policy_engine.py -> build/lib/mcp_monitor/policy
+creating build/lib/mcp_monitor/protocol
+copying src/mcp_monitor/protocol/__init__.py -> build/lib/mcp_monitor/protocol
+copying src/mcp_monitor/protocol/jsonrpc.py -> build/lib/mcp_monitor/protocol
+creating build/lib/mcp_monitor/server
+copying src/mcp_monitor/server/realtime.py -> build/lib/mcp_monitor/server
+copying src/mcp_monitor/server/__init__.py -> build/lib/mcp_monitor/server
+copying src/mcp_monitor/server/workload.py -> build/lib/mcp_monitor/server
+creating build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/identity_shipper.py -> build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/__init__.py -> build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/config.py -> build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/circuit_breaker.py -> build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/metrics.py -> build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/identity_transport.py -> build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/identity_telemetry.py -> build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/tracing.py -> build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/alerting.py -> build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/identity_smoke.py -> build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/shutdown.py -> build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/logging.py -> build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/server.py -> build/lib/mcp_monitor/production
+copying src/mcp_monitor/production/rate_limiter.py -> build/lib/mcp_monitor/production
+creating build/lib/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/__init__.py -> build/lib/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/dataset.py -> build/lib/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/sandbox.py -> build/lib/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/honeypot.py -> build/lib/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/features.py -> build/lib/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/corpus.py -> build/lib/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/orchestrator10.py -> build/lib/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/network_monitor.py -> build/lib/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/rate_limiter.py -> build/lib/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/egress_proxy.py -> build/lib/mcp_monitor/defense10
+copying src/mcp_monitor/defense10/ml_classifier.py -> build/lib/mcp_monitor/defense10
+creating build/lib/mcp_monitor/siem
+copying src/mcp_monitor/siem/__init__.py -> build/lib/mcp_monitor/siem
+copying src/mcp_monitor/siem/shipper.py -> build/lib/mcp_monitor/siem
+copying src/mcp_monitor/siem/lifecycle.py -> build/lib/mcp_monitor/siem
+copying src/mcp_monitor/siem/correlation.py -> build/lib/mcp_monitor/siem
+copying src/mcp_monitor/siem/ecs_formatter.py -> build/lib/mcp_monitor/siem
+copying src/mcp_monitor/siem/attack_simulations.py -> build/lib/mcp_monitor/siem
+creating build/lib/mcp_monitor/dashboard
+copying src/mcp_monitor/dashboard/__init__.py -> build/lib/mcp_monitor/dashboard
+copying src/mcp_monitor/dashboard/report.py -> build/lib/mcp_monitor/dashboard
+copying src/mcp_monitor/dashboard/terminal.py -> build/lib/mcp_monitor/dashboard
+creating build/lib/mcp_monitor/advanced
+copying src/mcp_monitor/advanced/canary.py -> build/lib/mcp_monitor/advanced
+copying src/mcp_monitor/advanced/invariants.py -> build/lib/mcp_monitor/advanced
+copying src/mcp_monitor/advanced/drift.py -> build/lib/mcp_monitor/advanced
+copying src/mcp_monitor/advanced/__init__.py -> build/lib/mcp_monitor/advanced
+copying src/mcp_monitor/advanced/correlation.py -> build/lib/mcp_monitor/advanced
+copying src/mcp_monitor/advanced/manifest.py -> build/lib/mcp_monitor/advanced
+creating build/lib/mcp_monitor/layers
+copying src/mcp_monitor/layers/__init__.py -> build/lib/mcp_monitor/layers
+copying src/mcp_monitor/layers/orchestrator.py -> build/lib/mcp_monitor/layers
+copying src/mcp_monitor/layers/semantic.py -> build/lib/mcp_monitor/layers
+copying src/mcp_monitor/layers/proxy.py -> build/lib/mcp_monitor/layers
+copying src/mcp_monitor/layers/kernel.py -> build/lib/mcp_monitor/layers
+copying src/mcp_monitor/layers/egress.py -> build/lib/mcp_monitor/layers
+running egg_info
+writing src/mcp_security_gateway_monitor.egg-info/PKG-INFO
+writing dependency_links to src/mcp_security_gateway_monitor.egg-info/dependency_links.txt
+writing entry points to src/mcp_security_gateway_monitor.egg-info/entry_points.txt
+writing requirements to src/mcp_security_gateway_monitor.egg-info/requires.txt
+writing top-level names to src/mcp_security_gateway_monitor.egg-info/top_level.txt
+reading manifest file 'src/mcp_security_gateway_monitor.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'src/mcp_security_gateway_monitor.egg-info/SOURCES.txt'
+copying src/mcp_monitor/workbench/app.js -> build/lib/mcp_monitor/workbench
+copying src/mcp_monitor/workbench/index.html -> build/lib/mcp_monitor/workbench
+copying src/mcp_monitor/workbench/style.css -> build/lib/mcp_monitor/workbench
+warning: build_py: byte-compiling is disabled, skipping.
+
+installing to build/bdist.linux-x86_64/wheel
+running install
+running install_lib
+creating build/bdist.linux-x86_64/wheel
+creating build/bdist.linux-x86_64/wheel/mcp_monitor
+copying build/lib/mcp_monitor/monitor.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/proxy
+copying build/lib/mcp_monitor/proxy/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/proxy
+copying build/lib/mcp_monitor/proxy/stdio_proxy.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/proxy
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/audit
+copying build/lib/mcp_monitor/audit/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/audit
+copying build/lib/mcp_monitor/audit/wal.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/audit
+copying build/lib/mcp_monitor/audit/log.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/audit
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/workbench
+copying build/lib/mcp_monitor/workbench/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/workbench
+copying build/lib/mcp_monitor/workbench/index.html -> build/bdist.linux-x86_64/wheel/./mcp_monitor/workbench
+copying build/lib/mcp_monitor/workbench/runtime.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/workbench
+copying build/lib/mcp_monitor/workbench/style.css -> build/bdist.linux-x86_64/wheel/./mcp_monitor/workbench
+copying build/lib/mcp_monitor/workbench/app.js -> build/bdist.linux-x86_64/wheel/./mcp_monitor/workbench
+copying build/lib/mcp_monitor/workbench/__main__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/workbench
+copying build/lib/mcp_monitor/workbench/tool_server.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/workbench
+copying build/lib/mcp_monitor/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/detectors
+copying build/lib/mcp_monitor/detectors/shadow_server.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/detectors
+copying build/lib/mcp_monitor/detectors/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/detectors
+copying build/lib/mcp_monitor/detectors/prompt_injection.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/detectors
+copying build/lib/mcp_monitor/detectors/pii_detector.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/detectors
+copying build/lib/mcp_monitor/detectors/exfiltration.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/detectors
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/redteam
+copying build/lib/mcp_monitor/redteam/payloads.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/redteam
+copying build/lib/mcp_monitor/redteam/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/redteam
+copying build/lib/mcp_monitor/redteam/simulator.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/redteam
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/policy
+copying build/lib/mcp_monitor/policy/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/policy
+copying build/lib/mcp_monitor/policy/policy_engine.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/policy
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/protocol
+copying build/lib/mcp_monitor/protocol/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/protocol
+copying build/lib/mcp_monitor/protocol/jsonrpc.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/protocol
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/server
+copying build/lib/mcp_monitor/server/realtime.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/server
+copying build/lib/mcp_monitor/server/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/server
+copying build/lib/mcp_monitor/server/workload.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/server
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/production
+copying build/lib/mcp_monitor/production/identity_shipper.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+copying build/lib/mcp_monitor/production/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+copying build/lib/mcp_monitor/production/config.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+copying build/lib/mcp_monitor/production/circuit_breaker.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+copying build/lib/mcp_monitor/production/metrics.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+copying build/lib/mcp_monitor/production/identity_transport.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+copying build/lib/mcp_monitor/production/identity_telemetry.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+copying build/lib/mcp_monitor/production/tracing.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+copying build/lib/mcp_monitor/production/alerting.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+copying build/lib/mcp_monitor/production/identity_smoke.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+copying build/lib/mcp_monitor/production/shutdown.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+copying build/lib/mcp_monitor/production/logging.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+copying build/lib/mcp_monitor/production/server.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+copying build/lib/mcp_monitor/production/rate_limiter.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/production
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/defense10
+copying build/lib/mcp_monitor/defense10/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/defense10
+copying build/lib/mcp_monitor/defense10/dataset.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/defense10
+copying build/lib/mcp_monitor/defense10/sandbox.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/defense10
+copying build/lib/mcp_monitor/defense10/honeypot.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/defense10
+copying build/lib/mcp_monitor/defense10/features.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/defense10
+copying build/lib/mcp_monitor/defense10/corpus.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/defense10
+copying build/lib/mcp_monitor/defense10/orchestrator10.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/defense10
+copying build/lib/mcp_monitor/defense10/network_monitor.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/defense10
+copying build/lib/mcp_monitor/defense10/rate_limiter.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/defense10
+copying build/lib/mcp_monitor/defense10/egress_proxy.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/defense10
+copying build/lib/mcp_monitor/defense10/ml_classifier.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/defense10
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/siem
+copying build/lib/mcp_monitor/siem/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/siem
+copying build/lib/mcp_monitor/siem/shipper.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/siem
+copying build/lib/mcp_monitor/siem/lifecycle.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/siem
+copying build/lib/mcp_monitor/siem/correlation.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/siem
+copying build/lib/mcp_monitor/siem/ecs_formatter.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/siem
+copying build/lib/mcp_monitor/siem/attack_simulations.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/siem
+copying build/lib/mcp_monitor/client.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/dashboard
+copying build/lib/mcp_monitor/dashboard/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/dashboard
+copying build/lib/mcp_monitor/dashboard/report.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/dashboard
+copying build/lib/mcp_monitor/dashboard/terminal.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/dashboard
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/advanced
+copying build/lib/mcp_monitor/advanced/canary.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/advanced
+copying build/lib/mcp_monitor/advanced/invariants.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/advanced
+copying build/lib/mcp_monitor/advanced/drift.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/advanced
+copying build/lib/mcp_monitor/advanced/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/advanced
+copying build/lib/mcp_monitor/advanced/correlation.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/advanced
+copying build/lib/mcp_monitor/advanced/manifest.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/advanced
+creating build/bdist.linux-x86_64/wheel/mcp_monitor/layers
+copying build/lib/mcp_monitor/layers/__init__.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/layers
+copying build/lib/mcp_monitor/layers/orchestrator.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/layers
+copying build/lib/mcp_monitor/layers/semantic.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/layers
+copying build/lib/mcp_monitor/layers/proxy.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/layers
+copying build/lib/mcp_monitor/layers/kernel.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/layers
+copying build/lib/mcp_monitor/layers/egress.py -> build/bdist.linux-x86_64/wheel/./mcp_monitor/layers
+warning: install_lib: byte-compiling is disabled, skipping.
+
+running install_egg_info
+Copying src/mcp_security_gateway_monitor.egg-info to build/bdist.linux-x86_64/wheel/./mcp_security_gateway_monitor-0.1.0-py3.12.egg-info
+running install_scripts
+creating build/bdist.linux-x86_64/wheel/mcp_security_gateway_monitor-0.1.0.dist-info/WHEEL
+creating '/workspace/work/evidence/mcp-agent-security-gateway/selected-branches/artifacts/.tmp-q7m6em5a/mcp_security_gateway_monitor-0.1.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+adding 'mcp_monitor/__init__.py'
+adding 'mcp_monitor/client.py'
+adding 'mcp_monitor/monitor.py'
+adding 'mcp_monitor/advanced/__init__.py'
+adding 'mcp_monitor/advanced/canary.py'
+adding 'mcp_monitor/advanced/correlation.py'
+adding 'mcp_monitor/advanced/drift.py'
+adding 'mcp_monitor/advanced/invariants.py'
+adding 'mcp_monitor/advanced/manifest.py'
+adding 'mcp_monitor/audit/__init__.py'
+adding 'mcp_monitor/audit/log.py'
+adding 'mcp_monitor/audit/wal.py'
+adding 'mcp_monitor/dashboard/__init__.py'
+adding 'mcp_monitor/dashboard/report.py'
+adding 'mcp_monitor/dashboard/terminal.py'
+adding 'mcp_monitor/defense10/__init__.py'
+adding 'mcp_monitor/defense10/corpus.py'
+adding 'mcp_monitor/defense10/dataset.py'
+adding 'mcp_monitor/defense10/egress_proxy.py'
+adding 'mcp_monitor/defense10/features.py'
+adding 'mcp_monitor/defense10/honeypot.py'
+adding 'mcp_monitor/defense10/ml_classifier.py'
+adding 'mcp_monitor/defense10/network_monitor.py'
+adding 'mcp_monitor/defense10/orchestrator10.py'
+adding 'mcp_monitor/defense10/rate_limiter.py'
+adding 'mcp_monitor/defense10/sandbox.py'
+adding 'mcp_monitor/detectors/__init__.py'
+adding 'mcp_monitor/detectors/exfiltration.py'
+adding 'mcp_monitor/detectors/pii_detector.py'
+adding 'mcp_monitor/detectors/prompt_injection.py'
+adding 'mcp_monitor/detectors/shadow_server.py'
+adding 'mcp_monitor/layers/__init__.py'
+adding 'mcp_monitor/layers/egress.py'
+adding 'mcp_monitor/layers/kernel.py'
+adding 'mcp_monitor/layers/orchestrator.py'
+adding 'mcp_monitor/layers/proxy.py'
+adding 'mcp_monitor/layers/semantic.py'
+adding 'mcp_monitor/policy/__init__.py'
+adding 'mcp_monitor/policy/policy_engine.py'
+adding 'mcp_monitor/production/__init__.py'
+adding 'mcp_monitor/production/alerting.py'
+adding 'mcp_monitor/production/circuit_breaker.py'
+adding 'mcp_monitor/production/config.py'
+adding 'mcp_monitor/production/identity_shipper.py'
+adding 'mcp_monitor/production/identity_smoke.py'
+adding 'mcp_monitor/production/identity_telemetry.py'
+adding 'mcp_monitor/production/identity_transport.py'
+adding 'mcp_monitor/production/logging.py'
+adding 'mcp_monitor/production/metrics.py'
+adding 'mcp_monitor/production/rate_limiter.py'
+adding 'mcp_monitor/production/server.py'
+adding 'mcp_monitor/production/shutdown.py'
+adding 'mcp_monitor/production/tracing.py'
+adding 'mcp_monitor/protocol/__init__.py'
+adding 'mcp_monitor/protocol/jsonrpc.py'
+adding 'mcp_monitor/proxy/__init__.py'
+adding 'mcp_monitor/proxy/stdio_proxy.py'
+adding 'mcp_monitor/redteam/__init__.py'
+adding 'mcp_monitor/redteam/payloads.py'
+adding 'mcp_monitor/redteam/simulator.py'
+adding 'mcp_monitor/server/__init__.py'
+adding 'mcp_monitor/server/realtime.py'
+adding 'mcp_monitor/server/workload.py'
+adding 'mcp_monitor/siem/__init__.py'
+adding 'mcp_monitor/siem/attack_simulations.py'
+adding 'mcp_monitor/siem/correlation.py'
+adding 'mcp_monitor/siem/ecs_formatter.py'
+adding 'mcp_monitor/siem/lifecycle.py'
+adding 'mcp_monitor/siem/shipper.py'
+adding 'mcp_monitor/workbench/__init__.py'
+adding 'mcp_monitor/workbench/__main__.py'
+adding 'mcp_monitor/workbench/app.js'
+adding 'mcp_monitor/workbench/index.html'
+adding 'mcp_monitor/workbench/runtime.py'
+adding 'mcp_monitor/workbench/style.css'
+adding 'mcp_monitor/workbench/tool_server.py'
+adding 'mcp_security_gateway_monitor-0.1.0.dist-info/licenses/LICENSE'
+adding 'mcp_security_gateway_monitor-0.1.0.dist-info/METADATA'
+adding 'mcp_security_gateway_monitor-0.1.0.dist-info/WHEEL'
+adding 'mcp_security_gateway_monitor-0.1.0.dist-info/entry_points.txt'
+adding 'mcp_security_gateway_monitor-0.1.0.dist-info/top_level.txt'
+adding 'mcp_security_gateway_monitor-0.1.0.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+WARNING `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2027-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+Successfully built mcp_security_gateway_monitor-0.1.0.tar.gz and mcp_security_gateway_monitor-0.1.0-py3-none-any.whl

@@ -1,0 +1,122 @@
+{
+  "repository": "mcp-agent-security-gateway",
+  "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+  "checked_utc": "2026-11-19T00:47:14.768030+00:00",
+  "source_clean": true,
+  "remote_heads": {
+    "codex/local-workbench-20261116": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+    "main": "6ff6a5abd40d59bd263548b6ec42581a2ee05fbd"
+  },
+  "remote_branch_count": 2,
+  "main_unchanged": true,
+  "retired_branch_count": 6,
+  "recovery_tags_reverified": [
+    {
+      "branch": "dependabot/github_actions/docker/login-action-4.8.0",
+      "sha": "c996af5b3eaa1203bca805f008a45a5efb258cb0",
+      "archive_tag": "archive/selected-20261118/dependabot/github_actions/docker/login-action-4.8.0",
+      "unique_commits_against_retained_heads": 1,
+      "disposition": "Preserve tag and verified private bundle; retire branch without merging its unreviewed changes",
+      "restore_command": "git push origin c996af5b3eaa1203bca805f008a45a5efb258cb0:refs/heads/dependabot/github_actions/docker/login-action-4.8.0",
+      "remote_tag_verified": true
+    },
+    {
+      "branch": "dependabot/github_actions/github/codeql-action/analyze-4.39.3",
+      "sha": "15d84bfcda15bb8df703acc71708d5b1c9f44b34",
+      "archive_tag": "archive/selected-20261118/dependabot/github_actions/github/codeql-action/analyze-4.39.3",
+      "unique_commits_against_retained_heads": 1,
+      "disposition": "Preserve tag and verified private bundle; retire branch without merging its unreviewed changes",
+      "restore_command": "git push origin 15d84bfcda15bb8df703acc71708d5b1c9f44b34:refs/heads/dependabot/github_actions/github/codeql-action/analyze-4.39.3",
+      "remote_tag_verified": true
+    },
+    {
+      "branch": "dependabot/github_actions/softprops/action-gh-release-3.0.4",
+      "sha": "5f650f6c58ec254b2a696564dfd67ecd75fcd08e",
+      "archive_tag": "archive/selected-20261118/dependabot/github_actions/softprops/action-gh-release-3.0.4",
+      "unique_commits_against_retained_heads": 1,
+      "disposition": "Preserve tag and verified private bundle; retire branch without merging its unreviewed changes",
+      "restore_command": "git push origin 5f650f6c58ec254b2a696564dfd67ecd75fcd08e:refs/heads/dependabot/github_actions/softprops/action-gh-release-3.0.4",
+      "remote_tag_verified": true
+    },
+    {
+      "branch": "dependabot/pip/ruff-0.17.5",
+      "sha": "32db44597b86a48d12b6a53f962e6cfcf5ec0b91",
+      "archive_tag": "archive/selected-20261118/dependabot/pip/ruff-0.17.5",
+      "unique_commits_against_retained_heads": 1,
+      "disposition": "Preserve tag and verified private bundle; retire branch without merging its unreviewed changes",
+      "restore_command": "git push origin 32db44597b86a48d12b6a53f962e6cfcf5ec0b91:refs/heads/dependabot/pip/ruff-0.17.5",
+      "remote_tag_verified": true
+    },
+    {
+      "branch": "docs/cerberus-integration-closure-2026-10-09",
+      "sha": "f34e392fa5029ba32c2ef900877273276c81e7ea",
+      "archive_tag": "archive/selected-20261118/docs/cerberus-integration-closure-2026-10-09",
+      "unique_commits_against_retained_heads": 2,
+      "disposition": "Preserve tag and verified private bundle; retire branch without merging its unreviewed changes",
+      "restore_command": "git push origin f34e392fa5029ba32c2ef900877273276c81e7ea:refs/heads/docs/cerberus-integration-closure-2026-10-09",
+      "remote_tag_verified": true
+    },
+    {
+      "branch": "fix/evidence-provenance-20261114",
+      "sha": "40c5f2b5b887d1c7f02d7054b0af3a95a10d0323",
+      "archive_tag": "archive/selected-20261118/fix/evidence-provenance-20261114",
+      "unique_commits_against_retained_heads": 528,
+      "disposition": "Preserve tag and verified private bundle; retire branch without merging its unreviewed changes",
+      "restore_command": "git push origin 40c5f2b5b887d1c7f02d7054b0af3a95a10d0323:refs/heads/fix/evidence-provenance-20261114",
+      "remote_tag_verified": true
+    }
+  ],
+  "retired_prs_final": [
+    {
+      "number": 193,
+      "state": "closed",
+      "merged_at": null,
+      "head": "dependabot/github_actions/github/codeql-action/analyze-4.39.3",
+      "head_sha": "15d84bfcda15bb8df703acc71708d5b1c9f44b34",
+      "draft": false,
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/pull/193"
+    },
+    {
+      "number": 192,
+      "state": "closed",
+      "merged_at": null,
+      "head": "dependabot/github_actions/docker/login-action-4.8.0",
+      "head_sha": "c996af5b3eaa1203bca805f008a45a5efb258cb0",
+      "draft": false,
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/pull/192"
+    },
+    {
+      "number": 191,
+      "state": "closed",
+      "merged_at": null,
+      "head": "dependabot/github_actions/softprops/action-gh-release-3.0.4",
+      "head_sha": "5f650f6c58ec254b2a696564dfd67ecd75fcd08e",
+      "draft": false,
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/pull/191"
+    },
+    {
+      "number": 190,
+      "state": "closed",
+      "merged_at": null,
+      "head": "dependabot/pip/ruff-0.17.5",
+      "head_sha": "32db44597b86a48d12b6a53f962e6cfcf5ec0b91",
+      "draft": false,
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/pull/190"
+    }
+  ],
+  "open_prs": [
+    {
+      "number": 194,
+      "state": "open",
+      "merged_at": null,
+      "head": "codex/local-workbench-20261116",
+      "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+      "draft": true,
+      "html_url": "https://github.com/poojakira/mcp-agent-security-gateway/pull/194"
+    }
+  ],
+  "private_bundle_verified_before_deletion": true,
+  "private_bundle_publication": "EXCLUDED; private recovery bytes retained",
+  "historical_deployment_refs": [],
+  "policy": "Exactly two branches at recorded time; automation can create future branches. Unique work preserved by tags, not silently merged."
+}

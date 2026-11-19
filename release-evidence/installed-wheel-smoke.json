@@ -1,0 +1,28 @@
+{
+  "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+  "utc_start": "2026-11-19T00:45:27.350598+00:00",
+  "utc_end": "2026-11-19T00:45:30.645536+00:00",
+  "wheel_sha256": "f4a580599e4f285c0b3f2ec5c1a2d36ee8b10b837ab8396064f4e0182373e0e8",
+  "command": [
+    "/workspace/work/verification/mcp-unrelated/.venv/bin/python",
+    "-I",
+    "-m",
+    "mcp_monitor.workbench",
+    "--port",
+    "0"
+  ],
+  "health": {
+    "status": "ok",
+    "app_version": "0.1.0",
+    "source_commit": "UNKNOWN",
+    "source_status": "UNKNOWN",
+    "protocol_version": "2025-03-26"
+  },
+  "checks": [
+    "isolated installed HTTP startup outside checkout",
+    "packaged HTML and JS served",
+    "actual canonical proxy and disposable child read",
+    "unrelated Git does not supply provenance"
+  ],
+  "result": "PASS"
+}

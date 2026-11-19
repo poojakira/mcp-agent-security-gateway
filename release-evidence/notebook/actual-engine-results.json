@@ -1,0 +1,905 @@
+[
+  {
+    "report": {
+      "product": "MCP Agent Security Gateway",
+      "software_version": "0.1.0",
+      "mode": "GUIDED_SYNTHETIC_ONLY",
+      "scenario": "read",
+      "source": {
+        "commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+        "state": "CLEAN"
+      },
+      "started_utc": "2026-11-19T00:42:24.794698+00:00",
+      "evidence": {
+        "summary": "CONFIRMED_SUCCEEDED; tool receipts=1",
+        "engine_report": {
+          "app_version": "0.1.0",
+          "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+          "source_status": "CLEAN",
+          "protocol_version": "2025-03-26",
+          "trace_id": "72ed1a83-13a5-4011-996f-f309387e2b81",
+          "timestamp_utc": "2026-11-19T00:42:24.859744+00:00",
+          "input_sha256": "d2d07da192d7809d9316c67fafe0521d84bca15ef2a441501471fdcc56641d5a",
+          "configuration_sha256": "5a10a00d2e8de41da5c0e022575ae15ad682a9c329e2b19c80453fedabaabf42",
+          "configuration": {
+            "preset": "read-only",
+            "guarded": true,
+            "repeats": 1,
+            "effective_tool_allowlist": [
+              "crash",
+              "http_get",
+              "read_note",
+              "timeout"
+            ],
+            "protocol_version": "2025-03-26"
+          },
+          "policy": "read-only",
+          "guarded": true,
+          "repeats": 1,
+          "authorization_decision": {
+            "allowed": true,
+            "reason_code": "ALLOWED",
+            "message": "Allowed: tool authorized, server on allowlist, egress permitted",
+            "matched_rule": "allow"
+          },
+          "effective_identity": "single local operator; no verified credential identity",
+          "authority": "fixed first-party fixture only; no user-selected server",
+          "request": "{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"tools/call\", \"params\": {\"name\": \"read_note\", \"arguments\": {}}}",
+          "handshake": [
+            {
+              "jsonrpc": "2.0",
+              "id": "init",
+              "result": {
+                "protocolVersion": "2025-03-26",
+                "capabilities": {
+                  "tools": {}
+                },
+                "serverInfo": {
+                  "name": "first-party-offline-fixture",
+                  "version": "0.1.0"
+                }
+              }
+            },
+            {
+              "jsonrpc": "2.0",
+              "id": "list",
+              "result": {
+                "tools": [
+                  {
+                    "name": "read_note",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "update_note",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "append_note",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "http_get",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "crash",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "timeout",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "responses": [
+            {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Synthetic disposable sample. No customer data.\n"
+                  }
+                ],
+                "isError": false
+              }
+            }
+          ],
+          "outcome": "CONFIRMED_SUCCEEDED",
+          "error": null,
+          "tool_state": {
+            "note": "Synthetic disposable sample. No customer data.\n",
+            "note_sha256": "1712605b35aa3a1e5a51f75c52bef2e6813e2c79226d3d1f3d35aa55d64b929d",
+            "receipts": [
+              {
+                "id": 1,
+                "tool": "read_note"
+              }
+            ]
+          },
+          "limitations": [
+            "Permission OFF changes the tool allowlist only; other security checks remain ON.",
+            "First-party constrained fixture, not OS containment of arbitrary servers.",
+            "No exactly-once guarantee; repeating append_note has duplicate effects.",
+            "No credential lifecycle, response PII filtering or latest MCP interoperability claim."
+          ],
+          "audit": {
+            "entries": [
+              {
+                "entry_id": "8ecd55e6-b46c-4dea-9913-83ebe2dcbf68",
+                "timestamp": 1795048944.8599012,
+                "event_type": "execution",
+                "data": {
+                  "trace_id": "72ed1a83-13a5-4011-996f-f309387e2b81",
+                  "input_sha256": "d2d07da192d7809d9316c67fafe0521d84bca15ef2a441501471fdcc56641d5a",
+                  "outcome": "CONFIRMED_SUCCEEDED"
+                },
+                "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                "entry_hash": "fde9532eaa56afef004cee5d0fe49cac3dd8d634a70469c3b2d14e3bb70cf43b"
+              }
+            ],
+            "chain_verified": true,
+            "integrity": "Unkeyed hash chain; no protection against full rewrite"
+          }
+        }
+      },
+      "finished_utc": "2026-11-19T00:42:24.860430+00:00",
+      "limitations": [
+        "Notebook mode uses only these fixed synthetic requests; no user-selected server, path or arbitrary JSON input.",
+        "Tool permission OFF changes only the allowlist; other gateway checks remain enabled.",
+        "A real child runs in a disposable workspace; this is not arbitrary-server OS containment.",
+        "No credential lifecycle, latest MCP conformance, output PII filter or durable external-action reconciliation."
+      ]
+    },
+    "report_sha256": "2dfcb29a6122767d33f48180174bee6acd554b825378b369c107cd692bea386d",
+    "checksum_encoding": "UTF-8 JSON; sorted keys; compact separators; ensure_ascii=true; no NaN"
+  },
+  {
+    "report": {
+      "product": "MCP Agent Security Gateway",
+      "software_version": "0.1.0",
+      "mode": "GUIDED_SYNTHETIC_ONLY",
+      "scenario": "deny",
+      "source": {
+        "commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+        "state": "CLEAN"
+      },
+      "started_utc": "2026-11-19T00:42:24.972573+00:00",
+      "evidence": {
+        "summary": "NOT_INVOKED; tool receipts=0",
+        "engine_report": {
+          "app_version": "0.1.0",
+          "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+          "source_status": "CLEAN",
+          "protocol_version": "2025-03-26",
+          "trace_id": "f4cf87ab-2d5f-49ce-b214-6ab80a48db43",
+          "timestamp_utc": "2026-11-19T00:42:25.007258+00:00",
+          "input_sha256": "f3b0e6215d2e18662ddfd129b4cdcf3db39c5338f3ed28eb985081455fde6372",
+          "configuration_sha256": "5a10a00d2e8de41da5c0e022575ae15ad682a9c329e2b19c80453fedabaabf42",
+          "configuration": {
+            "preset": "read-only",
+            "guarded": true,
+            "repeats": 1,
+            "effective_tool_allowlist": [
+              "crash",
+              "http_get",
+              "read_note",
+              "timeout"
+            ],
+            "protocol_version": "2025-03-26"
+          },
+          "policy": "read-only",
+          "guarded": true,
+          "repeats": 1,
+          "authorization_decision": {
+            "allowed": false,
+            "reason_code": "DENY_TOOL_NOT_ALLOWED",
+            "message": "Tool is not on the trusted allowlist",
+            "matched_rule": "tool_authorization.tool_allowlist"
+          },
+          "effective_identity": "single local operator; no verified credential identity",
+          "authority": "fixed first-party fixture only; no user-selected server",
+          "request": "{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"tools/call\", \"params\": {\"name\": \"update_note\", \"arguments\": {\"text\": \"Synthetic notebook demo note\"}}}",
+          "handshake": [
+            {
+              "jsonrpc": "2.0",
+              "id": "init",
+              "result": {
+                "protocolVersion": "2025-03-26",
+                "capabilities": {
+                  "tools": {}
+                },
+                "serverInfo": {
+                  "name": "first-party-offline-fixture",
+                  "version": "0.1.0"
+                }
+              }
+            },
+            {
+              "jsonrpc": "2.0",
+              "id": "list",
+              "result": {
+                "tools": [
+                  {
+                    "name": "read_note",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "update_note",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "append_note",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "http_get",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "crash",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "timeout",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "responses": [
+            {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "error": {
+                "code": -32001,
+                "message": "Security: Policy denied: DENY_TOOL_NOT_ALLOWED",
+                "data": {
+                  "patterns": [
+                    "DENY_TOOL_NOT_ALLOWED"
+                  ]
+                }
+              }
+            }
+          ],
+          "outcome": "NOT_INVOKED",
+          "error": null,
+          "tool_state": {
+            "note": "Synthetic disposable sample. No customer data.\n",
+            "note_sha256": "1712605b35aa3a1e5a51f75c52bef2e6813e2c79226d3d1f3d35aa55d64b929d",
+            "receipts": []
+          },
+          "limitations": [
+            "Permission OFF changes the tool allowlist only; other security checks remain ON.",
+            "First-party constrained fixture, not OS containment of arbitrary servers.",
+            "No exactly-once guarantee; repeating append_note has duplicate effects.",
+            "No credential lifecycle, response PII filtering or latest MCP interoperability claim."
+          ],
+          "audit": {
+            "entries": [
+              {
+                "entry_id": "63ae3649-9f5c-465a-8261-b886c259502e",
+                "timestamp": 1795048945.0073802,
+                "event_type": "execution",
+                "data": {
+                  "trace_id": "f4cf87ab-2d5f-49ce-b214-6ab80a48db43",
+                  "input_sha256": "f3b0e6215d2e18662ddfd129b4cdcf3db39c5338f3ed28eb985081455fde6372",
+                  "outcome": "NOT_INVOKED"
+                },
+                "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                "entry_hash": "b556c1f9f43707bf6b950d8ecd8af496d2cb3dc4b5bac9963ce3e9424b440364"
+              }
+            ],
+            "chain_verified": true,
+            "integrity": "Unkeyed hash chain; no protection against full rewrite"
+          }
+        }
+      },
+      "finished_utc": "2026-11-19T00:42:25.007892+00:00",
+      "limitations": [
+        "Notebook mode uses only these fixed synthetic requests; no user-selected server, path or arbitrary JSON input.",
+        "Tool permission OFF changes only the allowlist; other gateway checks remain enabled.",
+        "A real child runs in a disposable workspace; this is not arbitrary-server OS containment.",
+        "No credential lifecycle, latest MCP conformance, output PII filter or durable external-action reconciliation."
+      ]
+    },
+    "report_sha256": "fd9c96c7d1371b14466a85ec338198f1f38808cd5abe5dddb267322d87c70f73",
+    "checksum_encoding": "UTF-8 JSON; sorted keys; compact separators; ensure_ascii=true; no NaN"
+  },
+  {
+    "report": {
+      "product": "MCP Agent Security Gateway",
+      "software_version": "0.1.0",
+      "mode": "GUIDED_SYNTHETIC_ONLY",
+      "scenario": "allow",
+      "source": {
+        "commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+        "state": "CLEAN"
+      },
+      "started_utc": "2026-11-19T00:42:25.088673+00:00",
+      "evidence": {
+        "summary": "CONFIRMED_SUCCEEDED; tool receipts=1",
+        "engine_report": {
+          "app_version": "0.1.0",
+          "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+          "source_status": "CLEAN",
+          "protocol_version": "2025-03-26",
+          "trace_id": "1d959eac-96ed-4d34-a893-647476cdcaab",
+          "timestamp_utc": "2026-11-19T00:42:25.120753+00:00",
+          "input_sha256": "f3b0e6215d2e18662ddfd129b4cdcf3db39c5338f3ed28eb985081455fde6372",
+          "configuration_sha256": "fc1f12e5d9aa6069cc6da9843bb316ce338a34832b000fb63b421cb7dadec71a",
+          "configuration": {
+            "preset": "read-only",
+            "guarded": false,
+            "repeats": 1,
+            "effective_tool_allowlist": [
+              "append_note",
+              "crash",
+              "http_get",
+              "read_note",
+              "timeout",
+              "update_note"
+            ],
+            "protocol_version": "2025-03-26"
+          },
+          "policy": "read-only",
+          "guarded": false,
+          "repeats": 1,
+          "authorization_decision": {
+            "allowed": true,
+            "reason_code": "ALLOWED",
+            "message": "Allowed: tool authorized, server on allowlist, egress permitted",
+            "matched_rule": "allow"
+          },
+          "effective_identity": "single local operator; no verified credential identity",
+          "authority": "fixed first-party fixture only; no user-selected server",
+          "request": "{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"tools/call\", \"params\": {\"name\": \"update_note\", \"arguments\": {\"text\": \"Synthetic notebook demo note\"}}}",
+          "handshake": [
+            {
+              "jsonrpc": "2.0",
+              "id": "init",
+              "result": {
+                "protocolVersion": "2025-03-26",
+                "capabilities": {
+                  "tools": {}
+                },
+                "serverInfo": {
+                  "name": "first-party-offline-fixture",
+                  "version": "0.1.0"
+                }
+              }
+            },
+            {
+              "jsonrpc": "2.0",
+              "id": "list",
+              "result": {
+                "tools": [
+                  {
+                    "name": "read_note",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "update_note",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "append_note",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "http_get",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "crash",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "name": "timeout",
+                    "description": "Constrained disposable fixture operation",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "note.txt"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 8192
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "responses": [
+            {
+              "jsonrpc": "2.0",
+              "id": 1,
+              "result": {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Synthetic notebook demo note"
+                  }
+                ],
+                "isError": false
+              }
+            }
+          ],
+          "outcome": "CONFIRMED_SUCCEEDED",
+          "error": null,
+          "tool_state": {
+            "note": "Synthetic notebook demo note",
+            "note_sha256": "ad94249e8d6d47c83114eb33d0957b311bb387eb03d58ac15254ad360a619b02",
+            "receipts": [
+              {
+                "id": 1,
+                "tool": "update_note"
+              }
+            ]
+          },
+          "limitations": [
+            "Permission OFF changes the tool allowlist only; other security checks remain ON.",
+            "First-party constrained fixture, not OS containment of arbitrary servers.",
+            "No exactly-once guarantee; repeating append_note has duplicate effects.",
+            "No credential lifecycle, response PII filtering or latest MCP interoperability claim."
+          ],
+          "audit": {
+            "entries": [
+              {
+                "entry_id": "373028e6-e12d-4d30-b1db-b3483dadc400",
+                "timestamp": 1795048945.1208687,
+                "event_type": "execution",
+                "data": {
+                  "trace_id": "1d959eac-96ed-4d34-a893-647476cdcaab",
+                  "input_sha256": "f3b0e6215d2e18662ddfd129b4cdcf3db39c5338f3ed28eb985081455fde6372",
+                  "outcome": "CONFIRMED_SUCCEEDED"
+                },
+                "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                "entry_hash": "d8507fecc4a7031e823eb10280d4e3eca8666333542c649061ff4ede7f2f314f"
+              }
+            ],
+            "chain_verified": true,
+            "integrity": "Unkeyed hash chain; no protection against full rewrite"
+          }
+        }
+      },
+      "finished_utc": "2026-11-19T00:42:25.121295+00:00",
+      "limitations": [
+        "Notebook mode uses only these fixed synthetic requests; no user-selected server, path or arbitrary JSON input.",
+        "Tool permission OFF changes only the allowlist; other gateway checks remain enabled.",
+        "A real child runs in a disposable workspace; this is not arbitrary-server OS containment.",
+        "No credential lifecycle, latest MCP conformance, output PII filter or durable external-action reconciliation."
+      ]
+    },
+    "report_sha256": "81c883ba287ca9e6c674c00de067e6bc485cccfa42eca9df6b7e719f52104ce1",
+    "checksum_encoding": "UTF-8 JSON; sorted keys; compact separators; ensure_ascii=true; no NaN"
+  }
+]

@@ -1,0 +1,611 @@
+{
+  "repository": "poojakira/mcp-agent-security-gateway",
+  "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+  "branch": "codex/local-workbench-20261116",
+  "clean_before": true,
+  "clean_after": true,
+  "version": "0.1.0",
+  "generated_utc": "2026-11-19T00:50:24.950957+00:00",
+  "decision": "PARTIAL",
+  "run_id": "selected-branches-d2e7b6ea7c1a",
+  "tests": {
+    "tests": 834,
+    "passed": 834,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "native_subtests": {
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0
+  },
+  "separate_python310": null,
+  "coverage": {
+    "covered_lines": 4878,
+    "num_statements": 5963,
+    "percent_covered": 81.80446084185813,
+    "percent_covered_display": "82",
+    "missing_lines": 1085,
+    "excluded_lines": 44,
+    "percent_statements_covered": 81.80446084185813,
+    "percent_statements_covered_display": "82"
+  },
+  "unchanged_coverage_gate": 77,
+  "runs": [
+    {
+      "name": "dependencies",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "-m",
+        "pip",
+        "freeze"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-19T00:33:19.225551+00:00",
+      "utc_end": "2026-11-19T00:33:20.040315+00:00",
+      "exit_code": 0,
+      "log": "dependencies.log"
+    },
+    {
+      "name": "workflow_lint",
+      "command": [
+        "/workspace/work/tooling/actionlint/actionlint",
+        ".github/workflows/local-workbench.yml",
+        ".github/workflows/ci.yml"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-19T00:33:20.040450+00:00",
+      "utc_end": "2026-11-19T00:33:20.072549+00:00",
+      "exit_code": 0,
+      "log": "workflow_lint.log"
+    },
+    {
+      "name": "pyright",
+      "command": [
+        "/workspace/work/security-tools/bin/pyright",
+        "--pythonpath",
+        "/workspace/work/tooling/venv/bin/python",
+        "src/mcp_monitor/detectors",
+        "src/mcp_monitor/audit",
+        "tests/test_prompt_injection.py",
+        "tests/test_pii_detector.py",
+        "tests/test_audit_log.py"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-19T00:33:20.072702+00:00",
+      "utc_end": "2026-11-19T00:33:28.103586+00:00",
+      "exit_code": 0,
+      "log": "pyright.log"
+    },
+    {
+      "name": "regression",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "tests/",
+        "-q",
+        "--cov=mcp_monitor",
+        "--cov-fail-under=77",
+        "-W",
+        "error::DeprecationWarning",
+        "-W",
+        "error::PendingDeprecationWarning",
+        "--cov-report=term-missing",
+        "--cov-report=json:/workspace/work/evidence/mcp-agent-security-gateway/selected-branches/coverage.json",
+        "--junitxml=/workspace/work/evidence/mcp-agent-security-gateway/selected-branches/junit.xml"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-19T00:33:28.104068+00:00",
+      "utc_end": "2026-11-19T00:34:48.859905+00:00",
+      "exit_code": 0,
+      "log": "regression.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "/workspace/work/tooling/venv/bin/ruff",
+        "check",
+        "src/",
+        "tests/",
+        "poster/render_poster.py",
+        "scripts/recruiter_demo.py",
+        "scripts/workbench_e2e.py",
+        "scripts/workbench_manifest.py"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-19T00:34:48.860047+00:00",
+      "utc_end": "2026-11-19T00:34:48.876201+00:00",
+      "exit_code": 0,
+      "log": "lint.log"
+    },
+    {
+      "name": "format",
+      "command": [
+        "/workspace/work/tooling/venv/bin/ruff",
+        "format",
+        "--check",
+        "src/",
+        "tests/",
+        "poster/render_poster.py",
+        "scripts/recruiter_demo.py",
+        "scripts/workbench_e2e.py",
+        "scripts/workbench_manifest.py"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-19T00:34:48.876585+00:00",
+      "utc_end": "2026-11-19T00:34:48.892531+00:00",
+      "exit_code": 0,
+      "log": "format.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "scripts/workbench_e2e.py",
+        "--output",
+        "/workspace/work/evidence/mcp-agent-security-gateway/selected-branches/browser"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-19T00:34:48.892798+00:00",
+      "utc_end": "2026-11-19T00:34:51.914195+00:00",
+      "exit_code": 0,
+      "log": "browser.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "-m",
+        "build",
+        "--outdir",
+        "/workspace/work/evidence/mcp-agent-security-gateway/selected-branches/artifacts"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-19T00:34:51.914773+00:00",
+      "utc_end": "2026-11-19T00:34:56.311897+00:00",
+      "exit_code": 0,
+      "log": "build.log"
+    },
+    {
+      "name": "dependency_audit",
+      "command": [
+        "/workspace/work/tooling/venv/bin/python",
+        "-m",
+        "pip_audit",
+        "--cache-dir",
+        "/workspace/work/tooling/pip-audit-cache",
+        "--format",
+        "json",
+        "--output",
+        "/workspace/work/evidence/mcp-agent-security-gateway/selected-branches/pip-audit.json"
+      ],
+      "cwd": "/workspace/work/candidates/mcp-agent-security-gateway",
+      "utc_start": "2026-11-19T00:34:56.312041+00:00",
+      "utc_end": "2026-11-19T00:34:57.936385+00:00",
+      "exit_code": 0,
+      "log": "dependency_audit.log"
+    }
+  ],
+  "host_environment": {
+    "os": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "python": "3.12.14",
+    "node": "v24.22.1",
+    "chromium": "Chromium 156.0.8078.79 built on Debian GNU/Linux 13 (trixie)"
+  },
+  "dependency_file_sha256": {
+    "pyproject.toml": "c75f1df323df9253d3c84bd72593c19f6ac543057598d6a29a27d067ba8c55e2",
+    "requirements-workbench-test.txt": "898e09c5be0dd830fe4c299b4569efb20bb7191a9d17e77fbe4147d672d7267f",
+    "demo/requirements-notebook.txt": "b3e4abf3b7f592eb3039c805ecad8b54c0d08c54f5bbcef751a46b3456ba95dc"
+  },
+  "scope": "Actual fresh required local runs plus separately scoped notebook/minimal-venv and hosted acceptance proof. Existing main verification dependency caches reused; not a universal clean-build/release/security certification.",
+  "hosted_runs": {
+    "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+    "checked_utc": "2026-11-19T00:41:58.228Z",
+    "runs": [
+      {
+        "id": 44429942340,
+        "name": "Security Hygiene",
+        "path": ".github/workflows/security-hygiene.yml",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+        "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942340"
+      },
+      {
+        "id": 44429942328,
+        "name": "Poster Artifact Parity",
+        "path": ".github/workflows/poster-artifact-parity.yml",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+        "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942328"
+      },
+      {
+        "id": 44429942287,
+        "name": "Documentation Integrity",
+        "path": ".github/workflows/production-policy.yml",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+        "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942287"
+      },
+      {
+        "id": 44429942310,
+        "name": "Focused AppSec Regression",
+        "path": ".github/workflows/appsec-focused.yml",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+        "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942310"
+      },
+      {
+        "id": 44429942282,
+        "name": "Production Gate",
+        "path": ".github/workflows/production-gate.yml",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+        "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942282"
+      },
+      {
+        "id": 44429942331,
+        "name": "Local MCP workbench acceptance",
+        "path": ".github/workflows/local-workbench.yml",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+        "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942331"
+      },
+      {
+        "id": 44429942445,
+        "name": "CI",
+        "path": ".github/workflows/ci.yml",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+        "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942445"
+      }
+    ]
+  },
+  "notebook": {
+    "repository": "mcp-agent-security-gateway",
+    "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+    "expected_candidate": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+    "utc_start": "2026-11-19T00:42:19.580708+00:00",
+    "utc_end": "2026-11-19T00:42:25.499748+00:00",
+    "result": "PASS",
+    "error": null,
+    "environment": "Actual committed notebook setup/scenario/comparison cells executed on local LinuxCPython3.12, GitHubpubliccheckout and fresh isolated minimalvenv",
+    "colab_hosted_kernel": "NOT VERIFIED; no Google sign-in or remote hosted execution claimed",
+    "source_notebook_sha256": "81b89b0f745bee6435dc8de9b91d09dd79a72dd0bd1df713b773a783715d75ed",
+    "all_result_checksums_verified": true,
+    "no_external_resources": "No server/tunnel/Drive/GPU/paidAPI/cloudresource/APIkey; only publicGitHub/PyPI downloads",
+    "scenario_summaries": [
+      {
+        "scenario": "read",
+        "summary": "CONFIRMED_SUCCEEDED; tool receipts=1"
+      },
+      {
+        "scenario": "deny",
+        "summary": "NOT_INVOKED; tool receipts=0"
+      },
+      {
+        "scenario": "allow",
+        "summary": "CONFIRMED_SUCCEEDED; tool receipts=1"
+      }
+    ]
+  },
+  "branch_summary": {
+    "remote_count": 2,
+    "retired": 6,
+    "main": "6ff6a5abd40d59bd263548b6ec42581a2ee05fbd"
+  },
+  "file_audit": {
+    "tracked": 252,
+    "source": "final-file-audit.json"
+  },
+  "independent_current_source_closure": "NOT VERIFIED",
+  "remaining_gates": [
+    "Current complete MCP conformance, cancellation/concurrency and credential lifecycle are NOT VERIFIED or NOT IMPLEMENTED.",
+    "Arbitrary-server OS containment, external side-effect reconciliation, response PII filtering and externally anchored audit custody are NOT IMPLEMENTED or NOT VERIFIED.",
+    "Native Make checks are separate; CMake and Rust toolchains are absent.",
+    "Deployment-specific privacy, recovery, load and hostile public-hosting approval are NOT VERIFIED."
+  ],
+  "artifacts": {
+    ".coverage": {
+      "bytes": 69632,
+      "sha256": "b3c442d89cf4efdcc9d6f58e0b40cfd638322e2613db3b6b68b99c85f08a3d42"
+    },
+    "RELEASE_ASSESSMENT.md": {
+      "bytes": 7362,
+      "sha256": "bc11cc1aba8cc0203f567c2eccaa28251fdb17a408de732768fcfc0f545cd683"
+    },
+    "architecture/ARCHITECTURE.md": {
+      "bytes": 20850,
+      "sha256": "36c20eb233b679e16b4277eba4d85c3779c910ec9705f1ca33665eca9219fba8"
+    },
+    "architecture/BRANCHES.md": {
+      "bytes": 2244,
+      "sha256": "6d2d45b3196308bad3e2942c306027b1bf6f517973400d8c6426c413b470bc51"
+    },
+    "architecture/TRY_IT.md": {
+      "bytes": 3793,
+      "sha256": "3da1a15c21c1b94af2b1be8a39a54ac94c577f8faf6bcd6ad3bf347c99621977"
+    },
+    "architecture/architecture-handoff.json": {
+      "bytes": 4325,
+      "sha256": "ca128914c6217e7b126f750a9c8dffd0cdee8e208293eb8eab252c3ded2947ce"
+    },
+    "architecture/diagram-render-verification.json": {
+      "bytes": 1041,
+      "sha256": "657c187573a7ae7802448bdc16ccc613d3ef88d018a2cd05ba457277a7917424"
+    },
+    "architecture/source-scope.json": {
+      "bytes": 770,
+      "sha256": "8d9c3376b591738d0b9f415e2d19fe15a9275cfd5292cd25f47a244647746f1b"
+    },
+    "architecture/viewer-checks.json": {
+      "bytes": 461,
+      "sha256": "7e519f9352e43f0424bbaae6292d580f3e3bbf886ac38f1f16a114a9f1ac673a"
+    },
+    "architecture/viewer-desktop.png": {
+      "bytes": 136314,
+      "sha256": "124b06e5ee5a7656bcf59e515041f68c439e0e0d14b7bb78e42b4a1fd74203b0"
+    },
+    "architecture/viewer-mobile.png": {
+      "bytes": 127532,
+      "sha256": "fc4c31950325b3529eb985a788318a63e9357c09e6e12655e56f652fbe009899"
+    },
+    "artifacts/mcp_security_gateway_monitor-0.1.0-py3-none-any.whl": {
+      "bytes": 195936,
+      "sha256": "f4a580599e4f285c0b3f2ec5c1a2d36ee8b10b837ab8396064f4e0182373e0e8"
+    },
+    "artifacts/mcp_security_gateway_monitor-0.1.0.tar.gz": {
+      "bytes": 241267,
+      "sha256": "1f47f001e985a566b68aac64ed43a949c990acd1556651e847cef4444a5ac645"
+    },
+    "branch-disposition.json": {
+      "bytes": 5874,
+      "sha256": "24cacdc9aa0156c582f35a197a68e687c7bddc5c89d88946a0979318a7574fa6"
+    },
+    "browser/browser-export.json": {
+      "bytes": 7787,
+      "sha256": "5c8aedbb0ab558c67e3066b349927838a10c670372921f8fb5f76a8ef3d840b4"
+    },
+    "browser/browser-result.json": {
+      "bytes": 408,
+      "sha256": "6634c9dcaf273c3e029b6232eaa0a451947a900f6f1b67ab49dd324797726d6e"
+    },
+    "browser/desktop.png": {
+      "bytes": 254229,
+      "sha256": "bc170338d2afe9c673d25f32a200315d732d72404d9328004cf8439145a7a1e3"
+    },
+    "browser/mobile.png": {
+      "bytes": 229892,
+      "sha256": "3bee815683c25cdedf8970825d07b1be5ecce7dce7e8d20cc798e22972815e29"
+    },
+    "browser.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build.log": {
+      "bytes": 39821,
+      "sha256": "77ec53c9dc4bf02acb7f35bc3282ed52ba6896a7317a9cffcd0989982e5bdb35"
+    },
+    "cost-and-access-audit.json": {
+      "bytes": 1337,
+      "sha256": "754a16f2fd4562bac3860d0b59b1f35aef678701a08c24fa67151f033f20b7e0"
+    },
+    "coverage.json": {
+      "bytes": 383431,
+      "sha256": "46f09f9f1f04b25b528f9637c89f252a1afb8783d006801a606c2e4b1c2ecb13"
+    },
+    "current-secret-scan.json": {
+      "bytes": 549,
+      "sha256": "0b6cc98d19410fd8cc39f2c9df92edf716fccf21456067f8f32ddca08b91fb72"
+    },
+    "demo-bandit.json": {
+      "bytes": 1377,
+      "sha256": "a62cd79416640ca742edd0235cff58c79930d65a1d29c15c2804e6191b883807"
+    },
+    "dependencies.log": {
+      "bytes": 1237,
+      "sha256": "aad3f17014f626f542990d77936c3be7756610663a780651eda0183c0c6ac423"
+    },
+    "dependency_audit.log": {
+      "bytes": 31,
+      "sha256": "15950a68a7ed99c59779717acefdceb3f69cfd31bde67d2c954f2a3cea4d7955"
+    },
+    "executed-test-inventory.json": {
+      "bytes": 147253,
+      "sha256": "06a67c1d05f527c792753334d98e07b4703105ea14c4867df7e9398f61ccbe39"
+    },
+    "final-audit-0.log": {
+      "bytes": 127,
+      "sha256": "3104dce80948800604d8e5cbd2ceb61919944c6d949b9e71d4883a9ff33c99df"
+    },
+    "final-audit-1.log": {
+      "bytes": 439,
+      "sha256": "2c59c06c1fe4d69dfb8e066b2aee402db6f6ec26a87d78a0247b8532b8830060"
+    },
+    "final-audit-2.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "final-audit-3.log": {
+      "bytes": 280,
+      "sha256": "6ccd4b6a410d2f5dc90ca8bcfb18c533669c67b50843933fe2217a822fbdbfeb"
+    },
+    "final-doc-links.json": {
+      "bytes": 9789,
+      "sha256": "62663e30eae690ff6573429ab7ba1dfb30c7732fd35f74dca8aecdfa0ac9e950"
+    },
+    "final-file-audit.json": {
+      "bytes": 29038,
+      "sha256": "e29595a437cedf811deaa4f26584e14aee52a67c3caf93fc84396607d8a58198"
+    },
+    "final-file-inventory.json": {
+      "bytes": 86730,
+      "sha256": "b5091f8e1728bf22fc28c3391e20f9b361c755ecaa325b4f2a835f50948d8c71"
+    },
+    "format.log": {
+      "bytes": 28,
+      "sha256": "c5a4909ec8a84e44730b4256783b14051126fb075707f5b49a7464277251ff97"
+    },
+    "installed-wheel-report.json": {
+      "bytes": 8103,
+      "sha256": "f0a8b84a2d2e085a53b769de923671c43a1f59a34918b0b161a40eb0d463e4a0"
+    },
+    "installed-wheel-smoke.json": {
+      "bytes": 811,
+      "sha256": "b712ba0fc72754b33e600b31fbbfb60a5e1888c625c0d6a92acc0337571fca2a"
+    },
+    "junit.xml": {
+      "bytes": 100731,
+      "sha256": "9841a3c0de8507e46c6fc785a174516b1b4f21276315b0cd3f0effe17b01f5ba"
+    },
+    "lint.log": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "native/cpp/.gitignore": {
+      "bytes": 38,
+      "sha256": "b303100d8289dd0ff8c68f186a79b5f00ef68e6619af0e6f44939cffc96229a6"
+    },
+    "native/cpp/CMakeLists.txt": {
+      "bytes": 548,
+      "sha256": "b64a14c650c915c5a708dc90989f54e598b31fcdc7b0caa655a2b4cf95017429"
+    },
+    "native/cpp/Makefile": {
+      "bytes": 478,
+      "sha256": "fee014b90b925d67b8c577cde52a5d386c6668b6e98476b352569df7e9964c92"
+    },
+    "native/cpp/README.md": {
+      "bytes": 2919,
+      "sha256": "be78cac0ae0857a940e84e041578326bbfae289974de7e6fb4f7d7bed8ae60cb"
+    },
+    "native/cpp/include/mcp_inspect.hpp": {
+      "bytes": 11805,
+      "sha256": "4ecf9953f645bbf3ba48e859a1e1d0af609927310538c9a82a8a02eb502eb46b"
+    },
+    "native/cpp/mcp-inspect": {
+      "bytes": 56568,
+      "sha256": "a2341014cd29c54dacc13153b51f1aac0e099db6b781a82a4690447e2c1a02a7"
+    },
+    "native/cpp/src/main.cpp": {
+      "bytes": 1895,
+      "sha256": "fc6ace78681893ee02ce0472bf2a92a596ca79e590a7c1ddfd72a345d52f3ae9"
+    },
+    "native/cpp/test_inspect": {
+      "bytes": 56816,
+      "sha256": "fd41f8e41dd64f85c5c3a51d3442b14401c9a2f35715a3458471a9972198cd0c"
+    },
+    "native/cpp/tests/test_inspect.cpp": {
+      "bytes": 3737,
+      "sha256": "af409bcc9f7925e64dc33fcff304b909bf8e644c4a6f72ae66fa0ce7871e3c83"
+    },
+    "native/driver-smoke.log": {
+      "bytes": 91,
+      "sha256": "91ba5dfd2b049e60d8ac4d879e50e5b6ad53ced98cbfee76c4099d1e636bf800"
+    },
+    "native/make-driver.log": {
+      "bytes": 82,
+      "sha256": "1dc0bfdb823fa2b9953f1af595102896df8b57b938b2bdbf8b683c8eaa97c613"
+    },
+    "native/make-test.log": {
+      "bytes": 512,
+      "sha256": "4a95c03593bf62ad440e63eaad88655e7964121dd8ec682a95a9bd12af5d1025"
+    },
+    "native/result.json": {
+      "bytes": 2435,
+      "sha256": "73c1678f8823255d95c3e08db4746331fa7ddce3a81d31cd692aaabe2cffb1dd"
+    },
+    "notebook/actual-engine-results.json": {
+      "bytes": 34632,
+      "sha256": "f56b6c28c2846110d318d3dd17724aabe378f2849326160c0d226a92ebfe2838"
+    },
+    "notebook/execution.log": {
+      "bytes": 550,
+      "sha256": "418ebec06a67ba547cf45f7bfb2a6b387b85f0b74b5fc712850ea082b9ad4bb2"
+    },
+    "notebook/minimal-environment.txt": {
+      "bytes": 12,
+      "sha256": "6f2dfd3e7106a07c571ea485df61d85fb1a5dc749c1ad6c93bf84f4f4dd2b52d"
+    },
+    "notebook/verification.json": {
+      "bytes": 1143,
+      "sha256": "df8f703aa42fad9de05bd8927110eb6e792565124535ef8f7de0f27b3157f7d5"
+    },
+    "pages-configuration.json": {
+      "bytes": 261,
+      "sha256": "e709544396a92595e4dfe8b1bd3cf3a8a61133d58cb90f1e5cf2efaaf85834e2"
+    },
+    "pip-audit.json": {
+      "bytes": 3969,
+      "sha256": "1ed430a946a8f97b7f24586cbbc1c232a3ac4d1bccec4bbec98dfcfe76c6e2ac"
+    },
+    "primary-run-manifest.json": {
+      "bytes": 8987,
+      "sha256": "48e193734e3349974f07ef4ec328543d8da2531b45c5c6d91e291faae0eee218"
+    },
+    "product-matrix.json": {
+      "bytes": 3457,
+      "sha256": "588f065c3f8b83c0783088884a49905baf8b935d9e37e2a36bd9064339c1b9cc"
+    },
+    "public-source-verification.json": {
+      "bytes": 2896,
+      "sha256": "5e86acdd8c0d2a2d5106162ebcb83fc014a7097574fff72fcfd9f09f328dcd49"
+    },
+    "pyright.log": {
+      "bytes": 38,
+      "sha256": "1d044deee37a17d52f4dd31d7de6ebd21c68eb5d08e8b3b0822f58940a3392bb"
+    },
+    "regression.log": {
+      "bytes": 8736,
+      "sha256": "4cba32d90f6f388985ea1f22a6cc8305af9694099a0bc85d2dc768239d14db9f"
+    },
+    "remote-ci/artifact-verification.json": {
+      "bytes": 1539,
+      "sha256": "88c1375458e3da050ed02bebbab1c6f485707c865698b92d1a96f7b38d13fbc4"
+    },
+    "remote-ci/ci-jobs.json": {
+      "bytes": 15430,
+      "sha256": "f0f56eb027ed516ddb5971015ab39f221458a03cf017dbab1739f2556bca3b4f"
+    },
+    "remote-ci/hosted-junit.xml": {
+      "bytes": 100733,
+      "sha256": "3ade052e98d09254d02604ad964d72c26899717b3506112a4db0fb39c41192df"
+    },
+    "remote-ci/hosted-manifest.json": {
+      "bytes": 1811,
+      "sha256": "eaa22e51d2fedb8b510f1ace548db19bd83cabf50fadd42ecead1201ff3fee1b"
+    },
+    "remote-ci/status.json": {
+      "bytes": 2776,
+      "sha256": "011af6c605a578eb0c47d8cbb86581d3c2da75dc72e624036e192805dcb0d601"
+    },
+    "secret-history-triage.json": {
+      "bytes": 1145,
+      "sha256": "7943fdbb92e18a61c26e1e983bba08fce8d32757426634ef9dfef6ee9cedb460"
+    },
+    "secret-tool-verification.json": {
+      "bytes": 273,
+      "sha256": "b0510fdb80f61f7eb2204f3172ead51f70c64c74aacd2a8458f30414404c3caa"
+    },
+    "workflow_lint.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

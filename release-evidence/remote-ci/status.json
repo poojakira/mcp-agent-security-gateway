@@ -1,0 +1,76 @@
+{
+  "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+  "checked_utc": "2026-11-19T00:41:58.228Z",
+  "runs": [
+    {
+      "id": 44429942340,
+      "name": "Security Hygiene",
+      "path": ".github/workflows/security-hygiene.yml",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942340"
+    },
+    {
+      "id": 44429942328,
+      "name": "Poster Artifact Parity",
+      "path": ".github/workflows/poster-artifact-parity.yml",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942328"
+    },
+    {
+      "id": 44429942287,
+      "name": "Documentation Integrity",
+      "path": ".github/workflows/production-policy.yml",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942287"
+    },
+    {
+      "id": 44429942310,
+      "name": "Focused AppSec Regression",
+      "path": ".github/workflows/appsec-focused.yml",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942310"
+    },
+    {
+      "id": 44429942282,
+      "name": "Production Gate",
+      "path": ".github/workflows/production-gate.yml",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942282"
+    },
+    {
+      "id": 44429942331,
+      "name": "Local MCP workbench acceptance",
+      "path": ".github/workflows/local-workbench.yml",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942331"
+    },
+    {
+      "id": 44429942445,
+      "name": "CI",
+      "path": ".github/workflows/ci.yml",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+      "url": "https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/44429942445"
+    }
+  ]
+}

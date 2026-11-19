@@ -1,0 +1,41 @@
+{
+  "artifact_id": 14486611167,
+  "name": "mcp-workbench-1900032ef5f1bca66b1e5692e2135d4c108807f1",
+  "bytes": 957576,
+  "digest": "sha256:3fd248e283fa37b738b9556396f3c1e8bce3672101aab7fe9bd5853ae427a45f",
+  "workflow_run": {
+    "id": 44429942331,
+    "repository_id": 1296742217,
+    "head_repository_id": 1296742217,
+    "head_branch": "codex/local-workbench-20261116",
+    "head_sha": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c"
+  },
+  "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+  "checked_utc": "2026-11-19T00:44:02.690216+00:00",
+  "downloaded_zip_sha256": "3fd248e283fa37b738b9556396f3c1e8bce3672101aab7fe9bd5853ae427a45f",
+  "zip_bytes": 957576,
+  "zip_entries": 11,
+  "all_embedded_artifact_hashes_match": true,
+  "verified_embedded_files": [
+    "junit.xml",
+    "regression.log",
+    "dependencies.txt",
+    "coverage.json",
+    "artifacts/mcp_security_gateway_monitor-0.1.0.tar.gz",
+    "artifacts/mcp_security_gateway_monitor-0.1.0-py3-none-any.whl",
+    "browser/browser-result.json",
+    "browser/browser-export.json",
+    "browser/desktop.png",
+    "browser/mobile.png"
+  ],
+  "junit_counts": {
+    "individual_cases": 834,
+    "passed": 834,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "manifest": "hosted-manifest.json",
+  "junit": "hosted-junit.xml",
+  "scope": "Authenticated GitHub artifact download, published ZIP checksum and every embedded artifact hash verified. Source attestation uses embedded manifest, not artifact name. Raw session health token/binary ZIP not republished."
+}

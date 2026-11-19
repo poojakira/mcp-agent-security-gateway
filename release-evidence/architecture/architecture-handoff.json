@@ -1,0 +1,111 @@
+{
+  "repository": "poojakira/mcp-agent-security-gateway",
+  "observed_base_commit": "e6be0062c398890225548fa14332d2a5350c9176",
+  "utc": "2026-11-18T21:10:56.409121+00:00",
+  "created": "docs/ARCHITECTURE.md",
+  "additional_accuracy_edits": [
+    "RUNBOOK.md stale-export row",
+    "docs/WORKBENCH.md stale-export, character-vs-byte and token-bucket wording"
+  ],
+  "diagram_blocks": 2,
+  "flow_nodes": 24,
+  "sequence_participants": 9,
+  "mermaid_cli_available": false,
+  "diagram_validation": "PASS structural checks only: fenced kinds, subgraph/alt/loop balance, declared flow-edge nodes, declared sequence participants. Actual Mermaid parser/render NOT VERIFIED; no parser/tool installed or external service used.",
+  "code_symbols": [
+    {
+      "file": "src/mcp_monitor/workbench/__main__.py",
+      "sha256": "a311680c263706711ed2261ad014e6ae2d671afbfe02bdccc5a29f1a4bcc4c53",
+      "symbols_found": [
+        "create_server",
+        "Handler",
+        "Handler.boundary",
+        "Handler.do_POST"
+      ]
+    },
+    {
+      "file": "src/mcp_monitor/workbench/runtime.py",
+      "sha256": "3370b106996ac85212d3a65fdf2c52d3e13657183703d706688da505e17f62d8",
+      "symbols_found": [
+        "execute",
+        "provenance",
+        "digest",
+        "FixtureTransport",
+        "FixtureTransport.start",
+        "FixtureTransport.send",
+        "FixtureTransport.stop"
+      ]
+    },
+    {
+      "file": "src/mcp_monitor/workbench/tool_server.py",
+      "sha256": "e2e14f34a304d39d52db4798c010f81d653d2e8dd1467ae118ba488ab18c9f19",
+      "symbols_found": [
+        "serve"
+      ]
+    },
+    {
+      "file": "src/mcp_monitor/proxy/stdio_proxy.py",
+      "sha256": "d2870c9ed76c6e12d630d325d7fc910b318eb168a3c1070d81efa8ce19554438",
+      "symbols_found": [
+        "StdioMCPProxy",
+        "StdioMCPProxy.handle_message",
+        "StdioMCPProxy._inspect",
+        "SubprocessTransport.stop"
+      ]
+    },
+    {
+      "file": "src/mcp_monitor/policy/policy_engine.py",
+      "sha256": "44aff1f6f4fdf762453d831740dd969d850d8af68109d3ecd50caf620813e307",
+      "symbols_found": [
+        "PolicyEngine",
+        "PolicyEngine.evaluate"
+      ]
+    },
+    {
+      "file": "src/mcp_monitor/protocol/jsonrpc.py",
+      "sha256": "8aee89aa3ed316600372fa1f8f137946931746ef31566b9763d433cb224b478b",
+      "symbols_found": [
+        "MCPJSONRPCAdapter",
+        "MCPJSONRPCAdapter.parse_message"
+      ]
+    },
+    {
+      "file": "src/mcp_monitor/detectors/prompt_injection.py",
+      "sha256": "08e9c8fa14adccfd9819a25ffa3c3de3a108c0c1574b0f37a09cb4dc4a70bed2",
+      "symbols_found": [
+        "PromptInjectionDetector",
+        "PromptInjectionDetector.detect"
+      ]
+    },
+    {
+      "file": "src/mcp_monitor/production/rate_limiter.py",
+      "sha256": "37e1005747bb989fda02915cb127b1702f27ab2dae486d64fca7044896143f08",
+      "symbols_found": [
+        "RateLimiter",
+        "RateLimiter.allow"
+      ]
+    },
+    {
+      "file": "src/mcp_monitor/audit/log.py",
+      "sha256": "223eddbe2d56ffb90b78d5c192a1db23c996dfc70a481b7405859ee57b3ff291",
+      "symbols_found": [
+        "AuditLog",
+        "AuditLog.append",
+        "AuditLog.verify_chain",
+        "AuditLog.export_json"
+      ]
+    }
+  ],
+  "limits_review": "HTTP16384bytes, rawrequest8192UTF8bytes; fixture2048chars/context8192chars; HTTP30tokenburst/30perminrefill; handshake2s/operation1s/stop5s; fixedchild/no networking; productionproxy refusal source-checked",
+  "nuances": [
+    "Policy snapshot is explanatory; proxy policy re-evaluates before forwarding",
+    "Supported non-tool messages bypass tools/call policy/detector; strict method whitelist still applies",
+    "Receipt appended before fixture validation/action, so invocation is not success",
+    "Permission comparison targets fresh POST workspace; two deliveries in one POST share target",
+    "Edits alone do not invalidate completed frontend evidence; no general revision cancellation guard",
+    "Library AuditLog can inherit optional parent HMAC env, but no external anchor/keycustody claim",
+    "No runtime/service launch, commit, push, README or workflow changes by this task"
+  ],
+  "document_sha256": "46eae81d3e170e605638a180d3dca166dfb151060fd225968dc4551904fbcfea",
+  "scope": "Source/diagram documentation mapping, not executable feature or new release verification"
+}

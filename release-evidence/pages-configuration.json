@@ -1,0 +1,6 @@
+{
+  "utc": "2026-11-19T00:13:04.291973+00:00",
+  "command_scope": "Create free public static GitHub Pages site from retained candidate/docs; no extra branch, backend or API key",
+  "exit": 1,
+  "error": "gh: Resource not accessible by integration (HTTP 403)"
+}

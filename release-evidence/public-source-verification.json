@@ -1,0 +1,81 @@
+{
+  "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+  "utc": "2026-11-19T00:45:29.520354+00:00",
+  "all_public_source_bytes_match": true,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "7fc6ffdcd5ee7f289dbf734be1cc66bbe71fd1682925f28de928e4cb26ea2263",
+      "bytes": 9865
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "sha256": "36c20eb233b679e16b4277eba4d85c3779c910ec9705f1ca33665eca9219fba8",
+      "bytes": 20850
+    },
+    {
+      "path": "docs/TRY_IT.md",
+      "sha256": "3da1a15c21c1b94af2b1be8a39a54ac94c577f8faf6bcd6ad3bf347c99621977",
+      "bytes": 3793
+    },
+    {
+      "path": "docs/BRANCHES.md",
+      "sha256": "6d2d45b3196308bad3e2942c306027b1bf6f517973400d8c6426c413b470bc51",
+      "bytes": 2244
+    },
+    {
+      "path": "docs/index.html",
+      "sha256": "4543da4008c39f4baeb34fb00477c8dea988a2cc68cf16042733eadd1b24938b",
+      "bytes": 2399
+    },
+    {
+      "path": "docs/architecture/viewer.js",
+      "sha256": "3ac1d29547f5b38a21e53495630aab6d68c1d4875d83dbc2ad96c747f486cea8",
+      "bytes": 1639
+    },
+    {
+      "path": "docs/architecture/viewer.css",
+      "sha256": "28b4607a62109231a7f203d5cdc377378a10166d3aa5ed13185485710fba144d",
+      "bytes": 1083
+    },
+    {
+      "path": "notebooks/try_product.ipynb",
+      "sha256": "81b89b0f745bee6435dc8de9b91d09dd79a72dd0bd1df713b773a783715d75ed",
+      "bytes": 6629
+    },
+    {
+      "path": "demo/adapter.py",
+      "sha256": "c9070db1924128f1d133c6c3fafc40720965fd34fcc486c5edac9df1a179f20b",
+      "bytes": 1953
+    },
+    {
+      "path": "demo/notebook_runner.py",
+      "sha256": "dade8e6060648fb768909912eb2a0a7209934f1458833cbdaddb8eebcabc21b0",
+      "bytes": 2606
+    },
+    {
+      "path": "docs/architecture/overview.svg",
+      "sha256": "9aa60ecf15b1fd092ff6ab441e005d8ee28342082edb915facef0893bf4ac57d",
+      "bytes": 13183
+    },
+    {
+      "path": "docs/architecture/components.svg",
+      "sha256": "0e7e9456cbd52aa3f015c3e94627ed933275ad09509f0d46efe53696ac6fa7c6",
+      "bytes": 91630
+    },
+    {
+      "path": "docs/architecture/sequence.svg",
+      "sha256": "434e719b892ee33a901ee3437557db8638f5679faf4de3228a1c0e564ce09741",
+      "bytes": 49537
+    }
+  ],
+  "colab_url": "https://colab.research.google.com/github/poojakira/mcp-agent-security-gateway/blob/codex/local-workbench-20261116/notebooks/try_product.ipynb",
+  "colab_public_page": {
+    "http_status": 200,
+    "resolved_url": "https://colab.research.google.com/github/poojakira/mcp-agent-security-gateway/blob/codex/local-workbench-20261116/notebooks/try_product.ipynb",
+    "response_bytes": 99944,
+    "scope": "Public page response only; no Google account/kernel execution"
+  },
+  "hosted_colab_kernel": "NOT VERIFIED; actual notebook cells executed locally, recorded separately",
+  "public_full_application": "NOT DEPLOYED; static Pages permission403, no site URL asserted"
+}

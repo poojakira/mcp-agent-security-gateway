@@ -1,0 +1,93 @@
+{
+  "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+  "capabilities": [
+    {
+      "capability": "Browser input reaches actual engine and exposes evidence; edit/rerun/export within documented scope",
+      "status": "TESTED",
+      "code": [
+        "src/mcp_monitor/workbench",
+        "demo/adapter.py"
+      ],
+      "evidence": [
+        "junit.xml",
+        "browser/",
+        "executed-test-inventory.json"
+      ]
+    },
+    {
+      "capability": "Installed distribution outside checkout; packaged assets/HTTP and correct UNKNOWN provenance",
+      "status": "TESTED",
+      "evidence": [
+        "installed-wheel-smoke.json"
+      ]
+    },
+    {
+      "capability": "Readable source-mapped architecture, full-size SVG, zoom controls and mobile bounds",
+      "status": "TESTED locally",
+      "evidence": [
+        "architecture/viewer-checks.json",
+        "final-file-audit.json"
+      ]
+    },
+    {
+      "capability": "Inline guided notebook with actual fixture engine execution",
+      "status": "TESTED locally from fresh public checkout; hosted kernel NOT VERIFIED",
+      "scope": "Actual guarded read; same write denied with no receipt; same write allowed after permission change.",
+      "evidence": [
+        "notebook/verification.json",
+        "notebook/actual-engine-results.json",
+        "public-source-verification.json"
+      ]
+    },
+    {
+      "capability": "All current tracked files inventory/type checks, local doc targets, SVG XML, notebook compilation",
+      "status": "TESTED within recorded per-type scope; not proof of every external historical assertion",
+      "evidence": [
+        "final-file-audit.json",
+        "final-file-inventory.json",
+        "final-doc-links.json"
+      ]
+    },
+    {
+      "capability": "Exactly two remote branches and preserved retired tips",
+      "status": "OBSERVED",
+      "evidence": [
+        "branch-disposition.json"
+      ]
+    },
+    {
+      "capability": "No new values in current secret scan; history classifications reviewed; no confirmed provider credential",
+      "status": "OBSERVED within heuristic scope; no universal absence claim",
+      "evidence": [
+        "current-secret-scan.json",
+        "secret-history-triage.json"
+      ]
+    },
+    {
+      "capability": "Current hosted workflow executions",
+      "status": "TESTED",
+      "evidence": [
+        "remote-ci/status.json"
+      ]
+    },
+    {
+      "capability": "Public hosted full app / Colab hosted kernel / deployment release",
+      "status": "NOT VERIFIED / not deployed",
+      "evidence": [
+        "pages-configuration.json",
+        "cost-and-access-audit.json"
+      ]
+    },
+    {
+      "capability": "Independent adversarial closure at this exact source",
+      "status": "NOT VERIFIED",
+      "scope": "Historical focused independent reviews retain their old source bounds. Sequential documentation author/parent review is separate."
+    }
+  ],
+  "remaining_full_contract_gates": [
+    "Current complete MCP conformance, cancellation/concurrency and credential lifecycle are NOT VERIFIED or NOT IMPLEMENTED.",
+    "Arbitrary-server OS containment, external side-effect reconciliation, response PII filtering and externally anchored audit custody are NOT IMPLEMENTED or NOT VERIFIED.",
+    "Native Make checks are separate; CMake and Rust toolchains are absent.",
+    "Deployment-specific privacy, recovery, load and hostile public-hosting approval are NOT VERIFIED."
+  ]
+}

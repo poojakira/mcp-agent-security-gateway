@@ -1,0 +1,14 @@
+{
+  "source_commit": "d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c",
+  "utc": "2026-11-19T00:38:48.091424+00:00",
+  "new_paid_services": 0,
+  "new_provider_api_keys": 0,
+  "executed_external_resource_creations": 0,
+  "guided_path": "Public GitHub/PyPI source/dependency downloads; inline ColabfreeCPU intended; no webserver/tunnel/Drive/GPU/cloudresource/scheduledjob/paidAPI in notebook",
+  "actual_hosted_colab_kernel": "NOT VERIFIED; actual source cells executed on localLinux with fresh minimalvenv",
+  "Render": "Read-only discovery only; no resource creation. No-cost condition unverified and paid-overage possibility, so not used.",
+  "HuggingFaceSpaces": "Current new Docker/Gradio compute requires paidplan; not used.",
+  "GitHubPages": "Four configuration attempts HTTP403; no site created; staticviewer files are ready and tested locally. No new token requested.",
+  "existing_optional_integrations": "Repository retains optional AWS/Terraform/provider/webhook/deployment code. These are not executed by this workflow and can require credentials or incur charges if an operator separately enables them. No claim that every possible repository command is free.",
+  "claim_limit": "No paid resource or provider call was used by this task. Third-party plan terms/quotas/account choices can change; no eternal zero-cost guarantee."
+}
