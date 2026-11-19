@@ -14,9 +14,9 @@ The setup resolves the reviewed branch to one exact SHA, checks it out and insta
 
 ## Architecture
 
-![Detailed components, trust boundaries and actual engine path](docs/architecture/components.svg)
+[![Readable architecture overview](docs/architecture/overview.svg)](docs/architecture/overview.svg)
 
-See the [detailed architecture and execution sequences](docs/ARCHITECTURE.md) for exact code symbols, controls, limits, errors, cleanup, evidence and the separate guided notebook scope.
+Open the [full-size overview](docs/architecture/overview.svg) or [zoomable HTML viewer](docs/index.html). See the [detailed architecture and execution sequences](docs/ARCHITECTURE.md) for exact code symbols, controls, limits, errors, cleanup, evidence and the separate guided notebook scope.
 
 ## Start locally
 

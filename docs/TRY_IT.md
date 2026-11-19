@@ -8,7 +8,7 @@ The notebook uses normal inline notebook controls. It does not start a web serve
 
 ## Execution evidence
 
-Locally executed setup/runner/scenario tests are distinguished from **Colab-hosted execution**, which is NOT VERIFIED unless a generated record explicitly identifies that environment. An opening notebook link is not proof of a working remote kernel. The generated [candidate assessment](https://github.com/poojakira/mcp-agent-security-gateway/tree/evidence/selected-branches-20261118/release-evidence/RELEASE_ASSESSMENT.md) and manifest record actual checks and source. Unsupported runtime/Python/libseccomp conditions must fail visibly; they are not clean scans. No universal safety or security guarantee follows from a synthetic example.
+Locally executed setup/runner/scenario tests are distinguished from **Colab-hosted execution**, which is NOT VERIFIED unless a generated record explicitly identifies that environment. An opening notebook link is not proof of a working remote kernel. The generated [candidate assessment](https://github.com/poojakira/mcp-agent-security-gateway/tree/evidence/selected-branches-20261118/release-evidence/RELEASE_ASSESSMENT.md) and manifest record actual checks and source. Unsupported runtime/Python conditions must fail visibly; they are not clean scans. No universal safety or security guarantee follows from a synthetic example.
 
 ## Cost and access boundary
 
@@ -24,4 +24,8 @@ From the reviewed checkout, create a dedicated venv, install `demo/requirements-
 python -I demo/notebook_runner.py SCENARIO
 ```
 
-Replace `SCENARIO` with one exact identifier listed in the notebook's dropdown/adapter specification. The runner rejects unknown identifiers and loads only this checkout's fixed engine code. On Linux the HF inspection path additionally requires working `libseccomp.so.2`. Compare the resulting source SHA and CLEAN/DIRTY state; do not relabel dirty or UNKNOWN provenance as clean.
+Replace `SCENARIO` with one exact identifier listed in the notebook's dropdown/adapter specification. The runner rejects unknown identifiers and loads only this checkout's fixed engine code. Compare the resulting source SHA and CLEAN/DIRTY state; do not relabel dirty or UNKNOWN provenance as clean.
+
+## Architecture viewer publication
+
+`docs/index.html` provides a static zoom/pan architecture viewer with larger overview text and links to the inline notebook. Its local browser checks are recorded separately. GitHub Pages configuration was attempted through the existing integration and returned `HTTP 403: Resource not accessible by integration`; no hosted Pages URL is claimed. The owner can enable Pages from the retained candidate branch and `/docs` using normal repository settings, without creating an API key or another branch.
