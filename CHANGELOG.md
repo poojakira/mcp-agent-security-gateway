@@ -1,5 +1,13 @@
 # Documentation reconciliation — unreleased
 
+## 2026-11-18 — Architecture, selected branches and free notebook access
+
+- Added detailed component/trust-boundary and execution-sequence diagrams, verified against named source symbols and actual limits.
+- Added source-resolving, synthetic-only inline Colab notebooks that call the canonical engine, with local equivalent runners and explicit hosted-runtime limits.
+- Retired nonselected branches only after exact-tip recovery tags/private verified backups; retained main and the reviewed candidate without merging unreviewed work.
+- Updated README testing/evidence links and kept all production, independent-review, privacy and operational blockers explicit. No provider key or paid resource is used by this workflow.
+
+
 - Consolidate current local workflow, API, security, operations, release and developer guidance around actual fixture execution.
 - Distinguish the prior 829-test implementation-source proof from pending later-head results; publish immutable evidence without an evidence branch.
 - Date historical/poster/native/lab assertions, remove unsupported effectiveness/certification/SLA claims, and record every tracked document's disposition.

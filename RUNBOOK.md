@@ -37,7 +37,7 @@ Requests, responses and raw note content exist in browser/process memory and the
 | `NOT_INVOKED` | No operation was sent. Inspect parse/authorization/injection reasons before changing input or permissions. |
 | `UNKNOWN / REQUIRES_RECONCILIATION` | A forwarded operation lacks sufficient confirmation. Do not infer success or automatically retry an external effect. |
 | HTTP 500 | Engine failure; no successful outcome is established. Preserve non-secret source/configuration metadata and reproduce locally. |
-| Export unavailable after edits | Execute the current input again. Do not attach an older report to new editor content. |
+| Editor or controls changed after a completed run | The previous report remains available and still describes its submitted request/hash. Execute again before treating the edited buffer as tested; edits alone do not invalidate completed evidence. |
 
 A permission comparison starts another fresh disposable target. It is not rollback, idempotent replay or reconciliation of an external provider action. The repeat option deliberately demonstrates duplicate effects.
 

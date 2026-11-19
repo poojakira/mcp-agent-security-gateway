@@ -16,6 +16,6 @@ Single-writer file-backed WAL/audit state does not support shared-file horizonta
 
 ## Branch and change policy
 
-Keep protected main, the reviewed candidate and active or unique work. Archive verified recovery points before deleting proven merged/unused refs. Do not delete unresolved PR work or rewrite shared history. [Current disposition](docs/EVIDENCE.md#branch-disposition) records the completed cleanup and retained unique branches; earlier forensic reports remain historical.
+The owner-selected remote branch set is `main` and `codex/local-workbench-20261116`. Additional dependency and unique-work branches were retired only after exact-tip annotated recovery tags and verified private backups; unreviewed changes were not merged. See [selected branches and recovery](docs/BRANCHES.md). Earlier branch counts/dispositions remain historical. Security automation and protected-main checks remain enabled.
 
 A later change, including documentation, needs commit-scoped checks before its results are called current. Evidence-only archive tags are not releases. Review and merge decisions remain separate from package/container publication or deployment.

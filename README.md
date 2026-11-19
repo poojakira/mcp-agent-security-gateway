@@ -4,6 +4,20 @@ A local workbench for agent developers to compose MCP requests, change tool perm
 
 **Release decision: PARTIAL.** The demonstrated workflow works within its bounded fixture scope. Credential lifecycle, arbitrary-server containment, external action reconciliation, response PII filtering and complete current MCP conformance remain missing or unverified. No production release or deployment is approved.
 
+## Try the real engine in your browser
+
+[**Open the free Colab notebook**](https://colab.research.google.com/github/poojakira/mcp-agent-security-gateway/blob/codex/local-workbench-20261116/notebooks/try_product.ipynb) · [Inspect the notebook source](notebooks/try_product.ipynb) · [Detailed architecture diagrams](docs/ARCHITECTURE.md)
+
+Sign in with a Google account, select the **free CPU runtime**, and run the setup and scenario cells. Change the scenario and run again to inspect freshly computed evidence and hashes. This is an inline, guided synthetic-data demonstration of the actual repository engine, **not a publicly hosted copy of the full web application**. No API key, paid plan, GPU, Drive mount, tunnel or cloud-resource creation is used by the notebook. Free Colab availability/limits are outside this repository's control.
+
+The setup resolves the reviewed branch to one exact SHA, checks it out and installs only minimal demo dependencies in a separate temporary environment. It starts no web server. [Testing access and limitations](docs/TRY_IT.md) distinguishes locally executed notebook checks from Colab-hosted runtime verification. Use the full local UI below for its broader supported input and workflow.
+
+## Architecture
+
+![Detailed components, trust boundaries and actual engine path](docs/architecture/components.svg)
+
+See the [detailed architecture and execution sequences](docs/ARCHITECTURE.md) for exact code symbols, controls, limits, errors, cleanup, evidence and the separate guided notebook scope.
+
 ## Start locally
 
 Prerequisites: Python 3.10 or newer, pip and a browser. Git is needed for checkout provenance and some development tests. Initial installation may download packaging tools; Python 3.10 also needs the declared `tomli` compatibility dependency. No API keys or paid services are required.
@@ -40,16 +54,11 @@ This screenshot is from tested implementation source `4b6bb486d83f4410037113e648
 
 The operator cannot select a server executable, host path or outbound connection. This controlled child is not an OS sandbox for arbitrary servers. A policy ALLOW is not proof of execution. Reports distinguish `NOT_INVOKED`, `CONFIRMED_SUCCEEDED`, `CONFIRMED_FAILED` and `UNKNOWN / REQUIRES_RECONCILIATION`. Unkeyed audit chains do not resist a complete log rewrite. Only operations routed through an enforcing integration receive its controls.
 
-## Verification and evidence
+## Current verification and source
 
-The last published implementation-source run is explicitly scoped to **`4b6bb486d83f4410037113e64848a22e4a06f713`**: **829 passed, zero skipped, 81.80446084185813% statement coverage**, with the unchanged 77% coverage gate. The focused independent review and six associated hosted workflows passed at that source. These results do not attest to later documentation commits.
+Read the [generated assessment and exact commands](https://github.com/poojakira/mcp-agent-security-gateway/tree/evidence/selected-branches-20261118/release-evidence/RELEASE_ASSESSMENT.md) and [source manifest](https://github.com/poojakira/mcp-agent-security-gateway/tree/evidence/selected-branches-20261118/release-evidence/manifest.json). The manifest records the checked-out SHA, clean state, actual regression/browser outcomes, skips, dependency scope and artifact hashes. Compare its `source_commit` with the checkout you are using. A passing earlier commit does not attest to a later commit.
 
-- [Published assessment, exact commands and limitations](https://github.com/poojakira/mcp-agent-security-gateway/blob/d0d78a97802b203a9652b7fceb50acc0711a66e1/release-evidence/RELEASE_ASSESSMENT.md)
-- [Published source-scoped manifest](https://github.com/poojakira/mcp-agent-security-gateway/blob/d0d78a97802b203a9652b7fceb50acc0711a66e1/release-evidence/manifest.json)
-- [Current verification procedure and new-head evidence status](docs/EVIDENCE.md)
-- [Review proposal: PR #194](https://github.com/poojakira/mcp-agent-security-gateway/pull/194)
-
-New-head verification is pending until a freshly executed manifest identifies that exact commit. The planned non-release archive is `evidence/docs-reconciliation-20261118`; this name alone does not establish that it exists or that checks passed.
+The previous published documentation candidate was `e6be0062c398890225548fa14332d2a5350c9176`; its [immutable evidence](https://github.com/poojakira/mcp-agent-security-gateway/tree/evidence/docs-reconciliation-20261118/release-evidence) remains historical. The newer architecture/notebook changes require their own generated evidence. [PR #194](https://github.com/poojakira/mcp-agent-security-gateway/pull/194) records the current source, publication and remaining blockers. **Release remains PARTIAL.**
 
 ## Develop and verify
 
@@ -79,3 +88,9 @@ Chromium must exist at the supplied path. The browser harness starts its own ser
 | User-facing changes | [Changelog](CHANGELOG.md) |
 
 The optional authenticated inspection service, legacy dashboards, detection lab and native ports are separate integration surfaces, not proof that this browser workbench supports their capabilities. Historical reports retain their own dates/source bounds. Unique protected-server/journal/revocation work remains preserved and unmerged.
+
+## Selected branches and recovery
+
+Only `main` and `codex/local-workbench-20261116` remain as remote branches. This cleanup retired 6 additional branches after preserving their exact tips in `archive/selected-20261118/*` annotated recovery tags and a verified private Git bundle. Unmerged/dependency changes were **not merged or certified** by retiring their branches. Existing release/deployment source references are preserved separately. Main was not rewritten or merged.
+
+See [branch policy and restore procedure](docs/BRANCHES.md) and the generated [branch-cleanup evidence](https://github.com/poojakira/mcp-agent-security-gateway/tree/evidence/selected-branches-20261118/release-evidence/branch-cleanup.json). Bots or collaborators may create later branches; the published report records the actual verification time rather than promising permanent branch counts.
