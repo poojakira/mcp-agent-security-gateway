@@ -44,6 +44,12 @@ jobs:
           python scripts/workbench_e2e.py --output "$EVIDENCE_DIR/browser" --chromium "$chromium_path"
       - name: Build wheel and source distribution
         run: python -m build --outdir "$EVIDENCE_DIR/artifacts"
+      - name: Verify Elastic rules are available in the installed wheel
+        run: |
+          python -m venv --system-site-packages "$RUNNER_TEMP/mcp-wheel-smoke"
+          "$RUNNER_TEMP/mcp-wheel-smoke/bin/python" -m pip install --ignore-installed --no-deps "$EVIDENCE_DIR"/artifacts/*.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/mcp-wheel-smoke/bin/python" -I -c 'from mcp_monitor.siem.lifecycle import build_coverage_matrix; assert build_coverage_matrix()["_meta"]["elastic_rule_count"] > 0'
       - name: Generate source-scoped evidence even when checks fail
         if: always()
         run: python scripts/workbench_manifest.py --output "$EVIDENCE_DIR" --job-status '${{ job.status }}'

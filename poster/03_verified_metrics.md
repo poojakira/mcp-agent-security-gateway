@@ -1,4 +1,4 @@
-> **Historical poster, October 14, 2026 source snapshot.** This material does not attest to the later local workbench or documentation head. Current source-scoped evidence and release limits: [docs/EVIDENCE.md](../docs/EVIDENCE.md).
+> **Historical research poster, October 14, 2026 UTC.** Its measurements apply to source `f1f226feb0d527f27b90081806d7e9bd90ba0574` and the [associated GitHub Actions run](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461). See the [later candidate manifest](https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/4f83f01a3ed8aca5639143fe2179afb0f864f46e/release-evidence/manifest.json) for separately scoped local verification.
 
 # Verified Metrics - Poster 01
 

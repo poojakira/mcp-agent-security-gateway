@@ -1,4 +1,4 @@
-> **Historical poster, October 14, 2026 source snapshot.** This material does not attest to the later local workbench or documentation head. Current source-scoped evidence and release limits: [docs/EVIDENCE.md](../docs/EVIDENCE.md).
+> **Historical research poster, October 14, 2026 UTC.** Its measurements apply to source `f1f226feb0d527f27b90081806d7e9bd90ba0574` and the [associated GitHub Actions run](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461). See the [later candidate manifest](https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/4f83f01a3ed8aca5639143fe2179afb0f864f46e/release-evidence/manifest.json) for separately scoped local verification.
 
 # Research Brief - Poster 01
 
@@ -44,7 +44,7 @@ GitHub Actions CI on Python 3.12 at the poster snapshot `f1f226feb0d527f27b90081
 - **9** Elastic `[[rule]]` records.
 - **21** core SIEM tests plus **12** SIEM scenario-runner tests.
 
-## October 2026 detector update (now merged into main)
+## Detector inventory at the October 2026 source
 
 The 69-entry named runtime prompt-injection signature list is the implementation at the cited poster source at commit `f1f226feb0d527f27b90081806d7e9bd90ba0574`. The full CI run `38502413461` validates all 782 tests against this implementation. A small development-only probe exercised attack and benign text, but the committed assertions do **not** establish a reproducible benign-positive count for the cited CI snapshot. Accordingly, this poster does **not** claim a numerical detection rate or false-positive rate from that probe. Neither CI test completion nor signature inventory establishes held-out recall, population-level precision, or customer-deployment efficacy.
 

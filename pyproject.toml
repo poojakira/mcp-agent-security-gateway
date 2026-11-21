@@ -38,6 +38,9 @@ where = ["src"]
 [tool.setuptools.package-data]
 "mcp_monitor.workbench" = ["*.html", "*.js", "*.css"]
 
+[tool.setuptools.data-files]
+"share/mcp-monitor/detection-rules" = ["detection_rules/elastic_rules.toml"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["-p", "no:asyncio"]

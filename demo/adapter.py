@@ -14,13 +14,10 @@ SPEC = {
         {"id": "allow", "label": "Same write request · tool permission OFF"},
     ],
     "limitations": [
-        "Notebook mode uses only these fixed synthetic requests; no "
-        "user-selected server, path or arbitrary JSON input.",
-        "Tool permission OFF changes only the allowlist; other gateway checks " "remain enabled.",
-        "A real child runs in a disposable workspace; this is not "
-        "arbitrary-server OS containment.",
-        "No credential lifecycle, latest MCP conformance, output PII filter "
-        "or durable external-action reconciliation.",
+        "Notebook mode uses only these fixed synthetic requests; no user-selected server, path or arbitrary JSON input.",
+        "Tool permission OFF changes only the allowlist; other gateway checks remain enabled.",
+        "A real child runs in a disposable workspace; this is not arbitrary-server OS containment.",
+        "No credential lifecycle, latest MCP conformance, output PII filter or durable external-action reconciliation.",
     ],
     "repository": "https://github.com/poojakira/mcp-agent-security-gateway/tree/codex/local-workbench-20261116",
 }

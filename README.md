@@ -54,11 +54,11 @@ This screenshot is from tested implementation source `4b6bb486d83f4410037113e648
 
 The operator cannot select a server executable, host path or outbound connection. This controlled child is not an OS sandbox for arbitrary servers. A policy ALLOW is not proof of execution. Reports distinguish `NOT_INVOKED`, `CONFIRMED_SUCCEEDED`, `CONFIRMED_FAILED` and `UNKNOWN / REQUIRES_RECONCILIATION`. Unkeyed audit chains do not resist a complete log rewrite. Only operations routed through an enforcing integration receive its controls.
 
-## Current verification and source
+## Verification and release scope
 
-Read the [generated assessment and exact commands](https://github.com/poojakira/mcp-agent-security-gateway/tree/evidence/selected-branches-20261118/release-evidence/RELEASE_ASSESSMENT.md) and [source manifest](https://github.com/poojakira/mcp-agent-security-gateway/tree/evidence/selected-branches-20261118/release-evidence/manifest.json). The manifest records the checked-out SHA, clean state, actual regression/browser outcomes, skips, dependency scope and artifact hashes. Compare its `source_commit` with the checkout you are using. A passing earlier commit does not attest to a later commit.
+**LOCAL ONLY, historical snapshot.** The archived suite at `d2e7b6ea7c1a1f9cb0fb71f73d0a692d8fa0410c` recorded 834 passed, 0 failed, 0 skipped, 81.80% statement coverage. The archive was generated on November 19, 2026 UTC and lists the exact commands, tooling, test window, skips and artifact hashes. Use its source SHA when citing the results. [Manifest](https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/4f83f01a3ed8aca5639143fe2179afb0f864f46e/release-evidence/manifest.json) · [Assessment](https://github.com/poojakira/mcp-agent-security-gateway/blob/4f83f01a3ed8aca5639143fe2179afb0f864f46e/release-evidence/RELEASE_ASSESSMENT.md)
 
-The previous published documentation candidate was `e6be0062c398890225548fa14332d2a5350c9176`; its [immutable evidence](https://github.com/poojakira/mcp-agent-security-gateway/tree/evidence/docs-reconciliation-20261118/release-evidence) remains historical. The newer architecture/notebook changes require their own generated evidence. [PR #194](https://github.com/poojakira/mcp-agent-security-gateway/pull/194) records the current source, publication and remaining blockers. **Release remains PARTIAL.**
+The workbench applies policy to a fixed local child. Deployment would require proving that every downstream invocation goes through enforcement, that identity and revocation survive concurrent requests, and that uncertain external effects are reconciled before retry. [Draft review](https://github.com/poojakira/mcp-agent-security-gateway/pull/194)
 
 ## Develop and verify
 
