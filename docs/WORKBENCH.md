@@ -97,3 +97,7 @@ The strongest counterargument remains that a controlled offline fixture does not
 ## Documentation and evidence revisions
 
 Current task guidance is consolidated here, in [the runbook](../RUNBOOK.md), [API reference](API_VERSIONING.md) and [evidence status](EVIDENCE.md). Dated reports and poster metrics remain their original source-scoped snapshots. A documentation commit needs its own subsequent execution record; it does not inherit the 829-test implementation result. The planned documentation-pass archive and its pending status are described in EVIDENCE.md.
+
+### Stdio exchange failure
+
+The local stdio proxy serializes an instance's downstream exchanges, limits response frames to 4 MiB, and gives a send/receive exchange 30 seconds. The workbench still applies its shorter fixture deadline. A cancelled or failed exchange leaves delivery uncertain. Restart the transport before sending another request and reconcile any external side effect separately. The stdio changes do not provide process containment or provider idempotency.

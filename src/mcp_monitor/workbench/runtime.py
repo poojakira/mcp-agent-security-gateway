@@ -81,7 +81,8 @@ class FixtureTransport(SubprocessTransport):
             env={"PATH": os.defpath, "PYTHONIOENCODING": "utf-8"},
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.DEVNULL,
+            limit=self.MAX_FRAME_BYTES,
         )
 
     async def send(self, data: bytes) -> None:
@@ -90,11 +91,6 @@ class FixtureTransport(SubprocessTransport):
         framed = json.dumps(json.loads(data), separators=(",", ":")).encode() + b"\n"
         self.tool_sends += 1
         await super().send(framed)
-
-    async def stop(self) -> None:
-        await super().stop()
-        if self._process:
-            await self._process.wait()
 
 
 async def execute(

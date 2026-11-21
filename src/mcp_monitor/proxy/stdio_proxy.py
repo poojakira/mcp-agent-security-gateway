@@ -24,6 +24,7 @@ import json
 import logging
 import os
 import sys
+from contextlib import suppress
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Protocol
@@ -107,58 +108,69 @@ class Transport(Protocol):
 class SubprocessTransport:
     """Real transport that launches a subprocess and communicates via stdio."""
 
+    MAX_FRAME_BYTES = 4 * 1024 * 1024
+
     def __init__(self, command: list[str]) -> None:
         self.command = command
         self._process: asyncio.subprocess.Process | None = None
-        self._read_buffer: bytes = b""
 
     async def start(self) -> None:
         """Launch the downstream MCP server subprocess."""
+        if self._process is not None:
+            raise RuntimeError("Stop the previous transport before starting it")
         self._process = await asyncio.create_subprocess_exec(
             *self.command,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.DEVNULL,
+            limit=self.MAX_FRAME_BYTES,
         )
 
     async def stop(self) -> None:
-        """Terminate the downstream server."""
-        if self._process and self._process.returncode is None:
-            self._process.terminate()
-            try:
-                await asyncio.wait_for(self._process.wait(), timeout=5.0)
-            except asyncio.TimeoutError:
-                self._process.kill()
+        """Terminate and reap the downstream server."""
+        process = self._process
+        if process is None:
+            return
+
+        async def drain_and_wait() -> None:
+            # A paused stdout pipe can otherwise prevent asyncio from reaping
+            # a stopped child. Drain in fixed-size chunks without buffering.
+            if process.stdout is not None:
+                while await process.stdout.read(8192):
+                    pass
+            await process.wait()
+
+        if process.returncode is None:
+            with suppress(ProcessLookupError):
+                process.terminate()
+        try:
+            await asyncio.wait_for(drain_and_wait(), timeout=5.0)
+        except asyncio.TimeoutError:
+            with suppress(ProcessLookupError):
+                process.kill()
+            await asyncio.wait_for(drain_and_wait(), timeout=5.0)
+        self._process = None
 
     async def send(self, data: bytes) -> None:
         """Send raw bytes to the downstream server's stdin."""
-        if self._process and self._process.stdin:
-            self._process.stdin.write(data)
-            await self._process.stdin.drain()
+        if not self._process or not self._process.stdin or self._process.stdin.is_closing():
+            raise RuntimeError("Downstream transport is unavailable")
+        self._process.stdin.write(data)
+        await self._process.stdin.drain()
 
     async def receive(self) -> bytes:
-        """Read a complete JSON-RPC message from downstream stdout.
-
-        MCP uses newline-delimited JSON over stdio.
-        """
+        """Read a bounded newline-delimited MCP message from downstream stdout."""
         if not self._process or not self._process.stdout:
             raise RuntimeError("Transport not started")
-
         while True:
-            # Check if we have a complete line in buffer
-            newline_pos = self._read_buffer.find(b"\n")
-            if newline_pos != -1:
-                line = self._read_buffer[:newline_pos]
-                self._read_buffer = self._read_buffer[newline_pos + 1 :]
-                if line.strip():
-                    return line.strip()
-                continue
-
-            # Read more data
-            chunk = await self._process.stdout.read(8192)
-            if not chunk:
-                raise RuntimeError("Downstream server closed stdout")
-            self._read_buffer += chunk
+            try:
+                line = await self._process.stdout.readline()
+            except ValueError as exc:
+                raise RuntimeError("Downstream MCP response exceeds the frame limit") from exc
+            if not line.endswith(b"\n"):
+                raise RuntimeError("Downstream server closed stdout before a complete frame")
+            if line.strip():
+                return line.strip()
 
 
 # ---------------------------------------------------------------------------
@@ -362,6 +374,8 @@ class StdioMCPProxy:
             burst_size=tool_calls_per_minute,
         )
         self._running = False
+        self._exchange_lock = asyncio.Lock()
+        self._transport_failed = False
         self._stats = {"allowed": 0, "blocked": 0, "passthrough": 0, "rate_limited": 0}
 
     @property
@@ -373,7 +387,8 @@ class StdioMCPProxy:
         """Start the proxy: launch downstream server."""
         await self._transport.start()
         self._running = True
-        logger.info("MCP proxy started, downstream: %s", self.command)
+        self._transport_failed = False
+        logger.info("MCP proxy started")
 
     async def stop(self) -> None:
         """Stop the proxy and downstream server."""
@@ -395,6 +410,12 @@ class StdioMCPProxy:
             The response bytes to send back to the client.
             Either an error (if blocked) or the real server response.
         """
+        async with self._exchange_lock:
+            if self._transport_failed:
+                raise RuntimeError("Restart the transport after an uncertain downstream exchange")
+            return await self._handle_message(raw_message)
+
+    async def _handle_message(self, raw_message: bytes) -> bytes:
         try:
             parsed = json.loads(raw_message, object_pairs_hook=_unique_json_pairs)
         except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as exc:
@@ -474,11 +495,20 @@ class StdioMCPProxy:
                 return b""  # Notifications have no JSON-RPC response.
             return b"[" + b",".join(responses) + b"]" if is_batch else responses[0]
 
-        await self._transport.send(raw_message + b"\n")
-        self._stats["allowed" if tool_count else "passthrough"] += 1
-        if not any("id" in message and "method" in message for message in messages):
-            return b""  # Notifications and client responses are one-way.
-        return await self._transport.receive()
+        async def exchange() -> bytes:
+            await self._transport.send(raw_message + b"\n")
+            self._stats["allowed" if tool_count else "passthrough"] += 1
+            if not any("id" in message and "method" in message for message in messages):
+                return b""  # Notifications and client responses are one-way.
+            return await self._transport.receive()
+
+        try:
+            return await asyncio.wait_for(exchange(), timeout=30.0)
+        except (Exception, asyncio.CancelledError):
+            # Bytes may already have reached the child. A late response must
+            # never be consumed as the response to a subsequent request.
+            self._transport_failed = True
+            raise
 
     def _inspect(self, parsed: dict[str, Any]) -> InspectionResult:
         """Run security inspection on a parsed JSON-RPC tools/call message."""

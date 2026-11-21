@@ -503,3 +503,52 @@ class TestStdioMCPProxy:
             assert transport.stopped
 
         _run(_test())
+
+
+def test_uncertain_exchange_disallows_followup_without_restart():
+    import pytest
+
+    class PendingTransport(FakeTransport):
+        def __init__(self):
+            super().__init__()
+            self.receiving = asyncio.Event()
+
+        async def receive(self):
+            self.receiving.set()
+            await asyncio.Event().wait()
+
+    async def scenario():
+        transport = PendingTransport()
+        proxy = StdioMCPProxy([], transport=transport)
+        first = asyncio.create_task(proxy.handle_message(make_initialize(1)))
+        await asyncio.wait_for(transport.receiving.wait(), timeout=2)
+        first.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await first
+        with pytest.raises(RuntimeError, match="uncertain downstream exchange"):
+            await asyncio.wait_for(proxy.handle_message(make_initialize(2)), timeout=0.25)
+        assert len(transport.sent) == 1
+
+    _run(scenario())
+
+
+def test_downstream_frame_limit_and_reaping(monkeypatch):
+    import sys
+
+    import pytest
+
+    from mcp_monitor.proxy.stdio_proxy import SubprocessTransport
+
+    async def scenario():
+        monkeypatch.setattr(SubprocessTransport, "MAX_FRAME_BYTES", 32, raising=False)
+        transport = SubprocessTransport([sys.executable, "-c", "print('x' * 64)"])
+        await transport.start()
+        try:
+            with pytest.raises(RuntimeError, match="frame limit"):
+                await asyncio.wait_for(transport.receive(), timeout=2)
+        finally:
+            await transport.stop()
+        with pytest.raises(RuntimeError, match="unavailable"):
+            await transport.send(b"{}\n")
+
+    _run(scenario())
