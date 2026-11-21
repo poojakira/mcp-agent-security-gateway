@@ -1,0 +1,2 @@
+# Minimal requirements for this guided source-only demo, not the full product/test lock.
+tomli==2.5.0; python_version < "3.11"

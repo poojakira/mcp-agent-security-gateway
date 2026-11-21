@@ -1,0 +1,1738 @@
+[
+  {
+    "path": ".env.example",
+    "size": 1620,
+    "sha256": "6daafd6daa572555c8e564770bc943d404820ab5e7d08fd9709c7cd38f09ac15",
+    "type": ".example",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".gitattributes",
+    "size": 108,
+    "sha256": "f31034e324e5653c26348281bde7dc6c2f9b0198742bb001a01c590425c0d775",
+    "type": "[none]",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".github/CODEOWNERS",
+    "size": 13,
+    "sha256": "27d3ad00ee4a7804316eb48c1a30918124876bc87aa26a5ee84ef7c47eb0faef",
+    "type": "[none]",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".github/dependabot.yml",
+    "size": 498,
+    "sha256": "fbf0dc65640f42c9e632ba54a463f0891c26f5df44a5b87d5066bf1de00300ce",
+    "type": ".yml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".github/format-trigger.txt",
+    "size": 75,
+    "sha256": "cf9268e108d63cefef62abde6205217e645d85b682cf470b3ae059eb51fa549c",
+    "type": ".txt",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".github/scripts/check_bandit.py",
+    "size": 410,
+    "sha256": "08265ecbc4443b26d57b5bf4f6d1ae1920aff1a712eb64834f8cb88e7a15e1ca",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": ".github/scripts/check_pip_audit.py",
+    "size": 958,
+    "sha256": "dbf5ed4493962a88c8bacc8ae2c461b9c3f75b87308b7a743dc47be3bb804353",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": ".github/workflows/appsec-focused.yml",
+    "size": 1380,
+    "sha256": "427339f47d09ad256eff1b7ba76ed6013b8aca081a938f514fb40307ad812196",
+    "type": ".yml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".github/workflows/ci.yml",
+    "size": 12145,
+    "sha256": "86fc662595545fe6bc756721f28cd9dd7bf6f4bce7594346dcaf5da6c948571e",
+    "type": ".yml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".github/workflows/poster-artifact-parity.yml",
+    "size": 3039,
+    "sha256": "c106b8407cb8a07011d47337b1861e43522e1626073ed8fd07b970c9663af889",
+    "type": ".yml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".github/workflows/production-gate.yml",
+    "size": 998,
+    "sha256": "c2ce0843b853c7dbd845a8fddfb1825aac74897abbe6f51669c1f9896f79ce01",
+    "type": ".yml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".github/workflows/production-policy.yml",
+    "size": 1411,
+    "sha256": "b76c94074d92643f40f45a40d3c8ffa25634c7e94da27303d220e68d85b4bd7d",
+    "type": ".yml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".github/workflows/release.yml",
+    "size": 10956,
+    "sha256": "d7f8bf1441a495071339f4ab8af7f1624be9503666b6f829cabf8abda4618117",
+    "type": ".yml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".github/workflows/security-hygiene.yml",
+    "size": 7224,
+    "sha256": "a11919c1c0c91b7d1e6d8df4e866ec863f0f34bd79c93515ea31f22973c6d8d5",
+    "type": ".yml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".gitignore",
+    "size": 1156,
+    "sha256": "285569b60aa6dc9c610be6247bd423eb0f765436f2d5195b75e6f5b4177483f7",
+    "type": "[none]",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".gitleaksignore",
+    "size": 745,
+    "sha256": "54c71c310c753978e6f6ebd868c7f4a63147c244c2208e0be9e83674d7ce2875",
+    "type": "[none]",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": ".mailmap",
+    "size": 807,
+    "sha256": "ec7093717cc1537a21d0d1b45b0e9b9f04db9dacccbfd17ef9867f11d8c92f11",
+    "type": "[none]",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "CHANGELOG.md",
+    "size": 3134,
+    "sha256": "90b0e65cbebd33d294660e074d4b1656d82c586de65a281a539e8c7fc2994704",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "CONTRIBUTING.md",
+    "size": 2193,
+    "sha256": "c23797fcc62e95026c5779bf2f20ac9292764e5a8e8accb5482dfee9de1d2e27",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "Dockerfile",
+    "size": 2686,
+    "sha256": "c14a412f377843aaf1c47b66c95ce79c54f28243f9180840389d000aed51f791",
+    "type": "[none]",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "INCIDENT_RUNBOOK.md",
+    "size": 15117,
+    "sha256": "5db719d027da2d84d89ed328db8b45eee20c3f0a25e494aa0fd6e6faf4599b39",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "LICENSE",
+    "size": 3006,
+    "sha256": "136ae2854bcb9d6423a4293153ed5925cacdc30e537415cbd0a56dcf49983f49",
+    "type": "[none]",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "MCP_Gateway_Poster.pdf",
+    "size": 251649,
+    "sha256": "91a63c4b840be2d5fbf02125f1ae34464b690a3e3d02acf3dda4d4430d385f32",
+    "type": ".pdf",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "PRODUCTION.md",
+    "size": 2310,
+    "sha256": "7f00384be26535413aa4d072246caf98495c06a64a07eba539db712381314d1f",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "PROVENANCE.md",
+    "size": 6790,
+    "sha256": "97bed3736caaa38d81c7c5352a5f39d6429af7fa6ecff26172fe7839d8750628",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "README.md",
+    "size": 20552,
+    "sha256": "5d9b73cbcc007bc01bf8f71aa3b05157d208d7ef276480f76f86a9c3be74462d",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "RESEARCH_REPORT.md",
+    "size": 19141,
+    "sha256": "9fc54412f02dc0f30538505f364c26f6830e4db7cb07fb4b65dc1ccccd57898f",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "RESUME_EVIDENCE.md",
+    "size": 736,
+    "sha256": "5905a7ed21dd135037dcc855d83f09f434dda0eea4234d40678ce7b3f0e5a700",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "RUNBOOK.md",
+    "size": 11890,
+    "sha256": "49cea546fd3f376939926d223048413f450dcddad1882dc1f6c99897cf69e991",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "SECURITY.md",
+    "size": 2174,
+    "sha256": "64d8a19771bfd9ff9d184b17b01012d9a2cef3d9259abde85aad90c5fa1bb3eb",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "SECURITY_AUDIT.md",
+    "size": 7292,
+    "sha256": "3eb83d4d304cbbd6108bea1e641d0aefb87d1a4416d90eb927a775f21df3df5e",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "SECURITY_AUDIT_2026-09-30.md",
+    "size": 4087,
+    "sha256": "62f3f130308a339cf4d3e08bc04610aad7b45a142c27253205c1e09aef0c663f",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "THREAT_MODEL.md",
+    "size": 8371,
+    "sha256": "1a65f12ba07e90c9c9b409dc6b1a759d42a7dec3979ffcab341dc06a9a372e71",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "VERIFIED_METRICS.md",
+    "size": 2588,
+    "sha256": "6aad3351ac2507add8fd9e499d50bacdeec5e57f259259ddc2c7d010f0e863fd",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "benchmark/replay_evidence.py",
+    "size": 4272,
+    "sha256": "5b4dbe736ab6de5f0a976e5d64b5725d23610d3115561b7b271c2e4496c0dfb5",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "benchmark/tool_call_latency.py",
+    "size": 2616,
+    "sha256": "636234bee04c9a010b844e00095d86ce7889ac396df0b33e83b8df34b822ecf9",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "benchmarks/enforcement_regression.py",
+    "size": 3805,
+    "sha256": "70c7569b0b8723d135352222ad5910120178be642b072d777ae8cf836bf88eaf",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "benchmarks/perf_gate.py",
+    "size": 7719,
+    "sha256": "cf5630467c4410fe7e8f5d9fbc77a8fe9b29275c3071014bd196de7b5bfd99e0",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "cpp/.gitignore",
+    "size": 38,
+    "sha256": "b303100d8289dd0ff8c68f186a79b5f00ef68e6619af0e6f44939cffc96229a6",
+    "type": "[none]",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "cpp/CMakeLists.txt",
+    "size": 540,
+    "sha256": "8773bc06a50c8025137ead90b610f7ac80ef90aed1ccf9a7ccdcd68b1ffbd85d",
+    "type": ".txt",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "cpp/Makefile",
+    "size": 478,
+    "sha256": "fee014b90b925d67b8c577cde52a5d386c6668b6e98476b352569df7e9964c92",
+    "type": "[none]",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "cpp/README.md",
+    "size": 2828,
+    "sha256": "9adbaa734f77c16c4ac246fa8ff291fbf8150d32ff81dea569ac5ed58b80f3b1",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "cpp/include/mcp_inspect.hpp",
+    "size": 11805,
+    "sha256": "4ecf9953f645bbf3ba48e859a1e1d0af609927310538c9a82a8a02eb502eb46b",
+    "type": ".hpp",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "cpp/src/main.cpp",
+    "size": 1895,
+    "sha256": "fc6ace78681893ee02ce0472bf2a92a596ca79e590a7c1ddfd72a345d52f3ae9",
+    "type": ".cpp",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "cpp/tests/test_inspect.cpp",
+    "size": 3737,
+    "sha256": "af409bcc9f7925e64dc33fcff304b909bf8e644c4a6f72ae66fa0ce7871e3c83",
+    "type": ".cpp",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "deploy/k8s/README.md",
+    "size": 3088,
+    "sha256": "22019df0c4cd5bb6fd5bfe1e924c4abddec1b40e88d2f714d03ce65c648206f6",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "deploy/k8s/configmap.yaml",
+    "size": 679,
+    "sha256": "d773fb091894155346b0bb1bc2d6b85b8086de4682bbd8a5844d1f9dce57a9ca",
+    "type": ".yaml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "deploy/k8s/deployment.yaml",
+    "size": 2230,
+    "sha256": "c909515f99dbed1bb7ba3e289af9f3f9f65d1099fa542a6291d7e404f3527446",
+    "type": ".yaml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "deploy/k8s/hpa.yaml",
+    "size": 429,
+    "sha256": "91b99cb7fc55493b104a9d6c2c1f6b06a0f184805fbf3b8e9620bfd5418f58a9",
+    "type": ".yaml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "deploy/k8s/namespace.yaml",
+    "size": 163,
+    "sha256": "d5a9610c1f4b8076b41e7e2ea1e042608f972a1d4ff31529a742a5c55535bd9d",
+    "type": ".yaml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "deploy/k8s/pvc.yaml",
+    "size": 239,
+    "sha256": "dd0069647d44ff73c9c8b9ad0b4c0dc9f3e93db25ea6650008218234bee3af25",
+    "type": ".yaml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "deploy/k8s/secret.example.yaml",
+    "size": 337,
+    "sha256": "b2d6baa05127b1840f73ef0451c02f23136766b504843718f26669b7393dcb1e",
+    "type": ".yaml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "deploy/k8s/service.yaml",
+    "size": 648,
+    "sha256": "941439cfce3a098d3800107a84b4ab0979ff98ade2a7ec169a894242945d8d74",
+    "type": ".yaml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "detection_lab/README.md",
+    "size": 10395,
+    "sha256": "421ffd133a95e030009a75aeebc1acc0b15f203217d186106d1d95a1c63e06a5",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "detection_lab/filebeat.yml",
+    "size": 1373,
+    "sha256": "be5f77984ae966d5cbc36ebc5f4a536b36b4ad3cf5836971dd8c2ff8b0faf95b",
+    "type": ".yml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "detection_rules/elastic_rules.toml",
+    "size": 6125,
+    "sha256": "8504ece149c32bd4c0550f221ee5a57a755a156dbc84791bfab3aa6f4844bcd2",
+    "type": ".toml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docker-compose.detection-lab.yml",
+    "size": 3626,
+    "sha256": "0b577d3fc84db7797f0b89157089258157a797f166ea510f1d2ac86b954d6e0f",
+    "type": ".yml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docker-compose.yml",
+    "size": 2376,
+    "sha256": "a42296fa58cb6493412219a8accfe2b4c548df58b9e61ac8bd385550791f78dd",
+    "type": ".yml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/API_VERSIONING.md",
+    "size": 2495,
+    "sha256": "36da56ab330decc0c37f04969cdd0153b67a37b8f45d4c62ceff91ba106aa8fe",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/APPSEC_ASSESSMENT_2026-10-05.md",
+    "size": 3195,
+    "sha256": "1da1bcc80261b1d270ae25475595dc732ef0cdce220be5c9360bb38d94cf2d27",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/APPSEC_CASE_STUDY.md",
+    "size": 7564,
+    "sha256": "b0f142095c799736e90635b9c2b5cd822d81321c0e5f80cd71d4c15c90a4a23c",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/DOCKER_BUILD.md",
+    "size": 3365,
+    "sha256": "075db4c5245bb7ce3721aac95d63e4c39cb919d934572ee91473788f74dd129b",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/ENFORCEMENT_BENCHMARK_2026-10-09.md",
+    "size": 1492,
+    "sha256": "19328529e6b7c57b4b809816380dd9eab93ca59d2fb4c1ad6483496c68af226c",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/OPERATIONAL_INCIDENT_RESPONSE_MEASUREMENT.md",
+    "size": 1676,
+    "sha256": "40546ea82cea9b06645587a10cf45b93ed439bc3ab8a4cce99f004ef2671cb2a",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/PERFORMANCE_BASELINE.md",
+    "size": 1407,
+    "sha256": "820a3af7c20fa9af0104f6fc85e6cb3585fd44286e849f53c2a56a879c5645f3",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/RECRUITER_DEMO_60S.md",
+    "size": 2191,
+    "sha256": "f1c25b11492f880e87b4669c9c4eca6bac77a61d0a327536ba25b3b4193223fd",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/RECRUITER_EVIDENCE_AUDIT_2026-10-09.md",
+    "size": 2310,
+    "sha256": "086ee7f4643a65f68141344ce2779fd5bfc878832de7868582103a6cf7ff3fda",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/VERIFICATION_STATUS_2026-10-09.md",
+    "size": 1276,
+    "sha256": "b3798f5afd49322ce860219a004338bb7e224cca9ff7a68e3f53e6bbeebd0d59",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/archive/HISTORICAL_EVIDENCE.md",
+    "size": 1961,
+    "sha256": "8b2738c6c649962a5c8d4294d69d0ee1233cb68dfecd5f963e8f9e67ae125088",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/detection/TUNING_LOG.md",
+    "size": 4577,
+    "sha256": "7255c08a23e7c8679df808d32a389d5efcf93178d6b11bc4c819e1210f1cce82",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/detection/coverage_matrix.json",
+    "size": 6439,
+    "sha256": "db84d6ff975ea99269ec664903e1273d42f812ed40dc3f5cc8de2ea476653b44",
+    "type": ".json",
+    "symlink": false,
+    "validation": "JSON parsed"
+  },
+  {
+    "path": "docs/detection/coverage_matrix.md",
+    "size": 2793,
+    "sha256": "cff09b8430aa1df3feba40f2bee913758331fa418b16a155fc999bf7988b157b",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/detection/fixtures/synthetic_events.json",
+    "size": 4844,
+    "sha256": "d5ea1a828ebac55739b37e48ac332425c3d167a28ed7d4c47a189c6696dbd81d",
+    "type": ".json",
+    "symlink": false,
+    "validation": "JSON parsed"
+  },
+  {
+    "path": "docs/detection/latency_bench.json",
+    "size": 593,
+    "sha256": "acfe130cf1de49c0e12e231483686bb16469c8125908e94badbba9905f9ead66",
+    "type": ".json",
+    "symlink": false,
+    "validation": "JSON parsed"
+  },
+  {
+    "path": "docs/detection/latency_bench.md",
+    "size": 443,
+    "sha256": "799114770838e53f3332d40dbe3bf9887a333bf44b689ca0d0a41e81303378ea",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/detection/precision_recall.json",
+    "size": 2942,
+    "sha256": "5843631723d7d26dc4f332022affb314b1f2e0038887371c93edc52fef223b8b",
+    "type": ".json",
+    "symlink": false,
+    "validation": "JSON parsed"
+  },
+  {
+    "path": "docs/detection/precision_recall.md",
+    "size": 925,
+    "sha256": "7bacb9e3d5db3a834be0da04b67c941f8a18faea6b2d4c570ecb000f1e487dcb",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/evidence/RESUME_EVIDENCE.md",
+    "size": 1558,
+    "sha256": "1a3c974a309c5b99ead1d095c1a293887993b9720c78e378e68aab4af4f9577e",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/license-history/LICENSE-BEFORE-2026-10-13.txt",
+    "size": 1414,
+    "sha256": "655d2cc8d9cf9b56bda8e59fa40f6d91d442d66b3484a60ba95e9aa409291aba",
+    "type": ".txt",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "docs/policy/POLICY_AS_CODE.md",
+    "size": 3858,
+    "sha256": "36ad77f396bee97e1381efe42305603f5c7dbb6634d4dae11ed0163d03db4103",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "evidence/generated/mcp_replay_evidence.json",
+    "size": 43615,
+    "sha256": "c230fcabd026ee8f15f8950eedf530c12844f0fe787148eaacb994dc6885fa54",
+    "type": ".json",
+    "symlink": false,
+    "validation": "JSON parsed"
+  },
+  {
+    "path": "evidence_policy.json",
+    "size": 4270,
+    "sha256": "0c8663c473951d8db5e562e242512954d3975c8b2fef9aabfad0aecb45fa4239",
+    "type": ".json",
+    "symlink": false,
+    "validation": "JSON parsed"
+  },
+  {
+    "path": "locustfile.py",
+    "size": 3463,
+    "sha256": "20b634d2e7b0dbb5f623ce438913e0faff626a96cf3c71a867a515b6fa6b3fb8",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "policy/rego/README.md",
+    "size": 2353,
+    "sha256": "b64064341406329db47e49329ccbc7455acc100384aecf50ef9694a1d96fb41a",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "policy/rego/egress.rego",
+    "size": 1226,
+    "sha256": "763c28544bf87dde0ce7cc14902b35b54ff91910badaf95a8632c2f2c73e88c8",
+    "type": ".rego",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "policy/rego/egress_test.rego",
+    "size": 838,
+    "sha256": "ac78c222bbdc355c59201b526d8fdfe36c937e050529b9eb3fe29b748a5ca20d",
+    "type": ".rego",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "policy/rego/tool_authorization.rego",
+    "size": 2072,
+    "sha256": "65692f0960f517513e64889369a91ba3d805c55afe805bf34b7ac4d4d8dbcb10",
+    "type": ".rego",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "policy/rego/tool_authorization_test.rego",
+    "size": 1299,
+    "sha256": "558f8463ed05a77c852b5ebb0b3889a5d0dcc9cd1aa47ecab8b804ceabed839e",
+    "type": ".rego",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "poster/01_research_brief.md",
+    "size": 5331,
+    "sha256": "73661eacdd0ac1877d50908589b34ee7033575ebe9c81019c9a0a42586db76f2",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "poster/02_claim_ledger.md",
+    "size": 2401,
+    "sha256": "fdd6bd460631a1134612cb078377263790bb8ea4128a4d16acefa9cb5b209037",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "poster/03_verified_metrics.md",
+    "size": 1266,
+    "sha256": "316730958e25b7cf5fada479ba614c4eac8220f37a670dc8ba2eac8e04a1f83d",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "poster/13_reproducibility.md",
+    "size": 1314,
+    "sha256": "66acc66180df42ce77113e45f8f9fce55ddd3d829bd7ffa880489ebdaf9dc7b3",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "poster/poster.png",
+    "size": 357255,
+    "sha256": "3ea2c38622416dfb55f6d52d158fbce3be90aef1c43a1fae378fdefd90d9e753",
+    "type": ".png",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "poster/poster_36x48.pdf",
+    "size": 251649,
+    "sha256": "91a63c4b840be2d5fbf02125f1ae34464b690a3e3d02acf3dda4d4430d385f32",
+    "type": ".pdf",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "poster/render_poster.py",
+    "size": 11812,
+    "sha256": "3445bbd23a6e45dc7aeb11b42aebd4182cfda0dbb51c066e52504a16cdf01fcf",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "pyproject.toml",
+    "size": 1176,
+    "sha256": "f59aa8a6c4d4c26415368f8a784927791f178fa3ca62a74175c280c54ad00583",
+    "type": ".toml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "run_dashboard.py",
+    "size": 4025,
+    "sha256": "894e967fc915d50c8746c487d4feaf3caed8b3e4b2f70e58d8b9c77b6f2f2cd2",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "run_realtime.py",
+    "size": 457,
+    "sha256": "f2377b21777f1ab2190807b450cf3cf6cd34fde57556b30d7f09e9376a3d152d",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "rust/.gitignore",
+    "size": 8,
+    "sha256": "44c92e3a70ad3307b7056871c2bdb096d8bfa9373f5bf06a79bb6324a20ff2fb",
+    "type": "[none]",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "rust/Cargo.lock",
+    "size": 2672,
+    "sha256": "3b34b68e3023107e014f3b0454a5256e9bcab5ce646e348735d44ec98d8bb592",
+    "type": ".lock",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "rust/Cargo.toml",
+    "size": 752,
+    "sha256": "98feeb087ad557c57636f0a494ebe6a0b95da7158cdc4717c140441684ca5be7",
+    "type": ".toml",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "rust/LICENSE",
+    "size": 3006,
+    "sha256": "136ae2854bcb9d6423a4293153ed5925cacdc30e537415cbd0a56dcf49983f49",
+    "type": "[none]",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "rust/README.md",
+    "size": 2559,
+    "sha256": "56155a8c85d50b80c0b3c3f7fe1c547469a1ac18690be2580b38acc6ea787854",
+    "type": ".md",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "rust/src/lib.rs",
+    "size": 9151,
+    "sha256": "7637d670642a1ffdf6cbfc776e86149c0e5230313a422151a98538c16748e069",
+    "type": ".rs",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "rust/src/main.rs",
+    "size": 1953,
+    "sha256": "87d2d12ae365c4dad9241a1b069d3b907667797b59760276226b2afba10d4898",
+    "type": ".rs",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "scripts/measure_incident_response.py",
+    "size": 3763,
+    "sha256": "60304100faba5a798da34b0df7817f2394ab3a3af7c20a004797257913a61adb",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "scripts/recruiter_demo.py",
+    "size": 5143,
+    "sha256": "4c9e687404987b308ddb58c7227d3ef06f5e15df32d491b98839cde49d239cf0",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "scripts/workflow_security_scan.py",
+    "size": 2832,
+    "sha256": "bfd9eaf3be2c8eae52ba89c651ae2f17ffa5cfe9f9187e1ff71996590693f75f",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/__init__.py",
+    "size": 294,
+    "sha256": "5b8093d650fb3668a56a080171a99d47c025c6d02950f592d5f4b7f0397b9b7a",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/advanced/__init__.py",
+    "size": 1717,
+    "sha256": "98694397230893c250180702b0ed128e4613d872eb4301caa73dbd6f07498e39",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/advanced/canary.py",
+    "size": 9512,
+    "sha256": "a556126ce742a6b4c87dbe85ba8d814498f1070c4fa45596bc403b71dda61fff",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/advanced/correlation.py",
+    "size": 10014,
+    "sha256": "795785a61bc8a718735bad03daa9dfebcb29acbf9c4b1e1da5732a44738433b6",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/advanced/drift.py",
+    "size": 12160,
+    "sha256": "568e70fbd61f518db772bc810aef138ec9ea60b92027a827baae894b2c3e8ac0",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/advanced/invariants.py",
+    "size": 12012,
+    "sha256": "e07a55b9c5c633e1dffe05d1966d9922e5a4b685fa046a62fa2abfaea0cd2b26",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/advanced/manifest.py",
+    "size": 6604,
+    "sha256": "346c1a0380e9cad9e8604d43104f559ff474053ffbd29d8bf089cc21aa762078",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/audit/__init__.py",
+    "size": 226,
+    "sha256": "287366f69935ecb7aa51be72e4c95164331e8853d5250b31ef5cbf58da05c732",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/audit/log.py",
+    "size": 6837,
+    "sha256": "223eddbe2d56ffb90b78d5c192a1db23c996dfc70a481b7405859ee57b3ff291",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/audit/wal.py",
+    "size": 4072,
+    "sha256": "450d50cd6db3aa67546b1865bbd1d08d5e3c9cc20f9200fd7cc8aa7fc34d3818",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/client.py",
+    "size": 6746,
+    "sha256": "cbe701c557be4a130d998567aa9aa90a4df704aa6f492896c419f5c761f7ba08",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/dashboard/__init__.py",
+    "size": 234,
+    "sha256": "a84a41e3d6695263e13756d33e925aa723eac0371caa0f04c4e577ab46c7785d",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/dashboard/report.py",
+    "size": 8180,
+    "sha256": "2c403308f80cc6b6de37833fe08815925ffd0f77b03d52942cca91c1e5e30301",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/dashboard/terminal.py",
+    "size": 4329,
+    "sha256": "04328ba2e50b67b7cfa134a79c21f539be2d1d3a75a335dbfa6add8c4a252ffc",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/defense10/__init__.py",
+    "size": 1357,
+    "sha256": "a83f526d4374e41f042820bbfdbcc606aeafac2c327824638204aa762282c01d",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/defense10/corpus.py",
+    "size": 20936,
+    "sha256": "49563dc2a0a28ca6a002fc19d8559cdb3a027a54c77d65fa7378da76253438eb",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/defense10/dataset.py",
+    "size": 9114,
+    "sha256": "04ddb7ea1908c9a916706b9a52cf31007168e98c1c32302ca2db895e17c8c37d",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/defense10/egress_proxy.py",
+    "size": 6893,
+    "sha256": "eaebad9dbeac553241124f29f97175b517f0f4e3d38edf9011c3898f8de9c62e",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/defense10/features.py",
+    "size": 3850,
+    "sha256": "91b637ae3603e0993c884f8b7d89bb28095e3df42c783ff19621e63f65cdc3d4",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/defense10/honeypot.py",
+    "size": 4345,
+    "sha256": "39361d1a174eca7367321470c859c2c105dfcb14bf3d5dd509a940e68aea9314",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/defense10/ml_classifier.py",
+    "size": 9440,
+    "sha256": "a7ab124dd6867a0dec1e7744029b2fa995b38f46db8a8d32b018f559ceed1a20",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/defense10/network_monitor.py",
+    "size": 7448,
+    "sha256": "09a997281bf65e807941ad5882f5b447b833b1985a0eac460877847bc7916eb4",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/defense10/orchestrator10.py",
+    "size": 8466,
+    "sha256": "3b5cdc697fea2679ee39e36342ee35170dcb1bea934a6d2bd015ccd50b4d279d",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/defense10/rate_limiter.py",
+    "size": 6494,
+    "sha256": "910ea4a1d4b97eeeb0b884e58ba254ab96f7c5a1ed03706677e44c47017f30dc",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/defense10/sandbox.py",
+    "size": 5509,
+    "sha256": "d33bf5829e17fa4e90baef34f5fc1ce11f579caeee8283b19788599f7d17321a",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/detectors/__init__.py",
+    "size": 433,
+    "sha256": "ea5b56866f63c363125687dabaaa0f1aaefcfc9ecd2748bca0a5700762230051",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/detectors/exfiltration.py",
+    "size": 5519,
+    "sha256": "1b26d55d7569742447fae4bd8a1088722f6b522796ef1036a0015f5a9c938d94",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/detectors/pii_detector.py",
+    "size": 3483,
+    "sha256": "03a361edf55f933a39c5abe9e473f96d0e0301f8b32a583f4e1e05f6d85f4c46",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/detectors/prompt_injection.py",
+    "size": 27838,
+    "sha256": "08e9c8fa14adccfd9819a25ffa3c3de3a108c0c1574b0f37a09cb4dc4a70bed2",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/detectors/shadow_server.py",
+    "size": 5460,
+    "sha256": "0a60e6289e1256378267786a37b3cedd483e31bb5a47c3c28bd62b05a6f0acbe",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/layers/__init__.py",
+    "size": 477,
+    "sha256": "a67d260407f048adf56b37311764abc7808c7b1a51996d59e8bdaca6860c6ae9",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/layers/egress.py",
+    "size": 5019,
+    "sha256": "deae97df1b78223b8f7c3a7d163622c5cfc966c321743dfceece39dec4b5b1a9",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/layers/kernel.py",
+    "size": 8925,
+    "sha256": "1c1959e47904b8888842a47d94f26df099e1008e9a16a9be876592f5ce20e3cd",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/layers/orchestrator.py",
+    "size": 8806,
+    "sha256": "ff946f77db6680bea0f55f68374c6e86a75a0e05220f4636beef6165026b3f55",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/layers/proxy.py",
+    "size": 6855,
+    "sha256": "3969fe85bad11af4bd0d7d2cbd87bd061967005a12ce0c3221e1c8b701cc144a",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/layers/semantic.py",
+    "size": 7585,
+    "sha256": "9b9392ddd7aece26614183c8120b4a8cd4b838cfcb01b589147f43db73589823",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/monitor.py",
+    "size": 10246,
+    "sha256": "8b11da477672bd681b50dc5f5843074bdaa6d0d4f08ed4e1aa61fd2de96281f9",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/policy/__init__.py",
+    "size": 789,
+    "sha256": "a9bdbf2f5f35c005b6802bb12b87f3fea0fc6cae22999d2ffc6c19cfa7bcffd7",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/policy/policy_engine.py",
+    "size": 12338,
+    "sha256": "44aff1f6f4fdf762453d831740dd969d850d8af68109d3ecd50caf620813e307",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/__init__.py",
+    "size": 936,
+    "sha256": "c6eff83d27d9aacbcd36e6ad4807924241bd28038cbaf790581eca765fa408e5",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/alerting.py",
+    "size": 4708,
+    "sha256": "5256c6eb4f25bdd5e70f0d4c7df87bb537bf2c87f59e42b2252c5a3f02454ddf",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/circuit_breaker.py",
+    "size": 3717,
+    "sha256": "6cd9324e8c6267756e4715fb9eec256707d0f8cb748b53b0a4800b88c980b341",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/config.py",
+    "size": 6935,
+    "sha256": "f37ef99d68280bd68d1d65ad7b52736eddb76c13c824fd13b8dcbbc178016eb1",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/identity_shipper.py",
+    "size": 6884,
+    "sha256": "63f8a4b817b3ebc5da9ef0985962e4a7461e81bae9fad4140bd90bbf1425964f",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/identity_smoke.py",
+    "size": 2221,
+    "sha256": "4ee276ae19fd6e1c5233e34299525bf196caf2c2cb26554a9ecb1a3a4827084b",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/identity_telemetry.py",
+    "size": 9714,
+    "sha256": "27da5b5e8f8173fa9e9f285c75b604131fc9f650579cc24c6d93952ebf9fccff",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/identity_transport.py",
+    "size": 4882,
+    "sha256": "a61a08e163b21f6161b64b46068d288841ea708bc70e197122bd29f7ac705d6d",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/logging.py",
+    "size": 3400,
+    "sha256": "591f97d858f7dc96763c84cdf2e5fce38142959cc5bdf761b02fab8e5b248b82",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/metrics.py",
+    "size": 5732,
+    "sha256": "6882cd2abea83f98a06a411626de1a01dcb37a813b0898481edb533aebbf714e",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/rate_limiter.py",
+    "size": 2114,
+    "sha256": "37e1005747bb989fda02915cb127b1702f27ab2dae486d64fca7044896143f08",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/server.py",
+    "size": 30945,
+    "sha256": "dc9f9f520b7920f8eca69d2cf66a862e79d4ce0e1058349ea0c2f9c891aa0bb6",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/shutdown.py",
+    "size": 3985,
+    "sha256": "f432415efef51fa34f82d0fab8ea32b81717bc5e2cba7c069f3a867e565d8c80",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/production/tracing.py",
+    "size": 6139,
+    "sha256": "b9eb09f4a1f147b57f749b79b2b177df7340c388a20558a32897b3d052a38158",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/protocol/__init__.py",
+    "size": 216,
+    "sha256": "6c69a550e579c3c83bf20f47c2a330690258fc3d27b057c789a0964cee38a1a5",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/protocol/jsonrpc.py",
+    "size": 12215,
+    "sha256": "8aee89aa3ed316600372fa1f8f137946931746ef31566b9763d433cb224b478b",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/proxy/__init__.py",
+    "size": 204,
+    "sha256": "76fdb5cfed0103fc79576107d50baf0374ea086760a5e59dd40174599cf9628e",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/proxy/stdio_proxy.py",
+    "size": 23022,
+    "sha256": "d2870c9ed76c6e12d630d325d7fc910b318eb168a3c1070d81efa8ce19554438",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/redteam/__init__.py",
+    "size": 234,
+    "sha256": "3d51f4103ce301aa54951fe51f842289f131d418cc56629cd14a091019043a03",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/redteam/payloads.py",
+    "size": 23723,
+    "sha256": "56c3e87441ac5d6c0153f9df96398f097899945ad10fbc966e3813bdf16ff54b",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/redteam/simulator.py",
+    "size": 6616,
+    "sha256": "f99d2bd1c59b72001094d3c26c2a08cdf58724ac8323ccccadfd741b5ce0dfd1",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/server/__init__.py",
+    "size": 113,
+    "sha256": "1e102ea186e1fff44f8e8354ebed6c51ea9b420d61d7c3fbec79f14baf0bc3a3",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/server/dashboard.html",
+    "size": 18851,
+    "sha256": "4a4bb074125f25672633e75a29326157f1304313d3639de79d921e856c0d7a8f",
+    "type": ".html",
+    "symlink": false,
+    "validation": "inventoried; content review pending"
+  },
+  {
+    "path": "src/mcp_monitor/server/realtime.py",
+    "size": 34633,
+    "sha256": "578c68ed447690f3aa35428ef0b5db9132f2895f320ccb04e304735ed3ce77fd",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/server/workload.py",
+    "size": 6145,
+    "sha256": "7765b189217caa532b49f7b8c6cd1332f4dfea4aade238bdb0dff09c19fd3a3f",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/siem/__init__.py",
+    "size": 1131,
+    "sha256": "f75f9e3de0fa93492fc6f7019c55c03816c3d0add388b42bbdcdbad960470ec8",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/siem/attack_simulations.py",
+    "size": 18040,
+    "sha256": "ee74d5b978af842c05a766d95ceaa59ad38e7cea8035c538383daa93a962913d",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/siem/correlation.py",
+    "size": 13193,
+    "sha256": "754c0bda529a84d8eda248f14496e766272f5f1ca75f6a2a52a5b5f2797335c5",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/siem/ecs_formatter.py",
+    "size": 11430,
+    "sha256": "0cf67ffcf2af0f2b6e7e766b431d3b94551710a2e274cb1909d4019a4b13ca2a",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/siem/lifecycle.py",
+    "size": 28864,
+    "sha256": "3c0f559d518804d94b8898f68aee5c8b786f4ea5b55224e043b0ed3087c64f36",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "src/mcp_monitor/siem/shipper.py",
+    "size": 9647,
+    "sha256": "4a1ce610ed3caae5e7b29cc463521899faab42987de139117accc839735112de",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/__init__.py",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_5_layers.py",
+    "size": 23723,
+    "sha256": "9da3b0d3d24dac978c5a7c83ba2f2dd8fcbea4f5580c8a853ff387ea457f8c38",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_advanced_canary.py",
+    "size": 6119,
+    "sha256": "8439d83de090b7d4a8e1b536263172ab5ef967ca84446f389083ad28deac6899",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_advanced_correlation.py",
+    "size": 4836,
+    "sha256": "94f728d030be29f02b688ddd6793f3fe059987d6f3f5dc18c3365f24cd3a89a8",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_advanced_drift.py",
+    "size": 5741,
+    "sha256": "8d8877a75e897d954fe3f7edb98551d77d20d0081322ba55f0c10d9cc24cfe28",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_advanced_invariants.py",
+    "size": 5748,
+    "sha256": "d6878ae58da7bbd75c65d08f52f8f62324f20f24ca7f64c4c13fddeb97efb301",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_advanced_manifest.py",
+    "size": 6814,
+    "sha256": "33c142e2ba4de7de38117f6f57e56147779c04189852ece6418602cd09ea311d",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_alerting_security.py",
+    "size": 1109,
+    "sha256": "56fc5e7385ac83c0584d87141d54e4aa62bba41ed2a4b39210e5e68e1bf391b0",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_audit_log.py",
+    "size": 8090,
+    "sha256": "8645767d41c9c252987d61c8ccb16ce57406b54f7fd2530d32c19264853b59a1",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_client.py",
+    "size": 4013,
+    "sha256": "c8384ed88d101b4f9eb0f2b51fba446d801058d417a6fd7395a37f66ea2e9264",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_coverage_100.py",
+    "size": 33281,
+    "sha256": "c9fb5959ad43f42f6e2f17d7e73052e08635bcd248321653885fb4b34bb69bb1",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_cross_platform.py",
+    "size": 9246,
+    "sha256": "c6b1ba685b0970602ec8a12793b862a9d95457f93f1c904dbe4c4bf5f35ad2e8",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_defense10.py",
+    "size": 9147,
+    "sha256": "62c5e8cee0f0200c62dda0030fa4a95ea8778c7632784736ecabce2ad6db3f4f",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_deployment.py",
+    "size": 19254,
+    "sha256": "dd0c421d522194e15f431a901fa3ac07083f293e649fa01f7141a0d284ce1f2e",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_detection_lifecycle.py",
+    "size": 6797,
+    "sha256": "eadbf616eea20422b37291522b0e98216eabd1b5e35bec38f51b19e66368f2a3",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_detector_failures.py",
+    "size": 16457,
+    "sha256": "0cc319a0a3f7c8e28582776548b784afe530fecdd84afc696a69e843256d82d5",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_exfiltration.py",
+    "size": 5229,
+    "sha256": "24a74fc7ee689397c1c7b794aa3def560f9b9ed4667e9f8aa8a7efc9eaa2c155",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_http_framing.py",
+    "size": 2425,
+    "sha256": "a6ff8a31328eaa7d1a63e9bcbe50de220e719f9a0eeb939a517cbcf381c2e6e0",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_identity_shipper.py",
+    "size": 4328,
+    "sha256": "e1e245e3e97eede2e56b6026a5eb266d06bd0b9031b85185305c30815b908b56",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_identity_telemetry.py",
+    "size": 6285,
+    "sha256": "95782f034793f6cd467805ce7890bd17edeffc16b63f4dd5324ab68e3630be0e",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_identity_transport.py",
+    "size": 6826,
+    "sha256": "e64f11c2ef8bc1377f5703ec39a7f702a0dc22caa01b5f74a4f1c5c60ebb47f0",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_injection_enforcement_regression.py",
+    "size": 3224,
+    "sha256": "cd629a7cbd6b0b2dbca13f7914c8e3c8c29a0c59d89665e5f71ad7a44342c17e",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_instruction_authority_regression.py",
+    "size": 2989,
+    "sha256": "006c6b3ae7a468c3382bbccf3c5f195b2fc0ecd6a03df32080a53118630a911b",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_live_stdio_policy_backport.py",
+    "size": 6721,
+    "sha256": "2e50482e91874e521441f8f9763bb2a2b82de39564090c0d665f319e2ec9bb05",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_measure_incident_response.py",
+    "size": 2427,
+    "sha256": "936871d0c85572a4d9530deaad8193fa44f564752381d0d20f3930a9841c282a",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_pii_detector.py",
+    "size": 7200,
+    "sha256": "c903d6420ac28bd8d819cbb930aa70019ad748d6715ee77cd826d31888aed091",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_policy_enforcement.py",
+    "size": 8365,
+    "sha256": "99e114dd6aba074f975a15ad1061fe405c9d462b7290855889eca80a62d252a6",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_production.py",
+    "size": 35329,
+    "sha256": "7e7101fa709bfacb9a54c3c4da027f9583d0c566769156972d0c53acf35c0ea8",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_prompt_injection.py",
+    "size": 7824,
+    "sha256": "a39105e4dbc2da9c0cb16f481f7ec862ce6789fe3f793272c625f811bcc0bb9b",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_protocol_hardening.py",
+    "size": 9655,
+    "sha256": "890463d1b789f71ee988aae50e8da771e5dec2867d43a0bbc0b691b3a6f15203",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_real_mcp_protocol.py",
+    "size": 28045,
+    "sha256": "ff48fe56fbf23adc22d90c57752966eb1a9d50c9e3c6dd0d5ebfa1abd69c16b9",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_realtime.py",
+    "size": 2827,
+    "sha256": "a828fa06caec6dfa109fff61d8e02d969a2d192d8c46d16adb4cccf630bcec47",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_redteam_simulator.py",
+    "size": 4206,
+    "sha256": "0f54780cab9a981dfac21d7eed8d388f6201aed1e5a7a46ad207869c7255bbd3",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_retired_demo_credential.py",
+    "size": 1530,
+    "sha256": "47ece458691f362580a77a80bde9a97214220efc5bd54e67062aa054fe374654",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_shadow_server.py",
+    "size": 6893,
+    "sha256": "cd9d291d2bb8e4769f1b0e11c46a221982b0e88b514069abdf2cd56840d39702",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_siem.py",
+    "size": 15530,
+    "sha256": "26e822488077366a72428eae1e198b6e7ac61254241ad287af4a83e4588ac966",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_siem_scenarios.py",
+    "size": 3787,
+    "sha256": "750e64191614b762bcda500af381e604a1eef0e5134f5e688bfa7bb2bcb8e549",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_stdio_proxy.py",
+    "size": 18182,
+    "sha256": "dfb3b6ebfd247e974b1979c73b982796d155db805671a21d7c77f62baee35db2",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  },
+  {
+    "path": "tests/test_workload.py",
+    "size": 2383,
+    "sha256": "c0cb43497dc8e243277be121304bae1df0bf22a4317f5a8faab057f5a29b9dd3",
+    "type": ".py",
+    "symlink": false,
+    "validation": "AST syntax parsed"
+  }
+]

@@ -1,177 +1,39 @@
-# Threat Model — MCP Agent Security Gateway
+# Threat model
 
-This document describes the threat model for the MCP Agent Security Gateway. It identifies the adversaries, attack surfaces, trust boundaries, and mitigations implemented.
+## Local workbench boundary
 
----
+Assets are the operator host, request contents, policy configuration, temporary tool state and exported evidence. The intended actor is one trusted local developer. Untrusted inputs include JSON-RPC strings, arguments and browser-origin requests; a local OS adversary may also contact loopback or inspect files/process memory.
 
-## Adversary Model
-
-| Adversary | Capability | Goal |
-|---|---|---|
-| Malicious prompt author | Crafts inputs that manipulate agent behavior | Cause the agent to invoke tools in unintended ways |
-| Compromised MCP server | Returns poisoned tool outputs or altered schemas | Exfiltrate data, escalate capability, or inject instructions |
-| Rogue agent | Autonomous agent operating outside intended boundaries | Access unauthorized tools, exfiltrate data, spawn processes |
-| Network attacker | Can intercept or inject traffic between components | Man-in-the-middle tool calls, steal credentials |
-| Insider with log access | Has access to audit logs | Tamper with evidence of security decisions |
-
----
-
-## Trust Boundaries
-
-```text
-┌─────────────────────────────────────────────────────┐
-│                  Untrusted Zone                       │
-│                                                      │
-│  User Prompts · Agent Decisions · Tool Arguments     │
-│  Tool Outputs · External MCP Servers                 │
-│                                                      │
-└───────────────────────┬─────────────────────────────┘
-                        │
-              ┌─────────▼─────────┐
-              │  Security Gateway  │  ← Trust boundary
-              └─────────┬─────────┘
-                        │
-┌───────────────────────▼─────────────────────────────┐
-│                  Trusted Zone                         │
-│                                                      │
-│  Policy Engine · Audit Log · Configuration           │
-│  Rate Limiter · Circuit Breaker State                │
-│                                                      │
-└─────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+  Browser[Local browser input] -->|Exact loopback Host/Origin, bounded JSON| HTTP[Serial stdlib HTTP server]
+  HTTP --> Policy[Canonical PolicyEngine and StdioMCPProxy]
+  Policy -->|Allowed operation only| Child[Fixed first-party stdio child]
+  Child --> Workspace[Disposable note and receipt files]
+  Workspace --> Report[Independent state read and report]
+  Report --> Browser
 ```
 
----
+| Threat | Implemented control / evidence pointer | Residual risk |
+|---|---|---|
+| External page submits local requests | Exact loopback peer/Host/Origin and restrictive CSP in `workbench/__main__.py`; HTTP boundary tests in `test_workbench.py` | Loopback is not authentication against other local processes |
+| Arbitrary executable/path/network request | Fixed child command, minimal environment, exact fixture path and tool inventory in `workbench/runtime.py` and `tool_server.py` | Trusted child is not a sandbox for arbitrary malicious code or kernel exploits |
+| Unauthorized tool use | Exact tool allowlist in `PolicyEngine`, real denied-write and permission-comparison tests | No verified credential identity or cross-user authority |
+| Malformed/ambiguous MCP message | Canonical proxy parsing, strict supported method boundary, duplicate-key/JSON-RPC regressions | Complete MCP conformance and concurrent/cancellation semantics unverified |
+| Prompt-injection content | Existing argument detector and policy denial tests | Heuristic matches can be evaded; indirect output injection and full PII filtering absent in this flow |
+| Local resource exhaustion | 16 KiB envelope, 8 KiB request, 2 KiB note changes, 30 requests/minute, serial processing, socket/operation timeouts | Slow local clients can occupy the serial service; no multi-tenant availability isolation |
+| Stale or fabricated success | Actual child response, receipt, independent state and explicit UNKNOWN on missing confirmation | Compromised host can forge all local evidence; no external reconciliation |
+| Repeated side effects | Repeat option records actual duplicate append receipts | No exactly-once guarantee or provider idempotency contract |
+| Data leakage/tampering | Transient workspace, text rendering, redacted downloads; browser redaction/CSP tests | Deletion is not secure erasure; downloads persist; unkeyed chains permit complete rewrite |
 
-## Attack Surfaces
+## Distinct library and HTTP-service surfaces
 
-### 1. Tool-Call Arguments (Prompt Injection)
+The repository also contains heuristic PII/exfiltration detectors, server registration, supplied-event process/egress policy evaluation, optional manifest HMAC/drift/canary logic, HTTP API-key authentication and fingerprinted identity telemetry. Their existence does not extend the workbench's supported browser scope. The [HTTP API](docs/API_VERSIONING.md) authenticates inspection/metrics; an integrating caller must honor its decision before acting.
 
-**Threat**: Adversary embeds instructions in tool arguments that manipulate downstream behavior or bypass security controls.
+The named `INJECTION_PATTERNS` collection has 69 entries at implementation source `4b6bb486d83f4410037113e64848a22e4a06f713`; it is a source-inventory count, not a recall rate. Egress policy does not intercept packets. Supplied process events are not an OS sandbox. Optional host/eBPF code is not proof of deployed kernel enforcement. Test suites and source paths are mapped in [the workbench acceptance matrix](docs/WORKBENCH.md#acceptance-status-matrix).
 
-**Mitigations**:
-- 55 prompt-injection detection patterns (see `INJECTION_PATTERNS` in `src/mcp_monitor/detectors/prompt_injection.py`)
-- Unicode normalization (zero-width removal, homoglyph handling, BiDi control stripping)
-- Base64/ROT13 decoding attempts before inspection
-- Multi-layer policy evaluation
+The HTTP service uses a process-wide rate limit and trusted configuration. Source attribution trusts the socket peer unless an explicitly trusted proxy supplies a normalized forwarding value. Misconfigured ingress can spoof that context. Fingerprints depend on secret/salt custody and remain linkable metadata; local generation does not prove external ingestion or privacy compliance. Operational endpoints deliberately remain unauthenticated. See [RUNBOOK.md](RUNBOOK.md) and [SECURITY.md](SECURITY.md).
 
-### 2. MCP Server Identity Spoofing
+## Evidence limits and next gates
 
-**Threat**: Agent invokes a tool on an unregistered or impersonated MCP server.
-
-**Mitigations**:
-- Server registry with allow-list
-- Capability boundary checks per server
-- Unregistered server rejection at Layer 1
-
-### 3. Data Exfiltration via Tool Calls
-
-**Threat**: Agent sends sensitive data to external destinations through tool arguments.
-
-**Mitigations**:
-- PII detection (SSN, credit card, API keys, etc.)
-- Exfiltration indicator checks (hidden recipients, oversized payloads, raw-IP destinations)
-- Network egress policy engine
-- Tool-output inspection (bidirectional boundary)
-
-### 4. Process Execution via Tool Arguments
-
-**Threat**: Tool arguments contain shell commands or process-spawn indicators.
-
-**Mitigations**:
-- Layer 3 process-spawn intent evaluation
-- Pattern detection for subprocess, os.system, shell invocations
-- Security invariants for destructive operations
-
-### 5. Circuit Breaker Bypass
-
-**Threat**: Attacker floods detectors to trigger circuit breaker, then sends malicious requests while detectors are unavailable.
-
-**Mitigations**:
-- Circuit breaker fallback produces DENY (fail-closed on this specific path)
-- Rate limiting on inspection endpoints
-- Separate circuit breakers for call and output inspection
-
-### 6. Audit Log Tampering
-
-**Threat**: Attacker modifies historical audit entries to hide evidence of blocked or suspicious requests.
-
-**Mitigations**:
-- SHA-256 hash-chained audit log
-- Write-ahead logging with request-body hashes
-- Tamper-evident verification (chain integrity checks)
-
-### 7. API Credential Compromise
-
-**Threat**: Attacker obtains one configured gateway credential and submits unauthorized inspection requests.
-
-**Mitigations**:
-- API credential required on protected endpoints by default
-- Legacy single-key and stable multi-key configurations are supported; compromised credentials can be rotated independently of code
-- Anonymous mode requires explicit opt-in
-- Rate limiting bounds abuse potential
-- Privacy-preserving telemetry fingerprints the credential locally instead of exporting the raw value
-
-### 8. Source-Address Spoofing Behind Proxies
-
-**Threat**: A client supplies a forged forwarded-source header so identity/network telemetry attributes requests to an attacker-selected address.
-
-**Mitigations**:
-- Socket peer address is authoritative by default
-- `X-Forwarded-For` is consulted only when the socket peer belongs to an explicitly configured `MCP_TRUSTED_PROXY_CIDRS` network
-- Forwarded values are normalized to a bare IP before fingerprinting
-- Invalid/opaque values such as `unknown` are rejected
-- IPv4-mapped IPv6 is normalized back to IPv4 before family/network/block derivation
-
-### 9. Credential/Network Telemetry Privacy
-
-**Threat**: External validation telemetry leaks raw API credentials or raw source addresses.
-
-**Mitigations**:
-- HMAC-SHA256 fingerprinting occurs locally under a customer-held tenant salt
-- Only the first 32 lowercase hexadecimal characters are emitted
-- Exact address, network, and block values are fingerprinted separately
-- Raw credentials and raw IP addresses are not written to the event output
-- Static transport mapping is implemented; live baseline and external alert-quality results are not assumed by the local implementation
-
-### 10. Tool Schema Drift
-
-**Threat**: MCP server silently changes tool definitions to expand capabilities or alter parameters.
-
-**Mitigations**:
-- Tool manifest integrity checking
-- Behavioral drift detection
-- Canary validation probes
-
----
-
-## Failure Modes
-
-| Component | Failure Mode | Security Impact | Mitigation |
-|---|---|---|---|
-| Detector | Unavailable | Requests uninspected | Circuit breaker → DENY |
-| Policy engine | Unavailable | No policy decision | Circuit breaker → DENY |
-| Audit logger | Unavailable | Audit gap | Inspection continues, gap logged |
-| Downstream MCP server | Crash | Connection error | Error propagates to caller |
-| Rate limiter | Exhausted | Requests rejected | Operational endpoints exempt |
-| Configuration | Missing API credentials | Auth bypass risk | Protected requests rejected; production config fails validation when no valid credential set is configured |
-
----
-
-## Scope Limitations
-
-1. **Not a network firewall**: Egress policy returns decisions but does not intercept packets.
-2. **Not an OS-level sandbox**: Process-event evaluation requires externally supplied events.
-3. **Not a complete DLP solution**: PII detection is heuristic, not exhaustive.
-4. **Detection is heuristic**: False positives and false negatives are possible.
-5. **Enforcement is external**: The integrating runtime must honor returned decisions.
-6. **Single-process trust**: The gateway trusts its own process memory and configuration.
-7. **Trusted-edge dependency**: Correct forwarded-source attribution depends on operator-controlled infrastructure actually overwriting/sanitizing forwarded headers.
-8. **Telemetry validation boundary**: Local event generation does not prove external ingestion correctness, live-baseline quality, or alert efficacy.
-
----
-
-## Related Documents
-
-- [`SECURITY.md`](SECURITY.md) — Security policy and vulnerability reporting
-- [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md) — Security review and validation notes
-- [`README.md`](README.md) — Architecture, failure semantics, and operational guidance
+A policy ALLOW does not prove downstream success; a successful CI run does not prove security effectiveness. The workbench outcome/receipt tests cover named bounded cases. Representative adversarial/benign evaluation, current-protocol conformance, authenticated identity lifecycle, arbitrary server containment, durable external effects, audit anchoring, load/abuse isolation and deployment-specific review remain release gates. No live incident reduction, universal prevention or production approval is claimed.

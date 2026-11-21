@@ -1,3 +1,5 @@
+> **Separate optional integration.** This is not the local execution workbench. Deployment commands and older service observations below have not been executed for the current documentation head. No public deployment or production approval is established. See [evidence status](../docs/EVIDENCE.md).
+
 # Detection Engineering Lab
 
 Lab environment for practicing detection engineering against MCP agent security events.
@@ -115,7 +117,10 @@ The lab requires a locally generated `MCP_API_KEY`; the formerly shared key has 
 # committed demonstration key: it remains visible in Git history.
 export MCP_API_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
 
-# Optionally persist a newly generated lab-only credential outside the repository:
+# Optional persistence requires a writable native HOME; in a managed read-only
+# environment choose an operator-owned writable config directory instead.
+# Do not override HOME or change shared filesystem permissions.
+# Persist a newly generated lab-only credential outside the repository:
 umask 077
 mkdir -p "$HOME/.config/mcp-gateway"
 printf '%s' "$MCP_API_KEY" > "$HOME/.config/mcp-gateway/detection-lab-key"
@@ -181,11 +186,7 @@ for m in matches:
 
 ## Elastic Detection Rules
 
-Import `detection_rules/elastic_rules.toml` into Kibana:
-
-```
-Kibana > Security > Rules > Import rules
-```
+The repository TOML is a source format, not a Kibana import artifact. Convert/review it as compatible detection-rule NDJSON before using Kibana > Security > Rules > Import rules. No conversion/import command is verified by this documentation pass.
 
 Or use the Elastic Detection Rules API:
 

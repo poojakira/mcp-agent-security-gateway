@@ -1,9 +1,9 @@
 # Policy-as-Code & Enforcement (Gap 2)
 
 This gateway expresses MCP tool-call authorization as **policy-as-code** in two
-parallel implementations that are kept in parity:
+implementations with intended parity:
 
-1. A **pure-Python fail-closed Policy Decision Point (PDP)** — the **VERIFIED** path.
+1. A **pure-Python fail-closed Policy Decision Point (PDP)** — the **Python-tested** path.
 2. A set of **Rego policies for OPA** — the **UNVERIFIED (needs-opa)** path.
 
 Both encode the same three controls:
@@ -21,12 +21,12 @@ unparseable input yields a DENY, never an ALLOW.
 
 ---
 
-## ✅ VERIFIED — Python PDP
+## Python PDP and test scope
 
 **Source:** `src/mcp_monitor/policy/policy_engine.py`
 **Tests:** `tests/test_policy_enforcement.py`
 
-Verified in this environment with the repo venv:
+Historical focused invocation recorded by earlier documentation (not a current-head run):
 
 ```text
 .\.venv\Scripts\python.exe -m pytest tests/test_policy_enforcement.py -q
@@ -43,7 +43,7 @@ All checks passed!
 
 ### What the tests prove
 
-The suite proves **enforcement**, not merely decision-making. A
+The suite checks forwarding/denial behavior through a controlled transport. A
 `FakeDownstreamTransport` exposes `send`/`receive` as mocks and an
 `EnforcingGateway` forwards downstream **only** on ALLOW:
 
@@ -88,7 +88,7 @@ opa test policy/rego -v
 |------|------|------|
 | Python PDP package init | source | `src/mcp_monitor/policy/__init__.py` |
 | Python fail-closed PDP | source | `src/mcp_monitor/policy/policy_engine.py` |
-| Enforcement + PDP tests | test (VERIFIED) | `tests/test_policy_enforcement.py` |
+| Enforcement + PDP tests | test (covered by Python regression) | `tests/test_policy_enforcement.py` |
 | Tool authorization policy | Rego | `policy/rego/tool_authorization.rego` |
 | Egress control policy | Rego | `policy/rego/egress.rego` |
 | Tool authorization tests | Rego test (UNVERIFIED) | `policy/rego/tool_authorization_test.rego` |

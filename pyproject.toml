@@ -13,6 +13,7 @@ authors = [{ name = "Pooja Kiran" }]
 dependencies = ["tomli>=2.0; python_version < '3.11'"]
 
 [project.scripts]
+mcp-workbench = "mcp_monitor.workbench.__main__:main"
 mcp-gateway = "mcp_monitor.production.server:main"
 mcp-identity-shipper = "mcp_monitor.production.identity_shipper:main"
 
@@ -33,6 +34,12 @@ server = ["fastapi>=0.100", "uvicorn[standard]>=0.20"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"mcp_monitor.workbench" = ["*.html", "*.js", "*.css"]
+
+[tool.setuptools.data-files]
+"share/mcp-monitor/detection-rules" = ["detection_rules/elastic_rules.toml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

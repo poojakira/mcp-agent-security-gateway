@@ -73,8 +73,8 @@ End card:
 
 > **MCP Agent Security Gateway**  
 > Default-deny agent-to-tool security  
-> 723 passing tests · 81.91% statement coverage · 9 Elastic rules · 21 SIEM tests
+> Bounded local policy/audit/ECS demonstration · see docs/EVIDENCE.md for source-scoped results
 
 ## Claim boundary
 
-This demonstration proves the selected policy, audit, and ECS-formatting paths execute as shown. It is not a customer deployment, independent penetration test, universal SSRF-prevention claim, or proof that traffic bypassing the gateway is protected.
+When freshly executed, this demonstration exercises selected policy, audit and ECS-formatting paths. It does not launch an actual downstream MCP tool; the browser workbench provides that separate fixture execution path. It is not a customer deployment, independent penetration test, universal SSRF-prevention claim, or proof that traffic bypassing the gateway is protected.

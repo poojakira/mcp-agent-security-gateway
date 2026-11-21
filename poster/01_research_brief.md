@@ -1,3 +1,5 @@
+> **Historical research poster, October 14, 2026 UTC.** Its measurements apply to source `f1f226feb0d527f27b90081806d7e9bd90ba0574` and the [associated GitHub Actions run](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461). See the [later candidate manifest](https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/4f83f01a3ed8aca5639143fe2179afb0f864f46e/release-evidence/manifest.json) for separately scoped local verification.
+
 # Research Brief - Poster 01
 
 > Evidence status: Refreshed against code snapshot `f1f226feb0d527f27b90081806d7e9bd90ba0574` and successful GitHub Actions CI run `38502413461` on 2026-10-14 UTC. The quantitative claims below are tied to that code snapshot. Do not generalize benchmark or test results beyond their stated scope.
@@ -30,7 +32,7 @@ LLM agents can turn untrusted natural-language context into structured tool call
 4. Return allow/block decisions using path-specific enforcement semantics.
 5. Record hash-chained audit evidence and SIEM-oriented telemetry.
 
-## Verified Evidence at Cited Snapshot
+## Evidence
 
 GitHub Actions CI on Python 3.12 at the poster snapshot `f1f226feb0d527f27b90081806d7e9bd90ba0574` (CI run `38502413461`) reports:
 
@@ -42,9 +44,9 @@ GitHub Actions CI on Python 3.12 at the poster snapshot `f1f226feb0d527f27b90081
 - **9** Elastic `[[rule]]` records.
 - **21** core SIEM tests plus **12** SIEM scenario-runner tests.
 
-## October 2026 detector update (now merged into main)
+## Detector inventory at the October 2026 source
 
-The 69-entry named runtime prompt-injection signature list is the current main-branch implementation at commit `f1f226feb0d527f27b90081806d7e9bd90ba0574`. The full CI run `38502413461` validates all 782 tests against this implementation. A small development-only probe exercised attack and benign text, but the committed assertions do **not** establish a reproducible benign-positive count for the cited CI snapshot. Accordingly, this poster does **not** claim a numerical detection rate or false-positive rate from that probe. Neither CI test completion nor signature inventory establishes held-out recall, population-level precision, or customer-deployment efficacy.
+The 69-entry named runtime prompt-injection signature list is the implementation at the cited poster source at commit `f1f226feb0d527f27b90081806d7e9bd90ba0574`. The full CI run `38502413461` validates all 782 tests against this implementation. A small development-only probe exercised attack and benign text, but the committed assertions do **not** establish a reproducible benign-positive count for the cited CI snapshot. Accordingly, this poster does **not** claim a numerical detection rate or false-positive rate from that probe. Neither CI test completion nor signature inventory establishes held-out recall, population-level precision, or customer-deployment efficacy.
 
 A separate five-case synthetic policy-enforcement check denied 5/5 disallowed calls against a deliberately pass-through comparator, **not** a measured reduction in incidents or unauthorized execution attempts in the field. A comparison of the earlier 12-signature and 55-signature detectors on 15 familiar positive fixtures found **0 percentage-point recall difference**, because both detected all 15. The 14 additional signatures (beyond the earlier 55) have not been independently validated against unseen data. The IAM Guard's five-case synthetic check detected 5/5 deliberately vulnerable cases, but also produced a finding on one nominally benign read policy (AIG007); it is **not** evidence of general IAM recall or precision.
 
@@ -63,7 +65,7 @@ The Cerberus pilot, persistent identities, baseline, deployment and transport co
 ```powershell
 git clone https://github.com/poojakira/mcp-agent-security-gateway.git
 cd mcp-agent-security-gateway
-git checkout c75c52db
+git checkout f1f226feb0d527f27b90081806d7e9bd90ba0574
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev,server]"
@@ -77,7 +79,7 @@ Expected at the cited snapshot: **782 passed**, **81.93%** statement coverage.
 
 - GitHub Actions CI run `38502413461`
 - `VERIFIED_METRICS.md`
-- `evidence/mcp_replay_evidence.json`
+- `evidence/generated/mcp_replay_evidence.json`
 - `detection_rules/elastic_rules.toml`
 - `tests/test_siem.py`
 - `tests/test_siem_scenarios.py`

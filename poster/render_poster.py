@@ -237,7 +237,7 @@ def main() -> int:
           {sec("Method", method)}
         </div>
         <div class="col">
-          {sec("Current Verified Evidence", evidence, "evidence")}
+          {sec("Evidence for cited source", evidence, "evidence")}
           {sec("Reproducibility", repro)}
         </div>
         <div class="col">

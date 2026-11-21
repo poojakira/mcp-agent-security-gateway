@@ -1,4 +1,34 @@
-# Changelog
+# Documentation reconciliation — unreleased
+
+## 2026-11-18 — Architecture, selected branches and free notebook access
+
+- Included guided fixtures in the Docker builder regression; retained truthful UNKNOWN provenance when Git metadata is absent and kept fixtures out of the final runtime image.
+- Added detailed component/trust-boundary and execution-sequence diagrams, verified against named source symbols and actual limits.
+- Added source-resolving, synthetic-only inline Colab notebooks that call the canonical engine, with local equivalent runners and explicit hosted-runtime limits.
+- Retired nonselected branches only after exact-tip recovery tags/private verified backups; retained main and the reviewed candidate without merging unreviewed work.
+- Updated README testing/evidence links and kept all production, independent-review, privacy and operational blockers explicit. No provider key or paid resource is used by this workflow.
+
+
+- Consolidate current local workflow, API, security, operations, release and developer guidance around actual fixture execution.
+- Distinguish the prior 829-test implementation-source proof from pending later-head results; publish immutable evidence without an evidence branch.
+- Date historical/poster/native/lab assertions, remove unsupported effectiveness/certification/SLA claims, and record every tracked document's disposition.
+- Correct API/module, dependency, rule-count, build-probe and deployment-scope drift; preserve legal and raw historical records.
+- Record completed safe branch cleanup while retaining active/unique work. Update only a documentation-renderer heading and build-comment label outside prose; no runtime, security-gate, software release or deployment change.
+
+# Local workbench candidate — unreleased
+
+- Add a loopback browser request editor connected to the existing MCP proxy and policy engine.
+- Add constrained first-party stdio tool execution, independent state observations, redacted exports and actual crash/repeat checks.
+- Fix independently reproduced Python 3.10 timeout handling, unrelated-repository source attribution, and omitted repeat-count evidence.
+- Fix the browser CI workflow's unavailable job-level context, validate expressions with pinned actionlint, and check out the exact candidate head for generated evidence.
+- Install Git in the Docker builder for actual provenance regression fixtures; retain all regression assertions.
+- Move current screenshots to generated source-scoped evidence; do not publish a dirty implementation preview as candidate evidence.
+- Preserve advanced security branches; no production release or current legacy metrics claimed.
+- Normalize five pre-existing documentation trailing line endings under the existing Git attributes.
+
+# Historical changelog
+
+Entries below are preserved project history. Their test counts, coverage and verification language describe earlier snapshots and do not attest to the local workbench candidate. Where an accessible run cannot be recovered, those historical verification claims remain NOT VERIFIED.
 
 ## Unreleased
 

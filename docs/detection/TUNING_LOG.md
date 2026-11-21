@@ -1,3 +1,5 @@
+> **Historical/source-bounded record.** Statements, metrics and commands below describe the cited earlier snapshot or author-recorded observations. They are not execution evidence for the current documentation head or production approval. External chronology/deployment/benchmark assertions have not been independently revalidated in this pass. See [current evidence status](../EVIDENCE.md).
+
 # Detection Rule Tuning Log
 
 This log records deliberate tuning decisions for the correlation rules in
@@ -59,15 +61,9 @@ default used by `CorrelationEngine` and `CORRELATION_RULE.window_seconds`).
 **After:** `window_seconds = 120` (2 minutes) on the rule itself.
 
 **Rationale:**
-COR-002 models a *causal* chain: a prompt-injection attempt that then drives a
-process-spawn / privilege-escalation attempt. In a genuine indirect-injection
-exploit these stages occur back-to-back within the same agent turn or a few
-follow-up tool calls — seconds to low tens of seconds apart. A 5-minute window
-would allow an unrelated injection attempt and an unrelated later escalation in
-the same session to be stitched into a false chain.
+COR-002 models a temporal sequence of supplied injection and escalation signals, not proof that one caused the other. The shorter window is a design hypothesis intended to reduce unrelated pairings; this historical fixture set does not establish real attack timing or an operational false-positive reduction.
 
-Shortening to 120s keeps comfortable headroom over realistic multi-tool
-latency while cutting the opportunity for coincidental pairing. The window
+The configured 120-second window bounds which supplied events can be paired. The window
 logic is enforced in `CorrelationRule.evaluate` via
 `time_span = matched[-1].timestamp - matched[0].timestamp` compared against
 `window_seconds`, and is exercised by `test_siem.py::test_window_expiry`, which
@@ -75,8 +71,7 @@ confirms events outside the window do not correlate.
 
 **Net effect on fixtures:** the `mal-cor002` fixture places the escalation 5s
 after the injection — well inside 120s — so COR-002 still fires (recall = 1.0),
-while the tighter bound reduces cross-session/coincidental FP risk on real
-telemetry.
+while any effect on real-telemetry false positives remains unverified.
 
 ---
 

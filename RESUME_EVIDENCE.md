@@ -1,11 +1,5 @@
-# Resume Evidence
+# Evidence for application material
 
-The maintained evidence file moved to [docs/evidence/RESUME_EVIDENCE.md](docs/evidence/RESUME_EVIDENCE.md).
+The frozen application snapshot is preserved in [docs/evidence/RESUME_EVIDENCE.md](docs/evidence/RESUME_EVIDENCE.md). Current verification procedure and explicitly source-scoped implementation results are in [docs/EVIDENCE.md](docs/EVIDENCE.md) and [VERIFIED_METRICS.md](VERIFIED_METRICS.md).
 
-This compatibility file remains in place so existing resume, portfolio, and external links do not break.
-
-
-## Latest quantified verified headline
-
-See the maintained evidence file for details. The current authoritative verification snapshot is **782 passing tests** at **81.93% statement coverage** (October 13, 2026 hosted Linux CI run [38462601803](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38462601803), commit `c75c52db`). The earlier 723/81.91% and 707/82.85% snapshots remain historical evidence. External validation pilot completion is not yet a supported résumé claim.
-
+Do not describe historical test counts as current after a new commit. Public source, reproducible bounded tests and a working browser workflow support the named engineering claims. They do not establish external pilot completion, production efficacy, independent penetration testing, uptime or incident-response improvements.

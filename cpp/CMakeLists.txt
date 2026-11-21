@@ -1,5 +1,5 @@
 # C++ port of the MCP stdio proxy inspection core (Gap 5 companion to ../rust).
-# STATUS: VERIFIED via a g++ Docker image (see cpp/README.md).
+# Alternative build; see README.md for exact-source validation status.
 cmake_minimum_required(VERSION 3.16)
 project(mcp_inspect_cpp CXX)
 

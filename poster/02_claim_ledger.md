@@ -1,6 +1,8 @@
+> **Historical research poster, October 14, 2026 UTC.** Its measurements apply to source `f1f226feb0d527f27b90081806d7e9bd90ba0574` and the [associated GitHub Actions run](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461). See the [later candidate manifest](https://raw.githubusercontent.com/poojakira/mcp-agent-security-gateway/4f83f01a3ed8aca5639143fe2179afb0f864f46e/release-evidence/manifest.json) for separately scoped local verification.
+
 # Claim Ledger - Poster 01
 
-> Current verified main snapshot: `f1f226feb0d527f27b90081806d7e9bd90ba0574`. [Python 3.12 CI run 38502413461](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461) (October 14, 2026 UTC); distinct from the archived October 4 poster values below.
+> Historical poster snapshot: `f1f226feb0d527f27b90081806d7e9bd90ba0574`. [Python 3.12 CI run 38502413461](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/38502413461) (October 14, 2026 UTC); distinct from the archived October 4 poster values below.
 
 Classification key: VERIFIED_AT_SNAPSHOT / PARTIAL / UNVERIFIED / UNSUPPORTED.
 
@@ -17,10 +19,14 @@ Classification key: VERIFIED_AT_SNAPSHOT / PARTIAL / UNVERIFIED / UNSUPPORTED.
 | 9 | Population-level detector precision or recall | UNVERIFIED | No independent representative labeled benchmark |
 | 10 | Production uptime, SLOs or live-SOC deployment | UNSUPPORTED | No field deployment evidence in cited run |
 
-## Archived October 4, 2026 evidence (not this poster's current metric row)
+## Archived October 4, 2026 evidence (not this poster's cited metric row)
 
-Code `008775c8878cc70c50247baa223da3256e093316`, [run 37184196303](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303): **723 passed, 81.91% statement coverage, 55 named prompt-injection signatures**. These numbers remain historical and must not be paired with the current CI values as one run.
+Code `008775c8878cc70c50247baa223da3256e093316`, [run 37184196303](https://github.com/poojakira/mcp-agent-security-gateway/actions/runs/37184196303): **723 passed, 81.91% statement coverage, 55 named prompt-injection signatures**. These numbers remain historical and must not be paired with the cited CI values as one run.
 
 ## Poster policy
 
 Only combine values from the same cited execution, with source-inventory and curated-fixture results expressly labeled as separate evidence. The Cerberus integration/pilot configuration and its detector effectiveness are outside the poster verification.
+
+## Interpretation
+
+The poster counts entries in the named prompt-injection collection at its source. Treat that count as a code inventory. It does not measure coverage of attack techniques, languages or production traffic.

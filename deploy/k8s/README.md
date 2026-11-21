@@ -1,3 +1,5 @@
+> **Separate optional integration.** This is not the local execution workbench. Deployment commands and older service observations below have not been executed for the current documentation head. No public deployment or production approval is established. See [evidence status](../../docs/EVIDENCE.md).
+
 # Kubernetes Deployment
 
 This directory contains a conservative single-replica deployment for the MCP

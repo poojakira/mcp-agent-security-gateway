@@ -1,3 +1,5 @@
+> **Historical/source-bounded record.** Statements, metrics and commands below describe the cited earlier snapshot or author-recorded observations. They are not execution evidence for the current documentation head or production approval. External chronology/deployment/benchmark assertions have not been independently revalidated in this pass. See [current evidence status](EVIDENCE.md).
+
 # Verification status — October 9, 2026
 
 PR #118 repaired the standalone Python import. PR #119 merged the missing incident-measurement script into the Docker builder stage; the runtime stage is unchanged.

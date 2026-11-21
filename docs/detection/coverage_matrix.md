@@ -1,3 +1,5 @@
+> **Historical/source-bounded record.** Statements, metrics and commands below describe the cited earlier snapshot or author-recorded observations. They are not execution evidence for the current documentation head or production approval. External chronology/deployment/benchmark assertions have not been independently revalidated in this pass. See [current evidence status](../EVIDENCE.md).
+
 # Detection Coverage Matrix
 
 > Coverage is measured against the set of ATT&CK techniques referenced by these rules. It does not imply coverage of the full ATT&CK matrix.
@@ -29,7 +31,7 @@
 
 ## Coverage summary
 
-- Every referenced ATT&CK technique is covered by at least one active rule.
+- Every listed technique is referenced by at least one rule in this historical mapping. A taxonomy reference does not establish operational detection coverage; the current ATT&CK classification and efficacy of each mapping were not independently revalidated in this pass.
 
 ### Operational rules without an ATT&CK mapping
 

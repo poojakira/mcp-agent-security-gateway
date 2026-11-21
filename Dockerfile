@@ -5,12 +5,15 @@ FROM ${PYTHON_BASE_IMAGE} AS builder
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc g++ libffi-dev libssl-dev \
+    gcc g++ git libffi-dev libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
 COPY tests ./tests
+# Guided notebook fixtures are required by the complete builder-stage regression.
+# They remain source-only and are not copied into the final runtime image.
+COPY demo ./demo
 # This source-only measurement helper is imported by a builder-stage regression test.
 # It is intentionally not copied into the runtime stage.
 COPY scripts/measure_incident_response.py ./scripts/measure_incident_response.py

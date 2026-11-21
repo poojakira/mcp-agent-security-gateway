@@ -30,17 +30,17 @@ opa check policy/rego          # type/compile check
 > The OPA binary is **not installed** in the environment where these files were
 > authored, so `opa test` has **not** been executed here. Do not treat the Rego
 > path as verified until you run the command above on a machine with OPA
-> installed. Install via <https://www.openpolicyagent.org/docs/latest/#running-opa>
+> installed. Install via <https://www.openpolicyagent.org/docs>
 > (e.g. `brew install opa`, `choco install opa`, or download the release binary).
 
 ## Parity with the Python PDP (the verified path)
 
 The same allow/deny logic is implemented in pure Python at
 [`src/mcp_monitor/policy/policy_engine.py`](../../src/mcp_monitor/policy/policy_engine.py).
-That Python Policy Decision Point (PDP) **is** covered by pytest
-(`tests/test_policy_enforcement.py`) and is the authoritative, verified
-enforcement path in this repository. The Rego bundle exists for portability to
-an OPA-based control plane and is kept intentionally in parity:
+That Python Policy Decision Point (PDP) is covered by pytest
+(`tests/test_policy_enforcement.py`) and is the Python-tested
+policy path in this repository. The Rego bundle exists for portability to
+an OPA-based control plane and has intended parity; parity requires execution of both suites:
 
 * dangerous-tool denylist ↔ `DEFAULT_DANGEROUS_TOOLS`
 * server allowlist ↔ `allowed_servers`
