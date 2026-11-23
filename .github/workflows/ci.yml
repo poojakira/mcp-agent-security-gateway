@@ -293,7 +293,7 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           queries: +security-and-quality
-      - uses: github/codeql-action/analyze@c4dd10e44af883a891fe31ced449bcb4a6728b9b # v3
+      - uses: github/codeql-action/analyze@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v3
         with:
           category: "/language:${{ matrix.language }}"
 
