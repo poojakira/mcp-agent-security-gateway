@@ -5,6 +5,7 @@ All settings are read from os.environ with sensible defaults.
 
 from __future__ import annotations
 
+import math
 import os
 from hashlib import sha256
 
@@ -107,8 +108,14 @@ class Config:
             errors.append("MCP_ALLOWED_SERVERS must contain at least one approved server")
         if self.rate_limit_rpm <= 0:
             errors.append("MCP_RATE_LIMIT_RPM must be greater than zero")
-        if self.max_payload_kb <= 0:
-            errors.append("MCP_MAX_PAYLOAD_KB must be greater than zero")
+        if not math.isfinite(self.max_payload_kb) or self.max_payload_kb <= 0:
+            errors.append("MCP_MAX_PAYLOAD_KB must be finite and greater than zero")
+        if not 1 <= self.listen_port <= 65535:
+            errors.append("MCP_LISTEN_PORT must be between 1 and 65535")
+        if self.circuit_breaker_threshold <= 0:
+            errors.append("MCP_CIRCUIT_BREAKER_THRESHOLD must be greater than zero")
+        if not math.isfinite(self.circuit_breaker_timeout) or self.circuit_breaker_timeout <= 0:
+            errors.append("MCP_CIRCUIT_BREAKER_TIMEOUT must be finite and greater than zero")
         if self.webhook_url and not self.webhook_url.lower().startswith("https://"):
             errors.append("MCP_WEBHOOK_URL must use HTTPS in production")
         if errors:
